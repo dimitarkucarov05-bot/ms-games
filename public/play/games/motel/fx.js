@@ -7,6 +7,7 @@ const KINDS = {
   gore: { color: 0x9a1418, size: 0.055, g: 9, life: 0.9 },
   dirt: { color: 0x4a4238, size: 0.04, g: 9, life: 0.6 },
   spark: { color: 0xffc860, size: 0.02, g: 4, life: 0.25 },
+  dust: { color: 0x8d8576, size: 0.03, g: 2.5, life: 0.5 },      // детски режим: прах от дрехите вместо кръв
 };
 
 export function createFx(ctx) {
@@ -88,7 +89,9 @@ export function createFx(ctx) {
   for (let i = 0; i < SHARDS; i++) { const m = new THREE.Mesh(shardGeo, shardMats.blood); m.visible = false; group.add(m); shards.push({ m, vel: new THREE.Vector3(), spin: new THREE.Vector3(), life: 0, max: 1, size: 0.03, g: 9 }); }
   let shardI = 0;
   /** Пръска n парчета от точка; dir (по избор) е посоката на куршума: парчетата летят по нея и настрани. */
+  let kids = false;      // детски режим: без кръв и парчета, само малко прах
   function burst(pos, kind = 'blood', n = 5, speed = 2, dir = null) {
+    if (kids && (kind === 'blood' || kind === 'gore')) { kind = 'dust'; n = Math.min(4, Math.ceil(n / 3)); speed *= 0.6; }
     const d = KINDS[kind] || KINDS.blood;
     for (let i = 0; i < n; i++) {
       const s = shards[shardI++ % shards.length];
@@ -187,5 +190,5 @@ export function createFx(ctx) {
     for (const m of [flashMat, tracerMat, casingMat, ring.material, veil.material, ...Object.values(shardMats)]) m.dispose();
   }
 
-  return { flash, tracer, burst, casing, hurt, vitals, dim, update, dispose, get lowBeat() { return hp < 40 && !downK ? beat : -1; } };
+  return { flash, tracer, burst, casing, hurt, vitals, dim, update, dispose, setKids(on) { kids = !!on; }, get lowBeat() { return hp < 40 && !downK ? beat : -1; } };
 }

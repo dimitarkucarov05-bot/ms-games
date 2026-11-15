@@ -30,6 +30,7 @@ export async function createScene(ctx, start) {
 
   const audio = createAudio(ctx);
   const fx = createFx(ctx);
+  if (start.kids) { fx.setKids(true); audio.setSoft(true); }      // детски режим: без кръв, по-тихи писъци
   const zombies = await createZombies(ctx, start, A, fx, audio);
   if (typeof world?.floorY === 'function') zombies.setFloor((x, z) => { try { return world.floorY(x, z); } catch { return 0; } });
   const weapons = await createWeapons(ctx, start, A, fx, audio, zombies);
@@ -59,11 +60,11 @@ export async function createScene(ctx, start) {
     return { dispose() { root.remove(g); ground.geometry.dispose(); ground.material.dispose(); scene.fog = before.fog; ctx.lights.hemi.intensity = before.hemiI; ctx.lights.hemi.color.setHex(before.hemiC); ctx.lights.sun.intensity = before.sunI; ctx.lights.sun.color.setHex(before.sunC); } };
   }
 
-  const WAVE_NAMES = ['First contact', 'They keep coming', 'The rush', 'Blackout', 'The run'];
+  const WAVE_NAMES = start.waveNames || ['First contact', 'They keep coming', 'The rush', 'Blackout', 'The run'];
   const CLEAR_TIPS = ['New guns on the table', 'A chainsaw waits by the crate', 'Shoot the red barrels', 'Last wave. Nail the gates'];
   let breachSaid = -99, waveSaid = 0;
   // ── състоянието от сървъра ──
-  let snap = null, lastEvent = 0, time = 0, born = null, over = false, lastPhase = '', wasDown = false;      // born: часовникът на страницата при първия кадър на играта
+  let snap = null, lastEvent = 0, time = 0, born = null, over = false, lastPhase = '', wasDown = false, paused = false;      // born: часовникът на страницата при първия кадър на играта
   const myId = () => ctx.me.id;
   // ── подготовката: три едри реда какво се прави (масата, портите, презареждането); без табла и стрелки ──
   const BRIEF = [[0.06, 'TAKE A WEAPON', 'Lower your hand over one by the chest'], [0.36, 'NAIL THE GATES', 'Hold your hand at the planks'], [0.68, 'RELOAD', 'Point the barrel at the ground']];
@@ -75,8 +76,17 @@ export async function createScene(ctx, start) {
     const done = 1 - Math.max(0, Math.min(1, (s.next || 0) / brief0));
     while (briefN < BRIEF.length && done >= BRIEF[briefN][0]) { const b = BRIEF[briefN++]; hud.title(b[1], b[2], Math.min(5.5, brief0 * 0.27)); }
   }
+  /** Пауза от пулта: светът притъмнява, звукът заглъхва, зомбитата замръзват насред крачка, ръцете трепват веднъж. */
+  function setPaused(on) {
+    if (on === paused) return;
+    paused = on;
+    try { audio.pause(on); } catch { /* без звук */ }
+    if (!over) fx.dim(on ? 0.5 : 0);
+    ctx.haptic('l', 0.5, on ? 120 : 60); ctx.haptic('r', 0.5, on ? 120 : 60);
+  }
   function onSnapshot(s) {
     snap = s;
+    setPaused(!!s.paused && !s.result);
     try { brief(s); } catch { /* без подсказки играта пак върви */ }
     zombies.sync(s.z);
     weapons.onSnapshot(s);
@@ -157,7 +167,7 @@ export async function createScene(ctx, start) {
       case 'take': { try { chest.taken(e); } catch { /* оръжието пак изчезва със следващото състояние */ } if (e.p === myId()) audio.pickup(); return; }
       case 'offer': return;      // сандъкът го вижда сам в състоянието (chest.onSnapshot)
       case 'spent': if (e.p === myId()) audio.dry(); return;
-      case 'chance': hud.title('SECOND CHANCE', '', 2.6); return;
+      case 'chance': if (e.free !== 0) hud.title('SECOND CHANCE', '', 2.6); return;      // без втори шанс всеки става по своето време
       // портите: удар по дъските, пробив, коване
       case 'bang': { const g = gateAt(e.g); try { world?.event?.(e); } catch { /* само звук */ } if (g) { if (e.left > 0 && !e.big) audio.bang(g.x, g.z); else audio.crack(g.x, g.z, !!e.big); } return; }
       case 'breach': {
@@ -191,11 +201,11 @@ export async function createScene(ctx, start) {
     if (born === null) born = t;
     if (debug.bot) botAim();
     weapons.update(dt, t);
-    if (debug.bot) botFire(dt);
-    zombies.update(dt, t);
+    if (debug.bot && !paused) botFire(dt);
+    if (!paused) zombies.update(dt, t);      // в пауза телата замръзват насред движението
     fx.update(dt, t);
     hud.update(dt);
-    try { chest.update(dt); } catch { /* без сандъка играта пак върви */ }
+    if (!paused) try { chest.update(dt); } catch { /* без сандъка играта пак върви */ }
     audio.update(dt, ctx.head, fx.lowBeat);
     try { world?.update?.(dt, t); } catch (e) { if (!worldError) { worldError = String(e?.message || e); console.warn('[motel] world.update', e); } }
   }

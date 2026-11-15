@@ -11,9 +11,10 @@ const FALLBACK_BASE = '/play/assets/synty/_characters/';
 export const ST = { walk: 0, attack: 1, stagger: 2, dead: 3, scream: 4, rise: 5 };
 const ARM = /^(clavicle|upperarm|lowerarm|hand|thumb|indexfinger|finger)_/;
 const NATURAL = { walk: 1.45, run: 3.2 };      // с каква скорост върви клипът при нормален темп (м/с), ако описът не казва
-const CORPSE_TIME = 2.6, SINK_TIME = 1.4, MAX_CORPSES = /Quest 2/.test(globalThis.navigator?.userAgent || '') ? 5 : 8;
+const CORPSE_TIME = 2.6, SINK_TIME = 1.4, FADE_AT = 1.3, FADE_TIME = 0.9, MAX_CORPSES = /Quest 2/.test(globalThis.navigator?.userAgent || '') ? 5 : 8;
 
 export async function createZombies(ctx, start, A, fx, audio) {
+  const kids = !!start.kids;      // детски режим: без пукнати глави, телата изчезват
   const { THREE, root } = ctx;
   const quest = /Quest/.test(navigator.userAgent);
   const types = start.types || ['walker', 'runner', 'screamer', 'boss'];
@@ -168,7 +169,24 @@ export async function createZombies(ctx, start, A, fx, audio) {
     group.add(b.g);
     return b;
   }
+  /** Детски режим: тялото изтънява и изчезва. Материалите са общи, затова гаснещото тяло получава свои копия. */
+  function fadeable(b) {
+    if (b.faded) return;
+    b.faded = [];
+    b.body.traverse(o => {
+      if (!o.isMesh) return;
+      const m0 = o.material, m = Array.isArray(m0) ? m0.map(x => x.clone()) : m0.clone();
+      for (const x of [].concat(m)) { x.transparent = true; x.opacity = 1; }
+      b.faded.push([o, m0, m]); o.material = m;
+    });
+  }
+  function fadeTo(b, k) { for (const [, , m] of b.faded || []) for (const x of [].concat(m)) x.opacity = k; }
+  function unfade(b) {
+    for (const [o, m0, m] of b.faded || []) { o.material = m0; for (const x of [].concat(m)) x.dispose(); }
+    b.faded = null;
+  }
   function release(b) {
+    unfade(b);
     b.mixer.stopAllAction(); b.cur = null; b.arms = null;
     group.remove(b.g);
     if (!pool.has(b.name)) pool.set(b.name, []);
@@ -333,6 +351,7 @@ export async function createZombies(ctx, start, A, fx, audio) {
     }
     if (key) play(b, key, { once: true, fade: 0.06, scale: rec.type === 'boss' ? 0.8 : 1.15, restart: true });
     else { b.mixer.stopAllAction(); b.cur = null; rec.fall = 0.001; }      // без клип за смърт: пада назад като дъска
+    if (kids) fadeable(b);
     corpses.push(rec);
     while (corpses.length > MAX_CORPSES) { const old = corpses.shift(); if (!old.gone) old.sink = Math.max(old.sink, 0.001), old.deadAt = Math.min(old.deadAt, clock - CORPSE_TIME); }
   }
@@ -393,11 +412,13 @@ export async function createZombies(ctx, start, A, fx, audio) {
     rec.local = 0; rec.deadAt = 0; rec.popped = false; rec.state = -1; rec.fall = 0;
     if (rec.b.head) rec.b.head.scale.setScalar(1);
     rec.b.g.rotation.x = 0;
+    unfade(rec.b);
     const i = corpses.indexOf(rec);
     if (i >= 0) corpses.splice(i, 1);
   }
   function pop(rec) {
     rec.popped = true;
+    if (kids) { fx.burst(rec.head, 'dust', 3, 1.2); return; }      // детски режим: главата остава, само малко прах
     if (rec.b.head) rec.b.head.scale.setScalar(0.001);
     fx.burst(rec.head, 'gore', 16, 3.2);
     audio.splat(rec.head);
@@ -459,7 +480,11 @@ export async function createZombies(ctx, start, A, fx, audio) {
       if (rec.deadAt) {
         const since = clock - rec.deadAt;
         if (rec.fall) { rec.fall = Math.min(1, rec.fall + dt * 2.2); b.g.rotation.x = -rec.fall * rec.fall * 1.5; }
-        if (since > CORPSE_TIME) {
+        if (kids && b.faded) {      // детски режим: пада, после изтънява и изчезва, без да остава тяло
+          const k = 1 - (since - FADE_AT) / FADE_TIME;
+          if (k < 1) fadeTo(b, Math.max(0, k));
+          if (k <= 0) { gone.push(rec); continue; }
+        } else if (since > CORPSE_TIME) {
           rec.sink += dt / SINK_TIME;
           b.g.position.y = (rec.fy || 0) - rec.sink * rec.sink * 1.2;
           if (rec.sink >= 1) { gone.push(rec); continue; }

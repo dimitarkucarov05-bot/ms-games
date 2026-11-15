@@ -143,17 +143,18 @@ test('всички паднали: групата се вдига пак и иг
   assert.ok(r.wipes >= 3, 'wipes ' + r.wipes);
   for (const k of ['score', 'money', 'stars', 'wave', 'kills', 'headshots', 'accuracy', 'downs']) assert.ok(Number.isFinite(r[k]), k);
   assert.equal(r.money, r.score);
-  assert.deepEqual(Object.keys(r.players[0]).sort(), ['downs', 'headshots', 'hits', 'kills', 'n', 'name', 'score', 'shots']);
+  assert.deepEqual(Object.keys(r.players[0]).sort(), ['boards', 'deaths', 'downs', 'headshots', 'hits', 'id', 'kills', 'n', 'name', 'score', 'shots']);
 });
 
-test('кошмар: без втори шанс, първото падане на цялата група е краят', () => {
+test('кошмар: без втори шанс, но и без край на играта: всеки се връща по своето време, групата губи точки', () => {
   const { g, run } = make({ difficulty: 'nightmare' });
   g.join('p1', { n: 1, name: 'Сам' }); g.pose('p1', poseAt());
-  let chances = 0;
-  const s = run(700, q => { if (q.events.some(e => e.k === 'chance')) chances++; });
-  assert.equal(chances, 0);
+  let free = 0, paid = 0, ups = 0;
+  const s = run(700, q => { for (const e of q.events) { if (e.k === 'chance') (e.free ? free++ : paid++); if (e.k === 'up') ups++; } });
+  assert.equal(free, 0, 'на кошмар няма безплатен втори шанс');
+  assert.ok(paid > 0 && ups > 0, `падания ${paid}, връщания ${ups}`);
   assert.equal(g.over, true);
-  assert.equal(s.result.reason, 'wiped');
+  assert.equal(s.result.reason, 'time', 'краят е по време, не заради падането');
   assert.equal(s.result.level, 'nightmare');
 });
 

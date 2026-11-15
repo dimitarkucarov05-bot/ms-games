@@ -21,7 +21,15 @@ export function createAudio(ctx) {
   } catch { ac = null; }
 
   function wake() { if (ac && ac.state !== 'running') ac.resume().catch(() => {}); }
-  const ok = () => ac && ac.state === 'running' && voices < MAX_VOICES;
+  let held = false, soft = 1;      // held: пауза (нищо ново не звучи); soft: детски режим (по-тихи писъци и удари)
+  const ok = () => ac && !held && ac.state === 'running' && voices < MAX_VOICES;
+  /** Пауза: звукът заглъхва за половин секунда и нищо ново не започва, докато играта стои. */
+  function pause(on) {
+    held = !!on;
+    if (!ac || !master) return;
+    const t = ac.currentTime;
+    master.gain.cancelScheduledValues(t); master.gain.setValueAtTime(master.gain.value, t); master.gain.linearRampToValueAtTime(on ? 0.0001 : 0.85, t + (on ? 0.5 : 0.8));
+  }
 
   /** Изход с посока: x, z в залата (null: в главата на играча). */
   function out(x, z, gain = 1) {
@@ -99,6 +107,7 @@ export function createAudio(ctx) {
   }
   function splat(pos) {
     if (!ok()) return;
+    if (soft < 1) return;      // детски режим: без жвакане
     const t = ac.currentTime, d = out(pos.x, pos.z, 1.2);
     noise(d, t, 0.22, { type: 'lowpass', f0: 1400, f1: 120, gain: 0.9 });
     tone(d, t, 0.14, { type: 'sine', f0: 240, f1: 60, gain: 0.5 });
@@ -107,7 +116,7 @@ export function createAudio(ctx) {
   function groan(x, z, type = 'walker') {
     if (!ok() || ac.currentTime - groanAt < 0.5) return;
     groanAt = ac.currentTime;
-    const t = ac.currentTime, d = out(x, z, type === 'boss' ? 1.6 : 0.9), dur = 0.7 + Math.random() * 0.8;
+    const t = ac.currentTime, d = out(x, z, (type === 'boss' ? 1.6 : 0.9) * soft), dur = 0.7 + Math.random() * 0.8;
     const f = (type === 'boss' ? 52 : type === 'runner' ? 120 : 82) * (0.85 + Math.random() * 0.3);
     // гърлен звук: трион през движеща се лента + малко дъх
     const filt = ac.createBiquadFilter();
@@ -127,7 +136,7 @@ export function createAudio(ctx) {
   }
   function scream(x, z) {
     if (!ok()) return;
-    const t = ac.currentTime, d = out(x, z, 1.4);
+    const t = ac.currentTime, d = out(x, z, 1.4 * soft);
     const filt = ac.createBiquadFilter(); filt.type = 'bandpass'; filt.Q.value = 6; filt.frequency.setValueAtTime(1500, t); filt.frequency.linearRampToValueAtTime(2600, t + 0.5); filt.frequency.linearRampToValueAtTime(1300, t + 1.8);
     filt.connect(d);
     tone(filt, t, 1.9, { type: 'sawtooth', f0: 520, f1: 760, gain: 0.9, attack: 0.05, vib: 60, vibHz: 28 });
@@ -136,7 +145,7 @@ export function createAudio(ctx) {
   /** Зомби удря мен. */
   function bite() {
     if (!ok()) return;
-    const t = ac.currentTime, d = out(null, null, 1.1);
+    const t = ac.currentTime, d = out(null, null, 1.1 * soft);
     noise(d, t, 0.14, { type: 'lowpass', f0: 700, f1: 90, gain: 1 });
     tone(d, t, 0.22, { type: 'sine', f0: 150, f1: 45, gain: 0.9 });
   }
@@ -244,5 +253,5 @@ export function createAudio(ctx) {
 
   function dispose() { try { ac?.close(); } catch { /* вече е затворен */ } ac = null; }
 
-  return { wake, shot, dry, reload, loaded, pickup, hit, splat, groan, step, scream, bite, down, up, siren, roar, clear, ending, bang, crack, hammer, boom, chop, saw, chest, clack, thunder, power, update, dispose, get state() { return ac ? ac.state : 'none'; } };
+  return { pause, setSoft(on) { soft = on ? 0.55 : 1; }, wake, shot, dry, reload, loaded, pickup, hit, splat, groan, step, scream, bite, down, up, siren, roar, clear, ending, bang, crack, hammer, boom, chop, saw, chest, clack, thunder, power, update, dispose, get state() { return ac ? ac.state : 'none'; } };
 }

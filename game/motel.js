@@ -15,7 +15,17 @@
 //   • Токът спира на някои вълни (RULES.dark): надписът и огньовете гаснат, остават фенерите.
 //   • Всяка вълна е по-бърза, а трудността се нагажда по отбора (heat): чиста вълна я вдига, паднал играч я сваля.
 //
-//   createGame(opts) → { start(), join(id, info), leave(id), pose(id, p), act(id, msg), tick(now), snapshot(), over }
+//   createGame(opts) → { start(), join(id, info), leave(id), pose(id, p), act(id, msg), tick(now), snapshot(), over,
+//                        pause(on, now), setDifficulty(level, now), stage(name, now), results() }
+//
+// opts (MS Games 2, research/ms-games-2-design.md, section 5):
+//   difficulty  'easy' | 'normal' | 'hard' | 'nightmare' (changeable live with setDifficulty)
+//   minutes     a cut from RULES.cuts (10 or 15); the 15-minute cut has one wave more and longer waves
+//   short       one wave fewer than the cut and shorter waves (mode 'short' does the same)
+//   kids        no blood, no gore, zombies fall and fade, softer sounds (theme 'kids' does the same)
+//   players     how many are expected (scales the first chest and the first wave before everyone has joined)
+//   options     the manifest's own options (OPTIONS below): barrels, blackout, boards, ammo, crowd, prep
+// Nobody gets a game over: a downed player comes back after 5 s plus 3 s for every death already in this wave (max 20 s).
 //
 // Действия от каската (act):
 //   { a: 'shot', hand, o: [x,y,z], d: [x,y,z], hits: [[idЗомби, част(0 тяло, 1 глава), бройСачми], …], bomb: номерНаВарел }
@@ -27,6 +37,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
+const DEV = process.env.ARENA_DEV === '1';      // пробният сървър: пултовите команди идват и от страницата (act { a: 'dev' })
 const fin = Number.isFinite;
 const r2 = v => Math.round(v * 100) / 100;
 const r3 = v => Math.round(v * 1000) / 1000;
@@ -35,8 +46,35 @@ const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 export const TYPES = ['walker', 'runner', 'screamer', 'boss'];
 export const STATE = { walk: 0, attack: 1, stagger: 2, dead: 3, scream: 4, rise: 5 };
 
+/**
+ * The operator's options for The Motel (the same list goes into motel.game.json `options`). Each is checked and clamped
+ * in readOptions; anything unknown or out of range falls back to the default.
+ */
+export const OPTIONS = [
+  { id: 'barrels', name: 'Fuel barrels', type: 'bool', default: true, description: 'Red barrels by the paths explode when shot' },
+  { id: 'blackout', name: 'Blackout wave', type: 'bool', default: true, description: 'The power fails on one wave: only flashlights and fires' },
+  { id: 'boards', name: 'Boards at start', type: 'range', default: 3, min: 0, max: 6, description: 'How many of the six planks are nailed on each gate when the game starts' },
+  { id: 'ammo', name: 'Unlimited ammo', type: 'bool', default: false, description: 'Guns from the chest never run dry (melee still wears out)' },
+  { id: 'crowd', name: 'Most zombies at once', type: 'range', default: 14, min: 6, max: 20, description: 'Upper limit of zombies alive together' },
+  { id: 'prep', name: 'Preparation', type: 'range', default: 30, min: 15, max: 60, description: 'Seconds to grab weapons and nail gates before wave 1' },
+];
+export function readOptions(o) {
+  const src = o && typeof o === 'object' ? o : {}, out = {};
+  for (const d of OPTIONS) {
+    const v = src[d.id];
+    if (d.type === 'bool') out[d.id] = typeof v === 'boolean' ? v : v === 1 || v === 'true' ? true : v === 0 || v === 'false' ? false : d.default;
+    else if (d.type === 'range') out[d.id] = Number.isFinite(+v) && v !== null && v !== '' ? Math.min(d.max, Math.max(d.min, Math.round(+v))) : d.default;
+    else out[d.id] = d.values?.includes(v) ? v : d.default;
+  }
+  return out;
+}
+
 export const RULES = {
   minutes: 10,
+  cuts: [10, 15],             // длъжините, които операторът избира; 15 минути имат една вълна повече и по-дълги вълни
+  // respawn ramp instead of game over: base seconds, plus `per` for every death already in this wave, at most `max`;
+  // guard: seconds after coming back when nothing can hurt the player
+  respawn: { base: 5, per: 3, max: 20, guard: 2 },
   fastDiv: 6,                 // кратката проба: времето върви шест пъти по-бързо
   intro: 30,                  // подготовка: заковават се портите и се взима оръжие; после идва първата вълна
   breakTime: 12,              // почивка между вълните: време да се избере оръжие и да се заковат портите
@@ -105,19 +143,21 @@ export const RULES = {
   // Варелите с гориво: r: радиус на взрива; boss: щета по шефа; max: най-много варели; ahead и aside: на колко метра преди
   // портата по пътя и колко встрани от него стоят.
   bombs: { r: 3.6, boss: 320, max: 3, ahead: 6, aside: 1.3 },
-  dark: [4],                  // на тази вълна токът спира
   faster: 0.035,              // всяка следваща вълна зомбитата са с толкова по-бързи (най-много +40%)
   // Вълните не растат равномерно: редуват се спокойни, тежки и бързи, за да има дъх и после удар. size: колко зомбита спрямо
   // основната бройка; gap: през колко излизат (по-малко е по-нагъсто); run: дял тичащи; creep: дял от тичащите, които бягат
   // ниско приведени с протегнати ръце; scream: пищящи; rest: колко дълга е почивката след вълната. Вълните са точно толкова,
   // колкото са редовете: след последната идва шефът (или най-късно на bossAt от времето).
   waves: [
-    { size: 1.4, gap: 1.6, run: 0, creep: 0, scream: 0, rest: 1 },          // 1 FIRST CONTACT: бавни, от всички страни, да се научат портите
-    { size: 1.7, gap: 2.2, run: 0.18, creep: 0, scream: 1, rest: 1.1 },     // 2 THEY KEEP COMING: повече, първите тичащи и една пищяща
-    { size: 1.5, gap: 1.0, run: 0.6, creep: 0.15, scream: 0, rest: 1.3 },   // 3 THE RUSH: внезапен щурм, повечето тичат
-    { size: 1.85, gap: 2.4, run: 0.15, creep: 0.5, scream: 2, rest: 1.3 },  // 4 BLACKOUT: тежка орда в тъмното
-    { size: 2.0, gap: 2.2, run: 0.85, creep: 0.95, scream: 2, rest: 1 },    // 5 THE RUN: почти всички бягат приведени към портите
+    { name: 'First contact', size: 1.4, gap: 1.6, run: 0, creep: 0, scream: 0, rest: 1 },               // бавни, от всички страни, да се научат портите
+    { name: 'They keep coming', size: 1.7, gap: 2.2, run: 0.18, creep: 0, scream: 1, rest: 1.1 },       // повече, първите тичащи и една пищяща
+    { name: 'The rush', size: 1.5, gap: 1.0, run: 0.6, creep: 0.15, scream: 0, rest: 1.3 },             // внезапен щурм, повечето тичат
+    { name: 'Blackout', size: 1.85, gap: 2.4, run: 0.15, creep: 0.5, scream: 2, rest: 1.3, dark: true }, // тежка орда в тъмното
+    { name: 'Dead of night', size: 1.9, gap: 1.7, run: 0.4, creep: 0.45, scream: 3, rest: 1.2 },        // само в 15-минутната: смесица, три пищящи
+    { name: 'The run', size: 2.0, gap: 2.2, run: 0.85, creep: 0.95, scream: 2, rest: 1 },               // почти всички бягат приведени към портите
   ],
+  // кои редове от waves се играят според броя вълни: 15 минути = 6, 10 минути = 5, кратката версия = една по-малко
+  plans: { 6: [0, 1, 2, 3, 4, 5], 5: [0, 1, 2, 3, 5], 4: [0, 2, 3, 5], 3: [0, 3, 5] },
   lead: 26,                   // толкова секунди преди края на подготовката първите тръгват от тъмното (но не стигат портите преди края ѝ)
   heat: { min: 0.75, max: 1.4, up: 0.1, down: 0.12 },      // нагаждане на трудността по отбора
 };
@@ -196,14 +236,23 @@ export function placeStand(zone, map, depth = 1.2, width = 2.1, inside = 0.45) {
 
 export function createGame(opts = {}) {
   const fast = !!opts.fast;
-  const level = Object.hasOwn(RULES.levels, opts.difficulty) ? opts.difficulty : 'normal', L = RULES.levels[level];
+  let level = Object.hasOwn(RULES.levels, opts.difficulty) ? opts.difficulty : 'normal', L = RULES.levels[level];
   const speed = fast ? RULES.fastDiv : 1;
   const S = sec => sec / speed;
   const rand = rng(fin(opts.seed) ? opts.seed : 1);
   const zone = zoneOf(opts);
   const map = opts.map === null ? null : (opts.map || readMap());
   let lanes = map?.lanes || null;
-  const T = RULES.minutes * 60 / speed;
+  // длъжина, кратка версия, детски режим, очакван брой играчи и настройките на оператора
+  const minutes = fin(+opts.minutes) && +opts.minutes > 0 ? RULES.cuts.reduce((b, c) => (Math.abs(c - opts.minutes) < Math.abs(b - opts.minutes) ? c : b), RULES.cuts[0]) : RULES.minutes;
+  const short = !!opts.short || opts.mode === 'short';
+  const kids = !!opts.kids || opts.theme === 'kids';
+  const expected = clamp(Math.round(+opts.players) || 0, 0, 8);
+  const OPT = readOptions(opts.options);
+  const plan = RULES.plans[clamp((minutes >= 15 ? 6 : 5) - (short ? 1 : 0), 3, 6)];
+  const stretch = short ? 0.85 : minutes >= 15 ? 1.25 : 1;      // по-дълги вълни в 15-минутната, по-кратки в кратката
+  const intro = OPT.prep;
+  const T = minutes * 60 / speed;
   const stand = placeStand(zone, map);
   // Барикадите вървят по очертанието на начертаната зона (обединението на стаите ѝ), на FENCE метра навън: оградата приляга
   // на границата, каквато и да е формата ѝ. edges: правите отсечки на оградата с нормала навън. fence: кутията около нея.
@@ -300,9 +349,9 @@ export function createGame(opts = {}) {
   }
   const pathLen = pts => { let l = 0; for (let i = 1; i < pts.length - 1; i++) l += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); return l; };      // до дъските
   const shortest = routes.length ? Math.min(...routes.map(r => pathLen(r.points))) : RULES.ring;
-  const lead = Math.min(S(RULES.lead), S(RULES.intro) - 0.5, shortest / (RULES.zombies.walker.speed * 1.24 * (fast ? 1.8 : 1)));
+  const lead = Math.min(S(RULES.lead), S(intro) - 0.5, shortest / (RULES.zombies.walker.speed * 1.24 * (fast ? 1.8 : 1)));
   // състоянието на портите: boards (заковани дъски), fix (докъде е стигнало коването на следващата), busy (някой кове)
-  const G = gates.map((g, i) => ({ ...g, i, tx: -g.nz, tz: g.nx, boards: Math.min(GT.boards, GT.start), fix: 0, busy: 0 }));
+  const G = gates.map((g, i) => ({ ...g, i, tx: -g.nz, tz: g.nx, boards: Math.min(GT.boards, OPT.boards), fix: 0, busy: 0 }));
   const gateOf = new Map(G.map(g => [g.id, g]));
   // Варелите с гориво: край пътищата, на няколко метра преди портата и встрани. Първо се търси място в разчистения квадрат
   // на картата (map.clear), за да не попадне варел в кола или дърво; ако зоната го е запълнила, и извън него.
@@ -326,7 +375,7 @@ export function createGame(opts = {}) {
     for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
     for (const lim of (fin(map?.clear) ? [map.clear - 0.7, Infinity] : [Infinity])) {
       for (const ri of order) {
-        if (bombs.length >= BOMB.max) break;
+        if (bombs.length >= (OPT.barrels ? BOMB.max : 0)) break;
         const first = rand() < 0.5 ? 1 : -1;
         search: for (const ahead of [BOMB.ahead - 2.6, BOMB.ahead - 1.6, BOMB.ahead - 0.6, BOMB.ahead + 0.4, BOMB.ahead + 2, BOMB.ahead + 4]) {
           const p = back(routes[ri].points, ahead);
@@ -344,10 +393,13 @@ export function createGame(opts = {}) {
   }
   const W = RULES.weapons, Z = RULES.zombies, P = RULES.player;
   const downTime = fast ? 3 : P.downTime;
+  const RS = RULES.respawn;
+  /** Колко секунди стои долу: 5 + 3 за всяка смърт в тази вълна, най-много 20 (в кратката проба наполовина). */
+  const downFor = pl => Math.min(RS.max, RS.base + RS.per * pl.waveDeaths) * (fast ? 0.5 : 1);
 
   const t0 = fin(opts.now) ? opts.now : 0;
   let nowMs = t0, time = 0;
-  let phase = 'intro', phaseEnd = S(RULES.intro);
+  let phase = 'intro', phaseEnd = S(intro);
   let wave = 0, toSpawn = [], spawnGap = 1, spawnAt = 0, waveClean = true;
   let boss = null, bossSeen = false, bossDead = false, bossAddAt = 0, endAt = 0;
   let score = 0, kills = 0, headshots = 0, shots = 0, hitShots = 0, downs = 0, wipes = 0;
@@ -390,6 +442,10 @@ export function createGame(opts = {}) {
   let primed = false;
   let heat = 1, dark = false, waveStart = 0, waveDowns = 0, waveHurt = 0, fixed = 0, breaches = 0, booms = 0;
   let over = false, result = null;
+  let paused = false, pauseMs = 0, pauses = 0;      // пауза: часовникът на играта стои, времето ѝ се изважда
+  let scoreW = 0, skipped = false;                  // scoreW: множителят на точките по време (трудността се сменя в движение)
+  /** Множителят на точките: средният за изиграното време, за да е честно при смяна на трудността насред игра. */
+  const mult = () => (time > 0 ? scoreW / time : L.score);
   let zid = 0, evSeq = 0;
   let events = [];
   const zombies = [];
@@ -398,16 +454,16 @@ export function createGame(opts = {}) {
 
   const emit = (k, data = {}) => { events.push({ i: ++evSeq, at: nowMs, k, ...data }); };
   const active = () => [...players.values()];
-  const count = () => Math.max(1, players.size);
-  const aliveCap = () => Math.min(14, 6 + 2 * count());
+  const count = () => Math.max(1, players.size || expected);
+  const aliveCap = () => Math.min(OPT.crowd, 6 + 2 * count());
   const alive = () => zombies.reduce((n, z) => n + (z.state !== STATE.dead ? 1 : 0), 0);
 
-  function gun(k) { const w = W[k]; return { k, ammo: w.mag, reserve: w.reserve, reloadUntil: 0, tokens: 2, tokenAt: time, shotAt: -9 }; }
+  function gun(k) { const w = W[k]; return { k, ammo: w.mag, reserve: OPT.ammo && w.reserve > 0 ? -1 : w.reserve, reloadUntil: 0, tokens: 2, tokenAt: time, shotAt: -9 }; }
 
   function join(id, info) {
     let pl = players.get(id);
     if (!pl) {
-      pl = gone.get(id) || { id, n: players.size + gone.size + 1, name: '', pick: -1, hp: P.hp, hurtAt: -99, downUntil: 0, downs: 0, kills: 0, headshots: 0, score: 0, shots: 0, hits: 0, w: { l: gun('pistol'), r: gun('pistol') } };
+      pl = gone.get(id) || { id, n: players.size + gone.size + 1, name: '', pick: -1, hp: P.hp, hurtAt: -99, downUntil: 0, downs: 0, waveDeaths: 0, guardUntil: 0, boards: 0, kills: 0, headshots: 0, score: 0, shots: 0, hits: 0, w: { l: gun('pistol'), r: gun('pistol') } };
       gone.delete(id);
       pl.pose = null;
       players.set(id, pl);
@@ -444,7 +500,7 @@ export function createGame(opts = {}) {
   function waveList(n) {
     const k = (0.55 + 0.45 * count()) * (fast ? 0.5 : 1);
     const w = waveOf(n);
-    const total = Math.max(3, Math.round((4 + 2 * n) * k * heat * w.size * L.size));
+    const total = Math.max(3, Math.round((4 + 2 * n) * k * heat * w.size * L.size * stretch));
     const runners = Math.round(total * w.run), creepers = Math.round(runners * w.creep);
     const screamers = w.scream;
     const list = [];
@@ -455,15 +511,15 @@ export function createGame(opts = {}) {
   }
   function restock() { /* оръжията вече идват от избора след вълната (makeOffer), не от масата */ }
   /** Какъв е характерът на вълна n (след края на списъка се редуват последните два реда). */
-  const waveOf = n => RULES.waves[clamp(n - 1, 0, RULES.waves.length - 1)];
-  const lastWave = () => wave >= RULES.waves.length;
+  const waveOf = n => RULES.waves[plan[clamp(n - 1, 0, plan.length - 1)]];
+  const lastWave = () => wave >= plan.length;
   /** Следващата вълна тръгва от тъмното, преди да е обявена: в края на подготовката и през почивката. */
   function prime() {
     if (primed) return;
     primed = true;
     wave++;
     toSpawn = waveList(wave);
-    spawnGap = Math.max(0.25, S(18 + 2 * wave) / toSpawn.length * waveOf(wave).gap);
+    spawnGap = Math.max(0.25, S((18 + 2 * wave) * stretch) / toSpawn.length * waveOf(wave).gap);
     spawnAt = time;
   }
   const feed = () => { while (toSpawn.length && time >= spawnAt && alive() < aliveCap()) { spawn(toSpawn.shift()); spawnAt = time + spawnGap; } };
@@ -472,8 +528,9 @@ export function createGame(opts = {}) {
     primed = false;
     phase = 'wave';
     waveClean = true; waveStart = time; waveDowns = 0; waveHurt = 0;
+    for (const pl of [...players.values(), ...gone.values()]) pl.waveDeaths = 0;
     emit('wave', { n: wave });
-    if (RULES.dark.includes(wave)) { dark = true; emit('dark', { on: 1 }); }
+    if (waveOf(wave).dark && OPT.blackout) { dark = true; emit('dark', { on: 1 }); }
   }
   function startBreak() {
     score += RULES.bonus.wave * wave + (waveClean ? RULES.bonus.clean * count() : 0);
@@ -496,6 +553,7 @@ export function createGame(opts = {}) {
   }
   function startBoss() {
     phase = 'boss'; bossSeen = true; toSpawn = [];
+    for (const pl of [...players.values(), ...gone.values()]) pl.waveDeaths = 0;
     if (!primed) wave++;
     primed = false;
     if (dark) { dark = false; emit('dark', { on: 0 }); }
@@ -558,23 +616,26 @@ export function createGame(opts = {}) {
     return best ? { pl: best, d: bd } : null;
   }
   function hurt(pl, dmg, z) {
-    if (isDown(pl) || over) return;
+    if (isDown(pl) || over || time < pl.guardUntil) return;
     dmg = Math.max(1, Math.round(dmg * L.dmg));
     pl.hp -= dmg; pl.hurtAt = time; waveClean = false; waveHurt += dmg;
     emit('bite', { z: z.id, p: pl.id, dmg, hp: Math.max(0, Math.round(pl.hp)) });
     if (pl.hp <= 0) {
-      pl.hp = 0; pl.downUntil = time + downTime; pl.downs++; downs++; waveDowns++;
+      // никакъв край на играта: падналият се връща след 5 с плюс 3 с за всяка смърт в тази вълна (най-много 20 с)
+      const back = downFor(pl);
+      pl.hp = 0; pl.downUntil = time + back; pl.downs++; pl.waveDeaths++; downs++; waveDowns++;
       pl.score = Math.max(0, pl.score - P.downPenalty); score = Math.max(0, score - P.downPenalty);
-      emit('down', { p: pl.id, t: downTime });
+      emit('down', { p: pl.id, t: r2(back) });
       if (active().every(isDown)) {
-        if (chances > 0 || level !== 'nightmare') {       // втори шанс: зомбитата наоколо падат, отборът се вдига веднага
-          if (chances > 0) chances--;
-          else { paidWipes++; score = Math.max(0, score - RULES.wipe.score); heat = Math.max(RULES.heat.min, heat - RULES.wipe.heat); }
-          wipes++;
-          for (const o of zombies) if (o.state !== STATE.dead && o.type !== 'boss' && Math.hypot(o.x - zone.cx, o.z - zone.cz) < 7) kill(o, null, false, 0);
-          for (const o of players.values()) if (isDown(o)) o.downUntil = Math.min(o.downUntil, time + Math.min(downTime, RULES.wipe.up));
-          emit('chance', { left: chances });
-        } else finish('wiped');
+        // цялата група е долу: зомбитата наоколо падат. С втори шанс всички стават веднага; без него всеки чака своето
+        // време, а групата губи точки и малко от трудността (на кошмар двойно)
+        const free = chances > 0;
+        if (free) chances--;
+        else { paidWipes++; score = Math.max(0, score - RULES.wipe.score * (level === 'nightmare' ? 2 : 1)); heat = Math.max(RULES.heat.min, heat - RULES.wipe.heat); }
+        wipes++;
+        for (const o of zombies) if (o.state !== STATE.dead && o.type !== 'boss' && Math.hypot(o.x - zone.cx, o.z - zone.cz) < 7) kill(o, null, false, 0);
+        if (free) for (const o of players.values()) if (isDown(o)) o.downUntil = Math.min(o.downUntil, time + Math.min(downTime, RULES.wipe.up));
+        emit('chance', { left: chances, free: free ? 1 : 0 });
       }
     }
   }
@@ -665,7 +726,7 @@ export function createGame(opts = {}) {
       g.fix += dt * Math.min(GT.hands, hands) / GT.fix;
       while (g.fix >= 1 && g.boards < GT.boards) {
         g.fix -= 1; g.boards++; fixed++;
-        score += GT.points; who.score += GT.points;
+        score += GT.points; who.score += GT.points; who.boards++;
         emit('fix', { g: g.i, p: who.id, left: g.boards });
       }
       if (g.boards >= GT.boards) { g.fix = 0; g.busy = 0; }
@@ -766,7 +827,15 @@ export function createGame(opts = {}) {
   function act(id, msg) {
     const pl = players.get(id);
     if (!pl || !msg || typeof msg !== 'object') return { ok: false, reason: 'bad' };
+    // само на пробния сървър (tools/dev-server.mjs слага ARENA_DEV=1): пултовите команди от страницата без каска,
+    // докато server.js още не ги вика сам. В залата това не съществува.
+    if (msg.a === 'dev' && DEV) {
+      const r = msg.op === 'pause' ? pause(!!msg.on) : msg.op === 'difficulty' ? setDifficulty(msg.level) : msg.op === 'stage' ? stage(msg.name) : msg.op === 'results' ? true : false;
+      emit('dev', { op: msg.op, ok: r ? 1 : 0, results: msg.op === 'results' ? results() : undefined });
+      return { ok: !!r };
+    }
     if (over) return { ok: false, reason: 'over' };
+    if (paused) return { ok: false, reason: 'paused' };
     const hand = msg.hand === 'l' || msg.hand === 'r' ? msg.hand : null;
     if (!hand) return { ok: false, reason: 'hand' };
     const g = pl.w[hand], w = W[g.k];
@@ -836,17 +905,19 @@ export function createGame(opts = {}) {
     const all = [...players.values(), ...gone.values()];
     const accuracy = shots ? r2(hitShots / shots) : 0;
     for (const z of zombies) if (z.state !== STATE.dead) kill(z, null, false, 0);      // краят: нищо не остава да стърчи замръзнало до играчите
-    const stars = Math.max(0, (wave >= 3 ? 1 : 0) + (wave >= 5 ? 1 : 0) + (bossSeen ? 1 : 0) + (bossDead ? 1 : 0) + (bossDead && downs <= count() - 1 ? 1 : 0) - Math.min(2, paidWipes));
-    score = Math.round(score * L.score);
+    const stars = Math.max(0, (wave >= Math.ceil(plan.length / 2) ? 1 : 0) + (wave >= plan.length ? 1 : 0) + (bossSeen ? 1 : 0) + (bossDead ? 1 : 0) + (bossDead && downs <= count() - 1 ? 1 : 0) - Math.min(2, paidWipes));
+    const m = mult();
+    score = Math.round(score * m);
     result = {
-      score, money: score, stars, won, reason, wave, kills, headshots, accuracy, downs, boards: fixed, breaches, booms, level, wipes,
-      players: all.sort((a, b) => a.n - b.n).map(p => ({ n: p.n, name: p.name, kills: p.kills, headshots: p.headshots, score: Math.round(p.score * L.score), downs: p.downs, shots: p.shots, hits: p.hits })),
+      score, money: score, stars, won, reason, wave, waves: plan.length, kills, headshots, accuracy, downs, boards: fixed, breaches, booms, level, wipes,
+      minutes, short, kids, skipped, durationMs: Math.round(time * 1000),
+      players: all.sort((a, b) => a.n - b.n).map(p => ({ id: p.id, n: p.n, name: p.name, kills: p.kills, headshots: p.headshots, score: Math.round(p.score * m), downs: p.downs, deaths: p.downs, shots: p.shots, hits: p.hits, boards: p.boards })),
     };
     emit('end', { won: won ? 1 : 0, reason });
   }
 
   function stepSim(dt) {
-    time += dt;
+    time += dt; scoreW += L.score * dt;
     // играчите: презареждане, връщане, възстановяване
     for (const pl of players.values()) {
       finishReloads(pl);
@@ -854,7 +925,7 @@ export function createGame(opts = {}) {
         const [x, zz] = headXZ(pl);
         for (const o of players.values()) if (o !== pl && !isDown(o)) { const [ox, oz] = headXZ(o); if (Math.hypot(ox - x, oz - zz) < RULES.wipe.near) { pl.downUntil -= dt * (RULES.wipe.revive - 1); break; } }
       }
-      if (pl.downUntil && pl.downUntil <= time) { pl.downUntil = 0; pl.hp = P.reviveHp; pl.hurtAt = time; emit('up', { p: pl.id }); }
+      if (pl.downUntil && pl.downUntil <= time) { pl.downUntil = 0; pl.hp = P.reviveHp; pl.hurtAt = time; pl.guardUntil = time + RS.guard; emit('up', { p: pl.id }); }
       if (!isDown(pl) && pl.hp < P.hp && time - pl.hurtAt >= P.regenDelay) pl.hp = Math.min(P.hp, pl.hp + P.regen * dt);
     }
     // вълните
@@ -886,8 +957,14 @@ export function createGame(opts = {}) {
 
   function tick(now) {
     if (!fin(now) || now <= nowMs) return;
+    if (paused) {      // нищо не върви: времето на паузата се изважда, събитията пак остаряват
+      pauseMs += now - nowMs; nowMs = now;
+      const keep = nowMs - RULES.eventMs;
+      if (events.length && events[0].at < keep) events = events.filter(e => e.at >= keep);
+      return;
+    }
     nowMs = now;
-    const target = (now - t0) / 1000;
+    const target = (now - t0 - pauseMs) / 1000;
     while (!over && target - time > 1e-9) stepSim(Math.min(0.1, target - time));
     const keep = nowMs - RULES.eventMs;
     if (events.length && events[0].at < keep) events = events.filter(e => e.at >= keep);
@@ -897,7 +974,7 @@ export function createGame(opts = {}) {
   function snapshot() {
     return {
       t: Math.round(nowMs),
-      phase, wave,
+      phase, wave, paused: paused ? 1 : 0, level,
       left: r2(Math.max(0, T - time)),
       next: phase === 'intro' || phase === 'break' ? r2(Math.max(0, phaseEnd - time)) : 0,
       score, kills, combo: time - comboAt <= RULES.combo.window ? combo : 0, chances,
@@ -912,19 +989,106 @@ export function createGame(opts = {}) {
   }
 
   const startJson = JSON.stringify({
-    game: 'motel', theme: 'night', level, hall: zone.hall, rooms: zone.rooms, doors: Array.isArray(opts.doors) ? opts.doors : [], zone: { cx: r3(zone.cx), cz: r3(zone.cz) }, fast,
-    duration: r2(T), stand, chest, weapons: W, zombies: Z, types: TYPES, waves: RULES.waves.length,
+    game: 'motel', theme: kids ? 'kids' : 'night', level, kids, minutes, short, options: OPT, respawn: RS, hall: zone.hall, rooms: zone.rooms, doors: Array.isArray(opts.doors) ? opts.doors : [], zone: { cx: r3(zone.cx), cz: r3(zone.cz) }, fast,
+    duration: r2(T), stand, chest, weapons: W, zombies: Z, types: TYPES, waves: plan.length,
+    waveNames: plan.map(i => RULES.waves[i].name), darkWaves: plan.map((i, n) => (RULES.waves[i].dark && OPT.blackout ? n + 1 : 0)).filter(Boolean),
     lanes: lanes ? lanes.map(l => ({ id: l.id, gate: l.gate || null, points: l.points })) : null, ring: lanes ? 0 : RULES.ring,
     fence, gates, solid: map?.solid || [],
     edges: edges.map(e => ({ x0: e.x0, z0: e.z0, x1: e.x1, z1: e.z1, nx: e.nx, nz: e.nz, len: e.len })), fenceOff: FENCE,
     routes: routes.map(r => ({ lane: r.lane, gate: r.gate, points: r.points })), bombs: bombs.map(b => ({ x: b.x, z: b.z })),
-    gate: GT, blast: BOMB.r, prep: r2(S(RULES.intro)), clear: map?.clear || 0,
+    gate: { ...GT, start: OPT.boards }, blast: BOMB.r, prep: r2(S(intro)), clear: map?.clear || 0,
   });
+
+  // ── MS Games 2: управление от пулта ──
+  /**
+   * Пауза: всички часовници и зомбита замръзват, изстрелите не се приемат. Времето на паузата не се брои в играта
+   * (паузата се отчита между две tick-а, затова няма значение от кой часовник идва now). Връща дали нещо се е сменило.
+   */
+  function pause(on, now) {
+    on = !!on;
+    if (over || on === paused) return false;
+    void now;      // часовникът на сървъра може да е друг (web.held): паузата се мери между tick-овете
+    paused = on;
+    if (on) pauses++;
+    emit('pause', { on: on ? 1 : 0 });
+    return true;
+  }
+  /**
+   * Трудността в движение: новите зомбита идват по новите числа, живите получават новата скорост и същия дял кръв,
+   * вторите шансове се нагаждат, а точките се смятат по времето, изиграно на всяка трудност.
+   */
+  function setDifficulty(next) {
+    if (over || !Object.hasOwn(RULES.levels, next) || next === level) return false;
+    const N = RULES.levels[next];
+    for (const z of zombies) {
+      if (z.state === STATE.dead || z.type === 'boss') continue;
+      z.speed *= N.speed / L.speed;
+      const part = z.hp / z.max;
+      z.max = Math.max(1, Math.round(z.max * N.hp / L.hp)); z.hp = Math.max(1, Math.round(z.max * part));
+    }
+    if (boss && !bossDead) { const part = boss.hp / boss.max; boss.max = Math.round(boss.max * N.hp / L.hp); boss.hp = Math.max(1, Math.round(boss.max * part)); }
+    chances = Math.max(0, chances + N.chances - L.chances);
+    level = next; L = N;
+    emit('level', { level });
+    return true;
+  }
+  /**
+   * Сцени от пулта. 'boss': шефът идва веднага (каквото е живо пада); 'wave': подготовката или почивката свършва и
+   * следващата вълна тръгва сега. Връща дали е направено.
+   */
+  function stage(name) {
+    if (over) return false;
+    if (name === 'boss') {
+      if (phase === 'boss') return false;
+      toSpawn = [];
+      for (const z of zombies) if (z.state !== STATE.dead) kill(z, null, false, 0);
+      skipped = true;
+      emit('stage', { s: 'boss' });
+      startBoss();
+      return true;
+    }
+    if (name === 'wave' || name === 'next') {
+      if (phase !== 'intro' && phase !== 'break') return false;
+      phaseEnd = time;
+      emit('stage', { s: 'wave' });
+      return true;
+    }
+    return false;
+  }
+  /**
+   * Резултатът за пулта и класацията (работи и насред игра, например при спиране от оператора):
+   * { score, won, durationMs, difficulty, level, players: [{ id, name, score, kills, deaths, extra }], extra }
+   */
+  function results() {
+    const m = mult();
+    const all = [...players.values(), ...gone.values()].sort((a, b) => a.n - b.n);
+    const r = result;
+    return {
+      score: r ? r.score : Math.round(score * m),
+      won: r ? r.won : false,
+      durationMs: Math.round(time * 1000),
+      difficulty: level, level,
+      minutes, short, kids,
+      players: all.map(p => ({
+        id: p.id, n: p.n, name: p.name,
+        score: Math.round(p.score * m), kills: p.kills, deaths: p.downs,
+        extra: { headshots: p.headshots, shots: p.shots, hits: p.hits, accuracy: p.shots ? r2(p.hits / p.shots) : 0, boards: p.boards },
+      })),
+      extra: {
+        over, reason: r ? r.reason : null, stars: r ? r.stars : null,
+        wave: Math.min(wave, plan.length), waves: plan.length, boss: bossSeen, bossDown: bossDead, skipped,
+        kills, headshots, accuracy: shots ? r2(hitShots / shots) : 0, downs, wipes, boards: fixed, breaches, booms, pauses, fast,
+      },
+    };
+  }
 
   makeOffer(0);      // първият избор стои пред играчите още в подготовката
   return {
     start: () => JSON.parse(startJson),
     join, leave, pose, act, tick, snapshot,
+    pause, setDifficulty, stage, results,
     get over() { return over; },
+    get paused() { return paused; },
+    get level() { return level; },
   };
 }

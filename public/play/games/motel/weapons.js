@@ -405,7 +405,7 @@ export async function createWeapons(ctx, start, A, fx, audio, zombies) {
     lastSnap = s;
     const me = s.players?.find(p => p.id === ctx.me.id);
     if (!me) return;
-    down = me.down > 0;
+    down = me.down > 0 || !!s.paused;      // в пауза оръжията мълчат като при падане
     for (const side of ['l', 'r']) {
       const g = mine[side], st = me[side];
       if (!st) continue;

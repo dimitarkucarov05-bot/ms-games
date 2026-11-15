@@ -3,7 +3,7 @@
   "name": "The Motel",
   "tagline": "Nobody checks out",
   "description": "Night at an abandoned roadside motel. You get thirty seconds to board up the gates and grab a weapon, then the dead come out of the dark in five waves and tear the boards off one by one. Stand at a gate and a hammer appears in your hand to nail them back while your other hand keeps shooting. Fuel barrels explode when shot, the power goes out, and the last wave runs at you. Then something huge arrives.",
-  "version": "2.3.0",
+  "version": "3.0.0",
   "status": "ready",
   "rules": "motel.js",
   "client": "motel",
@@ -11,20 +11,54 @@
   "color": "#e2543a",
   "minPlayers": 1,
   "maxPlayers": 6,
-  "minutes": 10,
-  "themes": [
-    {
-      "id": "night",
-      "name": "Night"
-    }
+  "players": {
+    "3x3": [
+      1,
+      2
+    ],
+    "4x4": [
+      1,
+      4
+    ],
+    "5x5": [
+      1,
+      5
+    ],
+    "6x6": [
+      1,
+      6
+    ],
+    "8x8": [
+      1,
+      6
+    ],
+    "10x10": [
+      1,
+      6
+    ]
+  },
+  "minArea": [
+    3,
+    3
   ],
-  "tags": [
-    "shooter",
-    "co-op",
-    "waves",
-    "barricades",
-    "melee",
-    "horror"
+  "minutes": 10,
+  "cuts": [
+    10,
+    15
+  ],
+  "modes": [
+    {
+      "id": "standard",
+      "name": "Standard",
+      "description": "Thirty seconds to arm up, then the waves and the boss. Five waves in 10 minutes, six in 15.",
+      "recommended": true
+    },
+    {
+      "id": "short",
+      "name": "Short",
+      "description": "One wave fewer and shorter waves, for a quick round or younger players.",
+      "recommended": false
+    }
   ],
   "levels": [
     {
@@ -43,5 +77,92 @@
       "id": "nightmare",
       "name": "Nightmare"
     }
+  ],
+  "options": [
+    {
+      "id": "barrels",
+      "name": "Fuel barrels",
+      "type": "bool",
+      "default": true,
+      "description": "Red barrels by the paths explode when shot"
+    },
+    {
+      "id": "blackout",
+      "name": "Blackout wave",
+      "type": "bool",
+      "default": true,
+      "description": "The power fails on one wave: only flashlights and fires"
+    },
+    {
+      "id": "boards",
+      "name": "Boards at start",
+      "type": "range",
+      "default": 3,
+      "min": 0,
+      "max": 6,
+      "description": "How many of the six planks are nailed on each gate when the game starts"
+    },
+    {
+      "id": "ammo",
+      "name": "Unlimited ammo",
+      "type": "bool",
+      "default": false,
+      "description": "Guns from the chest never run dry (melee still wears out)"
+    },
+    {
+      "id": "crowd",
+      "name": "Most zombies at once",
+      "type": "range",
+      "default": 14,
+      "min": 6,
+      "max": 20,
+      "description": "Upper limit of zombies alive together"
+    },
+    {
+      "id": "prep",
+      "name": "Preparation",
+      "type": "range",
+      "default": 30,
+      "min": 15,
+      "max": 60,
+      "description": "Seconds to grab weapons and nail gates before wave 1"
+    }
+  ],
+  "stages": [
+    {
+      "id": "boss",
+      "name": "Skip to boss"
+    },
+    {
+      "id": "wave",
+      "name": "Start next wave now"
+    }
+  ],
+  "scorecard": {
+    "columns": [
+      "score",
+      "kills",
+      "deaths"
+    ]
+  },
+  "kids": true,
+  "family": false,
+  "themes": [
+    {
+      "id": "night",
+      "name": "Night"
+    },
+    {
+      "id": "kids",
+      "name": "Kids (no blood)"
+    }
+  ],
+  "tags": [
+    "shooter",
+    "co-op",
+    "waves",
+    "barricades",
+    "melee",
+    "horror"
   ]
 }
