@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="bg"><head><meta charset="utf-8"><title>Проба на моделите</title>
+<style>html,body{margin:0;height:100%;background:#131411;overflow:hidden}canvas{display:block}#info{position:fixed;left:12px;top:10px;color:#eef0e8;font:14px system-ui}</style>
+<script type="importmap">{ "imports": { "three": "/play/vendor/three.module.js", "three/addons/": "/play/vendor/addons/" } }</script>
+</head><body><div id="info">зареждам…</div>
+<script type="module">
+import * as THREE from 'three';
+import { createAssets } from '/play/lib/assets.js';
+const qs = new URLSearchParams(location.search);
+const slug = qs.get('pack') || 'shops-pack';
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight); renderer.setClearColor(0x131411);
+document.body.append(renderer.domElement);
+const scene = new THREE.Scene();
+scene.add(new THREE.HemisphereLight(0xffffff, 0x444438, 1.3));
+const sun = new THREE.DirectionalLight(0xffffff, 1.2); sun.position.set(3, 6, 4); scene.add(sun);
+const cam = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.05, 100);
+const assets = createAssets();
+const pack = await assets.loadPack(slug);
+const only = qs.get('only');
+const names = Object.keys(pack.models).filter(n => !only || n.toLowerCase().includes(only.toLowerCase())).slice(0, Number(qs.get('max') || 60));
+await assets.preload(names.map(n => [slug, n]));
+let x = 0, tris = 0, row = 0, maxD = 0;
+const placed = [];
+for (const n of names) {
+  const o = assets.getSync(slug, n); if (!o) continue;
+  const i = pack.models[n]; const w = Math.max(0.3, i.size[0]);
+  if (x + w > 9) { x = 0; row += maxD + 0.5; maxD = 0; }
+  o.position.set(x + w / 2 - 4.5, 0, row); x += w + 0.25; maxD = Math.max(maxD, i.size[2]); tris += i.tris;
+  placed.push(o);
+}
+const merged = qs.get('merge') === '0' ? null : assets.merge(placed);
+if (merged) scene.add(merged); else placed.forEach(o => scene.add(o));
+const grid = new THREE.GridHelper(20, 20, 0x4a4c44, 0x2c2e28); scene.add(grid);
+let yaw = 0.5, pitch = 0.5, dist = Math.max(5, row + 5), drag = false;
+addEventListener('pointerdown', () => drag = true); addEventListener('pointerup', () => drag = false);
+addEventListener('pointermove', e => { if (drag) { yaw -= e.movementX * 0.005; pitch = Math.max(0.05, Math.min(1.5, pitch + e.movementY * 0.005)); } });
+addEventListener('wheel', e => { dist = Math.max(1, dist + Math.sign(e.deltaY) * 0.6); });
+renderer.setAnimationLoop(() => {
+  cam.position.set(Math.sin(yaw) * Math.cos(pitch) * dist, Math.sin(pitch) * dist + 0.3, row / 2 + Math.cos(yaw) * Math.cos(pitch) * dist);
+  cam.lookAt(0, 0.4, row / 2); renderer.render(scene, cam);
+  document.getElementById('info').textContent = `${slug}: ${names.length} модела, ${tris} триъгълника, draw calls ${renderer.info.render.calls}`;
+});
+</script></body></html>

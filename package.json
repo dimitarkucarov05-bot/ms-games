@@ -1,0 +1,14 @@
+{
+  "name": "vrvarna-lobby",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Лоби за VR арената: каски, батерия, калибриране, пускане на игри",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "sim": "node sim-headsets.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

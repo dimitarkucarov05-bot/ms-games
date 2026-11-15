@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="bg">
+<meta charset="utf-8">
+<title>Изпичане на карта</title>
+<!--
+  Работен инструмент (само на пробния сървър, tools/dev-server.mjs): взима готова карта на Synty
+  (подредбата е извадена от Unity сцената с tools/synty/unity_scene.py), изрязва парчето около щанда,
+  слива го в по една мрежа на текстура и го записва като един двоичен файл, който играта зарежда наведнъж.
+
+    /play/tools/bake-map.html?map=shopping-plaza               оглед на цялата карта отгоре
+    …&cx=10&cz=20&yaw=180&r=40                                  парче: център и посока на щанда (в координатите на Unity), радиус
+    …&save=1                                                     записва public/play/assets/maps/<map>/city.bin + city.json
+    …&hole=x0,x1,z0,z1;…                                         правоъгълници на игралната зона: предметите с център в тях не се взимат
+    …&drop=име@x,z,радиус;…                                      маха предмет (или само част от модел) по име и място
+    …&carve=x0,x1,z0,z1,y0,y1;…                                  изрязва кутия от всичко (кабината на асансьора)
+    …&probe=x0,x1,z0,z1                                          какво от картата стои в този правоъгълник (window.__bake.probe)
+    …&view=top&tx=0&tz=0&cy=2.95&zoom=0.026                      оглед отгоре, отрязан на височина cy (под покрива)
+    …&lod=18,40,70                                               карти с природа: до 18 м от центъра LOD0, до 40 LOD1, до 70 LOD2, нататък LOD3
+                                                                 (без този параметър навсякъде е най-евтиното ниво; дърветата тогава са картички)
+    …&skip=Израз                                                 модели, които не се взимат изобщо (израз върху името, напр. skip=Sky|Cloud|Flowers)
+    …&far=Израз@метри;…                                          модели, които се взимат само до това разстояние от центъра (far=Bush|Grass@25)
+  Всички места са в координатите на щанда (метри, като в играта).
+-->
+<style>
+  html, body { margin: 0; background: #14161a; color: #dfe6f2; font: 13px/1.4 ui-monospace, Consolas, monospace; }
+  canvas { display: block; width: 100vw; height: 100vh; }
+  pre { position: fixed; left: 8px; top: 8px; margin: 0; padding: 8px 10px; background: rgba(10, 12, 16, .8); max-width: 60vw; white-space: pre-wrap; }
+</style>
+<canvas id="c"></canvas>
+<pre id="log">зареждам…</pre>
+<script type="importmap">{ "imports": { "three": "/play/vendor/three.module.js", "three/addons/": "/play/vendor/addons/" } }</script>
+<script type="module">
+import * as THREE from 'three';
+import { createAssets } from '/play/lib/assets.js';
+
+const qs = new URLSearchParams(location.search);
+const num = (k, d) => (qs.has(k) ? Number(qs.get(k)) : d);
+const MAP = qs.get('map') || 'shopping-plaza';
+const PLAZA = MAP === 'shopping-plaza';      // молът се пече точно както досега; новото по-долу важи за другите карти
+const CX = num('cx', 0), CZ = num('cz', 0), YAW = num('yaw', 0) * Math.PI / 180, R = num('r', 0);
+const SMALL = num('small', 0.7), NEAR = num('near', 16);
+// правоъгълниците на игралната зона (x0,x1,z0,z1; няколко се делят с ;): каквото от картата стои в тях, се маха, за да застанат станциите на играта
+const HOLES = (qs.get('hole') || '-3.4,3.4,-8,2.7').split(';').map(h => h.split(',').map(Number));
+const BACK = num('back', -1e9);      // всичко по-назад от това (z в координатите на щанда) е зад глуха стена и не се взима        // дребните неща (под SMALL м) се взимат само до NEAR м
+// отделни предмети от картата, които стоят в игралната зона, се махат по име и място: drop=име@x,z,радиус (няколко се делят с ;).
+// Името е израз върху името на модела, мястото е центърът на предмета в координатите на щанда. Маха се и когато дупките го пазят.
+const DROPS = (qs.get('drop') || '').split(';').filter(Boolean).map(d => {
+  const [nm, at = ''] = d.split('@'), [x, z, r] = at.split(',').map(Number);
+  return { re: new RegExp(nm), x: x || 0, z: z || 0, r: r || 0.5 };
+});
+// изрязване: carve=x0,x1,z0,z1,y0,y1 (няколко кутии се делят с ;) в координатите на щанда. Каквото от картата попада в кутията,
+// се изрязва триъгълник по триъгълник (там стои нещо на играта, например кабината на асансьора); извън нея нищо не се пипа.
+const CARVES = (qs.get('carve') || '').split(';').filter(Boolean).map(b => b.split(',').map(Number)).filter(b => b.length === 6 && b.every(Number.isFinite));
+// probe=x0,x1,z0,z1: списък на взетите обекти, чиято точна кутия пресича този правоъгълник (в window.__bake.probe), за проверка какво стои в зоната
+const PROBE = qs.has('probe') ? qs.get('probe').split(',').map(Number) : null;
+const log = s => { document.getElementById('log').textContent = s; };
+const say = []; const note = s => { say.push(s); log(say.join('\n')); };
+window.__bake = { done: false, error: null };
+
+const slugOf = s => s.split('/').pop().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const base = `/play/assets/maps/${MAP}/`;
+try {
+  const [layout, where] = await Promise.all([fetch(base + 'layout.json').then(r => r.json()), fetch(base + 'where.json').then(r => r.json())]);
+  const assets = createAssets();
+  const packs = [...new Set(Object.values(where).map(slugOf))];
+  await Promise.all(packs.map(p => assets.loadPack(p).catch(e => note(`пакет ${p}: ${e.message}`))));
+
+  // мястото на щанда: център (CX, CZ) и посока YAW в координатите на Unity. Картата се мести и върти така,
+  // че щандът да е в началото и да гледа към +Z (както в играта). После огледало по X (Unity е лява система).
+  const c = Math.cos(YAW), s = Math.sin(YAW);
+  const toStand = new THREE.Matrix4().makeRotationY(-YAW).multiply(new THREE.Matrix4().makeTranslation(-CX, 0, -CZ));
+  const mirror = new THREE.Matrix4().makeScale(-1, 1, 1);
+  const need = new Map(), picked = [], pos = new THREE.Vector3(), dropped = [];
+
+  // ── Модели от няколко части ──
+  // В Unity всяка част (врата, стъкло, чекмедже) е отделен обект със свое място и свой материал и в layout.json идва на
+  // отделен ред с името си. В glb частите са деца на основната мрежа, а при няколко витрини стъклото е слято в нея като
+  // отделен материал. Тук всеки ред на част се свързва с основния ред на своето копие; после всеки ред рисува само своята
+  // част, със своята матрица и своя материал. Така нищо не се рисува два пъти и стъклото си остава стъкло.
+  const items = layout.items, modelOf = it => layout.models[it[0]].split('/')[1], partOf = it => (layout.parts ? layout.parts[it[13]] || '' : '');
+  // Нива на детайл (LOD): в картите с природа всяко дърво, храст и трева идва на 2 до 4 реда (…_LOD0 … _LOD3), а в glb нивата са
+  // отделни възли на един модел. Взима се само едно ниво на копие според разстоянието до центъра; последното ниво на боровете е картичка.
+  const LODS = (qs.get('lod') || '').split(',').filter(Boolean).map(Number);
+  const lodOf = it => { const mm = /_LOD(\d)$/i.exec(partOf(it)); return mm ? +mm[1] : -1; };
+  const maxLod = new Map();
+  if (!PLAZA) for (const it of items) { const l = lodOf(it); if (l >= 0) maxLod.set(it[0], Math.max(maxLod.get(it[0]) ?? 0, l)); }
+  const lodWanted = (it, dist) => { const top = maxLod.get(it[0]) ?? 0; if (!LODS.length) return top; let l = 0; while (l < LODS.length && dist >= LODS[l]) l++; return Math.min(l, top); };
+  const SKIP = qs.get('skip') ? new RegExp(qs.get('skip')) : null;
+  const FAR = (qs.get('far') || '').split(';').filter(Boolean).map(f => { const [nm, dd] = f.split('@'); return { re: new RegExp(nm), d: Number(dd) || 0 }; });
+  const M4 = it => new THREE.Matrix4().set(it[1], it[2], it[3], it[4], it[5], it[6], it[7], it[8], it[9], it[10], it[11], it[12], 0, 0, 0, 1);
+  const keyOf = it => it[0] + '/' + it[13];
+  // възлите с мрежа в един glb: име -> { root: името на най-горния възел с мрежа над него, prims: имената на материалите му подред }
+  const glbCache = new Map();
+  const glbNodes = (slug, name) => {
+    const k = `${slug}/${name}`;
+    if (!glbCache.has(k)) glbCache.set(k, fetch(`/play/assets/synty/${slug}/${name}.glb`).then(r => r.arrayBuffer()).then(buf => {
+      const dv = new DataView(buf), js = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 20, dv.getUint32(12, true))));
+      const nodes = js.nodes || [], up = new Map(), out = new Map();
+      nodes.forEach((n, i) => (n.children || []).forEach(ch => up.set(ch, i)));
+      nodes.forEach((n, i) => {
+        if (n.mesh === undefined) return;
+        let r = i;
+        while (up.has(r) && nodes[up.get(r)].mesh !== undefined) r = up.get(r);
+        out.set(n.name || '', { root: nodes[r].name || '', prims: js.meshes[n.mesh].primitives.map(p => js.materials?.[p.material]?.name || '') });
+      });
+      return out;
+    }).catch(() => new Map()));
+    return glbCache.get(k);
+  };
+  const multi = new Map();      // номер на модел -> възлите му, само за моделите с редове на части
+  {
+    const ask = new Set();
+    for (const it of items) { const p = partOf(it); if (p && p !== modelOf(it)) ask.add(it[0]); }
+    await Promise.all([...ask].map(async mi => {
+      const key = layout.models[mi], pack = where[key];
+      if (pack && assets.has(slugOf(pack), key.split('/')[1])) multi.set(mi, await glbNodes(slugOf(pack), key.split('/')[1]));
+    }));
+  }
+  // част без свой възел (стъклото на SM_Bld_ShopFront_*): в glb е слята в основната мрежа и се познава по името на материала
+  const mergedPrims = (g, name, part) => {
+    const root = g.get(name);
+    if (!root || root.prims.length < 2) return [];
+    const words = (part.startsWith(name) ? part.slice(name.length) : part).split(/[^A-Za-z]+/).filter(w => w.length > 2).map(w => w.toLowerCase());
+    return root.prims.map((mt, i) => (words.some(w => mt.toLowerCase().includes(w)) ? i : -1)).filter(i => i >= 0);
+  };
+  // вид на всеки ред: 0 рисува целия модел (както винаги), 1 основен ред на копие с части, 2 част със свой възел, 3 част, слята в основната мрежа
+  const kind = new Uint8Array(items.length);
+  items.forEach((it, n) => {
+    const g = multi.get(it[0]), p = partOf(it);
+    if (!g || !p) return;
+    const node = g.get(p);
+    if (node) kind[n] = node.root === p ? 1 : 2;
+    else if (mergedPrims(g, modelOf(it), p).length) kind[n] = 3;
+  });
+  // кой е основният ред на всяка част. Редовете на едно копие са един до друг и в един и същ ред, затова разликата в номерата
+  // (част минус основен) е една и съща за всички копия на модела: взима се най-честата, после по-редките за останалите.
+  const owner = new Int32Array(items.length).fill(-1), claimed = new Map();
+  {
+    const WIN = 40, offs = new Map();
+    items.forEach((it, n) => {
+      if (kind[n] < 2) return;
+      const cnt = offs.get(keyOf(it)) || offs.set(keyOf(it), new Map()).get(keyOf(it));
+      for (let j = Math.max(0, n - WIN); j <= Math.min(items.length - 1, n + WIN); j++) if (kind[j] === 1 && items[j][0] === it[0]) cnt.set(n - j, (cnt.get(n - j) || 0) + 1);
+    });
+    const order = new Map([...offs].map(([k, cnt]) => [k, [...cnt].sort((a, b) => b[1] - a[1]).map(e => e[0])]));
+    for (let k = 0, more = true; more; k++) {
+      more = false;
+      items.forEach((it, n) => {
+        if (kind[n] < 2 || owner[n] >= 0) return;
+        const lst = order.get(keyOf(it)) || [];
+        if (k >= lst.length) return;
+        more = true;
+        const j = n - lst[k], had = claimed.get(j);
+        if (j < 0 || j >= items.length || kind[j] !== 1 || items[j][0] !== it[0] || (had && had.has(partOf(it)))) return;
+        owner[n] = j;
+        (had || claimed.set(j, new Set()).get(j)).add(partOf(it));      // един основен ред взима всяка своя част само веднъж
+      });
+    }
+  }
+  // обичайното място на всяка част спрямо основния ѝ ред (в Unity оста ѝ е в нейния център или панта, в glb не е): най-честото в сцената
+  const usual = new Map();
+  {
+    const rel = new Map();
+    items.forEach((it, n) => {
+      if (owner[n] < 0) return;
+      const D = M4(items[owner[n]]).invert().multiply(M4(it)), e = D.elements;
+      const k = [e[12], e[13], e[14]].map(v => Math.round(v * 500)).join(','), all = rel.get(keyOf(it)) || rel.set(keyOf(it), new Map()).get(keyOf(it));
+      (all.get(k) || all.set(k, { n: 0, D }).get(k)).n++;
+    });
+    for (const [k, all] of rel) usual.set(k, [...all.values()].sort((a, b) => b.n - a.n)[0].D);
+  }
+
+  // къде е спрямо щанда (x надясно към отворената страна, z напред към тезгяха)
+  const spot = it => { pos.set(it[4], it[8], it[12]).applyMatrix4(toStand); return [-pos.x, pos.z]; };
+  const passes = (it, slug, name) => {
+    if (!R || /Sky|Cloud/.test(name)) return true;
+    const dx = it[4] - CX, dz = it[12] - CZ, dist = Math.hypot(dx, dz);
+    const info = assets.info(slug, name), sc = Math.max(Math.hypot(it[1], it[5], it[9]), Math.hypot(it[2], it[6], it[10]), Math.hypot(it[3], it[7], it[11]));
+    const size = (info ? Math.max(...info.size) : 1) * sc, [ax, az] = spot(it);
+    if (dist > R && !(size > 12 && dist < R * 2.2)) return false;            // далечното: само големите сгради
+    if (size < SMALL && dist > NEAR) return false;                           // дребното: само наблизо
+    if (size < 2.2 && dist > R * 0.62) return false;
+    const ground = /Floor|Sidewalk|Road|Ground_|Trim/.test(name);
+    if (!ground && !/Wall|Pillar|Roof|Ceiling|Door|Glass/.test(name) && HOLES.some(H => ax > H[0] && ax < H[1] && az > H[2] && az < H[3])) return false;      // в игралната зона
+    if (az < BACK - size / 2) return false;
+    if (it[8] > 14 && dist < 30 && size < 6) return false;                  // дреболии по покривите наблизо
+    return true;
+  };
+  for (let ix = 0; ix < items.length; ix++) {
+    const it = items[ix], key = layout.models[it[0]], pack = where[key];
+    if (!pack) continue;
+    const slug = slugOf(pack), name = key.split('/')[1];
+    if (!assets.has(slug, name)) continue;
+    if (SKIP && SKIP.test(name)) continue;
+    if (FAR.length) { const dd = Math.hypot(it[4] - CX, it[12] - CZ); if (FAR.some(f => dd > f.d && f.re.test(name))) continue; }
+    if (!PLAZA) { const l = lodOf(it); if (l >= 0 && l !== lodWanted(it, Math.hypot(it[4] - CX, it[12] - CZ))) continue; }      // друго ниво на детайл на същото копие
+    const head = owner[ix] >= 0 ? items[owner[ix]] : it;      // частите вървят с основния си ред: влиза цялото копие или нищо от него
+    if (!passes(head, slug, name)) continue;
+    const [ax, az] = spot(it), [hx, hz] = spot(head), part = partOf(it);
+    const where3 = `(${ax.toFixed(2)}, ${it[8].toFixed(2)}, ${az.toFixed(2)})`;
+    if (!/Sky|Cloud/.test(name) && DROPS.some(D => D.re.test(name) && Math.hypot(hx - D.x, hz - D.z) <= D.r)) {      // пречи в игралната зона
+      dropped.push(`${ix} ${name}${part && part !== name ? ' [' + part + ']' : ''} ${where3}`);
+      continue;
+    }
+    // drop може да сочи и само част от модела (по името на частта и мястото на целия предмет): останалото от предмета стои
+    if (kind[ix] >= 2 && DROPS.some(D => D.re.test(part) && !D.re.test(name) && Math.hypot(hx - D.x, hz - D.z) <= D.r)) {
+      dropped.push(`${owner[ix]} ${name}: само частта ${part} (${hx.toFixed(2)}, ${head[8].toFixed(2)}, ${hz.toFixed(2)})`);
+      continue;
+    }
+    need.set(`${slug}/${name}`, [slug, name]);
+    picked.push([slug, name, it, ix, ax, az]);
+  }
+  note(`обекти: ${picked.length} от ${layout.items.length}, модели: ${need.size}`);
+  if (DROPS.length) { note(`махнати по име и място: ${dropped.length}`); for (const d of dropped) note('  ' + d); }
+  window.__bake.dropped = dropped;
+  window.__bake.picked = picked.map(p => p[3]);
+  await assets.preload([...need.values()]);
+
+  // материалите са тези от Unity: коя текстура (от пакета) и какъв цвят има всяка част на всеки модел
+  const matCache = new Map();
+  // другите карти: папката от Unity -> пакетът, в чиято tex/ са текстурите с имената от Unity (tools/synty/maps/<карта>)
+  const PACK_OF = { PolygonApocalypse: 'apocalypse-pack', PolygonNatureBiomes: 'alpine-mountain-nature-biome', PNB_Core: 'alpine-mountain-nature-biome',
+    PolygonMapsWoodlandApocalypse: 'woodland-apocalypse-map', PolygonGeneric: 'woodland-apocalypse-map' };
+  const packSlug = pk => (PLAZA ? (pk === 'PolygonShops' ? 'shops-pack' : 'shopping-plaza-map') : PACK_OF[pk] || 'woodland-apocalypse-map');
+  function materialFor(i) {
+    if (matCache.has(i)) return matCache.get(i);
+    const q = layout.mats?.[i];
+    let mat = null;
+    if (q) {
+      const file = q.tex ? q.tex.replace(/\.tga$/i, '.png') : null, slug = packSlug(q.pack);
+      const alpha = !!q.tex && /\.tga$/i.test(q.tex) || /transparent|alpha|ivy|wire/i.test(q.name);
+      const unlit = (PLAZA ? /sky|emissive|screen|neon|glow/i : /sky|emissive|emission|screen|neon|glow/i).test(q.name) || /sky/i.test(q.tex || '');
+      const src = file ? assets.material(slug, `tex/${file}`) : null;
+      const info = { tex: file ? `${slug}/tex/${file}` : '', color: q.color || [1, 1, 1], glass: !!q.glass, alpha, unlit, name: q.name };
+      mat = unlit ? new THREE.MeshBasicMaterial({ map: src?.map || null }) : new THREE.MeshLambertMaterial({ map: src?.map || null });
+      mat.color.setRGB(info.color[0], info.color[1], info.color[2], THREE.SRGBColorSpace);
+      if (info.glass) { mat.transparent = true; mat.opacity = Math.min(0.5, Math.max(0.22, (q.alpha ?? 0.4) * 0.6)); mat.depthWrite = false; info.opacity = mat.opacity; }
+      if (alpha) { mat.alphaTest = 0.5; mat.side = THREE.DoubleSide; }
+      mat.userData.info = info;
+      // еднаквите материали (същата текстура, цвят и вид) стават един
+      const key = JSON.stringify([info.tex, info.color, info.glass, info.alpha, info.unlit]);
+      if (matCache.has(key)) mat = matCache.get(key); else matCache.set(key, mat);
+    }
+    matCache.set(i, mat);
+    return mat;
+  }
+  const atlasMat = (slug, file) => { const src = assets.material(slug, `tex/${file}`), mt = new THREE.MeshLambertMaterial({ map: src.map }); mt.userData.info = { tex: `${slug}/tex/${file}`, color: [1, 1, 1], name: file }; return mt; };
+  const shopsAtlas = PLAZA ? atlasMat('shops-pack', 'PolygonShops_Texture_01_A.png') : null, genericAtlas = PLAZA ? atlasMat('shopping-plaza-map', 'Generic_01_A.png') : null;
+  const packAtlas = new Map();
+  const atlasOf = async slug => { if (!packAtlas.has(slug)) { const pk = await assets.loadPack(slug); const mt = assets.material(slug, pk.defaultMap); mt.userData.info = { tex: pk.defaultMap ? `${slug}/${pk.defaultMap}` : '', color: [1, 1, 1], name: pk.defaultMap || slug }; packAtlas.set(slug, mt); } return packAtlas.get(slug); };
+  if (!PLAZA) for (const p of packs) await atlasOf(p).catch(() => null);
+  const list = [], m = new THREE.Matrix4(), probe = [], pbox = new THREE.Box3();
+  let missing = 0;
+  const stat = { own: 0, merged: 0, kept: 0, moved: [], lost: [] };      // части със свой възел, слети в основната мрежа, деца без свой ред, със свое място, неоткрити
+  const nodeNameOf = me => me.userData?.name ?? me.parent?.userData?.name ?? '';      // мрежата на материал е дете на възела си и няма свое име
+  for (const [slug, name, it, ix, ax, az] of picked) {
+    const o = assets.getSync(slug, name);
+    if (!o) { missing++; continue; }
+    o.updateMatrixWorld(true);
+    const all = [], byNode = new Map(), nodeObj = new Map();
+    o.traverse(x => {
+      if (x.userData?.name) nodeObj.set(x.userData.name, x);
+      if (!x.isMesh || x.isSkinnedMesh) return;
+      all.push(x);
+      const nn = nodeNameOf(x);
+      (byNode.get(nn) || byNode.set(nn, []).get(nn)).push(x);
+    });
+    // модел от няколко части (рамка + стъкло): всяка част е отделен обект в Unity със своето име, място и материал
+    const want = layout.parts ? layout.parts[it[13]] : '', g = multi.get(it[0]);
+    let k = kind[ix];
+    let parts = all, fix = null;      // fix: от мястото на частта в модела към нейното собствено пространство в Unity
+    if (!PLAZA && /_LOD\d$/i.test(want)) {
+      // ред на едно ниво на детайл: само мрежите на своя възел (нивата делят една ос с модела)
+      parts = byNode.get(want) || [];
+      k = 0;
+      if (!parts.length) { stat.lost.push(`${ix} ${name} [${want}]`); continue; }
+    } else if (k === 1) {
+      // основният ред: своите мрежи без слетите в тях части; дете без свой ред в това копие остава тук, за да не изчезне
+      const gone = claimed.get(ix) || new Set(), mine = byNode.get(want) || [], away = new Set();
+      for (const p of gone) if (!g.get(p)) for (const i of mergedPrims(g, name, p)) away.add(mine[i]);
+      parts = all.filter(me => (nodeNameOf(me) === want ? !away.has(me) : !gone.has(nodeNameOf(me))));
+      stat.kept += parts.filter(me => nodeNameOf(me) !== want).length;
+    } else if (k === 2) {
+      parts = byNode.get(want) || [];
+      const X = nodeObj.get(want), root = nodeObj.get(g.get(want).root), D = usual.get(keyOf(it));
+      if (X && root && D) {
+        // частта спрямо основната мрежа, в координатите на Unity (огледало по X); мястото на оста ѝ идва от сцената
+        fix = new THREE.Matrix4().copy(mirror).multiply(X.matrixWorld).multiply(new THREE.Matrix4().copy(root.matrixWorld).invert()).multiply(mirror);
+        fix.setPosition(D.elements[12], D.elements[13], D.elements[14]).invert();
+      }
+      stat.own++;
+    } else if (k === 3) {
+      const mine = byNode.get(name) || [], D = usual.get(keyOf(it));
+      parts = mergedPrims(g, name, want).map(i => mine[i]).filter(Boolean);
+      if (D) fix = D.clone().invert();
+      stat.merged++;
+    }
+    m.set(it[1], it[2], it[3], it[4], it[5], it[6], it[7], it[8], it[9], it[10], it[11], it[12], 0, 0, 0, 1);
+    if (k >= 2) {
+      if (!fix || !parts.length) { stat.lost.push(`${ix} ${name} [${want}]`); continue; }
+      if (owner[ix] >= 0) {      // стои ли частта другаде, а не където е в модела
+        const a = new THREE.Matrix4().copy(m).multiply(fix).elements, b = M4(items[owner[ix]]).elements;
+        let far = 0;
+        for (let q = 0; q < 16; q++) far = Math.max(far, Math.abs(a[q] - b[q]) * (q < 12 ? 1.5 : 1));
+        if (far > 0.004) stat.moved.push(`${ix} ${name} [${want}]`);
+      }
+    }
+    const fallback = PLAZA ? (slug === 'shops-pack' ? shopsAtlas : genericAtlas) : packAtlas.get(slug);
+    const inf = assets.info(slug, name), fbxNames = (inf?.materials || []).map(q => q.name || '');
+    const given = it.slice(14).map(materialFor).filter(Boolean), def = layout.defaults?.[it[0]];
+    parts.forEach((me, i) => {
+      let mt = null;
+      if (given.length) {
+        if (want || given.length === 1 || parts.length === 1) mt = given[Math.min(i, given.length - 1)];
+        else {      // целият модел на един ред: стъклото отива на стъклената част, останалото на другите
+          // при няколко възела стъклена е частта с „Glass" в своето име след името на модела (самият модел може да се казва ..._Glass_01)
+          const nn = nodeNameOf(me), tail = nn.startsWith(name) ? nn.slice(name.length) : nn;
+          const glassy = byNode.size > 1 ? /glass/i.test(tail) : /glass/i.test(fbxNames[Math.min(i, fbxNames.length - 1)] || '') || /glass/i.test(me.name);
+          mt = given.find(q => !!q.userData.info?.glass === glassy) || given[Math.min(i, given.length - 1)];
+        }
+      } else if (def) {
+        const nm = fbxNames[Math.min(i, fbxNames.length - 1)], di = def[nm] ?? Object.values(def)[Math.min(i, Object.values(def).length - 1)];
+        if (di !== undefined) mt = materialFor(di);
+      }
+      if (mt) me.material = mt; else if (!me.material.map) me.material = fallback;      // без материал от сцената и без текстура: основната текстура на пакета
+    });
+    // drop може да сочи и само част от модел, сложен на един ред (по името на частта и мястото на целия предмет)
+    if (k === 0 && byNode.size > 1) parts = parts.filter(me => {
+      const nn = nodeNameOf(me);
+      if (nn === name || !DROPS.some(D => D.re.test(nn) && !D.re.test(name) && Math.hypot(ax - D.x, az - D.z) <= D.r)) return true;
+      const line = `${ix} ${name}: само частта ${nn} (${ax.toFixed(2)}, ${it[8].toFixed(2)}, ${az.toFixed(2)})`;
+      if (!dropped.includes(line)) { dropped.push(line); note('махната част: ' + line); }
+      return false;
+    });
+    // S · (поставяне спрямо щанда) · M · S, където S е огледалото по X; при част M е нейната собствена матрица от сцената
+    const w = new THREE.Matrix4().copy(mirror).multiply(toStand).multiply(m);
+    if (fix) w.multiply(fix);
+    w.multiply(mirror);
+    const holder = new THREE.Group();
+    holder.matrixAutoUpdate = false; holder.matrix.copy(w);
+    for (const me of parts) {      // само мрежите на този ред, всяка на мястото си в модела
+      const one = new THREE.Mesh(me.geometry, me.material);
+      one.matrixAutoUpdate = false; one.matrix.copy(me.matrixWorld);
+      holder.add(one);
+    }
+    list.push(holder);
+    if (PROBE && Math.abs(ax - (PROBE[0] + PROBE[1]) / 2) < 12 && Math.abs(az - (PROBE[2] + PROBE[3]) / 2) < 12) {
+      holder.updateMatrixWorld(true); pbox.setFromObject(holder, true);
+      if (!pbox.isEmpty() && pbox.max.x > PROBE[0] && pbox.min.x < PROBE[1] && pbox.max.z > PROBE[2] && pbox.min.z < PROBE[3]) {
+        const r2 = v => Math.round(v * 100) / 100;
+        probe.push({ i: ix, name, part: want && want !== name ? want : '', c: [r2(ax), r2(it[8]), r2(az)], x: [r2(pbox.min.x), r2(pbox.max.x)], y: [r2(pbox.min.y), r2(pbox.max.y)], z: [r2(pbox.min.z), r2(pbox.max.z)] });
+      }
+    }
+  }
+  if (missing) note(`липсващи модели: ${missing}`);
+  note(`части със свой ред: ${stat.own}, слети в основната мрежа: ${stat.merged}, деца без свой ред: ${stat.kept}, със свое място извън модела: ${stat.moved.length}, неоткрити: ${stat.lost.length}`);
+  for (const q of stat.lost) note('  неоткрита част: ' + q);
+  for (const q of stat.moved.slice(0, 20)) note('  със свое място: ' + q);
+  window.__bake.parts = stat;
+  if (PROBE) { window.__bake.probe = probe; note(`в правоъгълника ${PROBE.join(', ')}: ${probe.length} обекта`); }
+  const merged = assets.merge(list);
+
+  // Изрязване на кутия от слетите мрежи. Триъгълник извън кутията не се пипа, изцяло вътре се маха, а пресечен се реже по
+  // стените ѝ: парчето вътре (изпъкнал многоъгълник) се изхвърля, остатъкът се нарежда наново само с върховете на триъгълника
+  // и на изрязаното парче. Така по ръбовете към съседните триъгълници не се появяват нови точки извън кутията и няма процепи.
+  // Точка върху ръб на триъгълника се смята от двата края на ръба, винаги в един и същ ред: съседът получава съвсем същата.
+  // Нормалата и uv се смятат по същата линия като позицията.
+  function carve(geo, box) {
+    const lo = [box[0], box[4], box[2]], hi = [box[1], box[5], box[3]];
+    const P = geo.attributes.position.array, N = geo.attributes.normal.array, U = geo.attributes.uv.array, n = P.length / 9;
+    const hit = [];
+    for (let t = 0; t < n; t++) {
+      const o = t * 9; let out = false;
+      for (let k = 0; k < 3 && !out; k++) {
+        const a = P[o + k], b = P[o + 3 + k], c = P[o + 6 + k];
+        if (Math.max(a, b, c) <= lo[k] || Math.min(a, b, c) >= hi[k]) out = true;
+      }
+      if (!out) hit.push(t);
+    }
+    const st = { gone: 0, cut: 0, made: 0 };
+    if (!hit.length) return st;
+    const BARY = [[0, 0], [1, 0], [0, 1]], ON = [5, 3, 6];      // ръбовете са битове: 1 = V0V1, 2 = V1V2, 4 = V2V0
+    const mix = (A, B, t, on, s) => ({
+      p: A.p.map((v, k) => v + (B.p[k] - v) * t), n: A.n.map((v, k) => v + (B.n[k] - v) * t),
+      u: A.u.map((v, k) => v + (B.u[k] - v) * t), b: A.b.map((v, k) => v + (B.b[k] - v) * t), on, s,
+    });
+    const less = (A, B) => { for (let k = 0; k < 3; k++) if (A.p[k] !== B.p[k]) return A.p[k] < B.p[k]; return false; };
+    const cross = (V, a, b, k, c) => {
+      const e = a.on & b.on;
+      if (e) {      // двете точки са на един ръб на триъгълника
+        const i = e & 1 ? 0 : e & 2 ? 1 : 2, A = V[i], B = V[(i + 1) % 3], flip = less(B, A), X = flip ? B : A, Y = flip ? A : B;
+        const t = (c - X.p[k]) / (Y.p[k] - X.p[k]);
+        if (!(t > 0)) return X;
+        if (!(t < 1)) return Y;
+        const q = mix(X, Y, t, 1 << i, i + (flip ? 1 - t : t)); q.p[k] = c; return q;
+      }
+      const q = mix(a, b, (c - a.p[k]) / (b.p[k] - a.p[k]), 0, -1); q.p[k] = c; return q;
+    };
+    const fresh = new Map();      // триъгълник -> новите му триъгълници (празно = целият е вътре)
+    for (const t of hit) {
+      const V = [0, 1, 2].map(i => { const v = t * 3 + i; return { p: [P[v * 3], P[v * 3 + 1], P[v * 3 + 2]], n: [N[v * 3], N[v * 3 + 1], N[v * 3 + 2]], u: [U[v * 2], U[v * 2 + 1]], b: BARY[i], on: ON[i], s: i }; });
+      // парчето от триъгълника вътре в кутията
+      let Q = V.slice();
+      for (let k = 0; k < 3 && Q.length; k++) for (const [c, sg] of [[lo[k], 1], [hi[k], -1]]) {
+        const next = [];
+        for (let i = 0; i < Q.length; i++) {
+          const a = Q[i], b = Q[(i + 1) % Q.length], ia = (a.p[k] - c) * sg > 0, ib = (b.p[k] - c) * sg > 0;
+          if (ia) next.push(a);
+          if (ia !== ib) next.push(cross(V, a, b, k, c));
+        }
+        Q = next;
+      }
+      Q = Q.filter((q, i) => { const p = Q[(i + Q.length - 1) % Q.length]; return Q.length === 1 || (q !== p && (Math.abs(q.b[0] - p.b[0]) > 1e-9 || Math.abs(q.b[1] - p.b[1]) > 1e-9)); });
+      let area = 0;
+      for (let i = 0; i < Q.length; i++) { const a = Q[i].b, b = Q[(i + 1) % Q.length].b; area += a[0] * b[1] - b[0] * a[1]; }
+      if (Q.length < 3 || area < 1e-9) continue;      // само допира кутията: остава както е
+      const m = Q.length, inner = Q.map((q, i) => !(q.on & Q[(i + 1) % m].on));      // страните на парчето, които минават през триъгълника
+      if (!inner.some(Boolean)) { fresh.set(t, []); st.gone++; continue; }
+      const polys = [];
+      if (!Q.some(q => q.on)) polys.push([V, Q.slice().reverse()]);      // дупка по средата
+      else for (let i = 0; i < m; i++) {
+        if (!Q[i].on || !inner[i]) continue;
+        // остатък: от точката P по контура на триъгълника (обратно на часовника) до P', после обратно по линията на рязане
+        const ring = [Q[i]], mid = [];
+        let j = (i + 1) % m;
+        while (!Q[j].on) { mid.push(Q[j]); j = (j + 1) % m; }
+        const s0 = Q[i].s, d = ((Q[j].s - s0) % 3 + 3) % 3 || 3;
+        for (let c = Math.floor(s0) + 1; c < s0 + d - 1e-9; c++) if (V[c % 3] !== Q[i] && V[c % 3] !== Q[j]) ring.push(V[c % 3]);
+        if (j !== i) ring.push(Q[j]);
+        ring.push(...mid.reverse());
+        if (ring.length >= 3) polys.push([ring, null]);
+      }
+      const made = [];
+      for (const [ring, hole] of polys) {
+        const all = hole ? ring.concat(hole) : ring, v2 = q => new THREE.Vector2(q.b[0], q.b[1]);
+        const faces = all.length === 3 ? [[0, 1, 2]] : THREE.ShapeUtils.triangulateShape(ring.map(v2), hole ? [hole.map(v2)] : []);
+        for (const f of faces) {
+          const a = all[f[0]], b = all[f[1]], c = all[f[2]];
+          const ar = (b.b[0] - a.b[0]) * (c.b[1] - a.b[1]) - (c.b[0] - a.b[0]) * (b.b[1] - a.b[1]);
+          if (Math.abs(ar) < 1e-12) continue;
+          made.push(ar > 0 ? [a, b, c] : [a, c, b]);
+        }
+      }
+      fresh.set(t, made); st.cut++; st.made += made.length;
+    }
+    if (!fresh.size) return st;
+    let total = n - fresh.size; for (const f of fresh.values()) total += f.length;
+    const P2 = new Float32Array(total * 9), N2 = new Float32Array(total * 9), U2 = new Float32Array(total * 6);
+    let w = 0;
+    for (let t = 0; t < n; t++) {
+      const f = fresh.get(t);
+      if (!f) { P2.set(P.subarray(t * 9, t * 9 + 9), w * 9); N2.set(N.subarray(t * 9, t * 9 + 9), w * 9); U2.set(U.subarray(t * 6, t * 6 + 6), w * 6); w++; continue; }
+      for (const tri of f) {
+        tri.forEach((q, i) => {
+          const len = Math.hypot(q.n[0], q.n[1], q.n[2]) || 1;
+          P2.set(q.p, w * 9 + i * 3); N2.set([q.n[0] / len, q.n[1] / len, q.n[2] / len], w * 9 + i * 3); U2.set(q.u, w * 6 + i * 2);
+        });
+        w++;
+      }
+    }
+    geo.setAttribute('position', new THREE.BufferAttribute(P2, 3));
+    geo.setAttribute('normal', new THREE.BufferAttribute(N2, 3));
+    geo.setAttribute('uv', new THREE.BufferAttribute(U2, 2));
+    return st;
+  }
+  for (const box of CARVES) {
+    const sum = { gone: 0, cut: 0, made: 0 };
+    for (const mesh of [...merged.children]) {
+      const st = carve(mesh.geometry, box);
+      sum.gone += st.gone; sum.cut += st.cut; sum.made += st.made;
+      if (!mesh.geometry.attributes.position.count) merged.remove(mesh);
+    }
+    note(`изрязана кутия ${box.join(', ')}: махнати ${sum.gone} триъгълника, срязани ${sum.cut} (на тяхно място ${sum.made})`);
+    (window.__bake.carved ||= []).push({ box, ...sum });
+  }
+  let tris = 0;
+  const chunks = [];
+  for (const mesh of merged.children) {
+    const n = mesh.geometry.attributes.position.count / 3; tris += n;
+    const info = mesh.material.userData.info || { tex: (mesh.material.map?.name || '').split('|')[0], color: [1, 1, 1] };
+    chunks.push({ mesh, tex: info.tex || `цвят ${info.color}`, info, tris: n });
+  }
+  note(`мрежи: ${chunks.length}, триъгълници: ${Math.round(tris)}`);
+  for (const ch of chunks) note(`  ${Math.round(ch.tris)}  ${ch.tex}`);
+
+  // оглед
+  const canvas = document.getElementById('c');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
+  renderer.setPixelRatio(1); renderer.setSize(innerWidth, innerHeight, false);
+  const scene = new THREE.Scene(); scene.background = new THREE.Color(0x9fc4e8);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8f99, 1.6));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.6); sun.position.set(30, 60, 20); scene.add(sun);
+  scene.add(merged);
+  const box = new THREE.Box3().setFromObject(merged), mid = box.getCenter(new THREE.Vector3()), ext = box.getSize(new THREE.Vector3());
+  note(`размер: ${ext.x.toFixed(1)} × ${ext.y.toFixed(1)} × ${ext.z.toFixed(1)} м`);
+  const view = qs.get('view') || (R ? 'stand' : 'top');
+  let cam;
+  if (view === 'top') {
+    const half = Math.max(ext.x, ext.z) / 2 * (num('zoom', 1.02)), asp = innerWidth / innerHeight;
+    cam = new THREE.OrthographicCamera(-half * asp, half * asp, half, -half, 0.1, 500);
+    cam.position.set(num('tx', mid.x), num('cy', 200), num('tz', mid.z));      // cy под покрива: поглед вътре в сграда
+    cam.up.set(0, 0, -1); cam.lookAt(num('tx', mid.x), 0, num('tz', mid.z));
+  } else if (view === 'bird') {
+    cam = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.1, 600);
+    cam.position.set(num('ex', 0), num('ey', 30), num('ez', -35)); cam.lookAt(num('lx', 0), num('ly', 0), num('lz', 10));
+  } else {      // от щанда, на височината на очите
+    cam = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.05, 600);
+    cam.position.set(num('ex', 0), num('ey', 1.6), num('ez', 0)); cam.lookAt(num('lx', 0), num('ly', 1.4), num('lz', 10));
+  }
+  renderer.setAnimationLoop(() => renderer.render(scene, cam));      // текстурите идват след първия кадър
+  window.__bake.view = { THREE, renderer, scene, cam, merged };      // за ръчно рисуване, когато страницата е скрита
+  window.__bake.stats = { objects: picked.length, tris: Math.round(tris), meshes: chunks.length, size: [ext.x, ext.y, ext.z] };
+
+  if (qs.get('save') === '1') {
+    // един двоичен файл, 20 байта на връх: позиция (Uint16 x3, спрямо кутията на мрежата, еднакъв мащаб по трите оси),
+    // нормала (Int8 x3) и uv (Float32 x2)
+    const parts = [], meta = { map: MAP, cx: CX, cz: CZ, yaw: num('yaw', 0), r: R, tris: Math.round(tris), stride: 20, chunks: [] };
+    let off = 0;
+    const SECT = 6, NEAR_R = 9, BIG = 12000;
+    const write = (P, N, U, idx, info, part) => {
+      const n = idx.length;
+      if (!n) return;
+      const min = [Infinity, Infinity, Infinity], max = [-Infinity, -Infinity, -Infinity];
+      for (const i of idx) for (let k = 0; k < 3; k++) { const v = P[i * 3 + k]; if (v < min[k]) min[k] = v; if (v > max[k]) max[k] = v; }
+      const span = Math.max(max[0] - min[0], max[1] - min[1], max[2] - min[2]) || 1;
+      const buf = new ArrayBuffer(n * 20), dv = new DataView(buf);
+      for (let j = 0; j < n; j++) {
+        const i = idx[j], o = j * 20;
+        for (let k = 0; k < 3; k++) dv.setUint16(o + k * 2, Math.round((P[i * 3 + k] - min[k]) / span * 65535), true);
+        for (let k = 0; k < 3; k++) dv.setInt8(o + 8 + k, Math.max(-127, Math.min(127, Math.round(N[i * 3 + k] * 127))));
+        dv.setFloat32(o + 12, U[i * 2], true);
+        dv.setFloat32(o + 16, U[i * 2 + 1], true);
+      }
+      parts.push(buf);
+      meta.chunks.push({ ...info, part, verts: n, offset: off, min, span });
+      off += buf.byteLength;
+    };
+    for (const ch of chunks) {
+      const g = ch.mesh.geometry, P = g.attributes.position.array, N = g.attributes.normal.array, U = g.attributes.uv.array, n = P.length / 3;
+      const all = []; for (let i = 0; i < n; i++) all.push(i);
+      if (n / 3 < BIG || ch.info.unlit) { write(P, N, U, all, ch.info, 0); continue; }
+      // близкото винаги се рисува; останалото по сектори около играча
+      const groups = Array.from({ length: SECT + 1 }, () => []);
+      for (let t = 0; t < n; t += 3) {
+        const cx = (P[t * 3] + P[t * 3 + 3] + P[t * 3 + 6]) / 3, cz = (P[t * 3 + 2] + P[t * 3 + 5] + P[t * 3 + 8]) / 3;
+        const k = Math.hypot(cx, cz) < NEAR_R ? 0 : 1 + Math.min(SECT - 1, Math.floor((Math.atan2(cz, cx) + Math.PI) / (2 * Math.PI) * SECT));
+        groups[k].push(t, t + 1, t + 2);
+      }
+      groups.forEach((idx, k) => write(P, N, U, idx, ch.info, k === 0 ? 0 : k));
+    }
+    const name = qs.get('name') || 'city';
+    const r1 = await fetch(`/dev/save?path=${MAP}/${name}.bin`, { method: 'PUT', body: new Blob(parts) }).then(r => r.json());
+    const r2 = await fetch(`/dev/save?path=${MAP}/${name}.json`, { method: 'PUT', body: JSON.stringify(meta) }).then(r => r.json());
+    note(`записано: ${name}.bin ${r1.bytes} байта, ${name}.json ${r2.bytes} байта`);
+  }
+  window.__bake.done = true;
+} catch (e) {
+  window.__bake.error = String(e && e.stack || e);
+  note('ГРЕШКА: ' + window.__bake.error);
+}
+</script>
+</html>

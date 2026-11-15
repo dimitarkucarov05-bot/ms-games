@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>MS Games</title>
+<meta name="theme-color" content="#131411">
+<link rel="manifest" href="/play/manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23131411'/%3E%3Crect x='6.5' y='8.5' width='19' height='15' rx='2' fill='none' stroke='%23e9ece2' stroke-width='2'/%3E%3Ccircle cx='19.5' cy='16' r='3' fill='%23c8f03c'/%3E%3C/svg%3E">
+<link rel="preload" href="/fonts/sofia-sans-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face { font-family: "Sofia Sans"; font-weight: 1 1000; font-display: block; src: url(/fonts/sofia-sans-cyrillic-wght-normal.woff2) format("woff2"); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Sofia Sans"; font-weight: 1 1000; font-display: block; src: url(/fonts/sofia-sans-latin-wght-normal.woff2) format("woff2"); unicode-range: U+0000-00FF, U+2000-206F, U+20AC, U+2212; }
+@font-face { font-family: "Sofia Sans XC"; font-weight: 1 1000; font-display: block; src: url(/fonts/sofia-sans-extra-condensed-cyrillic-wght-normal.woff2) format("woff2"); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Sofia Sans XC"; font-weight: 1 1000; font-display: block; src: url(/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2) format("woff2"); unicode-range: U+0000-00FF, U+2000-206F, U+20AC, U+2212; }
+
+:root {
+  --bg: oklch(0.158 0.006 120); --surface: oklch(0.208 0.007 120); --line: oklch(0.36 0.010 120);
+  --text: oklch(0.95 0.008 112); --text-2: oklch(0.77 0.012 115); --text-3: oklch(0.63 0.012 115);
+  --signal: oklch(0.9 0.19 122); --signal-ink: oklch(0.21 0.05 122); --warn: oklch(0.83 0.15 78); --bad: oklch(0.71 0.19 36);
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; overflow: hidden; background: var(--bg); color: var(--text); font: 400 17px/1.45 "Sofia Sans", "Segoe UI", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+canvas#view { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+
+#card {
+  position: fixed; left: 28px; top: 28px; width: min(400px, calc(100vw - 56px));
+  padding: 22px 24px 24px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+  display: flex; flex-direction: column; gap: 16px;
+}
+.who { display: flex; align-items: baseline; gap: 14px; }
+#num { font: 800 64px/0.85 "Sofia Sans XC", "Sofia Sans", sans-serif; letter-spacing: 0.01em; min-width: 0.6ch; }
+#name { font-size: 22px; font-weight: 650; }
+#model { color: var(--text-3); font-size: 14px; }
+dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; font-size: 15px; }
+dt { color: var(--text-3); }
+dd { margin: 0; font-weight: 600; text-align: right; }
+dd[data-tone="bad"] { color: var(--bad); } dd[data-tone="warn"] { color: var(--warn); } dd[data-tone="live"] { color: var(--signal); }
+#enter {
+  height: 64px; border: 0; border-radius: 8px; background: var(--signal); color: var(--signal-ink);
+  font: 750 22px/1 "Sofia Sans", sans-serif; cursor: pointer; transition: transform 80ms, filter 140ms;
+}
+#enter:hover { filter: brightness(1.06); } #enter:active { transform: translateY(1px); }
+#enter:disabled { background: transparent; border: 1px solid var(--line); color: var(--text-3); cursor: default; }
+#note { color: var(--text-2); font-size: 14.5px; margin: 0; }
+#keys { color: var(--text-3); font-size: 13.5px; margin: 0; }
+#card.compact { gap: 8px; padding: 14px 16px; width: auto; max-width: min(360px, calc(100vw - 56px)); }
+#card.compact #enter, #card.compact #note, #card.compact dl { display: none; }
+#card.compact #num { font-size: 40px; }
+#card.compact #name { font-size: 17px; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<canvas id="view"></canvas>
+
+<div id="card">
+  <div class="who">
+    <b id="num"></b>
+    <div><div id="name">Headset</div><div id="model"></div></div>
+  </div>
+  <dl>
+    <dt>Console</dt><dd id="sConn" data-tone="bad">no connection</dd>
+    <dt>Arena</dt><dd id="sCalib" data-tone="warn">not aligned</dd>
+    <dt>Players nearby</dt><dd id="sPlayers">0</dd>
+  </dl>
+  <button id="enter" disabled>Loading</button>
+  <p id="note"></p>
+  <p id="keys" hidden>No headset: W A S D walk, arrows or right mouse button to look, left button grabs, space is the trigger, wheel is reach.</p>
+</div>
+
+<script type="importmap">{ "imports": { "three": "/play/vendor/three.module.js", "three/addons/": "/play/vendor/addons/" } }</script>
+<script type="module" src="play.js"></script>
+</body>
+</html>

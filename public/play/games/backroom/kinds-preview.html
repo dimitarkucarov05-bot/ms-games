@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="bg"><head><meta charset="utf-8"><title>Synty видове: преглед</title>
+<style>
+  html,body{margin:0;height:100%;background:#15161a;color:#e8e9e4;font:13px/1.35 system-ui,sans-serif;overflow:hidden}
+  canvas{display:block;position:fixed;inset:0;width:100%;height:100%}
+  #bar{position:fixed;left:10px;top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;z-index:2;max-width:calc(100% - 20px)}
+  #bar button{background:#2a2c33;color:inherit;border:1px solid #454852;border-radius:4px;padding:4px 9px;font:inherit;cursor:pointer}
+  #bar button.on{background:#e8e9e4;color:#15161a}
+  #msg{opacity:.75}
+  #table{position:fixed;right:8px;top:44px;bottom:8px;overflow:auto;background:rgba(21,22,26,.86);border:1px solid #33363e;border-radius:4px;padding:6px 8px;z-index:2;display:none}
+  #table table{border-collapse:collapse} #table td,#table th{padding:1px 7px;text-align:right;white-space:nowrap} #table td:first-child,#table th:first-child{text-align:left}
+  #table tr.none td{color:#f08a7a} #table tr.sum td{border-top:1px solid #555;font-weight:600}
+</style>
+<script type="importmap">{ "imports": { "three": "/play/vendor/three.module.js", "three/addons/": "/play/vendor/addons/" } }</script>
+</head><body>
+<div id="bar">
+  <button data-theme="night">нощ</button><button data-theme="kids">детска</button>
+  <span>|</span>
+  <button data-view="items">предмети</button><button data-view="shop">магазин</button><button data-view="lab">лаборатория</button><button data-view="people">клиенти</button><button data-view="all">всичко</button>
+  <span>|</span>
+  <button id="bTable">таблица</button><button id="bBoxes" class="on">рамки</button><button id="bPause">пауза</button>
+  <span id="msg">зареждам…</span>
+</div>
+<div id="table"></div>
+<script type="module">
+import * as THREE from 'three';
+import { createAssets } from '/play/lib/assets.js';
+const { installSyntyKinds, SPEC_SIZE, makeHand } = await import('./synty-kinds.js?v=' + Date.now());   // винаги прясното копие
+
+const qs = new URLSearchParams(location.search);
+const theme = qs.get('theme') === 'kids' ? 'kids' : 'night';
+const msg = document.getElementById('msg');
+const errors = [];
+addEventListener('error', e => { errors.push(e.message); msg.textContent = 'ГРЕШКА: ' + e.message; });
+addEventListener('unhandledrejection', e => { errors.push(String(e.reason)); msg.textContent = 'ГРЕШКА: ' + e.reason; });
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setClearColor(theme === 'kids' ? 0x2a3140 : 0x15161a);
+document.body.append(renderer.domElement);
+const scene = new THREE.Scene();
+scene.add(new THREE.HemisphereLight(0xffffff, 0x50504a, 2.0));
+const sun = new THREE.DirectionalLight(0xffffff, 1.5); sun.position.set(2, 5, 4); scene.add(sun);
+const cam = new THREE.PerspectiveCamera(45, 1, 0.02, 80);
+function resize() { const w = innerWidth || 800, h = innerHeight || 600; renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize();
+
+// models.js се пише от друга сесия: ако го няма (или няма setAssetProvider), ползваме малък заместител
+let models = null;
+try { models = await import('./models.js?v=' + Date.now()); } catch (e) { console.info('models.js липсва, показвам само Synty версиите'); }
+let provider = null;
+const hook = models && typeof models.setAssetProvider === 'function'
+  ? models
+  : { setAssetProvider(p) { provider = p; } };
+const assets = createAssets();
+const start = { theme, hall: { w: 6, d: 6 } };
+const installed = await installSyntyKinds({ THREE, assets, models: hook, theme, start });
+provider ||= installed;
+const viaKit = hook === models && typeof models.makeModel === 'function';
+
+function makeKind(kind, opts) {
+  opts = { theme, ...opts };
+  if (viaKit) return models.makeModel(THREE, kind, opts);
+  return provider ? provider.make(THREE, kind, opts) : null;
+}
+function setKind(obj, kind, state, dt) {
+  if (viaKit && typeof models.setModelState === 'function') return models.setModelState(THREE, obj, kind, state, dt);
+  return provider ? provider.setState(THREE, obj, kind, state, dt) : false;
+}
+
+const ITEMS = ['bun_bottom', 'bun_top', 'patty', 'cheese', 'lettuce', 'plate', 'fries', 'cup', 'ing_a', 'ing_b', 'ing_c', 'ing_d', 'beaker', 'tray', 'bag'];
+const SHOP = ['bin', 'grill', 'fryer', 'drinks', 'prep', 'trash', 'counter', 'shutter', 'door', 'wall'];
+const LAB = ['mixer', 'burner', 'packer', 'grow', 'hatch', 'sign', 'elevator'];
+const OPTS = { counter: { w: 2.4, h: 0.85, d: 0.5 }, shutter: { w: 2.4, h: 1.2, d: 0.05 }, wall: { w: 1.6, h: 2.4, d: 0.1 }, bin: { gives: 'patty' }, sign: { text: 'Обслужете клиентите' } };
+const ING = ['ing_a', 'ing_b', 'ing_c', 'ing_d'];
+const STACKS = [[], ['bun_bottom'], ['bun_bottom', 'patty'], ['bun_bottom', 'patty', 'cheese'], ['bun_bottom', 'patty', 'cheese', 'lettuce'], ['bun_bottom', 'patty', 'cheese', 'lettuce', 'bun_top'], ['bun_bottom', 'patty', 'patty', 'bun_top']];
+const CUSTOMER_STATES = ['in', 'wait', 'wait', 'happy', 'wait', 'angry', 'out'];
+
+/** Състоянието на вид в момент t (секунди): бавна обиколка през всички стойности. */
+function stateAt(kind, t, i = 0) {
+  const saw = p => (t % p) / p, tri = p => 1 - Math.abs(1 - 2 * saw(p));
+  switch (kind) {
+    case 'patty': case 'fries': return { cook: saw(9) * 2.4 };
+    case 'cup': return { fill: Math.min(1, saw(6) * 1.5), drink: Math.floor(t / 6) % 2 ? 'orange' : 'cola' };
+    case 'plate': { const stack = STACKS[Math.floor(t / 1.5) % STACKS.length]; return { stack, cooks: stack.filter(k => k === 'patty').map((_, j) => (Math.floor(t / 10.5) + j) % 3) }; }
+    case 'beaker': { const n = Math.floor(saw(16) * 8); return { mix: ING.slice(0, Math.min(4, n)), mixed: n >= 5, heat: n >= 6 ? saw(2) : 0, ruined: n === 7 }; }
+    case 'tray': return { ready: Math.floor(t / 3) % 2 === 1 };
+    case 'bin': return { gives: ['patty', 'bun_bottom', 'bun_top', 'cheese', 'lettuce', 'plate', 'cup', 'fries', 'ing_a', 'ing_b', 'ing_c', 'ing_d', 'beaker'][(Math.floor(t / 2) + i) % 13] };
+    case 'door': case 'shutter': return { open: Math.max(0, Math.min(1, tri(8) * 1.6 - 0.3)) };
+    case 'mixer': return { recipe: ING.slice(0, 3 + (Math.floor(t / 5) % 2)).map((_, j) => ING[(j + Math.floor(t / 5)) % 4]) };
+    case 'burner': return { needle: tri(2.2), zone: [0.55, 0.75], hits: Math.floor(t / 2.2) % 4 };
+    case 'packer': return { progress: (Math.floor(t / 1.2) % 5) / 4 };
+    case 'grow': { const stage = Math.min(1, saw(14) * 1.3), dry = Math.floor(t / 14) % 2 === 1 && stage > 0.35 && stage < 0.7; return { stage, dry, ready: stage >= 1 }; }
+    case 'elevator': { const c = t % 9; return { doors: c < 3 || c >= 7.5 ? 1 : 0, moving: c >= 4 && c < 7, level: Math.floor(t / 9) % 2, riders: [] }; }
+    case 'sign': return { text: ['Обслужете клиентите', 'Затваряме!', 'Рецепта: А Б В'][Math.floor(t / 4) % 3] };
+    case 'customer': { const s = CUSTOMER_STATES[(Math.floor(t / 3.5) + i) % CUSTOMER_STATES.length]; return { state: s, look: i % 6, special: i === 6, patience: 1 - saw(20) }; }
+    default: return {};
+  }
+}
+
+const entries = [];      // { kind, obj, i, group }
+const boxes = new THREE.Group(); scene.add(boxes);
+const edge = new THREE.LineBasicMaterial({ color: 0x59e0ff });
+function frameBox(w, h, d) { const g = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(w, h, d)), edge); g.geometry.translate(0, h / 2, 0); return g; }
+function label(text) {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 48; const x = c.getContext('2d');
+  x.font = '600 30px system-ui'; x.fillStyle = '#e8e9e4'; x.textAlign = 'center'; x.fillText(text, 128, 34);
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false })); return s;
+}
+function add(kind, x, z, opts = {}, i = 0, pedestal = 0) {
+  const size = [opts.w || SPEC_SIZE[kind]?.[0] || 0.3, opts.h || SPEC_SIZE[kind]?.[1] || 0.3, opts.d || SPEC_SIZE[kind]?.[2] || 0.3];
+  let obj = null;
+  try { obj = makeKind(kind, opts); } catch (e) { errors.push(`${kind}: ${e.message}`); console.error(kind, e); }
+  const y = kind === 'hatch' ? 0.9 : kind === 'sign' ? 1.4 : pedestal;
+  const fb = frameBox(...size); fb.position.set(x, y, z); boxes.add(fb);
+  const lb = label(kind + (kind === 'customer' ? ` ${i}${i === 6 ? ' special' : ''}` : '')); const ls = Math.max(0.16, size[0] * 0.9);
+  lb.scale.set(ls * 1.6, ls * 0.3, 1); lb.position.set(x, y + size[1] + ls * 0.22, z); boxes.add(lb);
+  if (obj) { obj.position.set(x, y, z); scene.add(obj); }
+  entries.push({ kind, obj, i, size, x, y, z });
+  return obj;
+}
+
+const grid = new THREE.GridHelper(40, 80, 0x3c3f47, 0x26282e); scene.add(grid);
+// ред 1: предмети върху „маса" на 0.85 (за да се гледат на височината, на която са в играта)
+const table = new THREE.Mesh(new THREE.BoxGeometry(ITEMS.length * 0.34 + 0.2, 0.04, 0.5), new THREE.MeshLambertMaterial({ color: 0x3a3d45 }));
+table.position.set(0, 0.83, 3); scene.add(table);
+ITEMS.forEach((k, i) => add(k, (i - (ITEMS.length - 1) / 2) * 0.34, 3, {}, i, 0.85));
+// ръцете на играчите (makeHand): началото е в китката, пръстите сочат към −Z, дланта е надолу
+['l', 'r'].forEach((side, i) => {
+  const x = (ITEMS.length / 2 + 0.6 + i * 0.5) * 0.34, y = 0.95, z = 3.05;
+  let obj = null;
+  try { obj = makeHand ? makeHand(THREE, side) : null; } catch (e) { errors.push(`hand ${side}: ${e.message}`); }
+  const fb = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(0.11, 0.07, 0.19).translate(0, -0.015, -0.095)), edge); fb.position.set(x, y, z); boxes.add(fb);
+  const lb = label(`hand ${side}`); lb.scale.set(0.26, 0.05, 1); lb.position.set(x, y + 0.09, z); boxes.add(lb);
+  if (obj) { obj.position.set(x, y, z); scene.add(obj); }
+  entries.push({ kind: `hand_${side}`, obj, i, size: [0.11, 0.07, 0.19], x, y, z });
+});
+// ред 2: магазин
+let x = -5.2;
+for (const k of SHOP) { const o = OPTS[k] || {}; const w = o.w || SPEC_SIZE[k][0]; add(k, x + w / 2, 0, o); x += w + 0.55; }
+// ред 3: лаборатория
+x = -2.4;
+for (const k of LAB) { const o = OPTS[k] || {}; const w = o.w || SPEC_SIZE[k][0]; add(k, x + w / 2, -2.6, o); x += w + 0.55; }
+// ред 4: клиенти (шест вида + специален)
+for (let i = 0; i < 7; i++) add('customer', (i - 3) * 1.0, -5.2, { look: i % 6, special: i === 6 }, i);
+
+// ?show=пакет:модел,пакет:модел  слага суровите Synty модели в редица на z = 7 (за избор на модел), в истинския им размер
+if (qs.get('show')) {
+  const list = qs.get('show').split(',').map(s => s.split(':'));
+  for (const s of new Set(list.map(l => l[0]))) await assets.loadPack(s).catch(() => {});
+  await assets.preload(list);
+  let sx = 0;
+  for (const [slug, name] of list) {
+    const o = assets.getSync(slug, name), info = assets.info(slug, name);
+    if (!o || !info) { console.warn('show: няма', slug, name); continue; }
+    if (slug === 'gang-warfare-pack') { const m = assets.material(slug, 'tex/PolygonGangWarfare_Texture_01_A.png'); o.traverse(x => { if (x.isMesh) x.material = m; }); }
+    const w = Math.max(0.3, info.size[0]);
+    o.position.set(sx - info.min[0], 0, 7 - (info.min[2] + info.max[2]) / 2); scene.add(o);
+    const lb = label(name.replace(/^SM_(Prop|Bld|Env)_/, '').slice(0, 22)); lb.scale.set(0.8, 0.15, 1); lb.position.set(sx + w / 2, info.max[1] + 0.2, 7); scene.add(lb);
+    const fb = frameBox(info.size[0], info.size[1], info.size[2]); fb.position.set(sx + info.size[0] / 2, info.min[1], 7); boxes.add(fb);
+    console.info('show', name, info.tris, info.size.join('x'), 'min', info.min.join(','), info.materials.map(m => m.name + '=' + (m.map || 'NOMAP')).join(' | '));
+    sx += w + 0.4;
+  }
+  window.__showView = { at: [sx / 2, 0.8, 7], dist: Math.max(4, sx * 0.75), yaw: 0.25, pitch: 0.3 };
+}
+
+// ---- камера ----
+const VIEWS = {
+  items: { at: [0, 0.9, 3], dist: 3.2, yaw: 0, pitch: 0.5 },
+  shop: { at: [-0.6, 0.8, 0], dist: 9.5, yaw: 0, pitch: 0.32 },
+  lab: { at: [0.2, 0.8, -2.6], dist: 5.2, yaw: 0, pitch: 0.3 },
+  people: { at: [0, 0.9, -5.2], dist: 7, yaw: 0, pitch: 0.12 },
+  all: { at: [0, 0.6, -1], dist: 15, yaw: 0.35, pitch: 0.55 },
+};
+if (window.__showView) VIEWS.show = window.__showView;
+const view = { at: new THREE.Vector3(), dist: 6, yaw: 0, pitch: 0.4 };
+function setView(name) {
+  const e = entries.find(e => e.kind === name || `${e.kind}${e.i}` === name);
+  const v = VIEWS[name] || (e ? { at: [e.x, e.y + e.size[1] / 2, e.z], dist: Math.max(e.size[0], e.size[1], e.size[2]) * 2.6 + 0.25, yaw: 0.5, pitch: 0.42 } : VIEWS.all);
+  view.at.fromArray(v.at); view.dist = v.dist; view.yaw = v.yaw; view.pitch = v.pitch;
+  for (const b of document.querySelectorAll('[data-view]')) b.classList.toggle('on', b.dataset.view === name);
+}
+setView(qs.get('view') || 'all');
+if (qs.has('yaw')) view.yaw = Number(qs.get('yaw'));
+if (qs.has('pitch')) view.pitch = Number(qs.get('pitch'));
+if (qs.has('dist')) view.dist = Number(qs.get('dist'));
+let drag = null;
+renderer.domElement.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, pan: e.button === 2 || e.shiftKey }; renderer.domElement.setPointerCapture(e.pointerId); });
+renderer.domElement.addEventListener('pointerup', () => drag = null);
+renderer.domElement.addEventListener('contextmenu', e => e.preventDefault());
+renderer.domElement.addEventListener('pointermove', e => {
+  if (!drag) return;
+  const dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag.x = e.clientX; drag.y = e.clientY;
+  if (drag.pan) { const r = new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld, 0), u = new THREE.Vector3(0, 1, 0); view.at.addScaledVector(r, -dx * view.dist * 0.0015).addScaledVector(u, dy * view.dist * 0.0015); }
+  else { view.yaw -= dx * 0.006; view.pitch = Math.max(-0.2, Math.min(1.5, view.pitch + dy * 0.006)); }
+});
+renderer.domElement.addEventListener('wheel', e => { view.dist = Math.max(0.15, view.dist * (e.deltaY > 0 ? 1.12 : 0.89)); e.preventDefault(); }, { passive: false });
+
+// ---- бутони ----
+for (const b of document.querySelectorAll('[data-theme]')) { b.classList.toggle('on', b.dataset.theme === theme); b.onclick = () => { qs.set('theme', b.dataset.theme); location.search = qs.toString(); }; }
+for (const b of document.querySelectorAll('[data-view]')) b.onclick = () => setView(b.dataset.view);
+let paused = qs.has('t'), tFixed = Number(qs.get('t') || 0);
+document.getElementById('bPause').onclick = e => { paused = !paused; e.target.classList.toggle('on', paused); };
+document.getElementById('bBoxes').onclick = e => { boxes.visible = !boxes.visible; e.target.classList.toggle('on', boxes.visible); };
+if (qs.get('boxes') === '0') { boxes.visible = false; document.getElementById('bBoxes').classList.remove('on'); }
+const tableEl = document.getElementById('table');
+document.getElementById('bTable').onclick = e => { const on = tableEl.style.display !== 'block'; tableEl.style.display = on ? 'block' : 'none'; e.target.classList.toggle('on', on); if (on) fillTable(); };
+
+// ---- триъгълници и draw calls ----
+function stats(obj) {
+  let tris = 0, calls = 0;
+  if (!obj) return { tris, calls };
+  obj.traverseVisible(o => {
+    if (!o.isMesh && !o.isSkinnedMesh) return;
+    const g = o.geometry; const n = (g.index ? g.index.count : g.attributes.position.count) / 3;
+    tris += n; calls += Array.isArray(o.material) ? Math.max(1, g.groups.length) : 1;
+  });
+  return { tris: Math.round(tris), calls };
+}
+function fillTable() {
+  const seen = new Map();
+  for (const e of entries) {
+    const key = e.kind === 'customer' ? `customer ${e.i}${e.i === 6 ? ' special' : ''}` : e.kind;
+    const s = stats(e.obj);
+    const fit = e.obj ? new THREE.Box3().setFromObject(e.obj).getSize(new THREE.Vector3()) : null;
+    seen.set(key, { ...s, none: !e.obj || !e.obj.userData.synty, fit, size: e.size });
+  }
+  const typical = (k, n) => (seen.get(k)?.tris || 0) * n;
+  const avg = keys => { const v = keys.map(k => seen.get(k)).filter(Boolean); return v.length ? { tris: v.reduce((s, x) => s + x.tris, 0) / v.length, calls: v.reduce((s, x) => s + x.calls, 0) / v.length } : { tris: 0, calls: 0 }; };
+  const st = avg(['bin', 'grill', 'fryer', 'drinks', 'prep', 'trash', 'mixer', 'burner', 'packer', 'hatch']), it = avg(ITEMS), cu = avg([0, 1, 2, 3, 4].map(i => `customer ${i}`));
+  let html = '<table><tr><th>вид</th><th>триъг.</th><th>draw</th><th>размер (м)</th><th>по SPEC</th></tr>';
+  for (const [k, v] of seen) html += `<tr class="${v.none ? 'none' : ''}"><td>${k}${v.none ? ' (няма)' : ''}</td><td>${v.tris}</td><td>${v.calls}</td><td>${v.fit ? [v.fit.x, v.fit.y, v.fit.z].map(n => n.toFixed(2)).join('×') : ''}</td><td>${v.size.map(n => n.toFixed(2)).join('×')}</td></tr>`;
+  const total = { tris: Math.round(st.tris * 12 + it.tris * 30 + cu.tris * 5), calls: Math.round(st.calls * 12 + it.calls * 30 + cu.calls * 5) };
+  html += `<tr class="sum"><td>типична сцена: 12 станции + 30 предмета + 5 клиенти</td><td>${total.tris}</td><td>${total.calls}</td><td colspan="2">средно: станция ${Math.round(st.tris)}, предмет ${Math.round(it.tris)}, клиент ${Math.round(cu.tris)}</td></tr></table>`;
+  tableEl.innerHTML = html;
+  return { seen: Object.fromEntries(seen), total };
+}
+window.__preview = { THREE, assets, scene, entries, fillTable, setView, view, errors, stats, provider: () => provider, viaKit, setTime(t) { paused = true; tFixed = t; },
+  /** Къде са равните плоскости на модел (за нагласяне на плотовете): [височина като част от модела, площ]. */
+  tops(slug, name) {
+    const o = assets.getSync(slug, name), info = assets.info(slug, name); if (!o) return null;
+    o.updateMatrixWorld(true);
+    const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), n = new THREE.Vector3(), hist = new Map();
+    o.traverse(m => {
+      if (!m.isMesh) return;
+      const p = m.geometry.attributes.position, ix = m.geometry.index, cnt = ix ? ix.count : p.count;
+      for (let i = 0; i < cnt; i += 3) {
+        const [i0, i1, i2] = ix ? [ix.getX(i), ix.getX(i + 1), ix.getX(i + 2)] : [i, i + 1, i + 2];
+        a.fromBufferAttribute(p, i0).applyMatrix4(m.matrixWorld); b.fromBufferAttribute(p, i1).applyMatrix4(m.matrixWorld); c.fromBufferAttribute(p, i2).applyMatrix4(m.matrixWorld);
+        n.crossVectors(b.clone().sub(a), c.clone().sub(a)); const len = n.length(); if (!len || n.y / len < 0.92) continue;
+        const y = Math.round((a.y + b.y + c.y) / 3 * 100) / 100, e = hist.get(y) || { y, area: 0, z0: 9, z1: -9, x0: 9, x1: -9 };
+        e.area += len / 2; for (const q of [a, b, c]) { e.z0 = Math.min(e.z0, q.z); e.z1 = Math.max(e.z1, q.z); e.x0 = Math.min(e.x0, q.x); e.x1 = Math.max(e.x1, q.x); }
+        hist.set(y, e);
+      }
+    });
+    return [...hist.values()].sort((p, q) => q.area - p.area).slice(0, 6).map(e => `y=${e.y.toFixed(2)} (${(100 * (e.y - info.min[1]) / info.size[1]).toFixed(0)}%) площ ${e.area.toFixed(2)} x[${e.x0.toFixed(2)},${e.x1.toFixed(2)}] z[${e.z0.toFixed(2)},${e.z1.toFixed(2)}]`);
+  } };
+
+let last = performance.now(), t = 0;
+renderer.setAnimationLoop(() => {
+  const now = performance.now(), dt = Math.min(0.1, (now - last) / 1000); last = now;
+  if (!paused) t += dt; else t = tFixed;
+  for (const e of entries) if (e.obj) { try { setKind(e.obj, e.kind, stateAt(e.kind, t, e.i), paused ? undefined : dt); } catch (err) { if (!e.failed) { e.failed = true; errors.push(`${e.kind} state: ${err.message}`); console.error(e.kind, err); } } }
+  cam.position.set(view.at.x + Math.sin(view.yaw) * Math.cos(view.pitch) * view.dist, view.at.y + Math.sin(view.pitch) * view.dist, view.at.z + Math.cos(view.yaw) * Math.cos(view.pitch) * view.dist);
+  cam.lookAt(view.at);
+  renderer.render(scene, cam);
+  const missing = entries.filter(e => !e.obj || !e.obj.userData.synty).map(e => e.kind);
+  if (!errors.length) msg.textContent = `${theme} · ${viaKit ? 'през models.js' : 'само synty-kinds.js'} · draw calls ${renderer.info.render.calls} · триъг. ${renderer.info.render.triangles} · без Synty: ${[...new Set(missing)].join(', ') || 'няма'}`;
+});
+</script></body></html>
