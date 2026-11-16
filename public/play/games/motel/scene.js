@@ -447,11 +447,33 @@ export async function createScene(ctx, start) {
       gates: snap?.gates?.map(g => g[0]), bombs: snap?.bombs, dark: snap?.dark, heat: snap?.heat, world_: world?.info ? { gates: world.info.gates, bombsAlive: world.info.bombsAlive, dark: world.info.dark } : null };
   }
 
+  /** Всичко, което играта е качила на видеокартата: мрежи, материали, текстури, скелети, светлини (със сенките им). */
+  function collect(objs) {
+    const bag = { geo: new Set(), mat: new Set(), tex: new Set(), skel: new Set(), light: new Set() };
+    for (const obj of objs) obj?.traverse?.(o => {
+      if (o.geometry) bag.geo.add(o.geometry);
+      for (const m of [].concat(o.material || [])) { bag.mat.add(m); for (const k of Object.keys(m)) { const v = m[k]; if (v && v.isTexture) bag.tex.add(v); } if (m.uniforms) for (const u of Object.values(m.uniforms)) if (u?.value?.isTexture) bag.tex.add(u.value); }
+      if (o.isSkinnedMesh && o.skeleton) bag.skel.add(o.skeleton);
+      if (o.isLight) bag.light.add(o);
+    });
+    return bag;
+  }
+  function free(bag) {
+    for (const g of bag.geo) g.dispose?.();
+    for (const m of bag.mat) m.dispose?.();
+    for (const t of bag.tex) t.dispose?.();      // обща текстура от склада на моделите се качва пак сама, ако лобито я ползва
+    for (const s of bag.skel) s.dispose?.();
+    for (const l of bag.light) l.dispose?.();
+  }
   function dispose() {
     disposed = true;
+    // първо се събира всичко (докато е закачено), после частите се разкачат, накрая всичко се освобождава
+    let bag = null;
+    try { bag = collect([root, ...(zombies.extras?.() || []), ...(weapons.extras?.() || [])]); } catch (e) { console.warn('[motel] collect', e); }
     for (const part of [chest, hud, weapons, zombies, fx, audio]) { try { part.dispose(); } catch (e) { console.warn('[motel] dispose', e); } }
     try { world?.dispose?.(); } catch (e) { console.warn('[motel] world.dispose', e); }
     own?.dispose();
+    try { if (bag) free(bag); } catch (e) { console.warn('[motel] free', e); }
     ctx.noAlignMenu = false;
     ctx.noTags = false;
   }

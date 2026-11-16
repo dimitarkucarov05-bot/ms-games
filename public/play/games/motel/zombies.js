@@ -563,6 +563,8 @@ export async function createZombies(ctx, start, A, fx, audio) {
   }
 
   return {
+    // извън сцената: свободните тела в басейна и образците (сцената ги освобождава при края на играта)
+    extras: () => [...[...pool.values()].flat().map(b => b.g), ...[...protos.values()].map(p => p.scene)],
     group, list, sync, killed, localKill, flinch, kneel, raycast, update, dispose, setFloor(fn) { floor = typeof fn === 'function' ? fn : null; }, swingOf: id => { const r = list.get(id); if (r && !r.deadAt) { r.state = ST.attack; swing(r); } },
     info: () => ({ real, base, characters: protos.size, made, alive: [...list.values()].filter(r => !r.deadAt).length, corpses: corpses.length, clips: Object.fromEntries(Object.entries(KEYS).map(([k, v]) => [k, v.length])) }),
   };

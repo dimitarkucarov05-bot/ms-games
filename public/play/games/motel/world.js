@@ -722,6 +722,7 @@ export async function createWorld(ctx, start) {
   let search = null, searchT = 0;
   function searchlight(on) {
     if (!on) { if (search) { search.visible = false; } return; }
+    if (lite) return;      // на каската: пета светлина и прекомпилиране на шейдърите точно в края; остават звукът и светкавицата
     if (!search) {
       search = new THREE.SpotLight(0xdfe8ff, lite ? 60 : 90, 40, 0.32, 0.5, 1.2);
       search.position.set((F.x0 + F.x1) / 2, 14, ((F.z0 + F.z1) / 2) + 4);

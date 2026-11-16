@@ -86,7 +86,10 @@ export function createFx(ctx) {
   for (const [k, d] of Object.entries(KINDS)) shardMats[k] = k === 'spark' ? new THREE.MeshBasicMaterial({ color: d.color, toneMapped: false }) : new THREE.MeshLambertMaterial({ color: d.color });
   const shards = [];
   const SHARDS = quest ? 60 : 110;
-  for (let i = 0; i < SHARDS; i++) { const m = new THREE.Mesh(shardGeo, shardMats.blood); m.visible = false; group.add(m); shards.push({ m, vel: new THREE.Vector3(), spin: new THREE.Vector3(), life: 0, max: 1, size: 0.03, g: 9 }); }
+  // всеки вид парчета е една InstancedMesh: цяла пръска е едно рисуване, не по едно на парче (на каската това е разликата)
+  const inst = {};
+  for (const k of Object.keys(KINDS)) { const im = new THREE.InstancedMesh(shardGeo, shardMats[k], SHARDS); im.count = 0; im.frustumCulled = false; group.add(im); inst[k] = im; }
+  for (let i = 0; i < SHARDS; i++) shards.push({ m: new THREE.Object3D(), kind: 'blood', vel: new THREE.Vector3(), spin: new THREE.Vector3(), life: 0, max: 1, size: 0.03, g: 9 });
   let shardI = 0;
   /** Пръска n парчета от точка; dir (по избор) е посоката на куршума: парчетата летят по нея и настрани. */
   let kids = false;      // детски режим: без кръв и парчета, само малко прах
@@ -95,7 +98,7 @@ export function createFx(ctx) {
     const d = KINDS[kind] || KINDS.blood;
     for (let i = 0; i < n; i++) {
       const s = shards[shardI++ % shards.length];
-      s.m.material = shardMats[kind] || shardMats.blood;
+      s.kind = inst[kind] ? kind : 'blood';
       s.m.position.copy(pos);
       s.vel.set(Math.random() - 0.5, Math.random() * 0.9 + 0.1, Math.random() - 0.5).normalize().multiplyScalar(speed * (0.4 + Math.random() * 0.8));
       if (dir) s.vel.addScaledVector(dir, speed * 0.6 * Math.random());
@@ -103,13 +106,13 @@ export function createFx(ctx) {
       s.size = d.size * (0.6 + Math.random() * 0.9); s.g = d.g;
       s.life = s.max = d.life * (0.7 + Math.random() * 0.6);
       s.m.scale.setScalar(s.size);
-      s.m.visible = true;
     }
   }
   const casingGeo = new THREE.CylinderGeometry(0.0055, 0.0055, 0.022, 6);
   const casingMat = new THREE.MeshLambertMaterial({ color: 0xc9a23f });
   const casings = [];
-  for (let i = 0; i < 14; i++) { const m = new THREE.Mesh(casingGeo, casingMat); m.visible = false; group.add(m); casings.push({ m, vel: new THREE.Vector3(), life: 0, bounced: false }); }
+  const casingInst = new THREE.InstancedMesh(casingGeo, casingMat, 14); casingInst.count = 0; casingInst.frustumCulled = false; group.add(casingInst);
+  for (let i = 0; i < 14; i++) casings.push({ m: new THREE.Object3D(), vel: new THREE.Vector3(), life: 0, bounced: false });
   let casingI = 0;
   function casing(pos, quat) {
     const c = casings[casingI++ % casings.length];
@@ -117,7 +120,6 @@ export function createFx(ctx) {
     c.vel.set(1.2 + Math.random() * 0.8, 1.4 + Math.random() * 0.8, 0.2 * (Math.random() - 0.5)).applyQuaternion(quat);
     c.m.quaternion.copy(quat);
     c.life = 1.6; c.bounced = false;
-    c.m.visible = true;
   }
 
   // ── краят на погледа: червен пръстен пред очите (алфа по върховете), тъмен диск, когато играчът е паднал ──
@@ -152,7 +154,7 @@ export function createFx(ctx) {
     for (const s of shards) {
       if (s.life <= 0) continue;
       s.life -= dt;
-      if (s.life <= 0) { s.m.visible = false; continue; }
+      if (s.life <= 0) continue;
       s.vel.y -= s.g * dt;
       s.m.position.addScaledVector(s.vel, dt);
       if (s.m.position.y < 0.01) { s.m.position.y = 0.01; s.vel.set(0, 0, 0); s.spin.set(0, 0, 0); }
@@ -162,12 +164,19 @@ export function createFx(ctx) {
     for (const c of casings) {
       if (c.life <= 0) continue;
       c.life -= dt;
-      if (c.life <= 0) { c.m.visible = false; continue; }
+      if (c.life <= 0) continue;
       c.vel.y -= 9.8 * dt;
       c.m.position.addScaledVector(c.vel, dt);
       c.m.rotation.x += 14 * dt; c.m.rotation.z += 9 * dt;
       if (c.m.position.y < 0.012) { c.m.position.y = 0.012; if (!c.bounced) { c.bounced = true; c.vel.y = -c.vel.y * 0.35; c.vel.x *= 0.5; c.vel.z *= 0.5; } else c.vel.set(0, 0, 0); }
     }
+    // живите парчета и гилзи в техните InstancedMesh
+    for (const k in inst) inst[k].count = 0;
+    for (const s of shards) { if (s.life <= 0) continue; const im = inst[s.kind]; s.m.updateMatrix(); im.setMatrixAt(im.count++, s.m.matrix); }
+    for (const k in inst) if (inst[k].count) inst[k].instanceMatrix.needsUpdate = true;
+    casingInst.count = 0;
+    for (const c of casings) { if (c.life <= 0) continue; c.m.updateMatrix(); casingInst.setMatrixAt(casingInst.count++, c.m.matrix); }
+    if (casingInst.count) casingInst.instanceMatrix.needsUpdate = true;
     // пред очите
     hurtT = Math.max(0, hurtT - dt * 1.3);
     let low = 0;
@@ -186,6 +195,7 @@ export function createFx(ctx) {
 
   function dispose() {
     root.remove(group);
+    for (const im of [...Object.values(inst), casingInst]) im.dispose();
     for (const g of [flashGeo, tracerGeo, shardGeo, casingGeo, ring.geometry, veil.geometry]) g.dispose();
     for (const m of [flashMat, tracerMat, casingMat, ring.material, veil.material, ...Object.values(shardMats)]) m.dispose();
   }

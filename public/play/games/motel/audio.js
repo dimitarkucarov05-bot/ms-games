@@ -403,7 +403,7 @@ export function createAudio(ctx, opts = {}) {
   }
   const fwd = new ctx.THREE.Vector3();
 
-  function dispose() { try { musicNode?.stop(0.2); ambNode?.stop(0.2); ac?.close(); } catch { /* вече е затворен */ } ac = null; }
+  function dispose() { try { musicNode?.stop(0.2); ambNode?.stop(0.2); for (const el of pending) { el.pause(); el.removeAttribute('src'); } pending.clear(); bank.clear(); ac?.close(); } catch { /* вече е затворен */ } ac = null; }
 
   // ── нови събития: без запис ползват най-близкия досегашен звук или мълчат ──
   function leap(x, z) { if (!ok()) return; const t = ac.currentTime, d = out(x, z, 1.2); noise(d, t, 0.35, { type: 'bandpass', f0: 600, f1: 1800, q: 0.8, gain: 0.35, attack: 0.08 }); }

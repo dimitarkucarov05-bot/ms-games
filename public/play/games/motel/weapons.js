@@ -527,6 +527,7 @@ export async function createWeapons(ctx, start, A, fx, audio, zombies) {
     /** Секунди от последния изстрел с тази ръка. */
     sinceShot(side) { const g = mine[side]; return g && Number.isFinite(g.shotAt) ? clock - g.shotAt : 99; },
     lastSide: () => lastSide,
+    extras: () => Object.values(protos).filter(Boolean),      // образците на оръжията (извън сцената)
     fireNow(side) { const g = mine[side]; if (g) { g.nextShot = Math.min(g.nextShot, clock); fire(g); } },
     info: () => ({ shots: shotsFired, defs: Object.fromEntries(Object.entries(defs).map(([k, d]) => [k, `${d.slug}/${d.model}`])), mine: Object.fromEntries(Object.entries(mine).map(([s, g]) => [s, { kind: g.kind, ammo: g.ammo, reserve: g.reserve, reloading: clock < g.reloadUntil, active: g.active }])) }),
   };

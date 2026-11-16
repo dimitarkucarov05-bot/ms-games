@@ -96,16 +96,23 @@ export async function createChest(ctx, start, weapons, fx, audio) {
   let lidOpen = 0, lidFrom = 0, lidUntil = 0, lidSaid = true, clock = 0, launches = 0;
   function make(id, k, x, z, flyIndex) {
     if (items.has(id)) return items.get(id);
-    const gun = weapons.cloneGun(k);
-    gun.traverse(o => { if (o.isMesh) { o.material = lit(o.material); o.frustumCulled = false; } });
-    const b = gun.userData.box;
-    // лежи на едната си страна, средата му е над мястото
-    gun.rotation.set(0, 0, Math.PI / 2);
+    const src = weapons.cloneGun(k);
+    src.traverse(o => { if (o.isMesh) o.material = lit(o.material); });
+    const b = src.userData.box;
+    // лежи на едната си страна, средата му е над мястото. Частите на оръжието (затвор, пълнител, спусък) се сливат в една
+    // мрежа на материал, сянката в една-единствена: на каската всяко оръжие на земята струва 2-3 рисувания, не 10.
+    src.rotation.set(0, 0, Math.PI / 2); src.position.set(0, 0, 0); src.updateMatrixWorld(true);
+    const solid = ctx.assets.merge([src]);
+    const gun = new THREE.Group();      // въртенето при полета е около средата на оръжието
     gun.position.set(0, 0, -(b.min.z + b.max.z) / 2);
+    gun.add(solid);
     const obj = new THREE.Group();
     obj.add(gun);
-    const shade = new THREE.Group(), flat = gun.clone(true);
-    flat.traverse(o => { if (o.isMesh) { o.material = shadowMat; o.frustumCulled = false; } });
+    obj.updateMatrixWorld(true);
+    const flatSrc = gun.clone(true);
+    flatSrc.traverse(o => { if (o.isMesh) o.material = shadowMat; });
+    flatSrc.updateMatrixWorld(true);
+    const shade = new THREE.Group(), flat = ctx.assets.merge([flatSrc]);
     shade.add(flat);
     shade.scale.set(SHADOW_K, 0, SHADOW_K);      // всичко ляга в една равнина
     shade.position.set(x + SHADOW_DX, SHADOW_Y, z + SHADOW_DZ);
@@ -129,7 +136,10 @@ export async function createChest(ctx, start, weapons, fx, audio) {
     items.set(id, rec);
     return rec;
   }
-  function drop(rec) { group.remove(rec.obj); group.remove(rec.shade); items.delete(rec.id); if (labelFor === rec) labelFor = null; }
+  function drop(rec) {
+    group.remove(rec.obj); group.remove(rec.shade); items.delete(rec.id); if (labelFor === rec) labelFor = null;
+    for (const o of [rec.obj, rec.shade]) o.traverse(m => { if (m.isMesh) m.geometry.dispose(); });      // слетите мрежи са само негови
+  }
 
   /** От сандъка излизат нови оръжия: e.items = [[номер, вид, x, z], …]. */
   function open(e, delay = 0) {
