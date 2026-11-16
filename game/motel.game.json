@@ -3,7 +3,7 @@
   "name": "The Motel",
   "tagline": "Nobody checks out",
   "description": "Night at an abandoned roadside motel. You get thirty seconds to board up the gates and grab a weapon, then the dead come out of the dark wave after wave. Stand at a gate and a hammer appears in your hand to nail the planks back while your other hand keeps shooting. Hulking brutes tear the planks off two at a time, leapers vault the barricade beside the gates, a car alarm in the distance tells you where the next pack is coming from, and when the power fails the dead climb out of the ground inside your fence. Fuel barrels explode when shot, and at the end something huge arrives.",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "status": "ready",
   "rules": "motel.js",
   "client": "motel",

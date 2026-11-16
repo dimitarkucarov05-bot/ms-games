@@ -139,6 +139,27 @@ export const RULES = {
   // Темпото: вълните са разпределени до plan от времето; отбор, който изпреварва графика, получава подкрепления
   // (група от 2 до 5 на всеки pulse секунди, докато е почти чисто), за да не свърши платеното време по-рано.
   pace: { plan: 0.72, pulse: 1.5, tail: 5 },
+  // Режисьорът във вълната (research/game-feel.md P3): напрежение I от 0 до 1. Расте от ухапване, падане, убийство до
+  // играч, изгубена дъска; спада, когато нищо не е до играчите. Над hold новите спират (до holdMax с); под bored за boredFor с
+  // следващите pack идват наведнъж откъдето най-малко гледат.
+  director: { hold: 0.8, holdMax: 6, bored: 0.25, boredFor: 6, pack: 4, bite: 0.12, down: 0.25, kill: 0.03, plank: 0.08, decay: 0.04, near: 5 },
+  // най-много толкова зомбита замахват едновременно по един и същ играч (P4); другите чакат наоколо
+  tokens: { easy: 2, normal: 2, hard: 3, nightmare: 4 },
+  // предупреждения (P4): пищящият засилва другите scream с след писъка; прескачащият кляга perch с на барикадата; оградата
+  // дрънчи, когато първият прескачащ на вълната е на rattle м от нея; изравящият се се чува dig с преди да излезе (и никога на
+  // по-малко от digAway м от играч); едрият реве на roar м
+  telegraph: { scream: 1.2, perch: 0.6, rattle: 6, dig: 2, digAway: 1.5, roar: 14 },
+  release: 1.5,               // след последното убийство на вълната толкова секунди тишина, после 'clear'
+  // Шефът на три фази (P7): влиза entrance с без да може да бъде ранен; под throwFrom хвърля по играч (windup с предупреждение,
+  // удар в slamR м); под rageAt идват runners бегачи; всяко залитане го сваля на коляно за kneel с и раните са kneelDmg пъти.
+  bossPhases: { entrance: 10, throwFrom: 0.7, throwEvery: 9, throwMin: 3, windup: 1.2, slamR: 1.6, slamDmg: 30, runners: 6, kneel: 3, kneelDmg: 2 },
+  // наградите в края (P9): всеки играч получава различна, никоя не е лоша
+  awards: [
+    ['bossSlayer', 'Boss Slayer', p => p.bossDamage], ['headhunter', 'Headhunter', p => p.headshots], ['sharpshooter', 'Sharpshooter', p => (p.shots >= 10 ? p.hits / p.shots : 0)],
+    ['carpenter', 'Carpenter', p => p.boards], ['medic', 'Medic', p => p.revives], ['bodyguard', 'Bodyguard', p => p.nearKills],
+    ['demolition', 'Demolition', p => p.barrelKills], ['butcher', 'Butcher', p => p.meleeKills],
+  ],
+  fallbackAwards: [['survivor', 'Last One Standing'], ['teamPlayer', 'Team Player'], ['steady', 'Steady Hands'], ['grit', 'True Grit'], ['lookout', 'Lookout'], ['spirit', 'Fighting Spirit']],
   windup: 0.45,               // от замаха до удара
   screamer: { range: 9, keep: 6, every: 7, time: 2.2, buff: 14, rage: 5, speed: 1.5, charges: 3 },
   boss: { head: 2.5, flinch: 600, rageAt: 0.4, rageSpeed: 1.5, smash: 2.2, adds: 4 },
@@ -475,7 +496,7 @@ export function createGame(opts = {}) {
   function join(id, info) {
     let pl = players.get(id);
     if (!pl) {
-      pl = gone.get(id) || { id, n: players.size + gone.size + 1, name: '', pick: -1, hp: P.hp, hurtAt: -99, downUntil: 0, downs: 0, waveDeaths: 0, guardUntil: 0, boards: 0, kills: 0, headshots: 0, score: 0, shots: 0, hits: 0, w: { l: gun('pistol'), r: gun('pistol') } };
+      pl = gone.get(id) || { id, n: players.size + gone.size + 1, name: '', pick: -1, hp: P.hp, hurtAt: -99, downUntil: 0, downs: 0, waveDeaths: 0, guardUntil: 0, boards: 0, revives: 0, nearKills: 0, barrelKills: 0, meleeKills: 0, bossDamage: 0, helper: null, kills: 0, headshots: 0, score: 0, shots: 0, hits: 0, w: { l: gun('pistol'), r: gun('pistol') } };
       gone.delete(id);
       pl.pose = null;
       players.set(id, pl);
@@ -539,6 +560,40 @@ export function createGame(opts = {}) {
     spawnGap = Math.max(0.25, S((18 + 2 * wave) * stretch) / toSpawn.length * waveOf(wave).gap);
     spawnAt = time;
   }
+  // ── режисьорът ──
+  const D = RULES.director;
+  let I = 0, holdStart = -1, holding = false, boredStart = -1, clearAt = 0, rattled = 0;
+  const bump = k => { I = clamp(I + k, 0, 1); };
+  /** Посоката на погледа на играча в залата (от кватерниона на главата в позата). */
+  const lookOf = pl => { const q = pl.pose; if (!q) return null; const [x, y, z, w] = [q[3], q[4], q[5], q[6]]; const fx = -2 * (x * z + w * y), fz = -(1 - 2 * (x * x + y * y)), l = Math.hypot(fx, fz) || 1; return [fx / l, fz / l]; };
+  function direct(dt) {
+    if (!players.size) return;
+    // нищо до играчите: напрежението спада
+    const heads = active().filter(p => !isDown(p)).map(headXZ);
+    if (!zombies.some(z => z.state !== STATE.dead && heads.some(h => Math.hypot(h[0] - z.x, h[1] - z.z) < D.near))) I = Math.max(0, I - D.decay * dt);
+    if (phase !== 'wave') { holdStart = -1; holding = false; boredStart = -1; return; }
+    if (I > D.hold) { if (holdStart < 0) holdStart = time; } else holdStart = -1;
+    holding = holdStart >= 0 && time - holdStart < S(D.holdMax);
+    if (I < D.bored && toSpawn.length && routes.length) {
+      if (boredStart < 0) boredStart = time;
+      if (time - boredStart >= S(D.boredFor)) { boredStart = -1; packNow(); }
+    } else boredStart = -1;
+  }
+  /** Скучно е: следващите D.pack идват наведнъж по пътеката, към която най-малко се гледа. */
+  function packNow() {
+    const looks = active().map(lookOf).filter(Boolean);
+    let best = null, bestSeen = Infinity;
+    for (const r of routes) {
+      const p = r.points[r.points.length - 3] || r.points[0], dx = p[0] - zone.cx, dz = p[1] - zone.cz, l = Math.hypot(dx, dz) || 1;
+      const seen = looks.reduce((n, q) => n + Math.max(0, q[0] * dx / l + q[1] * dz / l), 0) + rand() * 0.05;
+      if (seen < bestSeen) { bestSeen = seen; best = r; }
+    }
+    const kinds = toSpawn.splice(0, Math.min(D.pack, toSpawn.length));
+    kinds.forEach((kind, i) => horde.push({ at: time + S(0.3 * i), lane: best, f: 0.35, kind }));
+    const [x, zz] = alongLane(best, 0.35);
+    emit('pack', { x: r2(x), zz: r2(zz), n: kinds.length });
+  }
+
   // Алармата на кола: отдалеч, по една от пътеките; звукът и светлината казват откъде, после оттам тича глутница.
   let horde = [], alarmed = 0;
   function alarmStep() {
@@ -548,11 +603,27 @@ export function createGame(opts = {}) {
       const lane = routes[Math.floor(rand() * routes.length)], [x, zz] = alongLane(lane, RULES.alarm.pick);
       emit('alarm', { x: r2(x), zz: r2(zz) });
       const n = Math.round(w.alarm.n * Math.min(1.6, 0.6 + 0.4 * count()));
-      for (let i = 0; i < n; i++) horde.push({ at: time + S(1.5 + i * RULES.alarm.gap), lane });
+      for (let i = 0; i < n; i++) horde.push({ at: time + S(1.5 + i * RULES.alarm.gap), lane, over: 4 });      // алармата може да надхвърли тавана
     }
-    while (horde.length && time >= horde[0].at && alive() < aliveCap() + 4) { const h = horde.shift(); spawn(h.kind || 'runner', null, { lane: h.lane, f: h.f ?? RULES.alarm.pick }); }
+    drainHorde();
   }
-  const feed = () => { while (toSpawn.length && time >= spawnAt && alive() < aliveCap()) { spawn(toSpawn.shift()); spawnAt = time + spawnGap; } };
+  /** Глутниците (аларма, подкрепления, скука, ярост на шефа) и изравящите се, чийто час е дошъл. */
+  function drainHorde() {
+    while (horde.length && time >= horde[0].at && alive() < aliveCap() + (horde[0].over || 0)) { const h = horde.shift(); spawn(h.kind || 'runner', null, { lane: h.lane, f: h.f ?? RULES.alarm.pick }); }
+    while (digQ.length && time >= digQ[0].at) {
+      const d = digQ.shift(), tooClose = active().some(p => p.pose && Math.hypot(headXZ(p)[0] - d.x, headXZ(p)[1] - d.z) < RULES.telegraph.digAway);
+      spawn('digger', null, null, tooClose ? digSpot() : [d.x, d.z]);
+    }
+  }
+  const digQ = [];
+  const throws = [];      // хвърлено от шефа, което още е във въздуха: { at, x, z }
+  function slam(t) {
+    const BP = RULES.bossPhases;
+    emit('slam', { x: t.x, zz: t.z });
+    if (!boss || bossDead) return;
+    for (const pl of players.values()) { if (isDown(pl)) continue; const [x, zz] = headXZ(pl); if (Math.hypot(x - t.x, zz - t.z) <= BP.slamR) hurt(pl, BP.slamDmg, boss); }
+  }
+  const feed = () => { if (holding) return; while (toSpawn.length && time >= spawnAt && alive() < aliveCap()) { spawn(toSpawn.shift()); spawnAt = time + spawnGap; } };
   /** Докога трябва да трае вълната по графика (с подкрепления, ако отборът е бърз). */
   const slot = () => (T * RULES.pace.plan * (short ? 0.8 : 1) - S(intro)) / plan.length;      // кратката свършва по-рано
   let waveDue = 0;
@@ -602,8 +673,9 @@ export function createGame(opts = {}) {
     restock();
     boss = spawn('boss', map?.boss);
     boss.hp = boss.max = Math.round(Z.boss.hp * (0.6 + 0.4 * count()) * (fast ? 0.35 : 1) * L.hp);
-    bossAddAt = time + S(6);
-    emit('boss', { z: boss.id });
+    bossAddAt = time + S(RULES.bossPhases.entrance);
+    boss.entranceUntil = time + S(RULES.bossPhases.entrance); boss.throwAt = 0;
+    emit('boss', { z: boss.id, t: r2(S(RULES.bossPhases.entrance)) });
   }
 
   /**
@@ -636,15 +708,21 @@ export function createGame(opts = {}) {
     return [g.x - g.nx * 0.5, g.z - g.nz * 0.5];
   }
   /** at: { lane, f } — тръгва от тази част на пътеката (глутницата след алармата), а не от началото ѝ. */
-  function spawn(kind, laneId, at) {
+  function spawn(kind, laneId, at, pos) {
     const creep = kind === 'creeper', dig = kind === 'digger', type = creep ? 'runner' : dig ? 'walker' : kind;      // приведеният бегач е тичащ с друга стойка
     const t = Z[type];
     const z = { id: ++zid, type, look: Math.floor(rand() * 1000), hp: Math.round(t.hp * L.hp), max: Math.round(t.hp * L.hp), state: STATE.walk, until: 0, x: 0, z: 0, h: 0, lane: null, seg: 0,
       speed: t.speed * (type === 'boss' ? 1 : (0.82 + rand() * 0.42) * (1 + Math.min(0.4, RULES.faster * Math.max(0, wave - 1)))) * (fast ? 1.8 : 1) * L.speed, bash: null, target: null, hitAt: 0, swing: 0, rageUntil: 0, screamAt: 0, screams: 0, flinch: 0, staggerAt: -9, dieAt: 0, dx: 0, dz: 1, creep: creep ? 1 : 0 };
-    if (dig) {      // излиза от земята вътре в оградата: тръгва направо към играчите
+    if (dig && !pos) {      // първо се чува: земята се пропуква dig секунди преди да излезе (P4)
+      zid--;
       const [x, zz] = digSpot();
-      z.x = r3(x); z.z = r3(zz); z.state = STATE.rise; z.until = time + 1.4;
-      emit('dig', { z: z.id, x: r2(z.x), zz: r2(z.z) });
+      digQ.push({ at: time + S(RULES.telegraph.dig), x: r3(x), z: r3(zz) });
+      emit('dig', { x: r2(x), zz: r2(zz), t: r2(S(RULES.telegraph.dig)) });
+      return null;
+    }
+    if (dig) {      // излиза от земята вътре в оградата: тръгва направо към играчите
+      z.x = r3(pos[0]); z.z = r3(pos[1]); z.state = STATE.rise; z.until = time + 1.4;
+      emit('rise', { z: z.id, x: r2(z.x), zz: r2(z.z) });
     } else if (lanes) {
       // път до порта: шефът по своята пътека, останалите по случаен път (всяка порта има поне един)
       const own = laneId != null ? routes.filter(r => r.lane === laneId) : [];
@@ -699,12 +777,12 @@ export function createGame(opts = {}) {
   function hurt(pl, dmg, z) {
     if (isDown(pl) || over || time < pl.guardUntil) return;
     dmg = Math.max(1, Math.round(dmg * L.dmg));
-    pl.hp -= dmg; pl.hurtAt = time; waveClean = false; waveHurt += dmg;
+    pl.hp -= dmg; pl.hurtAt = time; waveClean = false; waveHurt += dmg; bump(D.bite);
     emit('bite', { z: z.id, p: pl.id, dmg, hp: Math.max(0, Math.round(pl.hp)) });
     if (pl.hp <= 0) {
       // никакъв край на играта: падналият се връща след 5 с плюс 3 с за всяка смърт в тази вълна (най-много 20 с)
       const back = downFor(pl);
-      pl.hp = 0; pl.downUntil = time + back; pl.downs++; pl.waveDeaths++; downs++; waveDowns++;
+      pl.hp = 0; pl.downUntil = time + back; pl.downs++; pl.waveDeaths++; downs++; waveDowns++; pl.helper = null; bump(D.down);
       pl.score = Math.max(0, pl.score - P.downPenalty); score = Math.max(0, score - P.downPenalty);
       emit('down', { p: pl.id, t: r2(back) });
       if (active().every(isDown)) {
@@ -723,13 +801,14 @@ export function createGame(opts = {}) {
   function stepZombie(z, dt) {
     const t = Z[z.type];
     if (z.state === STATE.dead) return;
-    if (z.state === STATE.leap) {      // скокът през барикадата: по права от мястото пред нея до вътре
-      const k = clamp(1 - (z.until - time) / S(RULES.leaper.time), 0, 1);
+    if (z.state === STATE.leap) {      // кляга на барикадата perch с, после скача по права от мястото пред нея до вътре
+      const k = clamp((time - z.leapAt) / S(RULES.leaper.time), 0, 1);
       z.x = z.lf[0] + (z.lt[0] - z.lf[0]) * k; z.z = z.lf[1] + (z.lt[1] - z.lf[1]) * k;
       if (time >= z.until) { z.state = STATE.walk; z.x = z.lt[0]; z.z = z.lt[1]; }
       return;
     }
     if (z.state === STATE.rise || z.state === STATE.stagger || z.state === STATE.scream) {
+      if (z.buffAt && time >= z.buffAt) { z.buffAt = 0; for (const o of zombies) if (o !== z && o.state !== STATE.dead && Math.hypot(o.x - z.x, o.z - z.z) <= RULES.screamer.buff) o.rageUntil = time + RULES.screamer.rage; }
       if (time < z.until) return;
       z.state = STATE.walk;
     }
@@ -761,7 +840,7 @@ export function createGame(opts = {}) {
     if (z.type === 'screamer' && chase && near && z.screams < RULES.screamer.charges && near.d <= RULES.screamer.range) {
       if (time >= z.screamAt) {
         z.state = STATE.scream; z.until = time + RULES.screamer.time; z.screamAt = time + RULES.screamer.every; z.screams++;
-        for (const o of zombies) if (o !== z && o.state !== STATE.dead && Math.hypot(o.x - z.x, o.z - z.z) <= RULES.screamer.buff) o.rageUntil = time + RULES.screamer.rage;
+        z.buffAt = time + RULES.telegraph.scream;      // първо писъкът, после другите побесняват
         emit('scream', { z: z.id });
         z.h = toPlayer;
         return;
@@ -771,12 +850,33 @@ export function createGame(opts = {}) {
     // играч на една ръка разстояние: удря него, дори през барикадата
     if (near && near.d <= t.reach) {
       z.h = toPlayer;
-      if (time >= z.hitAt) { z.state = STATE.attack; z.bash = null; z.swing = time + RULES.windup; emit('swing', { z: z.id }); }
+      if (time >= z.hitAt) {
+        // най-много tokens наведнъж по един играч; другите чакат на крачка (шефът не чака)
+        const cap = RULES.tokens[level] || 2;
+        if (z !== boss && zombies.filter(o => o !== z && o !== boss && o.state === STATE.attack && !o.bash && o.target === near.pl.id).length >= cap) return;
+        z.state = STATE.attack; z.bash = null; z.target = near.pl.id; z.swing = time + RULES.windup; emit('swing', { z: z.id });
+      }
       return;
     }
     if (gate) {
       z.h = Math.atan2(-gate.nx, -gate.nz);
       if (time >= z.hitAt) { z.state = STATE.attack; z.bash = gate; z.swing = time + RULES.windup; emit('swing', { z: z.id, g: gate.i }); }
+      return;
+    }
+    // оградата дрънчи преди първия скок на вълната; едрият реве, щом наближи
+    if (z.type === 'leaper' && z.lane?.leapTo && rattled !== wave && !chase) {
+      const end = pts[pts.length - 1];
+      let left = Math.hypot(end[0] - z.x, end[1] - z.z);
+      if (z.seg < pts.length - 1) { left = Math.hypot(pts[z.seg][0] - z.x, pts[z.seg][1] - z.z); for (let i = z.seg; i < pts.length - 1; i++) left += Math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]); }
+      if (left < RULES.telegraph.rattle * (fast ? 1.8 : 1)) { rattled = wave; emit('rattle', { x: r2(end[0]), zz: r2(end[1]) }); }
+    }
+    if (z.type === 'brute' && !z.roared && Math.hypot(z.x - zone.cx, z.z - zone.cz) < RULES.telegraph.roar) { z.roared = true; emit('roar', { z: z.id }); }
+    // шефът във втората фаза: отдалеч хвърля по играч, а мястото на удара се вижда и чува windup секунди по-рано
+    if (z === boss && near && z.hp > z.max * RULES.boss.rageAt && z.hp <= z.max * RULES.bossPhases.throwFrom && time >= (z.throwAt || 0) && near.d > RULES.bossPhases.throwMin) {
+      const BP = RULES.bossPhases, [px, pz] = headXZ(near.pl), wind = S(BP.windup);
+      z.state = STATE.scream; z.until = time + wind; z.throwAt = time + S(BP.throwEvery); z.h = toPlayer;
+      throws.push({ at: time + wind, x: r2(px), z: r2(pz) });
+      emit('throw', { z: z.id, x: r2(px), zz: r2(pz), t: r2(wind) });
       return;
     }
     const step = Math.min(d, z.speed * rage * bossRage * dt);
@@ -785,9 +885,10 @@ export function createGame(opts = {}) {
     if (!chase && d < 0.5) {
       z.seg++;
       if (z.lane.leapTo && z.seg >= pts.length) {      // при барикадата: скача навътре
-        z.state = STATE.leap; z.until = time + S(RULES.leaper.time); z.lf = [z.x, z.z]; z.lt = z.lane.leapTo;
+        const perch = S(RULES.telegraph.perch);
+        z.state = STATE.leap; z.leapAt = time + perch; z.until = z.leapAt + S(RULES.leaper.time); z.lf = [z.x, z.z]; z.lt = z.lane.leapTo;
         z.h = Math.atan2(z.lt[0] - z.x, z.lt[1] - z.z);
-        emit('leap', { z: z.id, x0: r2(z.x), z0: r2(z.z), x1: z.lt[0], z1: z.lt[1] });
+        emit('leap', { z: z.id, x0: r2(z.x), z0: r2(z.z), x1: z.lt[0], z1: z.lt[1], p: r2(perch) });
       }
     }
   }
@@ -795,7 +896,9 @@ export function createGame(opts = {}) {
   function hitGate(g, z) {
     if (g.boards <= 0) return;
     const big = z.type === 'boss';
+    const before = g.boards;
     g.boards = big ? 0 : Math.max(0, g.boards - (z.type === 'brute' ? RULES.brute.boards : 1));
+    bump(D.plank * (before - g.boards));
     g.fix = 0;
     emit('bang', { g: g.i, z: z.id, left: g.boards, big: big ? 1 : z.type === 'brute' ? 2 : 0 });
     if (g.boards === 0) { breaches++; emit('breach', { g: g.i }); }
@@ -840,7 +943,7 @@ export function createGame(opts = {}) {
       const dir = [dx / (d || 1), 0, dz / (d || 1)];
       if (z.type === 'boss') damage(z, pl, BOMB.boss, false, dir);
       else if (z.type === 'brute') damage(z, pl, RULES.brute.bomb, false, dir);
-      else { z.dx = dir[0]; z.dz = dir[2]; kill(z, pl, false, Z[z.type].score); }
+      else { z.dx = dir[0]; z.dz = dir[2]; kill(z, pl, false, Z[z.type].score); if (pl) pl.barrelKills++; }
     }
     return true;
   }
@@ -865,8 +968,10 @@ export function createGame(opts = {}) {
     if (z.state === STATE.dead) return;
     z.state = STATE.dead; z.hp = 0; z.dieAt = time;
     if (z === boss) { bossDead = true; }
+    if (active().some(p => !isDown(p) && Math.hypot(headXZ(p)[0] - z.x, headXZ(p)[1] - z.z) < 4)) bump(D.kill);
     if (pl) {
       kills++; pl.kills++;
+      if (active().some(p => p !== pl && !isDown(p) && Math.hypot(headXZ(p)[0] - z.x, headXZ(p)[1] - z.z) < 3)) pl.nearKills++;      // пази съотборник
       if (head) { headshots++; pl.headshots++; }
       combo = time - comboAt <= RULES.combo.window ? Math.min(RULES.combo.max, combo + 1) : 0;
       comboAt = time;
@@ -880,11 +985,22 @@ export function createGame(opts = {}) {
     const t = Z[z.type];
     if (dir) { z.dx = dir[0]; z.dz = dir[2]; }
     if (z.type === 'boss') {
-      const d = dmg * (head ? RULES.boss.head : 1);
-      z.hp -= d; z.flinch += d;
+      if (time < (z.entranceUntil || 0)) return;      // влиза: още не може да бъде ранен
+      const BP = RULES.bossPhases, kneeling = time < (z.kneelUntil || 0);
+      const d = Math.min(z.hp, dmg * (head ? RULES.boss.head : 1) * (kneeling ? BP.kneelDmg : 1));
+      z.hp -= d; if (!kneeling) z.flinch += d;
+      if (pl) pl.bossDamage += d;
       if (z.hp <= 0) return kill(z, pl, head, t.score);
-      if (!z.raged && z.hp <= z.max * RULES.boss.rageAt) { z.raged = true; emit('rage', { z: z.id }); }
-      if (z.flinch >= RULES.boss.flinch * (0.6 + 0.4 * count()) && z.state !== STATE.attack) { z.flinch = 0; z.state = STATE.stagger; z.until = time + t.stagger; }
+      if (!z.raged && z.hp <= z.max * RULES.boss.rageAt) {
+        z.raged = true; emit('rage', { z: z.id });
+        // третата фаза: с него идват бегачи от всички страни
+        for (let i = 0; i < BP.runners && routes.length; i++) horde.push({ at: time + S(0.8 + i * 0.5), lane: routes[i % routes.length], f: 0.4, kind: 'runner' });
+      }
+      if (z.flinch >= RULES.boss.flinch * (0.6 + 0.4 * count()) && z.state !== STATE.attack && !kneeling) {
+        // слаб момент: пада на коляно, раната свети, ударите са двойни
+        z.flinch = 0; z.state = STATE.stagger; z.until = z.kneelUntil = time + S(BP.kneel);
+        emit('kneel', { z: z.id, t: r2(S(BP.kneel)) });
+      }
       return;
     }
     if (z.type === 'brute') {      // едрият: главата боли тройно, но не убива веднага; трепва чак след доста щета
@@ -984,6 +1100,7 @@ export function createGame(opts = {}) {
         const head = h[1] === 1;
         out.push([z.id, head ? 1 : 0]);
         damage(z, pl, w.dmg * n * (w.melee && (z.type === 'boss' || z.type === 'brute') ? 0.5 : 1), head, d);
+        if (w.melee && z.state === STATE.dead) pl.meleeKills++;
       }
       // варел с гориво: гърми, ако е цял и е в обсега на оръжието
       const bi = Number.isInteger(msg.bomb) ? msg.bomb : -1;
@@ -1010,12 +1127,12 @@ export function createGame(opts = {}) {
     const accuracy = shots ? r2(hitShots / shots) : 0;
     for (const z of zombies) if (z.state !== STATE.dead) kill(z, null, false, 0);      // краят: нищо не остава да стърчи замръзнало до играчите
     const stars = Math.max(0, (wave >= Math.ceil(plan.length / 2) ? 1 : 0) + (wave >= plan.length ? 1 : 0) + (bossSeen ? 1 : 0) + (bossDead ? 1 : 0) + (bossDead && downs <= count() - 1 ? 1 : 0) - Math.min(2, paidWipes));
-    const m = mult();
+    const m = mult(), aw = awardsFor([...players.values(), ...gone.values()]);
     score = Math.round(score * m);
     result = {
       score, money: score, stars, won, reason, wave, waves: plan.length, kills, headshots, accuracy, downs, boards: fixed, breaches, booms, level, wipes,
       minutes, short, kids, skipped, durationMs: Math.round(time * 1000),
-      players: all.sort((a, b) => a.n - b.n).map(p => ({ id: p.id, n: p.n, name: p.name, kills: p.kills, headshots: p.headshots, score: Math.round(p.score * m), downs: p.downs, deaths: p.downs, shots: p.shots, hits: p.hits, boards: p.boards })),
+      players: all.sort((a, b) => a.n - b.n).map(p => ({ id: p.id, n: p.n, name: p.name, kills: p.kills, headshots: p.headshots, score: Math.round(p.score * m), downs: p.downs, deaths: p.downs, shots: p.shots, hits: p.hits, boards: p.boards, award: aw.get(p.id) || null })),
     };
     emit('end', { won: won ? 1 : 0, reason });
   }
@@ -1027,13 +1144,21 @@ export function createGame(opts = {}) {
       finishReloads(pl);
       if (isDown(pl)) {      // прав съотборник до падналия го вдига по-бързо
         const [x, zz] = headXZ(pl);
-        for (const o of players.values()) if (o !== pl && !isDown(o)) { const [ox, oz] = headXZ(o); if (Math.hypot(ox - x, oz - zz) < RULES.wipe.near) { pl.downUntil -= dt * (RULES.wipe.revive - 1); break; } }
+        for (const o of players.values()) if (o !== pl && !isDown(o)) { const [ox, oz] = headXZ(o); if (Math.hypot(ox - x, oz - zz) < RULES.wipe.near) { pl.downUntil -= dt * (RULES.wipe.revive - 1); pl.helper = o.id; pl.helpAt = time; break; } }
       }
-      if (pl.downUntil && pl.downUntil <= time) { pl.downUntil = 0; pl.hp = P.reviveHp; pl.hurtAt = time; pl.guardUntil = time + RS.guard; emit('up', { p: pl.id }); }
+      if (pl.downUntil && pl.downUntil <= time) {
+        pl.downUntil = 0; pl.hp = P.reviveHp; pl.hurtAt = time; pl.guardUntil = time + RS.guard;
+        // вдигнат от съотборник: той получава съживяване и точки колкото за пет убити
+        const h = pl.helper && time - (pl.helpAt || -9) < 1 ? players.get(pl.helper) : null;
+        if (h) { h.revives++; const pts = RULES.zombies.walker.score * 5; h.score += pts; score += pts; }
+        pl.helper = null;
+        emit('up', { p: pl.id, by: h ? h.id : null });
+      }
       if (!isDown(pl) && pl.hp < P.hp && time - pl.hurtAt >= P.regenDelay) pl.hp = Math.min(P.hp, pl.hp + P.regen * dt);
     }
     // вълните
     stepGates(dt);
+    direct(dt);
     if (phase === 'intro') {
       if (time >= phaseEnd - lead) { prime(); feed(); }
       if (time >= phaseEnd) { restock(); startWave(); }
@@ -1042,8 +1167,15 @@ export function createGame(opts = {}) {
       if (time >= phaseEnd) { if ((lastWave() && !primed) || time >= T * RULES.bossAt - S(20)) startBoss(); else startWave(); }
     } else if (phase === 'wave') {
       if (time >= T * RULES.bossAt) startBoss();                              // времето на шефа дойде: идва върху каквото е останало
-      else { alarmStep(); reinforce(); feed(); if (!toSpawn.length && !horde.length && alive() === 0) startBreak(); }
+      else {
+        alarmStep(); reinforce(); feed();
+        // последното е паднало: секунда и половина тишина, после 'clear' (P2)
+        if (!toSpawn.length && !horde.length && !digQ.length && alive() === 0) { if (!clearAt) clearAt = time + S(RULES.release); else if (time >= clearAt) { clearAt = 0; startBreak(); } }
+        else clearAt = 0;
+      }
     } else if (phase === 'boss') {
+      drainHorde();
+      for (let i = throws.length - 1; i >= 0; i--) if (time >= throws[i].at) { const t = throws.splice(i, 1)[0]; slam(t); }
       if (bossDead) {
         if (!endAt) { endAt = time + S(RULES.outro); for (const z of zombies) if (z.state !== STATE.dead) kill(z, null, false, 0); }
         else if (time >= endAt) finish('boss');
@@ -1078,7 +1210,7 @@ export function createGame(opts = {}) {
   function snapshot() {
     return {
       t: Math.round(nowMs),
-      phase, wave, paused: paused ? 1 : 0, level,
+      phase, wave, paused: paused ? 1 : 0, level, heat2: r2(I), hold: holding ? 1 : 0,
       left: r2(Math.max(0, T - time)),
       next: phase === 'intro' || phase === 'break' ? r2(Math.max(0, phaseEnd - time)) : 0,
       score, kills, combo: time - comboAt <= RULES.combo.window ? combo : 0, chances,
@@ -1100,7 +1232,7 @@ export function createGame(opts = {}) {
     fence, gates, solid: map?.solid || [],
     edges: edges.map(e => ({ x0: e.x0, z0: e.z0, x1: e.x1, z1: e.z1, nx: e.nx, nz: e.nz, len: e.len })), fenceOff: FENCE,
     routes: routes.map(r => ({ lane: r.lane, gate: r.gate, points: r.points })), bombs: bombs.map(b => ({ x: b.x, z: b.z })),
-    gate: { ...GT, start: OPT.boards }, leap: { time: r2(S(RULES.leaper.time)), high: RULES.leaper.high }, blast: BOMB.r, prep: r2(S(intro)), clear: map?.clear || 0,
+    gate: { ...GT, start: OPT.boards }, leap: { time: r2(S(RULES.leaper.time)), high: RULES.leaper.high, perch: r2(S(RULES.telegraph.perch)) }, slamR: RULES.bossPhases.slamR, blast: BOMB.r, prep: r2(S(intro)), clear: map?.clear || 0,
   });
 
   // ── MS Games 2: управление от пулта ──
@@ -1163,10 +1295,23 @@ export function createGame(opts = {}) {
    * Резултатът за пулта и класацията (работи и насред игра, например при спиране от оператора):
    * { score, won, durationMs, difficulty, level, players: [{ id, name, score, kills, deaths, extra }], extra }
    */
+  /** Различна, хубава награда за всеки играч: по поредност най-силният в нещо, иначе от резервните. */
+  function awardsFor(list) {
+    const out = new Map(), used = new Set();
+    for (const [id, name, metric] of RULES.awards) {
+      let best = null, bv = 0;
+      for (const p of list) { if (out.has(p.id)) continue; const v = metric(p) || 0; if (v > bv) { bv = v; best = p; } }
+      if (best) { out.set(best.id, { id, name }); used.add(id); }
+    }
+    const spare = RULES.fallbackAwards.filter(([id]) => !used.has(id));
+    for (const p of list.slice().sort((a, b) => a.downs - b.downs || b.kills - a.kills)) if (!out.has(p.id)) { const [id, name] = spare.shift() || ['player', 'Survivor']; out.set(p.id, { id, name }); }
+    return out;
+  }
+  const extraOf = (p, aw) => ({ headshots: p.headshots, shots: p.shots, hits: p.hits, accuracy: p.shots ? r2(p.hits / p.shots) : 0, boards: p.boards, revives: p.revives, nearKills: p.nearKills, barrelKills: p.barrelKills, meleeKills: p.meleeKills, bossDamage: Math.round(p.bossDamage), award: aw.get(p.id) || null });
   function results() {
     const m = mult();
     const all = [...players.values(), ...gone.values()].sort((a, b) => a.n - b.n);
-    const r = result;
+    const r = result, aw = awardsFor(all);
     return {
       score: r ? r.score : Math.round(score * m),
       won: r ? r.won : false,
@@ -1176,7 +1321,7 @@ export function createGame(opts = {}) {
       players: all.map(p => ({
         id: p.id, n: p.n, name: p.name,
         score: Math.round(p.score * m), kills: p.kills, deaths: p.downs,
-        extra: { headshots: p.headshots, shots: p.shots, hits: p.hits, accuracy: p.shots ? r2(p.hits / p.shots) : 0, boards: p.boards },
+        extra: extraOf(p, aw),
       })),
       extra: {
         over, reason: r ? r.reason : null, stars: r ? r.stars : null,

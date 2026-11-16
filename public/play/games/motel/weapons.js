@@ -18,17 +18,19 @@ const FALLBACK = {      // докато светът не е предал assets
   lmg: { slug: 'battle-royale-pack', model: 'SM_Wep_MachineGun_01' },
   chainsaw: { slug: 'apocalypse-pack', model: 'SM_Wep_ChainSaw_01', forward: [1, 0, 0], grip: [0, 0.03, 0], muzzle: [0.98, 0, 0] },
 };
-const FEEL = {      // откат (радиани и метри), вибрация (сила, мс), колко бързо се връща
-  pistol: { kick: 0.22, back: 0.035, hap: [0.9, 55], ret: 14 },
-  smg: { kick: 0.07, back: 0.018, hap: [0.6, 30], ret: 20 },
-  shotgun: { kick: 0.42, back: 0.07, hap: [1, 110], ret: 8 },
-  rifle: { kick: 0.11, back: 0.03, hap: [0.8, 45], ret: 16 },
+// откат (радиани и метри), вибрация (сила, мс), колко бързо се връща; по research/game-feel.md, раздел 3 и P8:
+// пистолет 6° за 60 мс, автомат 2.5°/40, пушка 3.5°/55, револвер 11°/140, помпа 14°/220 и 3 см назад, ловна 16°/300
+const FEEL = {
+  pistol: { kick: 0.105, back: 0.02, hap: [0.9, 45], ret: 50 },
+  smg: { kick: 0.044, back: 0.012, hap: [0.6, 22], ret: 75 },
+  shotgun: { kick: 0.244, back: 0.03, hap: [1, 110], ret: 14, both: 0.4 },
+  rifle: { kick: 0.061, back: 0.02, hap: [0.75, 35], ret: 55 },
   axe: { kick: 0.3, back: 0, hap: [1, 110], ret: 10 },
   machete: { kick: 0.22, back: 0, hap: [0.9, 80], ret: 12 },
-  revolver: { kick: 0.4, back: 0.05, hap: [1, 90], ret: 9 },
-  carbine: { kick: 0.09, back: 0.025, hap: [0.7, 40], ret: 17 },
-  hunting: { kick: 0.5, back: 0.08, hap: [1, 140], ret: 7 },
-  lmg: { kick: 0.06, back: 0.02, hap: [0.75, 35], ret: 18 },
+  revolver: { kick: 0.19, back: 0.03, hap: [1, 70], ret: 21 },
+  carbine: { kick: 0.061, back: 0.02, hap: [0.75, 35], ret: 55 },
+  hunting: { kick: 0.28, back: 0.04, hap: [1, 110], ret: 10, both: 0.4 },
+  lmg: { kick: 0.052, back: 0.014, hap: [0.6, 22], ret: 65 },
   chainsaw: { kick: 0.03, back: 0.004, hap: [0.55, 45], ret: 22 },
 };
 const AIM_PITCH = 0;                 // допълнителен наклон на цевта спрямо лъча на контролера (радиани; + е нагоре)
@@ -189,7 +191,7 @@ export async function createWeapons(ctx, start, A, fx, audio, zombies) {
   function setKind(g, kind, ammo, reserve) {
     if (g.kind === kind && g.gun) { g.ammo = ammo; g.reserve = reserve; return; }
     if (g.gun) g.kick.remove(g.gun);
-    g.gun = cloneGun(kind); g.kind = kind; g.ammo = ammo; g.reserve = reserve; g.reloadUntil = 0;
+    g.gun = cloneGun(kind); g.kind = kind; g.ammo = ammo; g.reserve = reserve; g.reloadUntil = 0; g.lowSaid = false;
     g.kick.add(g.gun);
     const b = g.gun.userData.box;
     g.readout.mesh.position.set(0, b.max.y + 0.02, Math.min(b.max.z - 0.02, 0.06));
@@ -238,6 +240,7 @@ export async function createWeapons(ctx, start, A, fx, audio, zombies) {
    * Близък бой: острието е къс дебел лъч от дланта по оста на оръжието. Удря първото зомби, което докосва,
    * и го казва на сървъра като изстрел (същият път: брой удари, обсег, щета).
    */
+  let lastSide = 'r', reloadSaid = -99;
   function strike(g, w) {
     if (down || !g.active || g.stowed || !lastSnap || lastSnap.result || g.ammo <= 0 || clock < g.nextShot) return false;
     const saw = w.melee === 'saw';
@@ -246,7 +249,7 @@ export async function createWeapons(ctx, start, A, fx, audio, zombies) {
     g.nextShot = clock + 60 / w.rpm; g.shotAt = clock; g.ammo--; shotsFired++;
     const feel = FEEL[g.kind] || FEEL.axe;
     g.recoil = Math.min(0.5, g.recoil + feel.kick);
-    ctx.haptic(g.side, feel.hap[0], feel.hap[1]);
+    ctx.haptic(g.side, feel.hap[0], feel.hap[1]); lastSide = g.side;
     fx.burst(hit.point, 'blood', saw ? 5 : 14, saw ? 2.2 : 3, g.dir);
     audio.hit(hit.part === 1);
     if (saw) audio.saw?.(true); else audio.chop?.();
@@ -261,7 +264,7 @@ export async function createWeapons(ctx, start, A, fx, audio, zombies) {
     if (w.melee) { strike(g, w); return; }
     if (down || !g.active || !lastSnap || lastSnap.result) return;
     if (clock < g.reloadUntil || g.ammo <= 0) {
-      if (clock - g.dry > 0.25) { g.dry = clock; audio.dry(); ctx.haptic(g.side, 0.15, 15); }
+      if (clock - g.dry > 0.25) { g.dry = clock; audio.dry(); ctx.haptic(g.side, 0.15, 15); if (g.reserve !== 0 && clock - reloadSaid > 15) { reloadSaid = clock; audio.say?.('reload', 1); } }
       if (g.ammo <= 0 && clock >= g.reloadUntil) beginReload(g, false, true);
       return;
     }
@@ -272,7 +275,12 @@ export async function createWeapons(ctx, start, A, fx, audio, zombies) {
     const feel = FEEL[g.kind] || FEEL.pistol;
     g.recoil = Math.min(0.7, g.recoil + feel.kick); g.back = Math.min(0.09, g.back + feel.back);
     ctx.haptic(g.side, feel.hap[0], feel.hap[1]);
-    audio.shot(g.kind, null);
+    if (feel.both) { const o = mine[g.side === 'l' ? 'r' : 'l']; if (o && ctx.hands[o.side]?.pos && ctx.hands[g.side]?.pos && ctx.hands[o.side].pos.distanceTo(ctx.hands[g.side].pos) < 0.3) ctx.haptic(o.side, feel.both, feel.hap[1]); }      // с двете ръце
+    lastSide = g.side;
+    audio.shot(g.kind, null, g.ammo < 3 ? 1 + 0.06 * (3 - g.ammo) : 1);      // последните три патрона звучат все по-високо
+    { const hx = g.muzzle.x, hz = g.muzzle.z, shotgun = g.kind === 'shotgun';
+      if (shotgun) setTimeout(() => { audio.play('shotgun.pump'); ctx.haptic(g.side, 0.4, 30); }, 350);
+      setTimeout(() => audio.play(shotgun ? 'shell.drop.shotgun' : 'shell.drop', hx, hz), shotgun ? 650 : 350 + Math.random() * 150); }
     fx.flash(g.muzzle, g.dir, g.kind);
     fx.casing(g.muzzle, g.holder.quaternion);
     // сачмите: всяка е отделен лъч; попаденията се събират по зомби и част
@@ -289,7 +297,10 @@ export async function createWeapons(ctx, start, A, fx, audio, zombies) {
         end = v3.copy(hit.point);
         nearHit = Math.min(nearHit, end.distanceTo(g.origin));
         fx.burst(end, 'blood', hit.part ? 7 : 4, 2.2, v2);
-        if (hit.part === 1) zombies.localKill(hit.id, v2); else zombies.flinch(hit.id);
+        if (hit.part === 1) {
+          zombies.localKill(hit.id, v2);
+          if (!['boss', 'brute'].includes(zombies.list.get(hit.id)?.type)) { const side = g.side; setTimeout(() => ctx.haptic(side, 0.8, 30), 60); }      // второто трепване: убит
+        } else zombies.flinch(hit.id, v2);
       } else {
         // земята: прах, където куршумът я стига
         const t = v2.y < -0.01 ? -g.origin.y / v2.y : Infinity;
@@ -313,6 +324,7 @@ export async function createWeapons(ctx, start, A, fx, audio, zombies) {
     const msg = { a: 'shot', hand: g.side, o: [r3(g.muzzle.x), r3(g.muzzle.y), r3(g.muzzle.z)], d: [r3(g.dir.x), r3(g.dir.y), r3(g.dir.z)], hits: list };
     if (bomb >= 0) msg.bomb = bomb;
     ctx.send(msg);
+    if (g.reserve === 0 && !g.lowSaid && g.kind !== 'pistol' && g.ammo <= Math.ceil((w.mag || 10) * 0.2)) { g.lowSaid = true; audio.say?.('low_ammo', 1); }
     if (g.ammo <= 0) {
       if (g.reserve === 0) { /* сървърът връща пистолета */ } else beginReload(g, false, false);
     }
@@ -324,8 +336,10 @@ export async function createWeapons(ctx, start, A, fx, audio, zombies) {
     if (clock < g.reloadUntil && !(quick && g.reloadUntil - clock > w.fast)) return;
     g.reloadTotal = quick ? w.fast : w.reload;
     g.reloadUntil = clock + g.reloadTotal; g.reloadStart = clock; g.reloading = true;
-    audio.reload(g.reloadTotal);
-    ctx.haptic(g.side, 0.3, 25);
+    // три такта: пълнителят излиза, влиза, затворът щраква (последният е при края на презареждането)
+    if (audio.play('gun.mag.out')) { const at = g.reloadStart; setTimeout(() => { if (g.reloading && g.reloadStart === at) { audio.play('gun.mag.in'); ctx.haptic(g.side, 0.5, 30); } }, g.reloadTotal * 650); }
+    else audio.reload(g.reloadTotal);
+    ctx.haptic(g.side, 0.3, 20);
     if (tell || quick) ctx.send({ a: 'reload', hand: g.side, fast: quick ? 1 : 0 });
   }
 
@@ -472,7 +486,7 @@ export async function createWeapons(ctx, start, A, fx, audio, zombies) {
       if (g.downFor > RELOAD_HOLD && !g.wasDown) { g.wasDown = true; if (!w.melee && g.ammo < (w.mag || 0)) beginReload(g, true, true); }
       if (!pointDown) g.wasDown = false;
       // презареждането свърши (сървърът го потвърждава след малко)
-      if (g.reloading && clock >= g.reloadUntil) { g.reloading = false; g.ammo = g.reserve < 0 ? w.mag : Math.min(w.mag, g.ammo + g.reserve); g.shotAt = clock - 0.25; audio.loaded(); ctx.haptic(side, 0.5, 40); }
+      if (g.reloading && clock >= g.reloadUntil) { g.reloading = false; g.ammo = g.reserve < 0 ? w.mag : Math.min(w.mag, g.ammo + g.reserve); g.shotAt = clock - 0.25; audio.loaded(); ctx.haptic(side, 0.7, 35); }
       if (g.flashOff && clock >= g.flashOff) { g.flashOff = 0; if (g.gun.userData.flash) g.gun.userData.flash.visible = false; }
       // откат
       g.recoil *= Math.exp(-dt * (FEEL[g.kind]?.ret || 14)); g.back *= Math.exp(-dt * 18);
@@ -512,6 +526,7 @@ export async function createWeapons(ctx, start, A, fx, audio, zombies) {
     stow(side, on) { const g = mine[side]; if (g) g.stowed = !!on; },
     /** Секунди от последния изстрел с тази ръка. */
     sinceShot(side) { const g = mine[side]; return g && Number.isFinite(g.shotAt) ? clock - g.shotAt : 99; },
+    lastSide: () => lastSide,
     fireNow(side) { const g = mine[side]; if (g) { g.nextShot = Math.min(g.nextShot, clock); fire(g); } },
     info: () => ({ shots: shotsFired, defs: Object.fromEntries(Object.entries(defs).map(([k, d]) => [k, `${d.slug}/${d.model}`])), mine: Object.fromEntries(Object.entries(mine).map(([s, g]) => [s, { kind: g.kind, ammo: g.ammo, reserve: g.reserve, reloading: clock < g.reloadUntil, active: g.active }])) }),
   };

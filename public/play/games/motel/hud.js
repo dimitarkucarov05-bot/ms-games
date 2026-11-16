@@ -287,6 +287,7 @@ export async function createHud(ctx, start, A, weapons) {
     });
     rTex.needsUpdate = true;
     tMesh.visible = false;
+    if (o.keep && rMesh.visible) return;      // пак същата табела: само се пречертава на мястото си
     tD.set(0, 0, -1).applyQuaternion(ctx.head.quat); tD.y = 0;
     if (tD.lengthSq() < 1e-4) tD.set(0, 0, -1);
     tD.normalize();

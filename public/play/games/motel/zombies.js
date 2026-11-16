@@ -440,7 +440,25 @@ export async function createZombies(ctx, start, A, fx, audio) {
     audio.splat(rec.head);
   }
   /** Леко трепване от мое попадение в тялото (преди сървърът да е казал каквото и да е). */
-  function flinch(id) { const rec = list.get(id); if (rec && !rec.deadAt) rec.flinch = 0.12; }
+  /**
+   * Трепване от моето попадение, по вид (game-feel раздел 3): вървящият се извива встрани от изстрела, бегачът се спъва назад,
+   * едрите само трепват с глава (тялото им не помръдва).
+   */
+  function flinch(id, dir) {
+    const rec = list.get(id);
+    if (!rec || rec.deadAt) return;
+    rec.flinch = 0.15;
+    rec.fk = big(rec.type) ? 0.25 : rec.type === 'runner' || rec.type === 'leaper' ? 1.6 : 1;
+    rec.ftw = dir ? Math.sign(Math.sin(Math.atan2(dir.x, dir.z) - rec.h)) || 1 : 1;
+  }
+  /** Шефът пада на коляно: клипът на залитането, разтеглен за t секунди. */
+  function kneel(id, t) {
+    const rec = list.get(id);
+    if (!rec || rec.deadAt) return;
+    const key = clipList.stagger ? 'stagger' : KEYS.hit[0];
+    if (key) play(rec.b, key, { once: true, fade: 0.1, scale: Math.max(0.3, (clipList[key].duration || 1) / Math.max(0.5, t)), restart: true });
+    rec.attackUntil = clock + t;
+  }
 
   // ── лъчът на куршума ──
   /** Най-близкото живо зомби по лъча: { id, part (0 тяло, 1 глава), dist, point, rec } или null. */
@@ -495,6 +513,8 @@ export async function createZombies(ctx, start, A, fx, audio) {
       const b = rec.b;
       if (rec.deadAt) {
         const since = clock - rec.deadAt;
+        // тялото отлита 0.3-0.6 м по посоката на изстрела в първите 0.25 с
+        if (since < 0.25 && (rec.dx || rec.dz) && !big(rec.type)) { const l = Math.hypot(rec.dx, rec.dz) || 1, st = dt * (rec.pushV ||= 1.6 + Math.random() * 0.8); b.g.position.x += rec.dx / l * st; b.g.position.z += rec.dz / l * st; }
         if (rec.fall) { rec.fall = Math.min(1, rec.fall + dt * 2.2); b.g.rotation.x = -rec.fall * rec.fall * 1.5; }
         if (kids && b.faded) {      // детски режим: пада, после изтънява и изчезва, без да остава тяло
           const k = 1 - (since - FADE_AT) / FADE_TIME;
@@ -518,7 +538,7 @@ export async function createZombies(ctx, start, A, fx, audio) {
       if (rec.state === ST.leap) { const f = Math.min(1, (clock - rec.leapAt) / LEAP_T); y += 4 * LEAP_H * f * (1 - f); }      // дъгата над барикадата
       b.g.position.set(rec.x, y, rec.z);
       b.g.rotation.y = rec.h;
-      if (rec.flinch > 0) { rec.flinch -= dt; b.g.rotation.x = -0.16 * Math.max(0, rec.flinch / 0.12); } else b.g.rotation.x = 0;
+      if (rec.flinch > 0) { rec.flinch -= dt; const k = Math.max(0, rec.flinch / 0.15) * (rec.fk || 1); b.g.rotation.x = -0.14 * k; b.g.rotation.y = rec.h + 0.22 * k * (rec.ftw || 1) * (rec.fk >= 1 ? 1 : 0); } else b.g.rotation.x = 0;
       if (rec.state === ST.walk) locomotion(rec);
       // далечните се обновяват през кадър (на каската всяко тяло е 48 кости)
       const far = (rec.x - hx) ** 2 + (rec.z - hz) ** 2 > (quest ? 144 : 900);
@@ -543,7 +563,7 @@ export async function createZombies(ctx, start, A, fx, audio) {
   }
 
   return {
-    group, list, sync, killed, localKill, flinch, raycast, update, dispose, setFloor(fn) { floor = typeof fn === 'function' ? fn : null; }, swingOf: id => { const r = list.get(id); if (r && !r.deadAt) { r.state = ST.attack; swing(r); } },
+    group, list, sync, killed, localKill, flinch, kneel, raycast, update, dispose, setFloor(fn) { floor = typeof fn === 'function' ? fn : null; }, swingOf: id => { const r = list.get(id); if (r && !r.deadAt) { r.state = ST.attack; swing(r); } },
     info: () => ({ real, base, characters: protos.size, made, alive: [...list.values()].filter(r => !r.deadAt).length, corpses: corpses.length, clips: Object.fromEntries(Object.entries(KEYS).map(([k, v]) => [k, v.length])) }),
   };
 }

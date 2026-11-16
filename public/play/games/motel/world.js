@@ -697,6 +697,38 @@ export async function createWorld(ctx, start) {
   const alarmLight = lite ? null : new THREE.PointLight(0xffa020, 0, 24, 1.2);
   if (alarmLight) { group.add(alarmLight); own.lights.push(alarmLight); }
   let alarmT = -1;
+  // ── шефът хвърля (game-feel P7): варел лети по дъга към мястото, което свети червено и пулсира до удара ──
+  let markT = -1, markDur = 1.2, flying = null;
+  const markAt = new THREE.Vector3(), flyFrom = new THREE.Vector3();
+  async function marker(x, z, t, bossRec) {
+    if (x == null) { markT = -1; if (flying) flying.visible = false; if (alarmLight && alarmT < 0) alarmLight.intensity = 0; return; }
+    markAt.set(x, 0.15, z); markDur = Math.max(0.3, t || 1.2); markT = 0;
+    if (alarmLight) { alarmLight.color.setHex(0xff2a14); alarmLight.position.set(x, 0.35, z); alarmLight.distance = 4.5; }
+    if (!flying) {
+      const o = info(BARREL) ? await assets.get(APO, BARREL).catch(() => null) : null;
+      if (o) { flying = new THREE.Group(); flying.add(o); group.add(flying); }
+    }
+    if (flying) { flyFrom.set(bossRec ? bossRec.x : x, 3.2, bossRec ? bossRec.z : z + 6); flying.position.copy(flyFrom); flying.visible = true; }
+  }
+  function markStep(dt) {
+    if (markT < 0) return;
+    markT += dt;
+    const k = Math.min(1, markT / markDur);
+    if (alarmLight) alarmLight.intensity = 6 + 18 * (0.5 + 0.5 * Math.sin(markT * 18));
+    if (flying) { flying.position.lerpVectors(flyFrom, markAt, k); flying.position.y = flyFrom.y * (1 - k) + markAt.y * k + 3.5 * k * (1 - k); flying.rotation.x += dt * 7; flying.rotation.z += dt * 4; }
+    if (k >= 1) { markT = -1; if (flying) flying.visible = false; if (alarmLight) { alarmLight.intensity = 0; alarmLight.color.setHex(0xffa020); alarmLight.distance = 24; } }
+  }
+  // ── победа: прожектор от хеликоптера минава по зоната ──
+  let search = null, searchT = 0;
+  function searchlight(on) {
+    if (!on) { if (search) { search.visible = false; } return; }
+    if (!search) {
+      search = new THREE.SpotLight(0xdfe8ff, lite ? 60 : 90, 40, 0.32, 0.5, 1.2);
+      search.position.set((F.x0 + F.x1) / 2, 14, ((F.z0 + F.z1) / 2) + 4);
+      group.add(search, search.target); own.lights.push(search);
+    }
+    search.visible = true; searchT = 0;
+  }
   function boom(e) {
     const i = e.b, b = bombs[i];
     if (b) b.alive = false;
@@ -816,7 +848,7 @@ export async function createWorld(ctx, start) {
       bolt = q < 0.07 ? 1 : q < 0.13 ? 0.08 : q < 0.21 ? 0.7 : q < 0.3 ? 0.04 : q < 0.36 ? 0.4 : 0;
       if (q > 0.5) boltT = -1;
     }
-    if (thunderAt && time >= thunderAt) { thunderAt = 0; try { audio?.thunder?.(); } catch { /* без звук */ } }
+    if (thunderAt && time >= thunderAt) { thunderAt = 0; try { audio?.thunder?.(); ctx.haptic?.('l', 0.15, 300); ctx.haptic?.('r', 0.15, 300); } catch { /* без звук */ } }
     if (hemi) hemi.intensity = HEMI * (1 - 0.38 * darkK) + bolt * 1.1;
     if (sun) sun.intensity = SUN * (1 - 0.4 * darkK) + bolt * 0.75;
     skyC.copy(nightC).multiplyScalar(1 - 0.35 * darkK).lerp(boltC, bolt * 0.3);
@@ -845,6 +877,8 @@ export async function createWorld(ctx, start) {
       if (f.fire) f.fire.update(dt);
     }
     live(dt);
+    markStep(dt);
+    if (search?.visible) { searchT += dt; const cx = (F.x0 + F.x1) / 2, cz = (F.z0 + F.z1) / 2; search.target.position.set(cx + Math.sin(searchT * 0.7) * 3, 0, cz + Math.cos(searchT * 0.53) * 3); search.position.y = 14 + Math.sin(searchT * 0.4); }
     if (alarmT >= 0 && alarmLight) { alarmT += dt; alarmLight.intensity = alarmT < 7.5 && Math.floor(alarmT * 2.4) % 2 === 0 ? 45 : 0; if (alarmT >= 7.5) alarmT = -1; }
     const g = weapons?.mine?.r;
     if (g && g.holder?.visible !== false && g.dir && g.muzzle && (g.active || ctx.hands?.r?.active)) { v.copy(g.muzzle); d.copy(g.dir); }
@@ -872,6 +906,7 @@ export async function createWorld(ctx, start) {
     attach(parts) { weapons = parts?.weapons || weapons; audio = parts?.audio || audio; fx = parts?.fx || fx; },
     onSnapshot, event, bombs,
     strike() { boltAt = 0; },      // за проби: светкавица веднага
+    marker, searchlight,
     lamp,
     get info() { return { ...stats, tris: Math.round(stats.tris), lite, fence: F, gates: gateObjs.map(r => r.boards), planks: planks ? planks.count : 0, hammer: Object.fromEntries(Object.entries(hammers).map(([k, v]) => [k, v.on])), bombsAlive: bombs.filter(b => b.alive).length, dark: darkOn }; },
   };

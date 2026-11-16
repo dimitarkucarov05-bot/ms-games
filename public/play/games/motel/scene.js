@@ -63,7 +63,9 @@ export async function createScene(ctx, start) {
 
   const WAVE_NAMES = start.waveNames || ['First contact', 'They keep coming', 'The rush', 'Blackout', 'The run'];
   const CLEAR_TIPS = ['New guns on the table', 'A chainsaw waits by the crate', 'Shoot the red barrels', 'Last wave. Nail the gates'];
-  let breachSaid = -99, waveSaid = 0;
+  let breachSaid = -99, waveSaid = 0, gateHitSaid = 0, digSaid = false;
+  /** Вижда ли играчът точката (в конус от 100°). */
+  function inView(x, z) { const f = v2.set(0, 0, -1).applyQuaternion(ctx.head.quat); const dx = x - ctx.head.pos.x, dz = z - ctx.head.pos.z, l = Math.hypot(dx, dz) || 1; return (f.x * dx + f.z * dz) / (Math.hypot(f.x, f.z) || 1) / l > Math.cos(50 * Math.PI / 180); }
   // ── състоянието от сървъра ──
   let snap = null, lastEvent = 0, time = 0, born = null, over = false, lastPhase = '', wasDown = false, paused = false;      // born: часовникът на страницата при първия кадър на играта
   const myId = () => ctx.me.id;
@@ -71,7 +73,7 @@ export async function createScene(ctx, start) {
   const BRIEF = [[0.06, 'TAKE A WEAPON', 'Lower your hand over one by the chest'], [0.36, 'NAIL THE GATES', 'Hold your hand at the planks'], [0.68, 'RELOAD', 'Point the barrel at the ground']];
   let briefN = 0, brief0 = 0;      // brief0: колко от подготовката е останало, когато играчът вече вижда света (зареждането изяжда началото ѝ)
   function brief(s) {
-    if (s.phase !== 'intro' || s.wave > 1) return;
+    if (s.phase !== 'intro' || s.wave > 1 || audio.has('voice.prep_weapons')) return;      // с говорителя надписите не трябват
     if (!brief0) brief0 = s.next || 0.001;
     if (brief0 < 12) return;
     const done = 1 - Math.max(0, Math.min(1, (s.next || 0) / brief0));
@@ -107,19 +109,73 @@ export async function createScene(ctx, start) {
       event(e, s);
     }
     lastPhase = s.phase;
+    try { present(s); } catch (e) { console.warn('[motel] present', e); }
     try { audio.music(musicFor(s)); } catch { /* без музика */ }
-    if (s.result && !over) {
-      over = true;
-      const r = s.result;
-      audio.ending(!!r.won);
-      // под него: докъде стигна групата и по един ред на играч (точки, убити, точност), най-добрият е най-горе
-      const rows = (r.players || []).slice().sort((a, b) => b.score - a.score).map(p => [p.name || `Player ${p.n}`, p.score, `${p.kills} kills`, p.shots ? `${Math.round(100 * (p.hits || 0) / p.shots)}%` : '']);
-      try {
-        hud.result({ title: r.won ? 'YOU SURVIVED' : 'GAME OVER', score: r.score, rows,
-          line: `${r.won ? 'Boss down' : `Wave ${Math.min(r.wave, start.waves || 5)} of ${start.waves || 5}`} · ${r.stars} of 5 stars${r.level && r.level !== 'normal' ? ` · ${r.level}` : ''}` });
-        fx.dim(0.62);      // светът притъмнява зад резултата
-      } catch (e) { console.warn('[motel] result', e); }
+    if (s.result && !over) { over = true; try { ending(s.result); } catch (e) { console.warn('[motel] result', e); } }
+  }
+
+  // ── краят на сцена (game-feel P9, P10): момент на победа, точките се броят, награда за всеки ──
+  const later = (sec, fn) => setTimeout(() => { if (!disposed) try { fn(); } catch (e) { console.warn('[motel] later', e); } }, sec * 1000);
+  let disposed = false;
+  function ending(r) {
+    const rows = (r.players || []).slice().sort((a, b) => b.score - a.score);
+    const line = `${r.won ? 'Boss down' : `Wave ${Math.min(r.wave, start.waves || 5)} of ${start.waves || 5}`} · ${r.stars} of 5 stars${r.level && r.level !== 'normal' ? ` · ${r.level}` : ''}`;
+    const board = (score, shown, keep) => hud.result({ keep, title: r.won ? 'YOU SURVIVED' : 'GAME OVER', score, line,
+      rows: rows.map((p, i) => [p.name || `Player ${p.n}`, p.score, i < shown ? (p.award?.name || '') : '', `${p.kills} kills`]) });
+    let t = 0;
+    if (r.won) {      // хеликоптерът идва, прожекторът минава по зоната, говорителят
+      audio.play('world.heli.in'); try { world?.searchlight?.(true); } catch { /* без прожектор */ }
+      later(1.2, () => audio.say('win_2', 3));
+      t = 4;
+    } else { audio.say('lose_1', 3); t = 2; }
+    later(t, () => { audio.ending(!!r.won); board(0, 0, false); fx.dim(0.62); });
+    const steps = 14;
+    for (let i = 1; i <= steps; i++) later(t + 0.5 + i * 0.16, () => { board(Math.round(r.score * i / steps), 0, true); audio.play('score.tick', null, null, 1, 1 + 0.25 * i / steps); });
+    const fin = t + 0.6 + steps * 0.16;
+    later(fin, () => { audio.play('score.final'); ctx.haptic('l', 0.6, 80); ctx.haptic('r', 0.6, 80); });
+    rows.forEach((p, i) => later(fin + 1 + i * 0.9, () => { board(r.score, i + 1, true); audio.play('award.reveal'); if (p.id === myId()) { ctx.haptic('l', 0.5, 60); ctx.haptic('r', 0.5, 60); } }));
+  }
+
+  // ── подредбата на звука и гласа (game-feel P2, P5, P6, P10, P11) ──
+  const KIDS = !!start.kids;
+  let contactWave = 0, sirenWave = 0, riserAt = -1, silenceUntil = 0, bossMusicAt = Infinity, praiseAt = -99, behindAt = -99, behindSince = 0;
+  let firstSnap = true, clockSaid = new Set(), prepSaid = new Set(), jumpSaid = false, bossSeenSaid = false, bossHalfSaid = false;
+  const voice = (id, prio) => { try { audio.say(id, prio); } catch { /* без глас */ } };
+  const praise = id => { if (time - praiseAt > 25) { praiseAt = time; voice(id, 0); } };
+  function present(s) {
+    const me = s.players?.find(p => p.id === myId());
+    if (firstSnap) { firstSnap = false; if (s.phase === 'intro') { audio.play('world.heli.away'); audio.prefetch(['voice.prep_weapons', 'voice.prep_gates', 'voice.prep_10', 'riser.10s', 'stinger.wave', 'voice.wave_1', 'wave.start']); } }
+    // подготовката: казва се какво се прави, без надписи
+    if (s.phase === 'intro' && s.wave <= 1) {
+      const left = s.next || 0, prep = start.prep || 30;
+      if (!prepSaid.has('w') && left < prep - 1 && left > 12) { prepSaid.add('w'); voice('prep_weapons', 1); }
+      if (!prepSaid.has('g') && left < prep * 0.62 && left > 12) { prepSaid.add('g'); voice('prep_gates', 1); }
+      if (!prepSaid.has('10') && left <= 10.5 && left > 7) { prepSaid.add('10'); voice('prep_10', 1); }
     }
+    // последните 10 с на подготовката и на всяка почивка: нарастващ звук, който свършва с вълната
+    if ((s.phase === 'intro' || s.phase === 'break') && s.next > 0 && s.next <= 10 && riserAt !== s.wave) { riserAt = s.wave; audio.play('riser.10s'); audio.prefetch(['voice.wave_' + Math.min(5, s.wave), 'stinger.wave', 'wave.start']); }
+    // тишина 2-3 с преди тъмната вълна (не и в детския режим)
+    if (!KIDS && (s.phase === 'intro' || s.phase === 'break') && s.next > 0 && s.next <= 2.6 && (start.darkWaves || []).includes(s.wave)) silenceUntil = Math.max(silenceUntil, time + s.next + 0.4);
+    // часовникът: пет, две, една минута
+    for (const [sec, id] of [[300, 'five_min'], [120, 'two_min'], [60, 'one_min']]) if (!clockSaid.has(id) && s.left <= sec && s.left > sec - 3 && (start.duration || 600) > sec + 30 && !s.result) { clockSaid.add(id); voice(id, 1); }
+    // първи досег с портите: тук започва музиката на вълната; сирената, когато първият е на 12 м
+    if (s.phase === 'wave' || s.phase === 'intro' || s.phase === 'break') {
+      const hx = ctx.head.pos.x, hz = ctx.head.pos.z;
+      let nearest = Infinity;
+      for (const r of s.z || []) if (r[6] !== 3) nearest = Math.min(nearest, Math.hypot(r[3] - hx, r[4] - hz));
+      if (s.phase === 'wave' && sirenWave !== s.wave && nearest < 12) { sirenWave = s.wave; audio.siren(false); }
+      if (s.phase === 'wave' && nearest < 3.2) contactWave = s.wave;
+    }
+    // шефът: виждане, половина
+    if (s.phase === 'boss' && s.boss != null) {
+      const b = (s.z || []).find(r => start.types?.[r[1]] === 'boss');
+      if (b && !bossSeenSaid && Math.hypot(b[3] - ctx.head.pos.x, b[4] - ctx.head.pos.z) < 15) { bossSeenSaid = true; voice('boss_seen', 3); }
+      if (!bossHalfSaid && s.boss <= 0.5) { bossHalfSaid = true; voice('boss_half', 2); }
+    }
+    // последната вълна: дъжд
+    if (s.phase === 'wave' && s.wave >= (start.waves || 5)) audio.ambience('rain');
+    else if (s.phase === 'intro' || s.phase === 'wave') audio.ambience('night');
+    void me;
   }
   /**
    * Кой пласт музика трябва сега: спокоен в подготовката и почивките, вълна, напрегнат (пробита порта, трима наблизо
@@ -128,11 +184,14 @@ export async function createScene(ctx, start) {
   let tenseUntil = 0;
   function musicFor(s) {
     if (s.result) return '';
-    if (s.phase === 'boss') return 'boss';
+    if (time < silenceUntil) return '';                       // тишината също е пласт: преди тъмното и преди шефа
+    if (s.phase === 'boss') return time >= bossMusicAt ? 'boss' : '';
     if (s.phase !== 'wave') return 'calm';
+    if (contactWave !== s.wave) return 'calm';                // приближаването носят стенанията и сирената, не музиката
+    if (KIDS) return 'wave';                                   // детският режим никога не става напрегнат
     const me = s.players?.find(p => p.id === myId()), hx = ctx.head.pos.x, hz = ctx.head.pos.z;
-    const near = (s.z || []).filter(r => r[6] !== 3 && Math.hypot(r[3] - hx, r[4] - hz) < 4).length;
-    if ((s.gates || []).some(g => g[0] === 0) || near >= 3 || (me && me.hp < 40)) tenseUntil = time + 4;
+    const crowd = (s.z || []).filter(r => r[6] !== 3 && Math.hypot(r[3] - hx, r[4] - hz) < 6).length;
+    if ((s.gates || []).some(g => g[0] === 0) || crowd >= 6 || (me && me.hp < 35) || s.heat2 > 0.7) tenseUntil = time + 8;
     return time < tenseUntil ? 'intense' : 'wave';
   }
   const near = (x, z, r) => Math.hypot(x - ctx.head.pos.x, z - ctx.head.pos.z) < r;
@@ -160,39 +219,72 @@ export async function createScene(ctx, start) {
         const rec = zombies.killed(e), type = start.types?.[e.type], heavy = type === 'boss' || type === 'brute';
         { const z0 = rec || zombies.list.get(e.z); if (z0) audio.death(z0.x, z0.z, heavy); }      // и за паднало вече от моя изстрел
         if (e.p === myId()) {
-          // моето убийство: удар в ръцете, по-силен за едрия и при поредица; главата има свой хрущящ звук
-          both(heavy ? 0.9 : Math.min(0.85, 0.35 + 0.1 * (e.combo || 0)), heavy ? 160 : 30 + 8 * Math.min(6, e.combo || 0));
-          if (e.head) audio.headshot();
-          if (e.combo >= 2) audio.combo(e.combo);
+          // моето убийство: второ трепване в стрелялата ръка (двойното „тук-тук" значи убит); главата е по-силна
+          const side = weapons.lastSide?.() || 'r';
+          if (!e.head || heavy) ctx.haptic(side, heavy ? 0.9 : 0.5, heavy ? 120 : 20);
+          if (e.head) { audio.headshot(); if (Math.random() < 0.3) praise('headshot'); }
+          if (e.combo >= 4) { audio.combo(e.combo); praise('nice_shot'); } else if (e.combo >= 2) audio.combo(e.combo);
         }
-        if (rec && rec.type === 'boss') { audio.roar(rec.x, rec.z); fx.burst(rec.head, 'gore', 30, 4); }
+        if (rec && rec.type === 'boss') {
+          // шефът пада бавно; всичко замлъква за секунда
+          audio.play('zombie.death.big', rec.x, rec.z); fx.burst(rec.head, 'gore', 30, 4); silenceUntil = time + 3.2; voice('boss_dead', 3);
+          for (const side of ['l', 'r']) ctx.haptic(side, 1, 300);
+        }
         else if (rec && rec.type === 'brute') fx.burst(rec.head, 'gore', 18, 3.2);
         return;
       }
+      case 'pack': { for (let i = 0; i < 3; i++) setTimeout(() => audio.groan(e.x + (Math.random() - 0.5) * 2, e.zz + (Math.random() - 0.5) * 2, 'runner'), i * 450); return; }
+      case 'rattle': { audio.play('fence.rattle', e.x, e.zz); if (!jumpSaid) voice('jumpers', 1); return; }
+      case 'roar': { try { world?.event?.({ k: 'brute' }); } catch { /* без светкавица */ } const r = zombies.list.get(e.z); audio.brute(r ? r.x : 0, r ? r.z : 12); both(0.4, 220); return; }
+      case 'rise': { if (!KIDS && !jumpSaid) { jumpSaid = true; audio.play('stinger.jump'); } if (near(e.x, e.zz, 4)) both(0.45, 200); return; }
+      case 'throw': {
+        // шефът хвърля: мястото на удара свети и се чува, преди да падне
+        audio.play('boss.windup', e.x, e.zz); try { world?.marker?.(e.x, e.zz, e.t, zombies.list.get(e.z)); } catch { /* без знак */ }
+        if (near(e.x, e.zz, (start.slamR || 1.6) + 0.5)) both(0.3, 120);
+        return;
+      }
+      case 'slam': {
+        audio.play('boss.slam', e.x, e.zz); try { fx.burst(v.set(e.x, 0.1, e.zz), 'dirt', 22, 4); world?.marker?.(null); } catch { /* без прах */ }
+        const d = Math.hypot(e.x - ctx.head.pos.x, e.zz - ctx.head.pos.z); if (d < 8) both(Math.max(0.2, 1 - d / 8), 220);
+        return;
+      }
+      case 'kneel': { const r = zombies.list.get(e.z); if (r) { audio.play('boss.hurt', r.x, r.z); zombies.kneel?.(e.z, e.t); } return; }
       case 'swing': { zombies.swingOf(e.z); const r = zombies.list.get(e.z); if (r) audio.attack(r.x, r.z, r.type === 'boss' || r.type === 'brute'); return; }
       // разнообразието: едрият идва със светкавица и рев, прескачащият лети над барикадата, изравящият се чупи земята
-      case 'brute': {
-        try { world?.event?.(e); } catch { /* само звук */ }
-        const r = zombies.list.get(e.z);
-        setTimeout(() => audio.brute(r ? r.x : 0, r ? r.z : 12), 500);
-        both(0.4, 220);
-        return;
-      }
+      case 'brute': return;      // идва в тъмното; ревът (събитие 'roar') е на 14 м
       case 'leap': {
-        audio.leap(e.x0, e.z0);
-        setTimeout(() => { audio.land(e.x1, e.z1); if (near(e.x1, e.z1, 3.5)) both(0.55, 90); try { fx.burst(v.set(e.x1, 0.05, e.z1), 'dirt', 8, 1.8); } catch { /* без прах */ } }, (start.leap?.time || 0.85) * 1000);
+        const perch = e.p ?? start.leap?.perch ?? 0;
+        later(perch, () => audio.leap(e.x0, e.z0));
+        later(perch + (start.leap?.time || 0.85), () => {
+          audio.land(e.x1, e.z1); if (near(e.x1, e.z1, 3.5)) both(0.55, 90);
+          try { fx.burst(v.set(e.x1, 0.05, e.z1), 'dirt', 8, 1.8); } catch { /* без прах */ }
+          if (!KIDS && !inView(e.x1, e.z1) && near(e.x1, e.z1, 4) && time - behindAt > 3) { audio.play('stinger.jump'); behindAt = time; }
+        });
         return;
       }
-      case 'dig': { audio.dig(e.x, e.zz); if (near(e.x, e.zz, 4)) both(0.45, 260); return; }
+      case 'dig': { audio.dig(e.x, e.zz); try { fx.burst(v.set(e.x, 0.05, e.zz), 'dirt', 6, 1.2); } catch { /* без прах */ } if (near(e.x, e.zz, 4)) both(0.3, 200); if (!digSaid) { digSaid = true; voice('crawlers', 1); } return; }
       case 'alarm': { try { world?.event?.(e); } catch { /* само звук */ } audio.alarm(e.x, e.zz); return; }
       case 'bite':
         if (e.p === myId()) { fx.hurt(e.dmg / 9); audio.bite(); ctx.haptic('l', 1, 140); ctx.haptic('r', 1, 140); }
         return;
       case 'scream': { const r = zombies.list.get(e.z); if (r) audio.scream(r.x, r.z); return; }
-      case 'wave': waveSaid = e.n; audio.siren(false); hud.title(`WAVE ${e.n}`, WAVE_NAMES[e.n - 1] || '', 3.4); return;
-      case 'boss': { try { world?.event?.(e); } catch { /* само звук */ } audio.siren(true); const r = zombies.list.get(e.z); setTimeout(() => audio.roar(r ? r.x : 0, r ? r.z : 10), 1400); hud.title('THE BOSS', 'Aim for the head', 4); return; }
+      case 'wave': waveSaid = e.n; audio.play('stinger.wave'); voice('wave_' + Math.min(5, e.n), 1); hud.title(`WAVE ${e.n}`, WAVE_NAMES[e.n - 1] || '', 3.4); return;
+      case 'boss': {
+        // влизането: всичко млъква, сирена, тежки стъпки от тъмното, светкавица показва силуета, акцент, рев; музиката е на рева
+        const k = (e.t || 10) / 10, at = () => { const r = zombies.list.get(e.z); return r ? [r.x, r.z] : [0, 12]; };
+        silenceUntil = time + 9 * k; bossMusicAt = time + 9 * k;
+        audio.prefetch(['boss.siren', 'stinger.boss', 'voice.boss_in', 'voice.boss_seen', 'voice.boss_rage', 'voice.boss_dead', 'boss.windup', 'boss.slam', 'boss.rage', 'world.heli.in', 'voice.win_2', 'score.tick', 'score.final', 'award.reveal']);
+        audio.siren(true);
+        later(2 * k, () => voice('boss_in', 3));
+        for (const [i, w] of [[3, 0.2], [4.6, 0.32], [6, 0.45]]) later(i * k, () => { const [x, z] = at(); audio.step(x, z, true); both(w, 60); });
+        later(6.5 * k, () => { try { world?.event?.(e); } catch { /* само звук */ } });
+        later(7.6 * k, () => audio.play('stinger.boss'));
+        later(8.6 * k, () => { const [x, z] = at(); audio.roar(x, z); both(0.6, 260); });
+        hud.title('THE BOSS', '', 4);
+        return;
+      }
       case 'clear': {
-        audio.clear();
+        audio.clear(); voice(['wave_clear_a', 'wave_clear_b', 'wave_clear_c'][e.n % 3], 1);
         const done = waveSaid || 1;      // последната обявена вълна е тази, която свърши
         if (!s.result) hud.title('WAVE CLEARED', done < (start.waves || 5) ? 'New weapons by the chest' : 'Weapons for the boss by the chest', 3.2);
         return;
@@ -200,18 +292,26 @@ export async function createScene(ctx, start) {
       case 'down': {      // съотборник е паднал: казва се кой и какво го вдига по-бързо
         if (e.p === myId() || s.result) return;
         const p = s.players?.find(q => q.id === e.p);
+        voice('down', 2);
         hud.title(`${p?.name || 'A teammate'} is down`, 'Stand next to them', 2.6);
         return;
       }
-      case 'rage': { const r = zombies.list.get(e.z); audio.roar(r ? r.x : 0, r ? r.z : 10); try { world?.strike?.(); } catch { /* без светкавица */ } hud.title('HE IS ANGRY', 'Keep shooting', 2.6); return; }
+      case 'up': {      // всички чуват, че някой е станал; който го вдигна, получава похвала
+        if (e.p !== myId()) { const p = s.players?.find(q => q.id === e.p); if (p) audio.play('player.up'); }
+        if (e.by === myId()) praise('teamwork');
+        if (e.p === myId() && e.by) voice('revived', 1);
+        return;
+      }
+      case 'rage': { const r = zombies.list.get(e.z); if (!audio.play('boss.rage', r ? r.x : 0, r ? r.z : 10)) audio.roar(r ? r.x : 0, r ? r.z : 10); try { world?.strike?.(); } catch { /* без светкавица */ } voice('boss_rage', 3); return; }
       case 'take': { try { chest.taken(e); } catch { /* оръжието пак изчезва със следващото състояние */ } if (e.p === myId()) { audio.pickup(); audio.take(); } return; }
       case 'offer': return;      // сандъкът го вижда сам в състоянието (chest.onSnapshot)
       case 'spent': if (e.p === myId()) audio.dry(); return;
       case 'chance': if (e.free !== 0) hud.title('SECOND CHANCE', '', 2.6); return;      // без втори шанс всеки става по своето време
       // портите: удар по дъските, пробив, коване
-      case 'bang': { const g = gateAt(e.g); try { world?.event?.(e); } catch { /* само звук */ } if (g) { if (e.left > 0 && !e.big) audio.bang(g.x, g.z); else audio.crack(g.x, g.z, !!e.big); } return; }
+      case 'bang': { const g = gateAt(e.g); try { world?.event?.(e); } catch { /* само звук */ } if (gateHitSaid !== s.wave && e.left <= 2 && s.phase === 'wave') { gateHitSaid = s.wave; voice('gate_hit', 1); } if (g) { if (e.left > 0 && !e.big) audio.bang(g.x, g.z); else audio.crack(g.x, g.z, !!e.big); } return; }
       case 'breach': {
         ctx.haptic('l', 0.8, 160); ctx.haptic('r', 0.8, 160);
+        if (s.phase !== 'intro') voice('gate_down', 3);
         const g = gateAt(e.g);
         if (g && time - breachSaid > 8 && s.phase !== 'intro') {      // накъде е пробивът спрямо погледа на играча
           breachSaid = time;
@@ -230,14 +330,49 @@ export async function createScene(ctx, start) {
         ctx.haptic('l', k, 260); ctx.haptic('r', k, 260);
         return;
       }
-      case 'dark': audio.power(!e.on); return;
+      case 'dark': {
+        audio.power(!e.on);
+        if (e.on) { if (!KIDS) audio.play('stinger.blackout'); voice('blackout', 3); }
+        else voice('power_back', 2);
+        return;
+      }
       default:
     }
     void s;
   }
 
+  // ── каквото се следи всеки кадър: „зад теб!", стенания отдалеч преди вълната, пулс при съживяване ──
+  let groanT = 2, pulseT = 0;
+  function watchFrame(dt) {
+    const s = snap;
+    if (!s || s.result || paused) return;
+    const hx = ctx.head.pos.x, hz = ctx.head.pos.z, me = s.players?.find(p => p.id === myId());
+    // зомби на 2.5 м извън погледа повече от секунда: само на този играч, най-много веднъж на 20 с
+    let behind = false;
+    for (const r of s.z || []) if (r[6] !== 3 && Math.hypot(r[3] - hx, r[4] - hz) < 2.5 && !inView(r[3], r[4])) { behind = true; break; }
+    behindSince = behind ? behindSince + dt : 0;
+    if (behindSince > 1 && time - behindAt > 20 && me && !(me.down > 0)) { behindAt = time; voice('behind', 2); }
+    // приближаване: чуват се, преди да се видят (стенания от далечните, по-тихо)
+    groanT -= dt;
+    if (groanT <= 0) {
+      groanT = 1.5 + Math.random();
+      const far = (s.z || []).filter(r => r[6] !== 3 && Math.hypot(r[3] - hx, r[4] - hz) > 12);
+      if (far.length && (s.phase !== 'wave' || contactWave !== s.wave)) { const r = far[Math.floor(Math.random() * far.length)]; audio.play('zombie.idle', r[3], r[4], 0.5); }
+    }
+    // съживяване: бавен двоен пулс и на двамата
+    pulseT -= dt;
+    if (pulseT <= 0 && me) {
+      pulseT = 1;
+      const downNear = (s.players || []).some(p => p.id !== me.id && p.down > 0 && players3(p) < 1.3);
+      if ((downNear && !(me.down > 0)) || (me.down > 0 && (s.players || []).some(p => p.id !== me.id && !(p.down > 0) && players3(p) < 1.3))) { both(0.3, 40); later(0.18, () => both(0.22, 40)); }
+    }
+  }
+  /** Колко далеч е друг играч (по главата му от състоянието на играчите в сцената, иначе безкрайно). */
+  function players3(p) { const o = ctx.players?.get?.(p.id); const pos = o?.head?.pos || o?.pos; return pos ? Math.hypot(pos.x - ctx.head.pos.x, pos.z - ctx.head.pos.z) : Infinity; }
+
   function update(dt, t) {
     time = t;
+    try { watchFrame(dt); } catch (e) { if (!worldError) console.warn('[motel] watch', e); }
     if (born === null) born = t;
     if (debug.bot) botAim();
     weapons.update(dt, t);
@@ -313,6 +448,7 @@ export async function createScene(ctx, start) {
   }
 
   function dispose() {
+    disposed = true;
     for (const part of [chest, hud, weapons, zombies, fx, audio]) { try { part.dispose(); } catch (e) { console.warn('[motel] dispose', e); } }
     try { world?.dispose?.(); } catch (e) { console.warn('[motel] world.dispose', e); }
     own?.dispose();

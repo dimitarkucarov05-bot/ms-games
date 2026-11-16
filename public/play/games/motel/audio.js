@@ -24,7 +24,7 @@ export function createAudio(ctx, opts = {}) {
     for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
   } catch { ac = null; }
 
-  function wake() { if (ac && ac.state !== 'running') ac.resume().catch(() => {}); }
+  function wake() { if (ac && ac.state !== 'running') ac.resume().catch(() => {}); for (const el of pending) el.play().then(() => pending.delete(el)).catch(() => {}); }
   let held = false, soft = 1;      // held: пауза (нищо ново не звучи); soft: детски режим (по-тихи писъци и удари)
   const ok = () => ac && !held && ac.state === 'running' && voices < MAX_VOICES;
   /** Пауза: звукът заглъхва за половин секунда и нищо ново не започва, докато играта стои. */
@@ -46,70 +46,150 @@ export function createAudio(ctx, opts = {}) {
     g.connect(p); p.connect(master);
     return g;
   }
-  // ── банката със записи ──
+  // ── банката със записи (S8: /play/assets/sfx/motel/map.json) ──
+  // Паметта на Quest 2 е малка: при зареждане се декодират само звуците на боя ('core'). Гласът, акцентите, точките, хеликоптерът
+  // се декодират при първа нужда (или по prefetch) и се освобождават 40 с след последната употреба ('lazy'). Музиката и фонът
+  // ('bed') не се декодират изобщо: текат през <audio> елемент.
   const BANK = String(opts.bank || '/play/assets/sfx/motel/map.json');
-  const bank = new Map();      // име → { bufs, kidsBufs, gain, pitch, cooldown, loop, last }
-  let bankState = 'none';
+  const bank = new Map();      // име → { files, kids, gain, pitch, cooldown, cls, bufs, kidsBufs, state, last, wantAt, used }
+  let bankState = 'none', base = null;
+  const LAZY = /^(voice\.|stinger\.|riser\.|score\.|award\.|end\.|world\.heli\.|radio\.|boss\.siren|wave\.(start|clear))/;
+  const BED = /^(music\.|ambience\.)/;
+  const decodeFile = async file => { try { const b = await fetch(new URL(file, base)).then(q => (q.ok ? q.arrayBuffer() : null)); return b && ac ? await ac.decodeAudioData(b) : null; } catch { return null; } };
+  /** Декодира записите на събитието (веднъж); връща обещание. */
+  function ensure(e) {
+    if (e.state === 'ready') return Promise.resolve(e);
+    if (!e.loading) {
+      e.state = 'loading';
+      e.loading = Promise.all([Promise.all(e.files.map(decodeFile)), Promise.all(e.kids.map(decodeFile))]).then(([a, k]) => { e.bufs = a.filter(Boolean); e.kidsBufs = k.filter(Boolean); e.state = 'ready'; e.loading = null; return e; });
+    }
+    return e.loading;
+  }
   async function loadBank() {
     if (!ac) return;
     bankState = 'loading';
     try {
       const r = await fetch(BANK);
       if (!r.ok) { bankState = 'missing'; return; }
-      const map = await r.json(), base = new URL(BANK, location.href);
-      const decode = async file => { try { const b = await fetch(new URL(file, base)).then(q => (q.ok ? q.arrayBuffer() : null)); return b ? await ac.decodeAudioData(b) : null; } catch { return null; } };
-      await Promise.all(Object.entries(map.events || {}).map(async ([name, e]) => {
-        const bufs = (await Promise.all((Array.isArray(e?.files) ? e.files : []).map(decode))).filter(Boolean);
-        const kidsBufs = (await Promise.all((Array.isArray(e?.kids) ? e.kids : []).map(decode))).filter(Boolean);
-        if (bufs.length || kidsBufs.length) bank.set(name, { bufs, kidsBufs, gain: Number.isFinite(e.gain) ? e.gain : 1, pitch: Array.isArray(e.pitch) ? e.pitch : [0.97, 1.03], cooldown: +e.cooldown || 0, last: -9 });
-      }));
+      const map = await r.json();
+      base = new URL(BANK, location.href);
+      for (const [name, e] of Object.entries(map.events || {})) {
+        const files = Array.isArray(e?.files) ? e.files : [];
+        if (!files.length) continue;
+        bank.set(name, { name, files, kids: Array.isArray(e.kids) ? e.kids : [], gain: Number.isFinite(e.gain) ? e.gain : 1, pitch: Array.isArray(e.pitch) ? e.pitch : [0.97, 1.03], cooldown: +e.cooldown || 0,
+          cls: BED.test(name) ? 'bed' : LAZY.test(name) ? 'lazy' : 'core', bufs: [], kidsBufs: [], state: 'idle', last: -9, wantAt: -9, used: 0, text: e.text || '' });
+      }
       bankState = bank.size + ' events';
       if (wantMusic) music(wantMusic, true);
-      if (wantAmb) ambience(true);
+      if (wantAmb) ambience(wantAmb);
+      // звуците на боя: по четири наведнъж, за да не задавят мрежата и процесора на каската
+      const core = [...bank.values()].filter(e => e.cls === 'core');
+      for (let i = 0; i < core.length; i += 4) await Promise.all(core.slice(i, i + 4).map(ensure));
+      bankState = bank.size + ' events, core ready';
     } catch { bankState = 'error'; }
   }
-  /** Пуска запис за събитието; true, ако има такъв (тогава синтезът мълчи). x, z: откъде (null: в главата). */
-  function sample(name, x = null, z = null, gain = 1) {
-    if (!ac || held) return false;
-    const e = bank.get(name);
-    if (!e) return false;
-    const list = soft < 1 && e.kidsBufs.length ? e.kidsBufs : e.bufs;
-    if (!list.length) return false;
-    if (ac.state !== 'running' || voices >= MAX_VOICES + 6) return true;
+  /** Освобождава редките записи, които не са свирили отдавна. */
+  function release() {
+    if (!ac) return;
     const t = ac.currentTime;
-    if (t - e.last < e.cooldown) return true;
-    e.last = t;
+    for (const e of bank.values()) if (e.cls === 'lazy' && e.state === 'ready' && t - e.used > 40) { e.bufs = []; e.kidsBufs = []; e.state = 'idle'; }
+  }
+  function start(e, x, z, gain, rate) {
+    const list = soft < 1 && e.kidsBufs.length ? e.kidsBufs : e.bufs;
+    if (!list.length) return null;
+    const t = ac.currentTime;
     const src = ac.createBufferSource();
     src.buffer = list[Math.floor(Math.random() * list.length)];
-    src.playbackRate.value = e.pitch[0] + Math.random() * Math.max(0, e.pitch[1] - e.pitch[0]);
+    src.playbackRate.value = (e.pitch[0] + Math.random() * Math.max(0, e.pitch[1] - e.pitch[0])) * rate;
     src.connect(out(x, z, e.gain * gain));
     src.start(t);
+    e.last = t; e.used = t;
     voices++; src.onended = () => { voices--; };
+    return src;
+  }
+  /**
+   * Пуска запис за събитието; true, ако събитието е в банката (тогава синтезът мълчи). x, z: откъде (null: в главата).
+   * Рядко събитие, което още не е декодирано, звучи, ако декодирането свърши до 0.4 с; иначе този път се пропуска.
+   */
+  function sample(name, x = null, z = null, gain = 1, rate = 1) {
+    if (!ac || held) return false;
+    const e = bank.get(name);
+    if (!e || e.cls === 'bed') return false;
+    if (soft < 1 && name === 'impact.gore') return true;
+    if (ac.state !== 'running' || voices >= MAX_VOICES + 8) return true;
+    const t = ac.currentTime;
+    if (t - e.last < e.cooldown) return true;
+    if (e.state === 'ready') { start(e, x, z, gain, rate); return true; }
+    e.wantAt = t; e.last = t;
+    ensure(e).then(() => { if (ac && ac.currentTime - e.wantAt < 0.4) start(e, x, z, gain, rate); });
     return true;
   }
-  /** Безкраен запис (музика, фон) с плавно влизане; връща спирачка. */
+  /** Подготвя редки записи предварително (напр. гласа за следващата вълна, звуците на шефа). */
+  function prefetch(names) { for (const n of names) { const e = bank.get(n); if (e && e.cls !== 'bed') { ensure(e); e.used = ac ? ac.currentTime : 0; } } }
+
+  // ── безкрайни: музика и фон през <audio>, в своя шина (гласът я снишава) ──
+  let musicBus = null;
+  function busOf() { if (!musicBus && ac) { musicBus = ac.createGain(); musicBus.gain.value = 1; musicBus.connect(master); } return musicBus; }
   function loopOf(name, gain, fade) {
     const e = bank.get(name);
-    if (!e || !e.bufs.length || !ac) return null;
-    const src = ac.createBufferSource(), g = ac.createGain(), t = ac.currentTime;
-    src.buffer = e.bufs[0]; src.loop = true;
+    if (!e || !ac || !base) return null;
+    const el = new Audio(new URL(e.files[0], base).href);
+    el.loop = true; el.preload = 'auto';
+    const src = ac.createMediaElementSource(el), g = ac.createGain(), t = ac.currentTime;
     g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(Math.max(0.001, e.gain * gain), t + fade);
-    src.connect(g); g.connect(master); src.start(t);
-    return { stop(fd = 1.5) { const n = ac.currentTime; g.gain.cancelScheduledValues(n); g.gain.setValueAtTime(Math.max(0.0001, g.gain.value), n); g.gain.exponentialRampToValueAtTime(0.0001, n + fd); src.stop(n + fd + 0.05); } };
+    src.connect(g); g.connect(busOf());
+    el.play().catch(() => { /* без жест на играча: опитва пак при wake() */ pending.add(el); });
+    return { el, stop(fd = 1.5) { if (!ac) return; const n = ac.currentTime; g.gain.cancelScheduledValues(n); g.gain.setValueAtTime(Math.max(0.0001, g.gain.value), n); g.gain.exponentialRampToValueAtTime(0.0001, n + fd); setTimeout(() => { el.pause(); el.removeAttribute('src'); el.load(); try { src.disconnect(); } catch { /* вече */ } pending.delete(el); }, fd * 1000 + 100); } };
   }
-  // Музиката на пластове: 'calm' (подготовка, почивка), 'wave', 'intense' (пробита порта, много наоколо, малко кръв),
-  // 'boss', '' (тишина). Сцената казва кой пласт трябва; смяната е плавно преливане.
+  const pending = new Set();
+  // Музиката на пластове: 'calm', 'wave', 'intense', 'boss', '' (тишина). Сцената казва кой; смяната е плавно преливане.
   let wantMusic = '', curMusic = '', musicNode = null;
   function music(layer, force = false) {
     wantMusic = layer || '';
     if (!force && wantMusic === curMusic) return;
     curMusic = wantMusic;
-    if (musicNode) musicNode.stop(1.8);
+    if (musicNode) musicNode.stop(curMusic ? 1.8 : 0.9);
     musicNode = curMusic ? loopOf('music.' + curMusic, 1, 1.6) : null;
   }
-  let wantAmb = false, ambNode = null;
-  /** Фонът на нощта (вятър, щурци, далечни звуци) през цялата игра. */
-  function ambience(on) { wantAmb = !!on; if (ambNode) ambNode.stop(2); ambNode = on ? loopOf('ambience.night', 1, 3) : null; }
+  let wantAmb = '', ambNode = null;
+  /** Фонът: 'night' (цялата игра), 'rain' (последната вълна), '' (нищо). */
+  function ambience(kind) {
+    kind = kind === true ? 'night' : kind || '';
+    if (kind === wantAmb && ambNode) return;
+    wantAmb = kind;
+    if (ambNode) ambNode.stop(3);
+    ambNode = kind ? loopOf('ambience.' + kind, 1, 3) : null;
+  }
+
+  // ── говорителят (RAVEN): един ред наведнъж, един чака, поне 4 с между редовете, музиката се снишава с 6 dB ──
+  let sayEnd = 0, queued = null, saying = null;
+  /** prio: 3 шеф/тъмно/порта; 2 паднал/зад теб; 1 вълни; 0 похвала. */
+  function say(id, prio = 1) {
+    const e = bank.get('voice.' + id);
+    if (!e || !ac || held) return false;
+    ensure(e);
+    const t = ac.currentTime;
+    if (!saying && t >= sayEnd + 4) { speak(e); return true; }
+    if (!queued || prio > queued.prio) queued = { e, prio, at: t };
+    return true;
+  }
+  function speak(e) {
+    saying = e;
+    ensure(e).then(() => {
+      if (!ac || saying !== e) return;
+      const src = start(e, null, null, 1, 1);
+      const len = src ? src.buffer.duration : 1;
+      const bus = busOf(), t = ac.currentTime;
+      if (bus) { bus.gain.cancelScheduledValues(t); bus.gain.setTargetAtTime(0.5, t, 0.08); bus.gain.setTargetAtTime(1, t + len, 0.3); }
+      sayEnd = t + len; saying = null;
+    });
+  }
+  function voiceTick() {
+    if (!ac || saying || !queued) return;
+    const t = ac.currentTime;
+    if (t - queued.at > 6) { queued = null; return; }      // старо: вече не важи
+    if (t >= sayEnd + 4) { const q = queued; queued = null; speak(q.e); }
+  }
 
   function noise(dst, t0, dur, { type = 'lowpass', f0 = 2000, f1 = 400, q = 0.7, gain = 1, attack = 0.001 } = {}) {
     const src = ac.createBufferSource();
@@ -307,8 +387,11 @@ export function createAudio(ctx, opts = {}) {
     else tone(d, t, 1.1, { type: 'sawtooth', f0: 190, f1: 32, gain: 0.22, attack: 0.01 });
   }
 
+  let relAt = 0;
   function update(dt, head, lowBeat) {
     if (!ac) return;
+    voiceTick();
+    if ((relAt += dt) > 10) { relAt = 0; release(); }
     if (head && ac.listener) {
       const l = ac.listener, p = head.pos;
       const f = fwd.set(0, 0, -1).applyQuaternion(head.quat);
@@ -335,7 +418,8 @@ export function createAudio(ctx, opts = {}) {
   const named = (name, synth, where = () => [null, null]) => (...a) => { const n = typeof name === 'function' ? name(...a) : name; if (n && sample(n, ...where(...a))) return; synth(...a); };
   const at = (x, z) => [x, z];
   const api = {
-    shot: named(k => 'shot.' + k, shot, (k, pos) => (pos ? [pos[0], pos[1]] : [null, null])),
+    // своят изстрел е в главата; чуждият е в залата и по-тих; rate: последните патрони на пълнителя са по-високи
+    shot: (k, pos, rate = 1) => { if (sample('shot.' + k, pos ? pos[0] : null, pos ? pos[1] : null, pos ? 0.6 : 1, rate)) return; shot(k, pos); },
     dry: named('gun.dry', dry), reload: named('gun.reload', reload), loaded: named('gun.loaded', loaded), pickup: named('gun.pickup', pickup),
     hit: named(h => (h ? 'impact.head' : 'impact.body'), hit),
     splat: named(() => (soft < 1 ? '' : 'impact.gore'), splat, p => [p.x, p.z]),
@@ -365,5 +449,5 @@ export function createAudio(ctx, opts = {}) {
   };
   loadBank();
 
-  return { pause, setSoft(on) { soft = on ? 0.55 : 1; }, wake, ...api, music, ambience, update, dispose, get state() { return ac ? ac.state : 'none'; }, get bank() { return bankState; } };
+  return { pause, setSoft(on) { soft = on ? 0.55 : 1; }, wake, ...api, play: sample, prefetch, say, music, ambience, has: n => bank.has(n), text: n => bank.get(n)?.text || '', update, dispose, get state() { return ac ? ac.state : 'none'; }, get bank() { return bankState; } };
 }

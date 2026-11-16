@@ -537,7 +537,7 @@ test('results(): per-player kills, deaths and score mid-game and at the end, mat
   assert.equal(r.players.length, 2);
   for (const p of r.players) {
     assert.deepEqual(Object.keys(p).sort(), ['deaths', 'extra', 'id', 'kills', 'n', 'name', 'score']);
-    assert.deepEqual(Object.keys(p.extra).sort(), ['accuracy', 'boards', 'headshots', 'hits', 'shots']);
+    assert.deepEqual(Object.keys(p.extra).sort(), ['accuracy', 'award', 'barrelKills', 'boards', 'bossDamage', 'headshots', 'hits', 'meleeKills', 'nearKills', 'revives', 'shots']);
   }
   assert.equal(r.players[0].id, 'p1'); assert.equal(r.players[1].name, 'Б');
   assert.equal(r.players[0].kills + r.players[1].kills, g.snapshot().kills);
@@ -549,10 +549,10 @@ test('results(): per-player kills, deaths and score mid-game and at the end, mat
   assert.equal(r.extra.reason, s.result.reason); assert.ok(r.extra.boss);
 });
 
-test('manifest 3.1.0: cuts, modes, options, stages and scorecard match the rules', async () => {
+test('manifest 3.2.0: cuts, modes, options, stages and scorecard match the rules', async () => {
   const fs = await import('node:fs');
   const m = JSON.parse(fs.readFileSync(new URL('./motel.game.json', import.meta.url), 'utf8'));
-  assert.equal(m.version, '3.1.0');
+  assert.equal(m.version, '3.2.0');
   assert.deepEqual(m.cuts, RULES.cuts);
   assert.ok(m.cuts.includes(m.minutes));
   assert.deepEqual(m.options, OPTIONS.map(o => ({ ...o })));
@@ -696,4 +696,147 @@ test('pacing: a fast team gets reinforcements so the paid time is used; the boss
   g.join('p1', { n: 1 }); g.pose('p1', poseAt(300, 300));
   run(300);
   assert.equal(g.results().extra.reinforced, 0);
+});
+
+// ── game feel (research/game-feel.md): режисьор, предупреждения, жетони за удар, шефът на три фази, награди ──
+/** Записва всички събития по веднъж и всяко състояние. */
+function watch(g, run, sec, each) {
+  const events = [], snaps = [];
+  let seen = 0;
+  run(sec, (q, now) => { for (const e of q.events) if (e.i > seen) { seen = e.i; events.push({ ...e, now, wave: q.wave, phase: q.phase }); } snaps.push({ ...q, now }); each?.(q, now); });
+  return { events, snaps };
+}
+const BIG = { hall: { w: 6, d: 6 }, rooms: [{ id: 'a', x: 0, z: 0, w: 6, d: 6 }] };
+/** Поза с поглед натам, накъдето сочи yaw (0: към −z, π: към +z). */
+const poseLook = (x, z, yaw) => { const p = poseAt(x, z); p[3] = 0; p[4] = Math.sin(yaw / 2); p[5] = 0; p[6] = Math.cos(yaw / 2); return p; };
+
+test('director: an overwhelmed team gets a breather (no new spawns, at most 6 s); intensity is in the snapshot', () => {
+  const { g, run } = make({ ...BIG, players: 4, options: { boards: 0, crowd: 20 } });
+  g.join('p1', { n: 1 }); g.pose('p1', poseAt());
+  const born = new Set();
+  let holdStart = null, longest = 0, bornWhileHold = 0, maxHeat = 0;
+  watch(g, run, 160, (q, now) => {
+    maxHeat = Math.max(maxHeat, q.heat2);
+    const fresh = q.z.filter(r => !born.has(r[0]));
+    fresh.forEach(r => born.add(r[0]));
+    if (q.hold) { if (holdStart === null) holdStart = now; else bornWhileHold += fresh.filter(r => r[1] !== TYPES.indexOf('boss')).length; longest = Math.max(longest, now - holdStart); } else holdStart = null;
+  });
+  assert.ok(maxHeat > RULES.director.hold, `intensity reached ${maxHeat}`);
+  assert.ok(longest > 0, 'the director held spawns at least once');
+  assert.ok(longest <= RULES.director.holdMax * 1000 + 100, `held ${longest} ms`);
+  assert.equal(bornWhileHold, 0, 'nothing new while holding');
+});
+
+test('director: a bored team gets the next pack at once, from the side nobody is looking at', () => {
+  const { g, run } = make({ options: { crowd: 20 }, players: 3 });
+  g.join('p1', { n: 1 }); g.pose('p1', poseLook(0, 0, Math.PI));      // looks toward +z, at the road
+  const shoot = bot(g, 'p1');
+  const { events } = watch(g, run, 200, q => { shoot(q); g.pose('p1', poseLook(0, 0, Math.PI)); });
+  const packs = events.filter(e => e.k === 'pack');
+  assert.ok(packs.length >= 1, 'a pack came');
+  assert.ok(packs.every(p => p.x < 0), `from the wood behind the player's back: ${packs.map(p => p.x)}`);
+  assert.ok(packs.every(p => p.n >= 1 && p.n <= RULES.director.pack));
+});
+
+test('telegraph: the scream comes before the rage, the fence rattles before the first leap, the leaper perches, the ground cracks before a digger rises', () => {
+  const { g, run } = make({ ...BIG, options: { boards: 6, crowd: 20 } });
+  g.join('p1', { n: 1 }); g.pose('p1', poseAt());
+  const all = bot(g, 'p1');
+  const shoot = q => all({ ...q, z: q.z.filter(r => (!['leaper', 'screamer'].includes(TYPES[r[1]]) || Math.hypot(r[3], r[4]) < 2.5) && (TYPES[r[1]] !== 'brute' || Math.hypot(r[3], r[4]) < 12)) });
+  const { events, snaps } = watch(g, run, 700, shoot);
+  // screamer: nobody rages before 1.2 s after the scream
+  for (const sc of events.filter(e => e.k === 'scream')) {
+    const early = snaps.filter(q => q.now > sc.now && q.now < sc.now + RULES.telegraph.scream * 1000 - 100);
+    assert.ok(early.every(q => q.z.every(r => r[0] === sc.z || !r[8] || snaps.find(p => p.now === sc.now)?.z.find(o => o[0] === r[0])?.[8])), 'no new rage before the buff time');
+  }
+  // fence rattle at least 1.5 s before the first leap of that wave
+  const leaps = events.filter(e => e.k === 'leap');
+  assert.ok(leaps.length >= 2, `leaps ${leaps.length}`);
+  for (const w of new Set(leaps.map(e => e.wave))) {
+    const first = leaps.find(e => e.wave === w), rattle = events.find(e => e.k === 'rattle' && e.wave === w);
+    assert.ok(rattle && first.now - rattle.now >= 1500 - 100 + 0, `wave ${w}: rattle ${rattle && first.now - rattle.now} ms before the jump`);
+    // perched: still at the take-off point for the perch time
+    const rows = snaps.filter(q => q.now > first.now && q.now < first.now + RULES.telegraph.perch * 1000 - 100).map(q => q.z.find(r => r[0] === first.z)).filter(Boolean);
+    assert.ok(rows.every(r => Math.hypot(r[3] - first.x0, r[4] - first.z0) < 0.05), 'perching');
+  }
+  // digger: the warning first, the zombie at least 2 s later, never next to the player
+  const digs = events.filter(e => e.k === 'dig'), rises = events.filter(e => e.k === 'rise');
+  assert.ok(digs.length >= 2 && rises.length >= 2, `digs ${digs.length} rises ${rises.length}`);
+  for (const r of rises) {
+    const warn = digs.find(d => d.now <= r.now && Math.abs(d.x - r.x) < 0.02 && Math.abs(d.zz - r.zz) < 0.02);
+    if (warn) assert.ok(r.now - warn.now >= RULES.telegraph.dig * 1000 - 100, `warned ${r.now - warn.now} ms before`);
+    else assert.ok(digs.some(d => d.now <= r.now - (RULES.telegraph.dig * 1000 - 100)), 'moved away from a player, but still warned earlier');
+    assert.ok(Math.hypot(r.x, r.zz) >= RULES.telegraph.digAway, 'not on the player');
+  }
+  // brute roars on the way in
+  assert.ok(events.some(e => e.k === 'roar'), 'a brute roared');
+});
+
+test('attack tokens: at most 2 zombies swing at one player at once on normal, 3 on hard', () => {
+  for (const [level, cap] of [['normal', 2], ['hard', 3]]) {
+    const { g, run } = make({ ...BIG, difficulty: level, options: { boards: 0, crowd: 20 }, players: 6 });
+    g.join('p1', { n: 1 }); g.pose('p1', poseAt());
+    let most = 0;
+    run(240, q => { most = Math.max(most, q.z.filter(r => r[6] === STATE.attack && Math.hypot(r[3], r[4]) < 1.5).length); });
+    assert.ok(most >= 2 && most <= cap, `${level}: ${most} at once`);
+  }
+});
+
+test('wave release: a second and a half of quiet after the last kill before the wave is cleared', () => {
+  const { g, run } = make();
+  g.join('p1', { n: 1 }); g.pose('p1', poseAt());
+  const shoot = bot(g, 'p1');
+  const { events } = watch(g, run, 200, shoot);
+  const clear = events.find(e => e.k === 'clear'), last = events.filter(e => e.k === 'kill' && e.now <= clear.now).pop();
+  assert.ok(clear.now - last.now >= RULES.release * 1000 - 100, `quiet ${clear.now - last.now} ms`);
+});
+
+test('boss in three phases: untouchable entrance, a telegraphed throw you can step away from, rage with runners, knee-down weak moments', () => {
+  const BP = RULES.bossPhases;
+  const { g, run } = make({ ...BIG, options: { crowd: 20 } });
+  g.join('p1', { n: 1 }); g.pose('p1', poseAt());
+  run(2);
+  assert.equal(g.stage('boss'), true);
+  const bossId = () => g.snapshot().z.find(r => TYPES[r[1]] === 'boss')?.[0];
+  const hp = () => g.snapshot().boss;
+  const head = n => { for (let i = 0; i < n; i++) { for (const hand of ['l', 'r']) g.act('p1', { a: 'shot', hand, o: [0, 1.2, 0], d: [0, 0, 1], hits: [[bossId(), 1, 1]] }); run(0.2); } };
+  // entrance: shots do nothing
+  head(5);
+  assert.equal(hp(), 1, 'untouchable while entering');
+  const ev = watch(g, run, BP.entrance).events;
+  // phase 1 -> 2 by head shots; a knee-down comes on the way and doubles damage
+  let kneel = null;
+  for (let i = 0; i < 60 && hp() > BP.throwFrom - 0.02; i++) { const before = hp(); head(1); const k = g.snapshot().events.find(e => e.k === 'kneel'); if (k && !kneel) kneel = { before, after: hp() }; }
+  assert.ok(kneel, 'he went down on one knee');
+  // the throw: aimed at the player, lands after the windup; stepping away 2.5 m means no damage
+  let throwEv = null, slamEv = null, bitten = false, seen = 0;
+  const watchThrow = q => { for (const e of q.events) if (e.i > seen) { seen = e.i; if (e.k === 'throw' && !throwEv) { throwEv = e; g.pose('p1', poseAt(2.5, 0)); } if (e.k === 'slam' && !slamEv) slamEv = e; if (e.k === 'bite' && e.p === 'p1' && throwEv && !slamEv) bitten = true; } };
+  run(30, q => { watchThrow(q); if (slamEv) return; });
+  assert.ok(throwEv, 'he threw');
+  assert.ok(Math.hypot(throwEv.x, throwEv.zz) < 0.2, 'at where the player stood');
+  assert.ok(slamEv && Math.hypot(slamEv.x - throwEv.x, slamEv.zz - throwEv.zz) < 0.01, 'and it landed there');
+  assert.ok(!bitten, 'the player who stepped away was not hit by it');
+  // phase 3: rage with six runners
+  g.pose('p1', poseAt());
+  for (let i = 0; i < 80 && hp() > RULES.boss.rageAt - 0.02 && hp() !== null; i++) head(1);
+  const before = new Set(g.snapshot().z.map(r => r[0]));
+  const after = watch(g, run, 8);
+  assert.ok(after.events.some(e => e.k === 'rage') || g.snapshot().boss <= RULES.boss.rageAt, 'enraged');
+  const runners = after.snaps.flatMap(q => q.z).filter(r => !before.has(r[0]) && TYPES[r[1]] === 'runner');
+  assert.ok(new Set(runners.map(r => r[0])).size >= BP.runners - 1, `runners with him: ${new Set(runners.map(r => r[0])).size}`);
+  void ev;
+});
+
+test('awards: every player gets a different positive award, in the result and in results()', () => {
+  const { g, run } = make({ fast: true, players: 3 });
+  for (const [i, x] of [[1, 0], [2, 0.6], [3, -0.6]]) { g.join('p' + i, { n: i, name: 'P' + i }); g.pose('p' + i, poseAt(x, 0)); }
+  const b1 = bot(g, 'p1'), b2 = bot(g, 'p2');
+  const s = run(200, q => { b1(q); b2(q); });
+  assert.equal(g.over, true);
+  const aw = s.result.players.map(p => p.award);
+  assert.ok(aw.every(a => a && a.id && a.name), JSON.stringify(aw));
+  assert.equal(new Set(aw.map(a => a.id)).size, 3, 'all different');
+  const r = g.results();
+  for (const p of r.players) assert.deepEqual(p.extra.award, s.result.players.find(q => q.id === p.id).award);
+  assert.ok(r.players.find(p => p.id === 'p1').extra.bossDamage > 0 || r.players.find(p => p.id === 'p2').extra.bossDamage > 0, 'boss damage counted');
 });

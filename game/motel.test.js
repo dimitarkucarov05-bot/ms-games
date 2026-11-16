@@ -143,7 +143,7 @@ test('всички паднали: групата се вдига пак и иг
   assert.ok(r.wipes >= 3, 'wipes ' + r.wipes);
   for (const k of ['score', 'money', 'stars', 'wave', 'kills', 'headshots', 'accuracy', 'downs']) assert.ok(Number.isFinite(r[k]), k);
   assert.equal(r.money, r.score);
-  assert.deepEqual(Object.keys(r.players[0]).sort(), ['boards', 'deaths', 'downs', 'headshots', 'hits', 'id', 'kills', 'n', 'name', 'score', 'shots']);
+  assert.deepEqual(Object.keys(r.players[0]).sort(), ['award', 'boards', 'deaths', 'downs', 'headshots', 'hits', 'id', 'kills', 'n', 'name', 'score', 'shots']);
 });
 
 test('кошмар: без втори шанс, но и без край на играта: всеки се връща по своето време, групата губи точки', () => {
