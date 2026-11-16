@@ -3,7 +3,10 @@
 //   node tools/dev-server.mjs --port 47932 --data data-dev-s2      (in another terminal)
 //   node tools/s2-e2e.mjs [port] [parts]       parts: setup,quick,playlist,party,ops (or all, the default) and draw
 //
-// The Motel runs with `fast` (its trial cut: time runs 6x faster, about 100 s a game).
+// The Motel runs with `fast` (its trial cut: time runs 6x faster, about 100 s a game). A full run takes about 10 minutes:
+// detach it, e.g. `(node tools/s2-e2e.mjs 47932 > e2e.log 2>&1; echo EXIT $? >> e2e.log) &` (a tool's 2-minute command limit
+// kills a plain foreground or background run). If this process is killed midway its simulated headsets drop together and the engine,
+// as designed, auto-pauses the running game and waits for them (it ends such a run by itself after 10 minutes).
 
 import { createSim } from './sim-headsets.js';
 
@@ -70,6 +73,7 @@ async function setupPart() {
   sims[1].send({ type: 'needsCalibration', reason: null });
   await until('recalibrated', async () => (await state()).setup.points[ids[1]] === 'done');
   check(true, 'per-headset recalibrate (points only) done');
+  await until('recalibration confirmed', async () => (await state()).headsets.filter(h => ids.includes(h.id)).every(h => h.calibrated), 5000);
 }
 
 async function quickPart() {
