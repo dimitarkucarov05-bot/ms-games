@@ -2,6 +2,8 @@
 //
 //   /tv/                 follows the arena by itself: attract mode when idle, live cameras while a game runs
 //   /tv/?shot=wide       holds one camera (wide, follow, hero, horde, crane) for checks
+//   /tv/?embed=1        the picture and the director only (for the console's running view): no overlay, no attract
+//                        mode, no curtain; the cover while idle; low render scale and about 30 frames a second
 //   /tv/?quality=0.75    fixed render scale of the live picture (default: by itself, see quality())
 //
 // Data: the server's spectator feed, WebSocket /tv (read-only): hall, zone, session, gameStart, game (10 Hz), room
@@ -13,6 +15,8 @@ import { createDirector } from './director.js';
 
 const $ = id => document.getElementById(id);
 const qs = new URLSearchParams(location.search);
+const embed = qs.get('embed') === '1';
+if (embed) document.body.dataset.embed = '1';
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const num = n => Math.round(Number(n) || 0).toLocaleString('en-US').replace(/,/g, ' ');
@@ -105,7 +109,7 @@ function decide() {
   const soon = playing || ['countdown', 'loading', 'playing', 'paused'].includes(run?.state);
   if (soon) openFrame(); else closeFrameLater();
   const results = (run?.state === 'results' && run.results) || (playing && S.snap?.result);
-  if (results) { renderResults(); return setMode('results'); }
+  if (results && !embed) { renderResults(); return setMode('results'); }
   if (playing) return setMode(worldReady() && curtainDone() ? 'live' : 'curtain');
   if (run?.state === 'loading') return setMode('curtain');
   void state;
@@ -145,7 +149,8 @@ function closeFrameLater() {
 const quality = (() => {
   const fixed = Number(qs.get('quality')) || 0;
   let scale = 1, applied = 0, slow = 0, n = 0, acc = 0;
-  function target() { return fixed || Math.min(window.devicePixelRatio || 1, 1080 / Math.max(360, innerHeight)) * scale; }
+  // embedded in the console: a second WebGL view on the operator's PC, so at most 540 lines and never above 0.75
+  function target() { return fixed || (embed ? Math.min(0.75, 540 / Math.max(180, innerHeight)) : Math.min(window.devicePixelRatio || 1, 1080 / Math.max(360, innerHeight)) * scale); }
   function apply(A) {
     const t = Math.round(target() * 100) / 100;
     if (!A?.renderer || t === applied) return;
@@ -156,7 +161,7 @@ const quality = (() => {
     reset() { scale = 1; applied = 0; slow = 0; n = 0; acc = 0; },
     step(dt, A) {
       apply(A);
-      if (fixed || S.mode !== 'live' || performance.now() - S.liveAt < 4000) return;
+      if (fixed || embed || S.mode !== 'live' || performance.now() - S.liveAt < 4000) return;
       acc += dt; n++;
       if (acc < 1) return;
       const fps = n / acc; acc = 0; n = 0;
@@ -170,11 +175,18 @@ const quality = (() => {
 })();
 
 // ---------- frame loop: the director, the curtain, small clocks ----------
-let last = performance.now();
+let last = performance.now(), drawnAt = 0;
 function step(now) {
   const dt = Math.min(0.1, Math.max(0.001, (now - last) / 1000));
   last = now;
   const A = frame?.contentWindow?.__arena;
+  // embedded: the watch page draws only when we say so, about 30 times a second
+  if (embed && A?.renderer && A.frame) {
+    // its own loop is switched off every time (the page turns it on late in its boot); the frame gets the watch page's
+    // own clock, not ours: the two documents count time from different starts
+    try { A.renderer.setAnimationLoop(null); } catch { /* still its own pace */ }
+    if (now - drawnAt >= 31) { drawnAt = now; try { A.frame(frame.contentWindow.performance.now()); } catch (e) { console.warn('[tv] frame', e); } }
+  }
   if (S.mode === 'curtain') {
     // the line follows how far the watch page's own loading has come
     let pct = 0.05 + Math.min(0.2, (now - frameAt) / 20000);
@@ -360,7 +372,7 @@ function renderResults() {
 
 // ---------- full screen, pointer ----------
 addEventListener('click', () => {
-  if (document.fullscreenElement) return;
+  if (embed || document.fullscreenElement) return;
   document.documentElement.requestFullscreen?.({ navigationUI: 'hide' }).catch(() => {});
 });
 let quietTimer = 0;

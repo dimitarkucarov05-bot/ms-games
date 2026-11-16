@@ -233,3 +233,11 @@ body[data-mode="curtain"] .center h2 { animation: land 0.9s var(--ease) both; }
   #artA { opacity: 1; }
   .next .dot, .live i { animation: none; }
 }
+
+/* ---------- embed mode (/tv/?embed=1): the picture only; the still cover while there is no game ---------- */
+body[data-embed] { background: #000; cursor: default; }
+body[data-embed] #hud, body[data-embed] #results, body[data-embed] #curtain, body[data-embed] #hint,
+body[data-embed] #attract > :not(.art) { display: none; }
+body[data-embed][data-mode="curtain"] #attract { opacity: 1; visibility: visible; }
+body[data-embed] #attract .art i { animation: none; opacity: 0; inset: 0; }
+body[data-embed] #attract #artA { opacity: 0.55; }
