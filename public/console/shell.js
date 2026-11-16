@@ -140,7 +140,10 @@ function renderStatusbar() {
   text($('sbVenue'), venue === 'MS Games' ? '' : venue);
   text($('sbOnline'), online);
   text($('sbTotal'), hs.length);
-  const iss = issuesNow(), errs = iss.filter(i => i.level === 'error').length, warns = iss.length - errs;
+  // the missing firewall rule gets its own button: one tap runs the fix (Windows asks once)
+  const fw = ((App.diag && App.diag.checks) || []).find(c => c.ok === false && c.fix === 'firewall');
+  show($('sbFix'), !!fw);
+  const iss = issuesNow().filter(i => !(fw && i.diagFix === 'firewall')), errs = iss.filter(i => i.level === 'error').length, warns = iss.length - errs;
   attr($('sbStatus'), 'data-tone', errs ? 'bad' : warns ? 'warn' : 'ok');
   text($('sbStatusText'), errs ? plural(errs, 'error', 'errors') : warns ? plural(warns, 'warning', 'warnings') : 'OK');
   const r = state.run, live = runOpen(r);
@@ -431,6 +434,7 @@ function fillHelp() {
 }
 
 $('sbStatus').onclick = () => openDrawer('status');
+$('sbFix').onclick = async () => { const b = $('sbFix'); b.disabled = true; text($('sbFixText'), 'Asking Windows'); await App.diagFix('firewall'); b.disabled = false; text($('sbFixText'), 'Firewall: allow MS Games'); };
 $('sbHelp').onclick = () => openDrawer('help');
 $('drawerClose').onclick = closeDrawer;
 $('sbHeadsets').onclick = () => setRail($('app').dataset.hsrail !== 'open');
@@ -633,6 +637,7 @@ App.endPending = () => !!(state && !state.run && state.last && state.last.runId 
 App.dismissEnd = () => { if (state && state.last) { App.dismissed = state.last.runId; LS.set('msg.dismissed', App.dismissed); } };
 App.went = function (sec, sub) {
   closeMenu();
+  if (sec !== 'run' && App.syncTv) App.syncTv(null);      // the TV frame is heavy: only on the running view
   show($('homeBtn'), sec !== 'home');
   if (sec === 'home' && state && runOpen(state.run)) { setTimeout(() => go('run'), 0); return; }
   if (sec === 'home' && state && App.endPending()) App.dismissEnd();      // the operator went Home: the end view is done

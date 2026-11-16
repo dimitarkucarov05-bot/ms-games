@@ -193,6 +193,7 @@ App.views.diagnose = renderDiag;
 App.diagFix = async function (id) {
   const r = id === 'firewall' ? await api('/api/firewall/fix', {}) : await api('/api/diagnose/fix', { id });
   if (r.ok && r.data.skipped) { toast(`Not run on the dev server: ${r.data.reason}`, 'warn'); return; }
+  if (r.ok && r.data.firewall && !(r.data.firewall.tcp && r.data.firewall.udp)) { toast('The firewall rule is still missing. Allow the Windows prompt, or run MS Games once as administrator.', 'warn'); runDiag(); return; }
   if (r.ok) { toast('Fixed. Windows may ask for permission.', 'ok'); runDiag(); }
 };
 $('diagChecks').addEventListener('click', e => { const b = e.target.closest('[data-dfix]'); if (b) { const c = (App.diag.checks || []).find(x => x.id === b.closest('[data-key]').dataset.key); if (c) App.diagFix(c.fix); } });

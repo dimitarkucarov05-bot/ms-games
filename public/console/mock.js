@@ -210,7 +210,28 @@
       mock: true,
     };
   }
-  function push() { const s = snapshot(); for (const fn of listeners) fn(s); }
+  function push() { const s = snapshot(); for (const fn of listeners) fn(s); pushTv(); }
+  // the spectator feed (WebSocket /tv on the server): gameStart, game snapshots, stop
+  const tvListeners = new Set();
+  let tvGame = '', tvSeq = 0, tvEvents = [];
+  function pushTv() {
+    if (!tvListeners.size) return;
+    const live = run && ['playing', 'paused'].includes(run.state);
+    const key = live ? `${run.id}-${run.history.length}` : '';
+    if (key !== tvGame) {
+      tvGame = key;
+      for (const fn of tvListeners) fn(key ? { type: 'gameStart', game: 'motel', waves: 5, waveNames: ['Knock knock', 'Night shift', 'Blackout', 'Runners', 'Last orders'] } : { type: 'stop' });
+    }
+    if (!key) return;
+    const played = (Date.now() - run.gameStartedAt - run.pausedTotal) / 1000, wave = Math.min(5, Math.floor(played / 25) + (played > 8 ? 1 : 0));
+    const inBreak = played < 8 || played % 25 > 21;
+    if (Math.random() < 0.06) { const p = pick(run.players); tvEvents.push({ i: ++tvSeq, k: 'down', p: p.headsetId, t: 5 }); p.deaths++; }
+    tvEvents = tvEvents.slice(-12);
+    const snap = { type: 'game', phase: played < 8 ? 'intro' : wave >= 5 && played > 120 ? 'boss' : inBreak ? 'break' : 'wave', wave, left: 600 - played, next: played < 8 ? 8 - played : inBreak ? 25 - (played % 25) : 0,
+      score: run.players.reduce((a, p) => a + p.score, 0), kills: run.players.reduce((a, p) => a + p.kills, 0), boss: wave >= 5 && played > 120 ? 0.64 : null, dark: wave === 3 ? 1 : 0,
+      z: Array.from({ length: inBreak ? 0 : 6 + wave * 2 }, (_, i) => [i]), players: run.players.map(p => ({ id: p.headsetId, n: p.n, name: p.name, hp: 100, down: 0, score: p.score, kills: p.kills })), events: tvEvents };
+    for (const fn of tvListeners) fn(snap);
+  }
   setInterval(() => { tick(); push(); }, 500);
 
   // ---------- simulation ----------
@@ -520,7 +541,10 @@
   function json(v, status = 200) { return new Response(JSON.stringify(v), { status, headers: { 'content-type': 'application/json' } }); }
 
   // ---------- socket shim: the console subscribes here instead of opening /ui ----------
-  window.MSMock = { subscribe(fn) { listeners.add(fn); setTimeout(() => fn(snapshot()), 30); return () => listeners.delete(fn); } };
+  window.MSMock = {
+    subscribe(fn) { listeners.add(fn); setTimeout(() => fn(snapshot()), 30); return () => listeners.delete(fn); },
+    subscribeTv(fn) { tvListeners.add(fn); tvGame = ''; return () => tvListeners.delete(fn); },
+  };
 
   // ---------- debug helpers ----------
   window.mock = {

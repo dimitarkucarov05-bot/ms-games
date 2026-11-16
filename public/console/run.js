@@ -45,7 +45,7 @@ function renderRunView() {
   }
   show($('runLive'), !end);
   show($('runEnd'), !!end);
-  if (end) return renderEnd(end);
+  if (end) { syncTv(null); return renderEnd(end); }
   endSent = '';
   document.title = `${r.gameName || 'Session'} · MS Games`;
   const voting = r.state === 'waiting' && !!r.vote, pause = r.state === 'waiting' && !r.vote;
@@ -150,9 +150,10 @@ function renderPlayers(r) {
   const cols = columnsOf(r.gameId);
   const head = `<th class="c-num">№</th><th>Player</th><th>State</th>${cols.map(c => `<th class="r">${esc(colName(c))}</th>`).join('')}`;
   if ($('runHead')._h !== head) { $('runHead')._h = head; $('runHead').innerHTML = head; $('runRows').textContent = ''; }
-  const live = r.live || {};      // optional live scores per headset from the game
+  // live numbers: the spectator feed's snapshot (live.js), else the server's run.live; 0 until the first kill
+  const live = Object.assign({}, r.live || {}, App.livePlayers ? App.livePlayers() : {});
   const players = [...(r.players || [])].map(p => ({ ...p, ...(live[p.headsetId] || {}) }));
-  const scored = ['playing', 'paused'].includes(r.state) && players.some(p => typeof p.score === 'number');
+  const scored = ['loading', 'playing', 'paused'].includes(r.state);
   if (scored) players.sort((a, b) => nOr0(b.score) - nOr0(a.score));
   syncList($('runRows'), players, p => p.headsetId, () => playerRow(cols), (el, p) => {
     const f = parts(el), h = (state.headsets || []).find(x => x.id === p.headsetId) || { id: p.headsetId, number: p.n, color: p.color, name: p.name, online: false };
@@ -161,9 +162,39 @@ function renderPlayers(r) {
     const w = hsWord(h);
     attr(f.st, 'data-s', w.s);
     text(f.w, w.w);
-    cols.forEach((c, i) => text(f[`c${i}`], scored ? fmtNum(colVal(p, c)) : ''));
+    cols.forEach((c, i) => { const v = colVal(p, c); text(f[`c${i}`], scored ? fmtNum(v === '' || v == null ? 0 : v) : ''); });
+    el.classList.toggle('down', nOr0(p.down) > 0);
+  });
+  renderLiveStrip(r);
+  syncTv(r);
+}
+
+function renderLiveStrip(r) {
+  const facts = ['playing', 'paused'].includes(r.state) && App.liveFacts ? App.liveFacts() : null;
+  show($('liveStrip'), !!facts);
+  if (!facts) return;
+  syncList($('liveStrip'), facts, f => f.k, () => make('<div class="lf"><span class="label" data-f="k"></span><b data-f="v"></b><small data-f="s"></small></div>'), (el, f) => {
+    const p = parts(el);
+    text(p.k, f.k); text(p.v, f.v); text(p.s, f.s || '');
+    attr(el, 'data-tone', f.tone || null);
   });
 }
+
+/** The TV picture under the controls: the spectator page in a frame, only while the running view is on screen. */
+function syncTv(r) {
+  const box = $('runTvFrame');
+  const want = section === 'run' && !!r && ['countdown', 'loading', 'playing', 'paused', 'waiting'].includes(r.state);
+  let fr = box.querySelector('iframe');
+  if (want && !fr) {
+    fr = document.createElement('iframe');
+    fr.title = 'Live picture of the game';
+    fr.src = '/tv/?embed=1';
+    fr.setAttribute('allow', 'autoplay');
+    box.append(fr);
+  } else if (!want && fr) fr.remove();
+  show($('runTvWait'), !want);
+}
+App.syncTv = syncTv;
 
 App.tickRun = function (c) {
   const r = state && state.run;

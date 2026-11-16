@@ -26,6 +26,7 @@
     </div>
     <div class="sb-right">
       <button type="button" id="sbHeadsets" class="sb-count" title="Show or hide the headsets"><b id="sbOnline" class="num">0</b><span class="sb-of">/</span><span id="sbTotal" class="num">0</span><span class="sb-label">headsets</span></button>
+      <button type="button" id="sbFix" class="sb-fix" hidden title="Adds the Windows firewall rule MS Games needs. Windows asks once."><i></i><span id="sbFixText">Firewall: allow MS Games</span></button>
       <button type="button" id="sbStatus" class="sb-status" data-tone="ok" title="System status"><i></i><span id="sbStatusText">OK</span></button>
       <div class="seg sb-mode" id="modeSeg" role="radiogroup" aria-label="Interface">
         <button type="button" data-mode="simple" class="on" role="radio">Simple</button>
@@ -222,8 +223,17 @@
           <div id="stCountdown" class="big-count" hidden><b class="num" id="cdNum">3</b><span>Starting in the headsets</span></div>
           <div id="stVote" class="votes" hidden></div>
           <div id="stBreak" class="break-note" hidden></div>
-          <div class="table-wrap run-table" id="runTableWrap">
-            <table class="tbl tbl-run"><thead><tr id="runHead"></tr></thead><tbody id="runRows"></tbody></table>
+          <div class="run-split">
+            <div class="run-left">
+              <div class="live-strip" id="liveStrip" hidden></div>
+              <div class="table-wrap run-table" id="runTableWrap">
+                <table class="tbl tbl-run"><thead><tr id="runHead"></tr></thead><tbody id="runRows"></tbody></table>
+              </div>
+            </div>
+            <figure class="run-tv" id="runTvBox">
+              <div class="run-tv-frame" id="runTvFrame"><span class="run-tv-wait" id="runTvWait">The live picture starts with the game</span></div>
+              <figcaption><span class="label">Live</span><a class="btn btn-quiet" href="/tv/" target="_blank" rel="noopener">Open the TV screen</a></figcaption>
+            </figure>
           </div>
         </div>
       </div>
@@ -419,5 +429,6 @@
 <script src="console/setup.js"></script>
 <script src="console/pages.js"></script>
 <script src="console/manage.js"></script>
+<script src="console/live.js"></script>
 </body>
 </html>
