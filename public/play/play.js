@@ -809,10 +809,57 @@ async function loadStep(title, pct, what) {
 }
 /** The waiting room's own atmosphere (fog, night sky colour, moonlight); minilobby.js owns it. */
 function lobbyLook(on) {
-  try { showroom?.look?.(on); } catch (e) { console.warn('lobby look', e); }
+  const here = introOn ? intro : showroom;      // the hub, or The Motel's intro camp while a Motel countdown runs
+  try { here?.look?.(on); } catch (e) { console.warn('lobby look', e); }
   backdrop.material.color.set(on && scene.background?.isColor ? scene.background : COL.bg);
-  ambience(on && !!showroom?.fireAt);
-  if (on) showroom?.gate?.(false);
+  backdrop.visible = wantBackdrop();
+  ambience(on && !!here?.fireAt?.(amb.v));
+  if (on) here?.gate?.(false);
+}
+
+// ---------- game intros: the place behind a game's portal (The Motel: the night camp, minilobby.js) ----------
+const INTROS = { motel: './minilobby.js' };
+const introRoot = new THREE.Group();
+introRoot.visible = false;
+arena.add(introRoot);
+let intro = null, introFor = '', introOn = false, introBuilding = null;
+async function buildIntro(gameId) {
+  if (intro && introFor === gameId) return intro;
+  if (introBuilding) return introBuilding;
+  const path = INTROS[gameId];
+  if (!path) return null;
+  introBuilding = (async () => {
+    try {
+      ctx.assets ||= (await import('./lib/assets.js')).createAssets();
+      const m = await import(path);
+      const made = await m.createMiniLobby({ THREE, root: introRoot, assets: ctx.assets, hall, rooms: zoneData?.rooms || null, scene, lights: { hemi, sun }, refreshShadows, startLook: false });
+      intro?.dispose(); intro = made; introFor = gameId;
+      return made;
+    } catch (e) { console.warn('[intro]', e); return null; } finally { introBuilding = null; }
+  })();
+  return introBuilding;
+}
+/** A countdown for a game with an intro: through the portal (fade), into the intro; its gate opens on the last second. */
+async function enterIntro(gameId, seconds) {
+  if (game || gameLoading || !INTROS[gameId]) return false;
+  sfx.play('portal.open');
+  await fade(1, 420);
+  const it = await buildIntro(gameId);
+  if (!it || game || gameLoading) { fade(0, 300); return false; }
+  showroom?.look?.(false); ambience(false);
+  showRoot.visible = false; introRoot.visible = true; introOn = true;
+  lobbyLook(true);
+  refreshShadows();
+  fade(0, 500);
+  setTimeout(() => { if (introOn) it.gate(true); }, Math.max(0, (Number(seconds) || 3) - 1.9) * 1000);      // fully open on GO
+  return true;
+}
+/** Back to the hub (the game ended, or the countdown was called off). */
+function leaveIntro() {
+  if (!introOn) return;
+  intro?.look?.(false); ambience(false);
+  introOn = false; introRoot.visible = false; showRoot.visible = !game && !zoneEditor?.active;
+  intro?.gate?.(false);
 }
 /** The camp's sound: the fire crackles where the fire is, crickets and wind everywhere (real recordings, sfx hooks). */
 const amb = { on: false, loops: [], v: new THREE.Vector3() };
@@ -821,7 +868,7 @@ function ambience(on) {
   amb.on = on;
   for (const l of amb.loops) l.stop();
   amb.loops = on ? [
-    sfx.loop('ambience.fire', { gain: 2.2, at: () => showroom?.fireAt?.(amb.v), ref: 1.2, roll: 1.3 }),
+    sfx.loop('ambience.fire', { gain: 2.2, at: () => (introOn ? intro : showroom)?.fireAt?.(amb.v), ref: 1.2, roll: 1.3 }),
     sfx.loop('ambience.night', { gain: 0.45 }),
     sfx.loop('ambience.wind', { gain: 0.3, fadeMs: 4000 }),
   ] : [];
@@ -929,6 +976,7 @@ async function endGame() {
       game = null;
       hemi.visible = sun.visible = true;
       gameLights.visible = false;
+      leaveIntro();
       showRoot.visible = true;
       hallGroup.visible = true;
       backdrop.visible = !!showroom;
@@ -940,7 +988,7 @@ async function endGame() {
 
 // ---------- зона: чертане от каската ----------
 
-const BUILD = 39;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
+const BUILD = 40;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
 // what this page understands of MS Games 2 (the server may fall back to older flows for pages without a cap)
 const CAPS = ['lobby', 'vote', 'countdown', 'pause', 'settings', 'results', 'endMessage', 'message', 'swapHands', 'calibrateHeight', 'setupPoints', 'identity', 'restartGame', 'recalibrate', 'bench', 'ping'];
 let zoneMod = null, zoneEditor = null, zoneViewObj = null, zoneData = null;
@@ -978,9 +1026,11 @@ async function zoneReady() {
   return true;
 }
 /** Докато се чертае, стаята за оглед и тъмният фон се махат: трябва да се вижда истинската зала. */
+/** The dark sphere around the head hides the real room; the hub has its own sky box instead. */
+function wantBackdrop() { return !!game || introOn || (!!showroom && !(showroom.hasSky && !gameLoading)); }
 function zoneMode(on) {
   showRoot.visible = !on && !game;
-  backdrop.visible = !on && (!!showroom || !!game);
+  backdrop.visible = !on && wantBackdrop();
   hallGroup.visible = !on && !game;
   zoneViewObj?.setVisible(!on && !!zoneData);
 }
@@ -1067,9 +1117,9 @@ function updateGuard(now, cam) {
 
 let showroom = null, showSig = '', showGen = 0;
 async function initShowroom() {
-  // По подразбиране в лобито е мини лобито (нощен лагер около зоната, minilobby.js); ?show=1 пуска старата стая за оглед,
-  // ?lobby=0 оставя само зоната.
-  const kitchen = qs.get('show') === '1';
+  // The waiting room is the MS Games hub (lobby/hub.js, a Sci-Fi Space station hall). ?lobby=camp shows The Motel's intro
+  // camp (minilobby.js) as the waiting room instead, ?show=1 the old kitchen showroom, ?lobby=0 only the zone.
+  const kitchen = qs.get('show') === '1', campOnly = qs.get('lobby') === 'camp';
   if (!kitchen && qs.get('lobby') === '0') return;
   const sig = `${hall.w}x${hall.d}|${(zoneData?.rooms || []).map(r => [r.x, r.z, r.w, r.d].join(',')).join(';')}`;
   if (sig === showSig) return;
@@ -1077,8 +1127,9 @@ async function initShowroom() {
   const gen = ++showGen;      // зоната идва, докато първото лоби още се строи: без този брояч оставаха две едно върху друго
   try {
     ctx.assets ||= (await import('./lib/assets.js')).createAssets();
-    const mod = await import(kitchen ? './showroom.js' : './minilobby.js');
-    const made = await (kitchen ? mod.createShowroom : mod.createMiniLobby)({ THREE, root: showRoot, assets: ctx.assets, hall, rooms: zoneData?.rooms || null, scene, lights: { hemi, sun }, refreshShadows });
+    const mod = await import(kitchen ? './showroom.js' : campOnly ? './minilobby.js' : './lobby/hub.js');
+    const make = kitchen ? mod.createShowroom : campOnly ? mod.createMiniLobby : mod.createHub;
+    const made = await make({ THREE, root: showRoot, assets: ctx.assets, hall, rooms: zoneData?.rooms || null, scene, lights: { hemi, sun }, refreshShadows, games: lobbyInfo?.games || [] });
     if (gen !== showGen) { try { made?.dispose?.(); } catch { /* вече го няма */ } return; }      // междувременно е тръгнало по-ново
     showroom?.dispose();
     showroom = made;
@@ -1086,27 +1137,38 @@ async function initShowroom() {
     if (game || gameLoading) made.look?.(false);      // built while a game runs: its night look waits for the lobby
     else lobbyLook(true);
     if (!kitchen && made?.bounds) buildWaitingRoom(made);
+    if (intro && !introOn) { intro.dispose(); intro = null; introFor = ''; }      // the zone changed: the intro is built again around it
+    if (!kitchen && !campOnly) setTimeout(() => { if (!game && !gameLoading) buildIntro('motel'); }, 6000);      // ready before the first countdown
   } catch (e) { console.warn('showroom', e); }
 }
 
+/** Where a controller points (tracking space). In the browser without a headset: from the eye through the mouse hand. */
+function pointerOf(side, o, d) {
+  const h = hands[side];
+  if (h.ray && h.active && renderer.xr.isPresenting) { h.ray.getWorldPosition(o); h.ray.getWorldQuaternion(_q); d.set(0, 0, -1).applyQuaternion(_q); return true; }
+  if (desk.on && !watch && side === 'r') { o.copy(camera.position); d.copy(desk.hand.position).sub(camera.position).normalize(); return true; }
+  return false;
+}
+let range = null;
 function buildWaitingRoom(camp) {
   const bounds = camp.bounds;
-  room?.dispose(); vote?.dispose(); room = vote = null;
+  room?.dispose(); vote?.dispose(); range?.dispose(); room = vote = range = null;
+  if (camp.anchors?.range) import('./lobby/range.js').then(m => {
+    range = m.createRange({
+      THREE, root: showRoot, space: scene, assets: ctx.assets, anchor: camp.anchors.range, pointer: pointerOf, haptic, sfx, send, material: camp.material,
+      onInput(fn) { inputFns.add(fn); return () => inputFns.delete(fn); },
+      hold: side => (renderer.xr.isPresenting ? hands[side].ray : side === 'r' && desk.on ? desk.hand : null),
+    });
+  }).catch(e => console.warn('[lobby] range', e));
   import('./lobby/room.js').then(m => {
-    room = m.createRoom({ THREE, root: showRoot, assets: ctx.assets, bounds });
+    room = m.createRoom({ THREE, root: showRoot, assets: ctx.assets, bounds, anchors: camp.anchors || null });
     if (lobbyInfo) room.set(lobbyInfo);
   }).catch(e => console.warn('[lobby] room', e));
   import('./lobby/vote.js').then(m => {
     vote = m.createVote({
       THREE, root: showRoot, space: scene, assets: ctx.assets, bounds, haptic, sfx, send, spot: camp.spots?.vote || null,
       onInput(fn) { inputFns.add(fn); return () => inputFns.delete(fn); },
-      /** Where a controller points (tracking space). In the browser without a headset: from the eye through the mouse hand. */
-      pointer(side, o, d) {
-        const h = hands[side];
-        if (h.ray && h.active && renderer.xr.isPresenting) { h.ray.getWorldPosition(o); h.ray.getWorldQuaternion(_q); d.set(0, 0, -1).applyQuaternion(_q); return true; }
-        if (desk.on && !watch && side === 'r') { o.copy(camera.position); d.copy(desk.hand.position).sub(camera.position).normalize(); return true; }
-        return false;
-      },
+      pointer: pointerOf,
     });
     if (voteWanted) vote.set(voteWanted.options, voteWanted.endsAt, voteWanted.ask);
   }).catch(e => console.warn('[lobby] vote', e));
@@ -1187,6 +1249,7 @@ function checkWornAndCal() {
 /** lobby: idempotent; the first one after a game ends that game here, every one refreshes the waiting room's dressing. */
 function onLobby(m) {
   lobbyInfo = m;
+  if (introOn && !game && !gameLoading && !overlay.state.cd) { leaveIntro(); lobbyLook(true); }
   if (!inLobby) { inLobby = true; overlay.pause(false); if (game) { startSig = ''; endGame(); } }
   room?.set(m);
 }
@@ -1207,7 +1270,10 @@ function onSession(m) {
       return true;
     }
     case 'voteEnd': { voteWanted = null; const k = m.id ?? m.gameId; if (k) vote?.end(String(k)); else vote?.clear(); return true; }      // no winner: the vote was called off
-    case 'countdown': vote?.sinkAll(); overlay.countdown(m.seconds); if (!game) setTimeout(() => showroom?.gate?.(true), Math.max(0, (Number(m.seconds) || 3) - 1) * 1000); return true;      // the gate opens on the last second
+    case 'countdown':
+      vote?.sinkAll(); overlay.countdown(m.seconds);
+      if (!game && !introOn) enterIntro(String(m.gameId || ''), m.seconds).then(ok => { if (!ok) setTimeout(() => showroom?.gate?.(true), Math.max(0, (Number(m.seconds) || 3) - 1) * 1000); });
+      return true;
     case 'pause': overlay.pause(!!m.on, m.who || []); try { game?.scene?.onPause?.(!!m.on); } catch (e) { console.warn(e); } return true;
     case 'settings':
       ctx.settings = { ...(ctx.settings || {}), ...m };
@@ -1525,8 +1591,10 @@ function frame(now, xrFrame) {
   try { fadeStep(cam); coverStep(cam, dt); dimStep(cam, dt); } catch { /* без преход */ }
   try { overlay.update(now, cam); } catch (e) { console.warn('overlay', e); }
   if (vote && !game) { try { vote.update(dt, now / 1000); } catch (e) { console.warn('vote', e); } }
+  if (range && !game) { try { range.update(dt); } catch (e) { console.warn('range', e); } }
   if (amb.on) { sfx.listener(cam); for (const l of amb.loops) l.update(); }
   if (!game && showroom?.update) { try { showroom.update(dt, now / 1000); } catch { /* лобито е украса */ } }
+  if (introOn && intro?.update) { try { intro.update(dt, now / 1000); } catch { /* the intro is decoration */ } }
   if (game) {
     if (now > shadowDue) { shadowDue = now + (renderer.xr.isPresenting ? 1000 : 250); refreshShadows(); }   // сянката се обновява рядко
     try { game.scene.update(dt, now / 1000); } catch (e) { console.error('scene.update', e); }

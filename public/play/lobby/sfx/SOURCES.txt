@@ -19,3 +19,6 @@ fire.ogg     2018 UberDuo - The Cabin Audio Playset / FireCracklingInAWoodstove.
 night.ogg    2018 Soundrangers - Nature Ambience / forest_alpine_crickets_01_60_loop.wav  0-32 s, loop
 wind.ogg     2015 Soundopolis - Natures Fury_Wind_01 / Wind_Trees_Cattails_Fienup_001.wav  4-34 s, loop
 Hooks: see lobby/sfx.js HOOKS; S8 can replace any of them through /play/assets/sfx/lobby/hooks.json.
+shot.ogg     2016 Pole Position Production - Heckler & Koch VP70 9mm / HK_VP70_9mm_1m_in_front_RE20_clean_Double_shots_x_1.wav  0.47-0.93 s (first shot)
+hit.ogg      2016 Alexander Kopeikin - Sci-Fi Metal Elements HD / sci-fi metal impact, steel bulkhead hit, low 01.wav  0.09-1.6 s
+(range.shot / range.hit hooks: the waiting room's shooting range)

@@ -21,7 +21,7 @@ export function seasonOf(season, date = new Date()) {
   return null;
 }
 
-export function createRoom({ THREE, root, assets, bounds }) {
+export function createRoom({ THREE, root, assets, bounds, anchors = null }) {
   const group = new THREE.Group();
   group.name = 'waiting-room';
   root.add(group);
@@ -44,6 +44,7 @@ export function createRoom({ THREE, root, assets, bounds }) {
 
   // ---- record board ----
   async function buildBoard() {
+    if (anchors?.board) return buildWallBoard(anchors.board);
     boardGroup = new THREE.Group();
     // on the left of the zone, facing it (+X)
     const x = L - 0.9, z = mz + 0.2, ry = Math.PI / 2;
@@ -72,12 +73,31 @@ export function createRoom({ THREE, root, assets, bounds }) {
     for (const p of parts) boardGroup.add(p);
     group.add(boardGroup);
   }
+  /** In the hub: a plain Apocalypse billboard panel hung on the portal wall, the scores on it in bold white. */
+  async function buildWallBoard(a) {
+    boardGroup = new THREE.Group();
+    boardGroup.position.set(a.x, a.y, a.z); boardGroup.rotation.y = a.ry || 0;
+    const P = 'SM_Prop_Billboard_Sign_05', d = assets.info(APO, P) || (await assets.loadPack(APO).then(() => assets.info(APO, P)).catch(() => null));
+    const panel = d ? await get(APO, P) : null;
+    let w = 4.19, h = 2.03;
+    if (panel && d) {
+      panel.rotation.y = Math.PI / 2;      // modelled facing +X
+      panel.position.set(-(d.min[2] + d.max[2]) / 2, -d.min[1], (d.min[0] + d.max[0]) / 2);
+      boardGroup.add(panel);
+      w = d.size[2]; h = d.size[1];
+    }
+    boardText = makeText(THREE, w * 0.9, h * 0.86, 420, { depthTest: true, order: 2 });
+    boardText.mesh.position.set(0, h / 2, 0.07);
+    boardGroup.add(boardText.mesh);
+    group.add(boardGroup);
+  }
   function writeBoard(rows) {
     if (!boardText) return;
     const list = (Array.isArray(rows) ? rows : []).filter(r => r && (r.team || r.score != null)).slice(0, 5);
-    const lines = [{ text: 'TOP SCORES', px: 104, weight: 900, font: 'num', gap: 0 }];
-    if (!list.length) lines.push({ text: 'Be the first on the board', px: 52, weight: 750, gap: 0.8 });
-    list.forEach((r, i) => lines.push({ px: 58, weight: 800, gap: i ? 0.25 : 0.5, cols: [[`${i + 1}`, 0.03, 'left'], [String(r.team || 'Team').slice(0, 22), 0.09, 'left', 0.4], [String(r.game || '').slice(0, 18), 0.52, 'left', 0.27], [String(r.score ?? ''), 0.97, 'right', 0.16]] }));
+    const big = !!anchors?.board;      // the hub's wall board is large and far: bigger letters
+    const lines = [{ text: 'TOP SCORES', px: big ? 150 : 104, weight: 900, font: 'num', gap: 0 }];
+    if (!list.length) lines.push({ text: 'Be the first on the board', px: big ? 80 : 52, weight: 750, gap: 0.8 });
+    list.forEach((r, i) => lines.push({ px: big ? 88 : 58, weight: 800, gap: i ? 0.25 : 0.5, cols: [[`${i + 1}`, 0.03, 'left'], [String(r.team || 'Team').slice(0, 22), 0.09, 'left', 0.4], [String(r.game || '').slice(0, 18), 0.52, 'left', 0.27], [String(r.score ?? ''), 0.97, 'right', 0.16]] }));
     boardText.set(lines);
   }
 
@@ -93,8 +113,8 @@ export function createRoom({ THREE, root, assets, bounds }) {
       const a = t.image ? t.image.width / t.image.height : 1;
       const w = Math.min(1.8, Math.max(0.8, (bx1 - bx0) * 0.4)), h = w / Math.max(0.3, a);
       logo = new THREE.Mesh(new THREE.PlaneGeometry(w, Math.min(h, w)), new THREE.MeshBasicMaterial({ map: t, transparent: true, opacity: 0.88, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
-      logo.rotation.x = -Math.PI / 2;
-      logo.position.set(mx, 0.004, mz);
+      if (anchors?.logo) { logo.position.set(anchors.logo.x, anchors.logo.y, anchors.logo.z); logo.rotation.y = anchors.logo.ry || 0; logo.material.polygonOffset = false; }      // on a wall of the hub
+      else { logo.rotation.x = -Math.PI / 2; logo.position.set(mx, 0.004, mz); }
       logo.renderOrder = -4;
       group.add(logo);
     }, undefined, () => console.warn('[room] logo did not load', url));

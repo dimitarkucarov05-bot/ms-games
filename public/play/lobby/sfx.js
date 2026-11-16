@@ -23,6 +23,10 @@ export const HOOKS = {
   'setup.point': 'tick',        // a calibration mark touched
   'setup.done': 'go',           // calibration finished
   'identify': 'bell',           // the operator looks for this headset
+  'range.shot': 'shot',         // the waiting room's shooting range: a pistol shot
+  'range.hit': 'hit',           // a target hit (metal)
+  'range.best': 'go',           // a new best score on the range
+  'portal.open': 'go',          // a game portal opens for the countdown
   'ambience.fire': 'fire',      // loop: the fire barrel / fire pit, placed in the world
   'ambience.night': 'night',    // loop: crickets and a quiet forest, everywhere
   'ambience.wind': 'wind',      // loop: wind in the trees, far

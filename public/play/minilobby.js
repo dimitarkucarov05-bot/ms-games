@@ -1,4 +1,5 @@
-// The waiting room: a night camp in a forest clearing around the play zone, framed around the player.
+// The Motel's intro scene (and the waiting room with ?lobby=camp): a night camp in a forest clearing around the play zone.
+// The hub (lobby/hub.js) moves the players here when a Motel countdown starts; the gate opens on GO, into the game.
 // Ahead (-Z) the exit: a wooden fence with a double gate and a broken road into the dark (the gate opens on GO);
 // between the player and the gate the vote stations (lobby/vote.js); on the left the record board (lobby/room.js)
 // under a work light; on the right the fire barrel with chairs; behind the big quarantine tent and supplies.
@@ -17,7 +18,7 @@ const APO = 'apocalypse-pack', PLAZA = 'shopping-plaza-map', ALP = 'alpine-mount
 const NIGHT = 0x0b1016;            // sky and fog: the colour the far forest dissolves into
 const FOG = 0.032;                 // FogExp2 density: about 70 % gone at 35 m
 
-export async function createMiniLobby({ THREE, root, assets, hall, rooms, scene, lights = {}, refreshShadows }) {
+export async function createMiniLobby({ THREE, root, assets, hall, rooms, scene, lights = {}, refreshShadows, startLook = true }) {
   const group = new THREE.Group();
   group.name = 'mini-lobby';
   root.add(group);
@@ -226,7 +227,7 @@ export async function createMiniLobby({ THREE, root, assets, hall, rooms, scene,
       if (sun && saved.sun) { sun.intensity = saved.sun[0]; sun.color.setHex(saved.sun[1]); sun.position.copy(saved.sun[2]); }
     }
   }
-  look(true);
+  if (startLook) look(true);      // built ahead as The Motel's intro: its look waits until the player is moved into it
   // the shadow is drawn once (nothing in the camp moves except the gate); a frame later the matrices are in place
   setTimeout(() => refreshShadows?.(), 300);
 
@@ -236,7 +237,7 @@ export async function createMiniLobby({ THREE, root, assets, hall, rooms, scene,
     if (fire) fire.intensity = 14 * (0.78 + 0.13 * Math.sin(time * 11.3) + 0.09 * Math.sin(time * 23.7 + 1.3));
     if (flame) flame.update(dt);
     if (gateL && Math.abs(gateWant - gateOpen) > 0.001) {      // the gate swings outward, eased
-      gateOpen += Math.sign(gateWant - gateOpen) * Math.min(Math.abs(gateWant - gateOpen), dt * 0.8);
+      gateOpen += Math.sign(gateWant - gateOpen) * Math.min(Math.abs(gateWant - gateOpen), dt * 1.3);
       const e = gateOpen * gateOpen * (3 - 2 * gateOpen) * 1.75;
       gateL.rotation.y = Math.PI / 2 + e; gateR.rotation.y = -Math.PI / 2 - e;
     }
