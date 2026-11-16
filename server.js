@@ -17,7 +17,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { pipeline } from 'node:stream/promises';
 import { WebSocketServer } from 'ws';
-import { startKeeper } from './keeper.js';
+import { startKeeper, installHeadset as keeperInstall } from './keeper.js';
 // MS Games 2 (S2): the session engine and its stores live in lib/ (see research/ms-games-2-design.md sections 4, 6, 8, 9)
 import { createEngine } from './lib/session.js';
 import { createSettings, seasonFor } from './lib/settings.js';
@@ -27,7 +27,7 @@ import { createPresets } from './lib/presets.js';
 import { createHealth } from './lib/health.js';
 import { createScorecards, labelTspl, printThermal } from './lib/scorecards.js';
 import { appendJsonl, tailJsonl } from './lib/store.js';
-import { createSetupTracker, cleanPreset, presetZone, parseAdbDevices, usbState, installHeadset } from './lib/setup.js';
+import { createSetupTracker, cleanPreset, presetZone, parseAdbDevices, usbState } from './lib/setup.js';
 import { buildChecks, parsePingMs, firewallStatus, firewallFixCommand } from './lib/diagnose.js';
 import { makeZip, reportDir, reportName, tailFile, teeConsole } from './lib/bugreport.js';
 
@@ -850,6 +850,7 @@ function pushState() {
     pushTimer = null;
     const msg = JSON.stringify(snapshot());
     for (const ws of uiClients) if (ws.readyState === 1) ws.send(msg);
+    if (watchers.size) toWatchers(JSON.stringify(tvSession()));      // the TV page (spectator) follows the session too
   }, 100);
 }
 function toast(text, level = 'info') {
@@ -1320,7 +1321,7 @@ function onHeadsetMessage(ws, msg, ip) {
   if (msg.type === 'floorSet') { onFloorSet(id, h, msg); return pushState(); }
   if (msg.type === 'zoneObstaclesDone') { onZoneObstacles(id, h, msg); return pushState(); }
   // MS Games 2 (design section 9)
-  if (msg.type === 'vote') { engine.vote(id, String(msg.gameId || '')); return; }
+  if (msg.type === 'vote') { engine.vote(id, String(msg.id ?? msg.gameId ?? '')); return; }      // id: the option (game, or difficulty)
   if (msg.type === 'worn') { h.worn = !!msg.on; return pushState(); }
   if (msg.type === 'needsCalibration') {      // reason null: fine again (S3)
     if (msg.reason == null || msg.reason === '') { delete h.needsCalibration; return pushState(); }
@@ -1549,7 +1550,9 @@ async function onZoneDone(id, h, msg) {
   toast(`Zone saved: ${(z.rooms || []).length > 1 ? 'rooms' : 'play area'} ${roomsText} m${warn ? '. ' + warn : ''}`, z.ok === false ? 'warn' : 'ok');
   sendTo(id, { type: 'zoneSaved', ok: true, hall: z.hall, points: z.poly.length });
   if (setup.st.area?.kind === 'draw' && setup.st.area.headsetId === id) {      // the wizard's "draw in the headset": the drawer is the first headset
-    setup.reset(); setup.st.ref = id; setup.done(id); setup.st.step = 'points'; arena.setup = setup.saved(); writeJson(ARENA_FILE, arena);
+    setup.reset(); setup.st.ref = id; setup.done(id); setup.st.step = 'points';
+    const [a, b] = arena.zone.markers; setup.st.refAB = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    arena.setup = setup.saved(); writeJson(ARENA_FILE, arena);
   }
   delete h.needsCalibration;
   pushState();
@@ -1577,7 +1580,7 @@ async function onZoneObstacles(id, h, msg) {
   sendTo(id, { type: 'zoneSaved', ok: true, hall: arena.zone.hall, rooms: `${roomsText} м`, obstacles: (arena.zone.obstacles || []).length });
   toast(`Obstacles saved (${(arena.zone.obstacles || []).length}): ${(arena.zone.rooms || []).length > 1 ? 'rooms' : 'play area'} ${roomsText} m`, 'ok');
   if (launchAfter.delete(id)) setTimeout(() => {
-    try { api['POST /api/launch']({ gameId: 'backroom', headsetIds: [id], theme: 'night', fast: false }); pushState(); }
+    try { api['POST /api/launch']({ gameId: defaultGameId(), headsetIds: [id], theme: 'night', fast: false }); pushState(); }
     catch (e) { toast(`The game did not start: ${e.message}`, 'error'); }
   }, 3000);
   pushState();
@@ -1764,6 +1767,9 @@ function writeGameSaves() {
     catch (err) { console.error('save', err); }
   }
 }
+
+/** The game used when nothing names one (auto-start, launch after drawing obstacles): the first ready web game. */
+function defaultGameId() { return games.find(g => g.web && g.status !== 'soon')?.id || 'motel'; }
 
 function webHall() {
   if (arena.zone?.hall) return { w: arena.zone.hall.w, d: arena.zone.hall.d };
@@ -2112,6 +2118,8 @@ function askPoints(id) {
 /** POST /api/setup/points: {headsetId} first headset · {sync:true} every other connected headset · {redo:id} one again. */
 function setupPoints({ headsetId, sync, redo } = {}) {
   if (engine.inGame()) throw apiError('Stop the game before calibrating', 'busy', 0);
+  // the A–B check compares with the saved marks when the reference headset's own touch is not known (drawn or older zone)
+  if (setup.st.refAB == null && arena.zone?.markers?.length === 2) { const [a, b] = arena.zone.markers; setup.st.refAB = Math.hypot(b[0] - a[0], b[1] - a[1]); }
   if (headsetId) {
     const id = String(headsetId);
     if (!headsets.get(id)?.online) throw apiError('The headset is not connected', 'offline', 0);
@@ -2179,7 +2187,7 @@ async function refreshUsb() {
   if (!fs.existsSync(ADB) && ADB !== 'adb') { usbList = []; return usbList; }
   const r = await adbRun(['devices', '-l'], 8000);
   const devs = r.ok ? parseAdbDevices(r.out) : [];
-  usbList = devs.map(d => ({ serial: d.serial, model: d.model, product: d.product, ...usbState(d, usbJobs.get(d.serial)) }));
+  usbList = devs.map(d => { const j = usbJobs.get(d.serial); return { serial: d.serial, model: d.model, product: d.product, ...usbState(d, j), step: j?.step || null, pct: j?.pct ?? null }; });
   for (const [serial, job] of usbJobs) if (!devs.some(d => d.serial === serial) && job.state !== 'installing') usbJobs.delete(serial);
   usbAt = Date.now();
   return usbList;
@@ -2204,19 +2212,17 @@ async function usbInstall({ serial, number, color, name }) {
     if (name && String(name).trim()) arena.names[s] = String(name).trim().slice(0, 30);
     writeJson(ARENA_FILE, arena);
     const identity = { id: s, number: headsetNumber(s), color: headsetColor(s), name: arena.names[s] || `Headset ${headsetNumber(s)}` };
-    const tmp = path.join(DATA, `id-${s.replace(/\W/g, '')}.json`);
-    await installHeadset({
-      apk: headsetApk(), identity,
-      run: args => adbRun(['-s', s, ...args], 120_000),
-      pushFile: async (remote, text) => {
-        fs.writeFileSync(tmp, text);
-        const r = await adbRun(['-s', s, 'push', tmp, remote], 20_000);
-        fs.rmSync(tmp, { force: true });
-        if (!r.ok) throw new Error(`Writing the identity failed: ${r.err.slice(0, 100)}`);
-      },
-      onStep: set,
-    });
-    Object.assign(job, { state: 'done', text: 'Done', error: null });
+    // keeper.js (S6) installs: app only when older, identity with read-back, permissions, start, Wi-Fi adb last
+    const pc = lanAddresses().find(a => a.startsWith('192.168.')) || lanAddresses()[0] || '';
+    let last = null;
+    for await (const e of keeperInstall(s, identity, { adb: ADB, apk: headsetApk(), pc, file: path.join(DATA, 'keeper.json') })) {
+      last = e;
+      job.step = e.step; job.pct = e.pct ?? null;
+      if (e.state === 'fail') throw new Error(e.error || e.text || 'Install failed');
+      set(e.text);
+    }
+    if (last?.state !== 'done') throw new Error(last?.error || 'Install stopped');
+    Object.assign(job, { state: 'done', text: 'Done', error: null, pct: 100, result: last.result || null });
     toast(`${identity.name} is installed (number ${identity.number})`, 'ok');
   } catch (e) {
     Object.assign(job, { state: 'failed', text: 'Failed', error: e.message });
@@ -2257,7 +2263,11 @@ async function runDiagnose() {
     return row;
   }));
   const r = buildChecks({ addresses, chosen, version: PKG_VERSION, pageBuild: pageBuild(), firewall: await firewallNow(), headsets: list, adb: adbOk });
-  return { at: new Date().toISOString(), pc: { addresses, chosen, hostname: os.hostname(), node: process.version, version: PKG_VERSION, port: PORT, tlsPort: TLS_PORT }, ...r };
+  const adapters = Object.entries(os.networkInterfaces()).flatMap(([name, list]) => (list || []).filter(a => a.family === 'IPv4' && !a.internal).map(a => ({ name, ip: a.address, chosen: a.address === chosen })));
+  const rows = list.map(h => ({ id: h.id, number: headsetNumber(h.id), name: h.name, color: headsetColor(h.id), online: h.online, pingPc: h.pcPingMs ?? null, pingLink: h.wsPingMs ?? null,
+    pingHeadset: h.backPingMs ?? null, page: h.build ? `build ${h.build}` : null, app: h.appVersion, battery: h.battery ?? null, lastDrop: h.lastDropAt, drops: h.drops,
+    wifi: headsets.get(h.id)?.wifi ?? null }));
+  return { at: new Date().toISOString(), pc: { addresses, chosen, hostname: os.hostname(), node: process.version, version: PKG_VERSION, port: PORT, tlsPort: TLS_PORT }, adapters, headsets: rows, ...r };
 }
 async function fixFirewall(opts) {
   if (process.platform !== 'win32') throw new Error('The firewall fix is for Windows');
@@ -2622,7 +2632,7 @@ const api = {
     return { ok: true, vote: mapVoteView() };
   },
 
-  // класация: /api/scores?game=backroom&period=day|week|month|all&limit=20
+  // класация: /api/scores?game=motel&period=day|week|month|all&limit=20
   'GET /api/scores': (_, req) => {
     const q = new URL(req.url, 'http://x').searchParams;
     const period = PERIODS[q.get('period')] === undefined ? 'all' : q.get('period');
@@ -2672,6 +2682,7 @@ const api = {
     const clean = String(name || '').trim().slice(0, 30);
     if (clean) arena.names[headsetId] = clean; else delete arena.names[headsetId];
     writeJson(ARENA_FILE, arena);
+    sendIdentity(headsetId);      // the new name follows into the headset at once
     return { ok: true };
   },
 
@@ -3000,7 +3011,15 @@ const api = {
   },
   'POST /api/records/rename': ({ id, team }) => ({ ok: true, record: records.rename(String(id || ''), team) }),
   'POST /api/records/remove': ({ id }) => { records.remove(String(id || '')); return { ok: true }; },
-  'GET /api/scorecards': () => ({ ok: true, version: scorecardsVersion, scorecards: scorecards.list() }),
+  'GET /api/scorecards': (_, req) => {
+    const id = new URL(req.url, 'http://x').searchParams.get('id');
+    if (id) {      // one card (the scorecard page): also answered by GET /api/scorecard?id=
+      const card = scorecards.get(id);
+      if (!card) throw apiError('No such scorecard', 'not_found', 0);
+      return { ok: true, card, scorecard: card, venue: venueView() };
+    }
+    return { ok: true, version: scorecardsVersion, scorecards: scorecards.list() };
+  },
   'GET /api/scorecard': (_, req) => {
     const id = new URL(req.url, 'http://x').searchParams.get('id');
     const card = scorecards.get(id);
@@ -3015,17 +3034,23 @@ const api = {
     return { ok: true, png: url };
   },
   'POST /api/scorecards/remove': ({ id }) => { scorecards.remove(String(id || '')); scorecardsVersion++; return { ok: true }; },
-  'POST /api/scorecards/print': ({ id }) => {
+  'POST /api/scorecards/print': ({ id, printer }) => {
     const card = scorecards.get(String(id || ''));
     if (!card) throw new Error('No such scorecard');
     const p = settings.get().printer;
-    if (p.kind !== 'thermal') throw apiError('The printer in Settings is the system printer: print from the browser', 'system_printer', 0);
+    // the system printer is the browser's print dialog on the console (print look); only the label printer goes from here
+    if ((printer || p.kind) !== 'thermal') return { ok: true, system: true, url: `/scorecard/?id=${encodeURIComponent(card.id)}&look=print` };
     printThermal(p.thermalHost, p.queue, labelTspl(card, { venue: settings.get().venue.name }))
       .then(r => toast(r.ok ? `Scorecard sent to the label printer` : `The label printer did not take it (${r.error || `IPP status ${r.status}`})`, r.ok ? 'ok' : 'error'));
     return { ok: true, queued: true };
   },
 
   'GET /api/settings': () => ({ ok: true, settings: settings.get() }),
+  // the headset app asks every 3 s whether the game page must be in front (S6): a mode is open or a run is on
+  'GET /api/keep': (_, req) => {
+    const id = String(new URL(req.url, 'http://x').searchParams.get('id') || '');
+    return { ok: true, keep: engine.keeps(id), state: engine.state() };
+  },
   'POST /api/settings': patch => {
     const s = settings.update(patch);
     if ('autoStart' in (patch || {})) { arena.autoStart = { ...(arena.autoStart || AUTO_DEFAULT), on: s.autoStart }; writeJson(ARENA_FILE, arena); if (s.autoStart) autoSeen.clear(); }
@@ -3076,6 +3101,13 @@ const api = {
 
   // operations (design section 8)
   'GET /api/diagnose': async () => ({ ok: true, ...(await runDiagnose()) }),
+  'POST /api/diagnose/fix': async ({ id }) => {
+    const key = String(id || '');
+    if (key === 'firewall' || key === 'pc.firewall') return { ok: true, ...(await fixFirewall({ node: process.execPath, ports: [PORT, TLS_PORT], udp: [47810] })) };
+    const m = /^hs\.(.+)\.(build|online|link)$/.exec(key);
+    if (m && m[2] === 'build') return { ok: true, ...api['POST /api/headset/reload']({ headsetId: m[1] }) };
+    throw apiError('This check has no automatic fix: follow the sentence next to it', 'no_fix', 0);
+  },
   'POST /api/firewall/fix': async () => ({ ok: true, ...(await fixFirewall({ node: process.execPath, ports: [PORT, TLS_PORT], udp: [47810] })) }),
   'POST /api/bugreport': async ({ note }) => ({ ok: true, ...(await makeBugReport(String(note || ''))) }),
 };
@@ -3084,6 +3116,10 @@ const MIME = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
   '.svg': 'image/svg+xml', '.png': 'image/png', '.json': 'application/json; charset=utf-8',
   '.jpg': 'image/jpeg', '.webp': 'image/webp', '.ico': 'image/x-icon', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2', '.glb': 'model/gltf-binary',
+  // sound and video (S8's sound library, trailers for the TV page)
+  '.ogg': 'audio/ogg', '.oga': 'audio/ogg', '.opus': 'audio/ogg; codecs=opus', '.mp3': 'audio/mpeg', '.m4a': 'audio/mp4', '.aac': 'audio/aac',
+  '.wav': 'audio/wav', '.flac': 'audio/flac', '.webm': 'video/webm', '.mp4': 'video/mp4', '.jpeg': 'image/jpeg', '.gif': 'image/gif',
+  '.woff': 'font/woff', '.ttf': 'font/ttf', '.gltf': 'model/gltf+json', '.bin': 'application/octet-stream', '.ktx2': 'image/ktx2', '.txt': 'text/plain; charset=utf-8',
 };
 
 const server = http.createServer(async (req, res) => {
@@ -3223,7 +3259,7 @@ const server = http.createServer(async (req, res) => {
 // ---------- Сам пуска игра на всяка каска, която дойде (като залите на VEX) ----------
 // Каска, влязла през страницата на играта: ако котвата ѝ е загубена, получава двете точки; после избраната игра.
 // Веднъж на връзка: каска, която излезе от мрежата и се върне, минава наново. Включва се и се сменя в „Settings".
-const AUTO_DEFAULT = { on: true, gameId: 'backroom', theme: 'night' };
+const AUTO_DEFAULT = { on: true, gameId: 'motel', theme: 'night' };
 if (!arena.autoStart) arena.autoStart = { ...AUTO_DEFAULT };
 const autoSeen = new Map();      // каска → { step: 'new' | 'aligning' | 'started' | 'retry', at }
 function autoStartTick() {
@@ -3288,19 +3324,23 @@ const DOMAIN_DIR = path.join(TLS_DIR, 'domain');
 let domainCtx = null, domainStamp = '';
 function domainTls() {
   try {
-    const name = fs.readFileSync(path.join(DOMAIN_DIR, 'domain.txt'), 'utf8').trim();
+    // domain.txt: the certificate's names, one per line (or space separated); the first is the hall's name
+    const names = fs.readFileSync(path.join(DOMAIN_DIR, 'domain.txt'), 'utf8').split(/\s+/).map(x => x.trim().toLowerCase()).filter(Boolean);
+    const name = names[0];
     const chain = path.join(DOMAIN_DIR, 'fullchain.pem'), key = path.join(DOMAIN_DIR, 'key.pem');
     const stamp = name + fs.statSync(chain).mtimeMs + fs.statSync(key).mtimeMs;
     if (stamp !== domainStamp) {
       domainStamp = stamp;
-      domainCtx = { name, ctx: tlsMod.createSecureContext({ key: fs.readFileSync(key), cert: fs.readFileSync(chain) }) };
+      domainCtx = { name, names, ctx: tlsMod.createSecureContext({ key: fs.readFileSync(key), cert: fs.readFileSync(chain) }) };
     }
     return domainCtx;
   } catch { return null; }
 }
 function domainSni(servername, cb) {
   const d = domainTls();
-  cb(null, d && servername && servername.toLowerCase() === d.name ? d.ctx : undefined);
+  const sn = String(servername || '').toLowerCase();
+  const match = n => n === sn || (n.startsWith('*.') && sn.endsWith(n.slice(1)) && !sn.slice(0, -n.length + 1).includes('.'));
+  cb(null, d && sn && (d.names || [d.name]).some(match) ? d.ctx : undefined);      // every name of the certificate (S6: loopback name)
 }
 const tls = process.env.NO_TLS === '1' ? null : ensureTls();
 const secureServer = tls ? https.createServer(tls, (req, res) => server.emit('request', req, res)) : null;
@@ -3321,9 +3361,24 @@ if (secureServer) {
 const wssHeadset = new WebSocketServer({ noServer: true });
 const wssUi = new WebSocketServer({ noServer: true });
 const wssWatch = new WebSocketServer({ noServer: true });
+/** What the spectator TV needs besides the game itself: the session, the record board, who plays (design 0.6, S7). */
+function tvSession() {
+  const run = engine.view(), last = engine.last();
+  const gameId = run?.gameId || last?.results?.gameId || defaultGameId();
+  return {
+    type: 'session', state: engine.state(), flow: engine.flow(), run, last, venue: venueView(), season: seasonFor(settings.get().theme),
+    game: games.find(g => g.id === gameId) ? { id: gameId, name: games.find(g => g.id === gameId).name, cover: games.find(g => g.id === gameId).cover } : null,
+    board: records.list({ gameId, period: 'all', limit: 10 }).list.map(e => ({ rank: e.rank, team: e.team, score: e.score, difficulty: e.difficulty, date: e.date })),
+    today: records.list({ gameId, period: 'today', limit: 10 }).list.map(e => ({ rank: e.rank, team: e.team, score: e.score, difficulty: e.difficulty, date: e.date })),
+    headsets: [...headsets.values()].map(h => ({ id: h.id, n: headsetNumber(h.id), name: playerName(h.id), color: headsetColor(h.id), online: !!h.online, state: stateWord(h), inGame: !!web?.ids.has(h.id) })),
+  };
+}
+
 wssWatch.on('connection', ws => {
   watchers.add(ws);
   ws.send(JSON.stringify({ type: 'hall', hall: webHall(), calibrated: !!latestCalibration() }));
+  ws.send(JSON.stringify({ type: 'zone', zone: zoneView() }));
+  ws.send(JSON.stringify(tvSession()));
   if (web) ws.send(JSON.stringify(web.startMsg));
   ws.on('close', () => watchers.delete(ws));
   ws.on('error', () => {});
@@ -3331,7 +3386,7 @@ wssWatch.on('connection', ws => {
 
 server.on('upgrade', (req, socket, head) => {
   const { pathname } = new URL(req.url, 'http://x');
-  const target = pathname === '/headset' ? wssHeadset : pathname === '/ui' ? wssUi : pathname === '/watch' ? wssWatch : null;
+  const target = pathname === '/headset' ? wssHeadset : pathname === '/ui' ? wssUi : pathname === '/watch' || pathname === '/tv' ? wssWatch : null;      // /tv: the spectator page
   if (!target) return socket.destroy();
   target.handleUpgrade(req, socket, head, ws => target.emit('connection', ws, req));
 });
@@ -3445,10 +3500,10 @@ if (process.env.NO_PLAY_BEACON !== '1') startPlayBeacon();
 // Пробните сървъри (ARENA_DEV) и NO_KEEPER=1 не пипат каските; без adb на този компютър също няма пазач.
 if (process.env.NO_KEEPER !== '1' && process.env.ARENA_DEV !== '1' && fs.existsSync(ADB)) {
   keeper = startKeeper({
-    adb: ADB, port: PORT, apk: path.join(HERE, 'tools', 'apk', 'Arena.apk'), file: path.join(DATA, 'keeper.json'),
+    adb: ADB, port: PORT, apk: headsetApk(), file: path.join(DATA, 'keeper.json'),      // MSGames-Headset.apk (S6)
     state: () => ({
       headsets: [...headsets.values()].map(h => ({ id: h.id, ip: h.ip, online: !!h.online, web: !!h.web, phase: h.phase, hasCalibration: !!arena.calibrations[h.id], name: headsetView(h).name })),
-      zone: !!arena.zone, session: !!session,
+      zone: !!arena.zone, session: !!session, run: engine.active(),      // the keeper updates the app only when neither is on
     }),
     align: id => api['POST /api/zone/align']({ headsetId: id }),
     say: (text, level) => { console.log('[keeper]', text); toast(text, level === 'warn' ? 'warn' : 'ok'); },
@@ -3457,6 +3512,8 @@ if (process.env.NO_KEEPER !== '1' && process.env.ARENA_DEV !== '1' && fs.existsS
 }
 
 await loadWebGames();
+// a saved auto-start game that is no longer installed (The Back Room, removed 2026-11-16) falls back to the first ready game
+if (arena.autoStart && !games.some(g => g.id === arena.autoStart.gameId && g.web && g.status !== 'soon')) { arena.autoStart.gameId = defaultGameId(); arena.autoStart.theme = 'night'; }
 await loadZoneLib();
 if (arena.zone && !arena.zone.rooms) await reSolveZone();      // зона от по-стара версия: стаите се смятат при пускане
 
