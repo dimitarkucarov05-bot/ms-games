@@ -117,8 +117,9 @@ export function createRoom({ THREE, root, assets, bounds }) {
       await put(SHOPS, 'SM_Prop_Xmas_Present_03', L - 2.0, F + 1.1, 1.1);
       await put(KIDS, 'SM_Prop_Xmas_Present_01', L - 1.0, F + 1.3, 0.2);
       await put(KIDS, 'SM_Prop_Xmas_Present_02', L - 1.5, F + 0.9, -0.7);
-      await put(SHOPS, 'SM_Prop_Xmas_Caine_01', bx0 - 0.4, bz0 - 1.0, Math.PI / 2);
-      await put(SHOPS, 'SM_Prop_Xmas_Caine_01', bx1 + 0.4, bz0 - 1.0, -Math.PI / 2);
+      const gz = bounds.gateZ ?? bz0 - 3.4;      // the candy canes stand either side of the exit gate
+      await put(SHOPS, 'SM_Prop_Xmas_Caine_01', mx - 1.55, gz + 0.45, Math.PI / 2);
+      await put(SHOPS, 'SM_Prop_Xmas_Caine_01', mx + 1.55, gz + 0.45, -Math.PI / 2);
     } else if (key === 'halloween') {
       const spots = [[L + 0.3, F + 0.1, 0.4], [L - 0.5, F + 0.8, -0.8], [Rt + 1.2, F + 0.1, 1.9], [Rt + 2.3, mz - 0.3, 2.6], [mx - 1, B - 0.3, 0.2], [mx + 1.2, B - 0.1, -0.5], [L - 0.9, mz - 1.9, 1.2]];
       for (const [x, z, r] of spots) await put(KIDS, 'SM_Prop_Halloween_Pumpkin_01', x, z, r);

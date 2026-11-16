@@ -62,8 +62,8 @@ export function createOverlay({ THREE, scene, sfx, haptic, dim }) {
     const n = Math.max(1, Math.min(10, Math.round(Number(seconds) || 3)));
     const step = k => {
       S.cd = k; S.pop = performance.now();
-      if (k > 0) { sfx?.play('tick', { gain: 0.9, rate: k === 1 ? 1.12 : 1 }); both(0.55, 60); }
-      else { sfx?.play('go', { gain: 1 }); both(1, 180); }
+      if (k > 0) { sfx?.play('countdown.tick', { gain: 0.9, rate: k === 1 ? 1.12 : 1 }); both(0.55, 60); }
+      else { sfx?.play('countdown.go', { gain: 1 }); both(1, 180); }
       redraw();
     };
     for (let k = n; k >= 0; k--) S.cdTimers.push(setTimeout(() => step(k), (n - k) * 1000));
@@ -75,28 +75,28 @@ export function createOverlay({ THREE, scene, sfx, haptic, dim }) {
     S.results = r || {}; S.pause = null; S.placed = false;
     const sec = Math.max(3, Number(seconds ?? r?.seconds) || 20);
     S.resultsUntil = performance.now() + sec * 1000;
-    sfx?.play('results', { gain: 1 }); both(0.8, 220);
+    sfx?.play('results.show', { gain: 1 }); both(0.8, 220);
     redraw();
   }
 
   function pause(on, who = []) {
     const was = !!S.pause;
     S.pause = on ? (Array.isArray(who) ? who.map(String).filter(Boolean) : []) : null;
-    if (on !== was) { sfx?.play('click', { gain: 0.9 }); both(on ? 0.7 : 0.4, on ? 160 : 60); }
+    if (on !== was) { sfx?.play('pause.toggle', { gain: 0.9 }); both(on ? 0.7 : 0.4, on ? 160 : 60); }
     redraw();
   }
 
   function endMessage(preset, text) {
     const lines = preset === 'custom' || !END_PRESETS[preset] ? String(text || '').split('\n').map(s => s.trim()).filter(Boolean).slice(0, 3) : END_PRESETS[preset];
     S.end = lines.length ? lines : null; S.results = null; S.placed = false;
-    if (S.end) { sfx?.play('bell', { gain: 1 }); both(0.6, 120); }
+    if (S.end) { sfx?.play('endmessage.in', { gain: 1 }); both(0.6, 120); }
     redraw();
   }
 
   function message(text, seconds = 6) {
     S.msg = String(text || '').slice(0, 90) || null;
     S.msgUntil = performance.now() + Math.max(2, Number(seconds) || 6) * 1000;
-    if (S.msg) { sfx?.play('bell', { gain: 0.8 }); both(0.45, 80); }
+    if (S.msg) { sfx?.play('message.in', { gain: 0.8 }); both(0.45, 80); }
     redraw();
   }
 

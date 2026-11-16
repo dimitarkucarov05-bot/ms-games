@@ -234,7 +234,7 @@ export function createZoneEditor(env) {
     markDot(t, 'AB'[k]);
     for (const g of ghosts.children) if (g.userData.letter === k) g.visible = false;
     env.send({ type: 'setupPoint', index: k, x: t.x, y: t.y, z: t.z, floorY: +(t.y - TIP).toFixed(3) });      // y: the controller tip, floorY: the floor under it
-    env.sound?.('tick');
+    env.sound?.('setup.point');
     env.haptic('r', 1, k ? 250 : 90);
     if (k === 0) return say();
     env.panel('Marks sent', ['Wait for the console.'], '');

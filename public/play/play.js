@@ -181,6 +181,10 @@ function buildHall() {
   for (const c of [...hallGroup.children]) { hallGroup.remove(c); c.geometry?.dispose(); c.material?.map?.dispose(); c.material?.dispose(); }
   if (!calib) return;
   const hw = hall.w / 2, hd = hall.d / 2, pts = [];
+  if (qs.get('show') !== '1' && qs.get('lobby') !== '0') {      // the camp is the waiting room: only a quiet edge on the ground, no grid
+    hallGroup.add(new THREE.LineLoop(new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute([-hw, 0.012, -hd, hw, 0.012, -hd, hw, 0.012, hd, -hw, 0.012, hd], 3)), new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 })));
+    return;
+  }
   for (let x = Math.ceil(-hw + 0.001); x < hw; x++) pts.push(x, 0.005, -hd, x, 0.005, hd);
   for (let z = Math.ceil(-hd + 0.001); z < hd; z++) pts.push(-hw, 0.005, z, hw, 0.005, z);
   const grid = new THREE.LineSegments(new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(pts, 3)), new THREE.LineBasicMaterial({ color: COL.line }));
@@ -803,6 +807,59 @@ async function loadStep(title, pct, what) {
   sendStatus();
   await new Promise(r => setTimeout(r, 60));      // да се види, преди да започне тежката работа
 }
+/** The waiting room's own atmosphere (fog, night sky colour, moonlight); minilobby.js owns it. */
+function lobbyLook(on) {
+  try { showroom?.look?.(on); } catch (e) { console.warn('lobby look', e); }
+  backdrop.material.color.set(on && scene.background?.isColor ? scene.background : COL.bg);
+  ambience(on && !!showroom?.fireAt);
+  if (on) showroom?.gate?.(false);
+}
+/** The camp's sound: the fire crackles where the fire is, crickets and wind everywhere (real recordings, sfx hooks). */
+const amb = { on: false, loops: [], v: new THREE.Vector3() };
+function ambience(on) {
+  if (on === amb.on) return;
+  amb.on = on;
+  for (const l of amb.loops) l.stop();
+  amb.loops = on ? [
+    sfx.loop('ambience.fire', { gain: 2.2, at: () => showroom?.fireAt?.(amb.v), ref: 1.2, roll: 1.3 }),
+    sfx.loop('ambience.night', { gain: 0.45 }),
+    sfx.loop('ambience.wind', { gain: 0.3, fadeMs: 4000 }),
+  ] : [];
+}
+
+// ---------- the transition into and out of a game: ONE replaceable hook (S7 owns public/play/loading/*) ----------
+// loading.into({ title, cover, start, load }): must call `await load(progress)` exactly once and return its result.
+//   progress(pct 0..1, what) shows how far the loading is; load() builds the game AND swaps the world (lobby hidden,
+//   game shown) before it returns, so into() only decides what the player sees around it (dark, cover, text, sound).
+//   If load() throws, into() must rethrow after clearing its visuals.
+// loading.out({ swap }): the game goes away; must call `await swap()` exactly once (disposes the game, shows the lobby).
+// public/play/loading/index.js may export createLoading(env) returning { into, out }; it replaces the default at boot.
+const loadingDefault = {
+  async into({ title, cover, load }) {
+    await fade(1, 600);                        // the lobby sinks into the dark; the game loads in the dark
+    panelDrop = 0.5; showCover(cover);
+    try {
+      const r = await load((pct, what) => loadStep(title, pct, what));
+      showPanel('', []); panelDrop = 0; showCover('');
+      fade(0, 2200);                           // the game world rises out of the dark
+      return r;
+    } catch (e) { panelDrop = 0; showCover(''); fade(0, 400); throw e; }
+  },
+  async out({ swap }) {
+    await fade(1, 450);                        // the game sinks into the dark, the lobby rises
+    await swap();
+    fade(0, 1200);
+  },
+};
+let loading = loadingDefault;
+async function useLoadingModule() {
+  try {
+    const m = await import('./loading/index.js');
+    const made = m.createLoading?.({ THREE, scene, renderer, camera, view: () => (renderer.xr.isPresenting ? renderer.xr.getCamera() : camera), sfx, haptic, panel: showPanel, fallback: loadingDefault });
+    if (made?.into && made?.out) loading = made;
+  } catch { /* no loading module yet: the default fade stays */ }
+}
+
 async function startGame(start) {
   // същото съобщение за старт идва пак при всяко ново свързване: играта не се зарежда втори път върху първата
   const sig = JSON.stringify(start);
@@ -813,47 +870,48 @@ async function startGame(start) {
   await endGame();
   sendStatus();                               // веднага: сървърът да не сметне каската за свободна
   const title = String(start.title || 'Game');
+  const base = `./games/${encodeURIComponent(start.client || start.game)}/`;
   try {
-    const base = `./games/${encodeURIComponent(start.client || start.game)}/`;
-    await fade(1, 600);                        // лобито потъва в тъмното; играта се зарежда на тъмно
-    panelDrop = 0.5;
-    showCover(new URL(`${base}cover.jpg`, import.meta.url).href);
-    await loadStep(title, 0.04, 'Getting ready');
-    const mod = await import(`${base}scene.js`);
-    ctx.hall = start.hall || hall; ctx.theme = start.theme || 'night'; ctx.desktop = desk.on;
-    // истинските модели (Synty), ако са приготвени; иначе играта върви с резервните
-    try { ctx.assets ||= (await import('./lib/assets.js')).createAssets(); } catch (e) { console.warn('assets', e.message); }
-    await loadStep(title, 0.12, 'Loading models');
-    try {
-      const [models, kinds] = await Promise.all([import(`${base}models.js`), import(`${base}synty-kinds.js`)]);
-      if (ctx.assets) await kinds.installSyntyKinds({ THREE, assets: ctx.assets, models, theme: ctx.theme, start });
-      if (kinds.makeHand) useHands(kinds.makeHand);
-      if (kinds.makeAvatarBody) useBodies(kinds.makeAvatarBody);
-    } catch (e) { console.warn('synty-kinds', e.message); }
-    gHemi.color.set(0xcfd8ff); gHemi.intensity = 0.75; gSun.intensity = 1.9;
-    gameLights.visible = true;
-    await loadStep(title, 0.5, 'Building the scene');
-    const sc = await mod.createScene(ctx, start);
-    await loadStep(title, 0.66, 'Loading the world');
-    let decor = null;
-    try { if (ctx.assets) decor = await (await import(`${base}decor.js`)).createDecor(ctx, start); } catch (e) { console.warn('decor', e.message); }
-    await loadStep(title, 1, 'Ready');
-    game = { name: start.game, scene: sc, decor, start, snap: null };
-    hemi.visible = sun.visible = false;
-    refreshShadows();
-    showRoot.visible = false;
-    hallGroup.visible = false;
-    backdrop.visible = true;
-    showPanel('', []);
-    send({ type: 'launched', ok: true, game: start.game });
-    panelDrop = 0; showCover('');
-    fade(0, 2200);                             // светът на играта изплува от тъмното
+    await loading.into({
+      title, start, cover: new URL(`${base}cover.jpg`, import.meta.url).href,
+      load: async progress => {
+        lobbyLook(false);      // the lobby's fog and moonlight go before the game sets up its own (it restores ours on dispose)
+        await progress(0.04, 'Getting ready');
+        const mod = await import(`${base}scene.js`);
+        ctx.hall = start.hall || hall; ctx.theme = start.theme || 'night'; ctx.desktop = desk.on;
+        // истинските модели (Synty), ако са приготвени; иначе играта върви с резервните
+        try { ctx.assets ||= (await import('./lib/assets.js')).createAssets(); } catch (e) { console.warn('assets', e.message); }
+        await progress(0.12, 'Loading models');
+        try {
+          const [models, kinds] = await Promise.all([import(`${base}models.js`), import(`${base}synty-kinds.js`)]);
+          if (ctx.assets) await kinds.installSyntyKinds({ THREE, assets: ctx.assets, models, theme: ctx.theme, start });
+          if (kinds.makeHand) useHands(kinds.makeHand);
+          if (kinds.makeAvatarBody) useBodies(kinds.makeAvatarBody);
+        } catch (e) { console.warn('synty-kinds', e.message); }
+        gHemi.color.set(0xcfd8ff); gHemi.intensity = 0.75; gSun.intensity = 1.9;
+        gameLights.visible = true;
+        await progress(0.5, 'Building the scene');
+        const sc = await mod.createScene(ctx, start);
+        await progress(0.66, 'Loading the world');
+        let decor = null;
+        try { if (ctx.assets) decor = await (await import(`${base}decor.js`)).createDecor(ctx, start); } catch (e) { console.warn('decor', e.message); }
+        await progress(1, 'Ready');
+        // the swap: the lobby goes, the game world is shown (still in the dark of the transition)
+        game = { name: start.game, scene: sc, decor, start, snap: null };
+        hemi.visible = sun.visible = false;
+        refreshShadows();
+        showRoot.visible = false;
+        hallGroup.visible = false;
+        backdrop.visible = true;
+        send({ type: 'launched', ok: true, game: start.game });
+        return game;
+      },
+    });
   } catch (e) {
     console.error('the game failed to load', e);
+    if (!game) lobbyLook(true);
     send({ type: 'launched', ok: false, error: String(e?.message || e).slice(0, 120) });
-    panelDrop = 0; showCover('');
     showPanel('The game failed to load', [String(e?.message || e).slice(0, 60)], 'bad', 8);
-    fade(0, 400);
   }
   gameLoading = false; loadingName = null; loadPct = null;
   renderCard();
@@ -861,25 +919,28 @@ async function startGame(start) {
 }
 async function endGame() {
   if (!game) return;
-  await fade(1, 450);                          // играта потъва в тъмното, лобито изплува
-  if (!game) return;
-  useBodies(null);
-  try { game.decor?.dispose(); } catch (e) { console.warn(e); }
-  try { game.scene.dispose(); } catch (e) { console.warn(e); }
-  for (const c of [...gameRoot.children]) gameRoot.remove(c);
-  game = null;
-  hemi.visible = sun.visible = true;
-  gameLights.visible = false;
-  showRoot.visible = true;
-  hallGroup.visible = true;
-  backdrop.visible = !!showroom;
-  renderCard();
-  fade(0, 1200);
+  await loading.out({
+    swap: async () => {
+      if (!game) return;
+      useBodies(null);
+      try { game.decor?.dispose(); } catch (e) { console.warn(e); }
+      try { game.scene.dispose(); } catch (e) { console.warn(e); }
+      for (const c of [...gameRoot.children]) gameRoot.remove(c);
+      game = null;
+      hemi.visible = sun.visible = true;
+      gameLights.visible = false;
+      showRoot.visible = true;
+      hallGroup.visible = true;
+      backdrop.visible = !!showroom;
+      lobbyLook(true);
+      renderCard();
+    },
+  });
 }
 
 // ---------- зона: чертане от каската ----------
 
-const BUILD = 37;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
+const BUILD = 38;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
 // what this page understands of MS Games 2 (the server may fall back to older flows for pages without a cap)
 const CAPS = ['lobby', 'vote', 'countdown', 'pause', 'settings', 'results', 'endMessage', 'message', 'swapHands', 'calibrateHeight', 'setupPoints', 'identity', 'restartGame', 'recalibrate', 'bench', 'ping'];
 let zoneMod = null, zoneEditor = null, zoneViewObj = null, zoneData = null;
@@ -1017,16 +1078,19 @@ async function initShowroom() {
   try {
     ctx.assets ||= (await import('./lib/assets.js')).createAssets();
     const mod = await import(kitchen ? './showroom.js' : './minilobby.js');
-    const made = await (kitchen ? mod.createShowroom : mod.createMiniLobby)({ THREE, root: showRoot, assets: ctx.assets, hall, rooms: zoneData?.rooms || null });
+    const made = await (kitchen ? mod.createShowroom : mod.createMiniLobby)({ THREE, root: showRoot, assets: ctx.assets, hall, rooms: zoneData?.rooms || null, scene, lights: { hemi, sun }, refreshShadows });
     if (gen !== showGen) { try { made?.dispose?.(); } catch { /* вече го няма */ } return; }      // междувременно е тръгнало по-ново
     showroom?.dispose();
     showroom = made;
     backdrop.visible = true;
-    if (!kitchen && made?.bounds) buildWaitingRoom(made.bounds);
+    if (game || gameLoading) made.look?.(false);      // built while a game runs: its night look waits for the lobby
+    else lobbyLook(true);
+    if (!kitchen && made?.bounds) buildWaitingRoom(made);
   } catch (e) { console.warn('showroom', e); }
 }
 
-function buildWaitingRoom(bounds) {
+function buildWaitingRoom(camp) {
+  const bounds = camp.bounds;
   room?.dispose(); vote?.dispose(); room = vote = null;
   import('./lobby/room.js').then(m => {
     room = m.createRoom({ THREE, root: showRoot, assets: ctx.assets, bounds });
@@ -1034,7 +1098,7 @@ function buildWaitingRoom(bounds) {
   }).catch(e => console.warn('[lobby] room', e));
   import('./lobby/vote.js').then(m => {
     vote = m.createVote({
-      THREE, root: showRoot, space: scene, assets: ctx.assets, bounds, haptic, sfx, send,
+      THREE, root: showRoot, space: scene, assets: ctx.assets, bounds, haptic, sfx, send, spot: camp.spots?.vote || null,
       onInput(fn) { inputFns.add(fn); return () => inputFns.delete(fn); },
       /** Where a controller points (tracking space). In the browser without a headset: from the eye through the mouse hand. */
       pointer(side, o, d) {
@@ -1044,7 +1108,7 @@ function buildWaitingRoom(bounds) {
         return false;
       },
     });
-    if (voteWanted) vote.set(voteWanted.options, voteWanted.endsAt);
+    if (voteWanted) vote.set(voteWanted.options, voteWanted.endsAt, voteWanted.ask);
   }).catch(e => console.warn('[lobby] vote', e));
 }
 
@@ -1072,7 +1136,7 @@ async function setupStep(m) {
   const step = String(m.step || '');
   if (step === 'done') {
     if (zoneEditor?.step === 'points') { zoneEditor.cancel(); zoneMode(false); }
-    sfx.play('go', { gain: 0.8 }); haptic('l', 0.8, 160); haptic('r', 0.8, 160);
+    sfx.play('setup.done', { gain: 0.8 }); haptic('l', 0.8, 160); haptic('r', 0.8, 160);
     return showPanel('Marks saved', ['This headset is calibrated.'], '', 6);
   }
   if (step === 'cancel') { if (zoneEditor?.step === 'points') { zoneEditor.cancel(); zoneMode(false); } return showPanel('', []); }
@@ -1087,7 +1151,7 @@ async function setupStep(m) {
   }
   zoneMode(true);
   zoneEditor.startPoints({ step, ghosts });
-  sfx.play('bell', { gain: 0.6 });
+  sfx.play('message.in', { gain: 0.6 });
 }
 
 // ---------- needsCalibration and worn ----------
@@ -1126,7 +1190,8 @@ function onLobby(m) {
   if (!inLobby) { inLobby = true; overlay.pause(false); if (game) { startSig = ''; endGame(); } }
   room?.set(m);
 }
-const coverOf = o => o.cover || `/play/games/${encodeURIComponent(o.client || o.gameId)}/cover.jpg`;
+// a game option without its own cover uses the game's cover; a non-game option (difficulty, rounds) has none
+const coverOf = o => o.cover || (o.gameId && !o.id ? `/play/games/${encodeURIComponent(o.client || o.gameId)}/cover.jpg` : null);
 /** Server messages of MS Games 2 (design section 9). Returns true if it was one of them. */
 function onSession(m) {
   switch (m.type) {
@@ -1135,14 +1200,14 @@ function onSession(m) {
       const options = (Array.isArray(m.options) ? m.options : []).map(o => ({ ...o, cover: coverOf(o) }));
       // endsAt is server time; with `seconds` the server can also say how long is left
       const endsAt = Number(m.seconds) > 0 ? Date.now() + Number(m.seconds) * 1000 : Number(m.endsAt) ? Number(m.endsAt) - serverSkew : 0;
-      voteWanted = { options, endsAt };
+      voteWanted = { options, endsAt, ask: m.question || m.title || '' };
       overlay.endMessage(null); overlay.clearSession();
       if (game) { inLobby = true; startSig = ''; endGame(); }
-      vote?.set(options, endsAt);
+      vote?.set(options, endsAt, voteWanted.ask);
       return true;
     }
-    case 'voteEnd': voteWanted = null; if (m.gameId) vote?.end(m.gameId); else vote?.clear(); return true;      // gameId null: the vote was called off
-    case 'countdown': if (vote?.active) vote.end(); overlay.countdown(m.seconds); return true;
+    case 'voteEnd': { voteWanted = null; const k = m.id ?? m.gameId; if (k) vote?.end(String(k)); else vote?.clear(); return true; }      // no winner: the vote was called off
+    case 'countdown': vote?.sinkAll(); overlay.countdown(m.seconds); if (!game) setTimeout(() => showroom?.gate?.(true), Math.max(0, (Number(m.seconds) || 3) - 1) * 1000); return true;      // the gate opens on the last second
     case 'pause': overlay.pause(!!m.on, m.who || []); try { game?.scene?.onPause?.(!!m.on); } catch (e) { console.warn(e); } return true;
     case 'settings':
       ctx.settings = { ...(ctx.settings || {}), ...m };
@@ -1155,11 +1220,11 @@ function onSession(m) {
     case 'message': overlay.message(m.text, m.seconds); return true;
     case 'swapHands': {
       setSwap(typeof m.on === 'boolean' ? m.on : !swapped);
-      sfx.play('click'); haptic('l', 0.7, 90); haptic('r', 0.7, 90);
+      sfx.play('ui.click'); haptic('l', 0.7, 90); haptic('r', 0.7, 90);
       overlay.message(swapped ? 'Hands swapped' : 'Hands back to normal', 3);
       return true;
     }
-    case 'calibrateHeight': setHeight(m.cm); sfx.play('click'); return true;
+    case 'calibrateHeight': setHeight(m.cm); sfx.play('ui.click'); return true;
     case 'setupPoints': setupStep(m); return true;
     case 'identity':
       if (m.name) { me.name = String(m.name); store('arena.name', me.name); }
@@ -1274,7 +1339,7 @@ function handle(m) {
       case 'gameStart': return startGame(m);
       case 'welcome': me.name = m.name || me.name; store('arena.name', me.name); return renderCard();
       case 'identify':
-        haptic('l', 1, 500); haptic('r', 1, 500); sfx.play('bell');
+        haptic('l', 1, 500); haptic('r', 1, 500); sfx.play('identify');
         return showPanel(`This is ${me.name}`, [me.n ? `№ ${me.n}` : ''], '', 4);
       case 'volume': volume = clamp(Number(m.value) || 0, 0, 100); sfx.volume(volume / 100); return;
       case 'zoneDraw': return zoneStart('draw');
@@ -1406,6 +1471,7 @@ async function boot() {
     $('note').textContent = window.isSecureContext ? '' : 'The page is not on a secure connection.';
   }
   connect();
+  useLoadingModule();
   initShowroom();
   setInterval(sendStatus, 500);
   setInterval(checkWornAndCal, 500);
@@ -1459,6 +1525,7 @@ function frame(now, xrFrame) {
   try { fadeStep(cam); coverStep(cam, dt); dimStep(cam, dt); } catch { /* без преход */ }
   try { overlay.update(now, cam); } catch (e) { console.warn('overlay', e); }
   if (vote && !game) { try { vote.update(dt, now / 1000); } catch (e) { console.warn('vote', e); } }
+  if (amb.on) { sfx.listener(cam); for (const l of amb.loops) l.update(); }
   if (!game && showroom?.update) { try { showroom.update(dt, now / 1000); } catch { /* лобито е украса */ } }
   if (game) {
     if (now > shadowDue) { shadowDue = now + (renderer.xr.isPresenting ? 1000 : 250); refreshShadows(); }   // сянката се обновява рядко
