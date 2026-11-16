@@ -3,7 +3,8 @@
 // the pack's own grey-and-green texture variant (Texture_03_F) with its green emissive (Emissive_02), the pack's teal
 // nebula skybox (Skybox_03) through the windows, white key light, green fill, yellow accents at the portals.
 //
-//   Ahead (-Z): the portal wall. One door frame per installed game, its key art on a Synty billboard panel beside it.
+//   Ahead (-Z): the portal wall. One door frame per installed game (its light strips pulse yellow), its key art lit in
+//   the display of the wall module beside it (SM_Bld_Wall_04); the record board in the other display.
 //   Left (-X): windows onto space.   Right (+X): the shooting range (lobby/range.js) against the wall.
 //   Behind (+Z): lift, seats, plants.   Floor: the M mark (the owner's brand art) under the zone centre.
 //   The vote crates stand between the zone and the portal wall; the record board hangs on the portal wall.
@@ -15,6 +16,7 @@ const SCI = 'sci-fi-space-pack', APO = 'apocalypse-pack';
 const TEX = 'tex/PolygonSciFiSpace_Texture_03_F.png', EMI = 'tex/PolygonSciFiSpace_Emissive_02.png';
 const SKY = 'PolygonSciFiSpace_Skybox_03_';
 const M = 5;                                    // the pack's module
+const DISPLAY = { y: 1.66, w: 2.92, h: 1.48 };   // the display opening of SM_Bld_Wall_04 (measured on the model)
 export const BRAND = { green: 0x43d066, deep: 0x007f35, yellow: 0xfce343, white: 0xf2f7ee, base: 0x050f08 };
 
 /** The placeholder M mark (option C "Stack" from public/brand/options.html) as a canvas, until public/brand/mark.svg exists. */
@@ -43,7 +45,7 @@ export async function createHub({ THREE, root, assets, hall, rooms, scene, light
   const nx = Math.max(3, Math.ceil((bx1 - bx0 + 6) / M)), nz = Math.max(3, Math.ceil((bz1 - bz0 + 6.4) / M));
   const X0 = mx - nx * M / 2, X1 = X0 + nx * M;
   const Z0 = Math.min(bz0 - 3.4, mz - nz * M / 2), Z1 = Z0 + nz * M;      // Z0: the portal wall
-  const made = [], glow = [];
+  const made = [], glow = [], doorParts = [];
   let rnd = 11;
   const rand = () => { rnd = (rnd * 16807) % 2147483647; return rnd / 2147483647; };
 
@@ -52,6 +54,8 @@ export async function createHub({ THREE, root, assets, hall, rooms, scene, light
   const tex = (p, srgb = true) => { const t = texLoader.load(`/play/assets/synty/${SCI}/${p}`); t.flipY = false; if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 2; disposables.push(t); return t; };
   const mat = new THREE.MeshLambertMaterial({ map: tex(TEX), emissiveMap: tex(EMI), emissive: 0xffffff, emissiveIntensity: 1.2 });
   disposables.push(mat);
+  // the portal doors: the same texture, their own emissive that pulses slowly in the brand yellow
+  const doorMat = mat.clone(); doorMat.emissive = new THREE.Color(0xfce343); disposables.push(doorMat);
   const dress = o => { o.traverse(m => { if (m.isMesh) m.material = Array.isArray(m.material) ? m.material.map(() => mat) : mat; }); return o; };
 
   let spotVote = null;
@@ -105,46 +109,56 @@ export async function createHub({ THREE, root, assets, hall, rooms, scene, light
     // ahead: the portal wall. The middle module is the door of the first game; more games take the next modules.
     const mid = Math.floor(nx / 2), gameList = (games.length ? games : [{ id: 'motel', name: 'The Motel', cover: '/play/games/motel/cover.jpg' }]).slice(0, nx);
     const doorAt = k => { const d = k - mid; const i = d === 0 ? 0 : d > 0 ? d * 2 - 1 : -d * 2; return i < gameList.length ? gameList[i] : null; };
-    await wallRow((k) => (doorAt(k) ? 'SM_Bld_Wall_Doorframe_02' : 'SM_Bld_Wall_02'), 'front');
+    const besideDoor = k => !doorAt(k) && (doorAt(k - 1) || doorAt(k + 1));
+    const displays = {};      // module index -> the wall piece with a built-in display (Wall_04)
+    for (let k = 0; k < nx; k++) {
+      if (doorAt(k)) { const d = await at('SM_Bld_Wall_Doorframe_02', X0 + k * M, Z0, 0, 0, doorParts); if (d) d.traverse(m => { if (m.isMesh) m.material = doorMat; }); }
+      else if (besideDoor(k) && has('SM_Bld_Wall_04')) displays[k] = await at('SM_Bld_Wall_04', X0 + k * M, Z0);
+      else await at('SM_Bld_Wall_02', X0 + k * M, Z0);
+    }
     await wallRow((k) => (k % 2 ? 'SM_Bld_Wall_Exterior_Window_02' : 'SM_Bld_Wall_Exterior_Window_01'), 'left');
     await wallRow(() => 'SM_Bld_Wall_05', 'right');
     await wallRow((k, n) => (k === Math.floor(n / 2) ? 'SM_Bld_Lift_Wall_01' : 'SM_Bld_Wall_06'), 'back');
     for (const [x, z] of [[X0, Z0], [X1, Z0], [X1, Z1], [X0, Z1]]) await put('SM_Bld_Wall_Corner_Pillar_01', x, z);
 
-    // ---- portals: one per game, a door frame with the key art on an Apocalypse billboard panel beside it ----
+    // ---- portals: one per game; its key art lights up in the display of the wall module beside the door ----
+    /** The display opening of a Wall_04 module: found by a ray from inside the hall onto the glass (hall coordinates). */
+    const rc = new THREE.Raycaster();
+    const displayOf = k => {
+      const o = displays[k];
+      if (!o) return null;
+      o.updateMatrixWorld(true);
+      const cx = X0 + k * M + M / 2;
+      rc.set(new THREE.Vector3(cx, DISPLAY.y, Z0 + 3), new THREE.Vector3(0, 0, -1)); rc.far = 4;
+      const hit = rc.intersectObject(o, true)[0];
+      return { x: cx, y: DISPLAY.y, z: (hit ? hit.point.z : Z0 + 0.5) + 0.012, w: DISPLAY.w, h: DISPLAY.h };
+    };
+    const used = new Set();
     for (let k = 0; k < nx; k++) {
       const g = doorAt(k);
       if (!g) continue;
       const cx = X0 + k * M + M / 2;
       portals.push({ gameId: g.id, name: g.name, x: cx, z: Z0 + 0.3 });
-      if (g.cover) {
-        const side = k <= mid ? -1 : 1;      // the art hangs on the wall module beside the door
-        const ax = cx + side * M, az = Z0 + 0.95;
-        const panel = assets.info(APO, 'SM_Prop_Billboard_Sign_05') ? await assets.get(APO, 'SM_Prop_Billboard_Sign_05') : null;
-        const art = new THREE.Group();
-        art.position.set(ax, 1.25, az);
-        if (panel) {
-          const d = assets.info(APO, 'SM_Prop_Billboard_Sign_05');
-          panel.rotation.y = Math.PI / 2;      // the panel is modelled facing +X
-          panel.position.set(-(d.min[2] + d.max[2]) / 2, -d.min[1], (d.min[0] + d.max[0]) / 2);
-          art.add(panel);
-        }
-        const w = 4.0, h = 1.86;
-        const pm = new THREE.MeshBasicMaterial({ color: 0x1a1b18, toneMapped: false });
+      const side = k <= mid ? -1 : 1, slot = displays[k + side] && !used.has(k + side) ? k + side : displays[k - side] && !used.has(k - side) ? k - side : null;
+      const dsp = slot != null ? displayOf(slot) : null;
+      if (g.cover && dsp) {
+        used.add(slot);
+        const pm = new THREE.MeshBasicMaterial({ color: 0x0a170f, toneMapped: false });      // the display glows with the cover
         texLoader.load(g.cover, t => {
           t.colorSpace = THREE.SRGBColorSpace;
-          const a = t.image ? t.image.width / t.image.height : 16 / 9, want = w / h;
+          const a = t.image ? t.image.width / t.image.height : 16 / 9, want = dsp.w / dsp.h;
           if (a > want) { t.repeat.set(want / a, 1); t.offset.set((1 - want / a) / 2, 0); } else { t.repeat.set(1, a / want); t.offset.set(0, (1 - a / want) / 2); }
           pm.map = t; pm.color.set(0xffffff); pm.needsUpdate = true; disposables.push(t);
         });
-        const pic = new THREE.Mesh(new THREE.PlaneGeometry(w, h), pm);
-        pic.position.set(0, 2.03 / 2, 0.06);
-        art.add(pic);
+        const pic = new THREE.Mesh(new THREE.PlaneGeometry(dsp.w, dsp.h), pm);
+        pic.position.set(dsp.x, dsp.y, dsp.z);
+        group.add(pic);
         disposables.push(pm, pic.geometry);
-        group.add(art);
-        if (k === mid) anchors.board = { x: cx - side * M, y: 1.25, z: Z0 + 0.95, ry: 0 };      // the record board takes the other side
       }
     }
+    // the record board: the first display left free
+    const free = Object.keys(displays).map(Number).find(k => !used.has(k));
+    if (free != null) { const d = displayOf(free); anchors.board = { x: d.x, y: d.y, z: d.z, ry: 0, w: d.w, h: d.h, display: true }; }
     // ---- comfort and life: seats and plants behind, crates by the range ----
     await put('SM_Prop_CornerSeat_01', X0 + 1.7, Z1 - 1.7, Math.PI / 2);
     await put('SM_Prop_CornerSeat_01', X1 - 1.7, Z1 - 1.7, Math.PI);
@@ -157,15 +171,16 @@ export async function createHub({ THREE, root, assets, hall, rooms, scene, light
     for (let i = 0; i < nx; i++) for (let j = 0; j < nz; j++) await put('SM_Prop_Light_Panel_01', X0 + (i + 0.5) * M, Z0 + (j + 0.5) * M, 0, 3.88, glow);
 
     if (made.length) { const m = assets.merge(made); m.name = 'hub-shell'; group.add(m); m.traverse(o => { if (o.isMesh) disposables.push(o.geometry); }); }
+    if (doorParts.length) { const m = assets.merge(doorParts); m.name = 'hub-portals'; group.add(m); m.traverse(o => { if (o.isMesh) disposables.push(o.geometry); }); }
     if (glow.length) { const m = assets.merge(glow); m.name = 'hub-lights'; m.traverse(o => { if (o.isMesh) disposables.push(o.geometry); }); group.add(m); }
 
     // ---- the M mark on the floor, under the middle of the zone ----
     const markTex = new THREE.CanvasTexture(stackMark());
     markTex.colorSpace = THREE.SRGBColorSpace; markTex.anisotropy = 4;
-    const markSize = Math.min(2.4, Math.max(1.2, Math.min(bx1 - bx0, bz1 - bz0) * 0.45));
+    const markSize = Math.min(1.15, Math.max(0.8, Math.min(bx1 - bx0, bz1 - bz0) * 0.22));
     const markMat = new THREE.MeshBasicMaterial({ map: markTex, transparent: true, opacity: 0.92, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, toneMapped: false });
     const mark = new THREE.Mesh(new THREE.PlaneGeometry(markSize, markSize), markMat);
-    mark.rotation.x = -Math.PI / 2; mark.position.set(mx, 0.006, mz); mark.renderOrder = -3;
+    mark.rotation.x = -Math.PI / 2; mark.position.set(mx, 0.006, Math.max(bz0 + markSize * 0.7, mz - Math.min(1.4, (bz1 - bz0) * 0.3))); mark.renderOrder = -3;      // ahead of the spawn, toward the portal; flat on purpose: a raised pad in VR is something real feet try to step on
     group.add(mark);
     disposables.push(markTex, markMat, mark.geometry);
     // the real mark replaces the placeholder as soon as S1 publishes it
@@ -224,7 +239,8 @@ export async function createHub({ THREE, root, assets, hall, rooms, scene, light
   let time = 0;
   function update(dt, t) {
     time = t ?? time + dt;
-    mat.emissiveIntensity = 1.1 + 0.12 * Math.sin(time * 1.3);      // the strips breathe a little
+    mat.emissiveIntensity = 1.1 + 0.15 * Math.sin(time * 1.3) + 0.05 * Math.sin(time * 4.1);      // the strips breathe a little
+    doorMat.emissiveIntensity = 1.0 + 1.1 * (0.5 + 0.5 * Math.sin(time * 1.6));                   // the portal calls, slowly
   }
   function dispose() {
     look(false);

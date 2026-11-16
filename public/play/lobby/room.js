@@ -77,6 +77,15 @@ export function createRoom({ THREE, root, assets, bounds, anchors = null }) {
   async function buildWallBoard(a) {
     boardGroup = new THREE.Group();
     boardGroup.position.set(a.x, a.y, a.z); boardGroup.rotation.y = a.ry || 0;
+    if (a.display) {      // inside a station display (the hub's SM_Bld_Wall_04): the glass glows dark green, the scores on it
+      const glass = new THREE.Mesh(new THREE.PlaneGeometry(a.w, a.h), new THREE.MeshBasicMaterial({ color: 0x0a1f12, toneMapped: false }));
+      boardGroup.add(glass);
+      boardText = makeText(THREE, a.w * 0.94, a.h * 0.9, 480, { depthTest: true, order: 2 });
+      boardText.mesh.position.set(0, 0, 0.004);
+      boardGroup.add(boardText.mesh);
+      group.add(boardGroup);
+      return;
+    }
     const P = 'SM_Prop_Billboard_Sign_05', d = assets.info(APO, P) || (await assets.loadPack(APO).then(() => assets.info(APO, P)).catch(() => null));
     const panel = d ? await get(APO, P) : null;
     let w = 4.19, h = 2.03;
@@ -94,10 +103,11 @@ export function createRoom({ THREE, root, assets, bounds, anchors = null }) {
   function writeBoard(rows) {
     if (!boardText) return;
     const list = (Array.isArray(rows) ? rows : []).filter(r => r && (r.team || r.score != null)).slice(0, 5);
-    const big = !!anchors?.board;      // the hub's wall board is large and far: bigger letters
-    const lines = [{ text: 'TOP SCORES', px: big ? 150 : 104, weight: 900, font: 'num', gap: 0 }];
-    if (!list.length) lines.push({ text: 'Be the first on the board', px: big ? 80 : 52, weight: 750, gap: 0.8 });
-    list.forEach((r, i) => lines.push({ px: big ? 88 : 58, weight: 800, gap: i ? 0.25 : 0.5, cols: [[`${i + 1}`, 0.03, 'left'], [String(r.team || 'Team').slice(0, 22), 0.09, 'left', 0.4], [String(r.game || '').slice(0, 18), 0.52, 'left', 0.27], [String(r.score ?? ''), 0.97, 'right', 0.16]] }));
+    const big = !!anchors?.board && !anchors.board.display;      // the big wall panel: bigger letters; the station display is smaller
+    const mid = !!anchors?.board?.display;
+    const lines = [{ text: 'TOP SCORES', px: big ? 150 : mid ? 120 : 104, weight: 900, font: 'num', gap: 0, color: mid ? '#fce343' : '#ffffff' }];
+    if (!list.length) lines.push({ text: 'Be the first on the board', px: big ? 80 : mid ? 64 : 52, weight: 750, gap: 0.8 });
+    list.forEach((r, i) => lines.push({ px: big ? 88 : mid ? 70 : 58, weight: 800, gap: i ? 0.25 : 0.5, cols: [[`${i + 1}`, 0.03, 'left'], [String(r.team || 'Team').slice(0, 22), 0.09, 'left', 0.4], [String(r.game || '').slice(0, 18), 0.52, 'left', 0.27], [String(r.score ?? ''), 0.97, 'right', 0.16]] }));
     boardText.set(lines);
   }
 

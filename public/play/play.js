@@ -793,7 +793,7 @@ const ctx = {
 };
 let startSig = '', loadingName = null;      // loadingName: коя игра се зарежда в момента
 // Екран за зареждане: табло пред очите с името на играта, какво се зарежда и лента. Същото число отива и към пулта.
-let loadPct = null;
+let loadPct = null, loadWhat = '';
 async function loadStep(title, pct, what) {
   loadPct = pct;
   showPanel(title, [what, ''], '', 180);
@@ -813,7 +813,7 @@ function lobbyLook(on) {
   try { here?.look?.(on); } catch (e) { console.warn('lobby look', e); }
   backdrop.material.color.set(on && scene.background?.isColor ? scene.background : COL.bg);
   backdrop.visible = wantBackdrop();
-  ambience(on && !!here?.fireAt?.(amb.v));
+  ambience(on ? (here?.fireAt?.(amb.v) ? 'camp' : here?.hasSky ? 'hub' : null) : null);
   if (on) here?.gate?.(false);
 }
 
@@ -846,7 +846,7 @@ async function enterIntro(gameId, seconds) {
   await fade(1, 420);
   const it = await buildIntro(gameId);
   if (!it || game || gameLoading) { fade(0, 300); return false; }
-  showroom?.look?.(false); ambience(false);
+  showroom?.look?.(false); ambience(null);
   showRoot.visible = false; introRoot.visible = true; introOn = true;
   lobbyLook(true);
   refreshShadows();
@@ -857,17 +857,18 @@ async function enterIntro(gameId, seconds) {
 /** Back to the hub (the game ended, or the countdown was called off). */
 function leaveIntro() {
   if (!introOn) return;
-  intro?.look?.(false); ambience(false);
+  intro?.look?.(false); ambience(null);
   introOn = false; introRoot.visible = false; showRoot.visible = !game && !zoneEditor?.active;
   intro?.gate?.(false);
 }
 /** The camp's sound: the fire crackles where the fire is, crickets and wind everywhere (real recordings, sfx hooks). */
 const amb = { on: false, loops: [], v: new THREE.Vector3() };
-function ambience(on) {
+function ambience(kind) {      // 'camp' | 'hub' | null
+  const on = kind || false;
   if (on === amb.on) return;
   amb.on = on;
   for (const l of amb.loops) l.stop();
-  amb.loops = on ? [
+  amb.loops = on === 'hub' ? [sfx.loop('ambience.hub', { gain: 0.55, fadeMs: 2500 })] : on ? [
     sfx.loop('ambience.fire', { gain: 2.2, at: () => (introOn ? intro : showroom)?.fireAt?.(amb.v), ref: 1.2, roll: 1.3 }),
     sfx.loop('ambience.night', { gain: 0.45 }),
     sfx.loop('ambience.wind', { gain: 0.3, fadeMs: 4000 }),
@@ -921,7 +922,9 @@ async function startGame(start) {
   try {
     await loading.into({
       title, start, cover: new URL(`${base}cover.jpg`, import.meta.url).href,
-      load: async progress => {
+      load: async report => {
+        // every step also goes to the console (status.load) and to __arena.loading, whoever draws the loading
+        const progress = async (pct, what) => { loadPct = pct; loadWhat = what; sendStatus(); await report(pct, what); };
         lobbyLook(false);      // the lobby's fog and moonlight go before the game sets up its own (it restores ours on dispose)
         await progress(0.04, 'Getting ready');
         const mod = await import(`${base}scene.js`);
@@ -988,7 +991,7 @@ async function endGame() {
 
 // ---------- зона: чертане от каската ----------
 
-const BUILD = 40;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
+const BUILD = 41;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
 // what this page understands of MS Games 2 (the server may fall back to older flows for pages without a cap)
 const CAPS = ['lobby', 'vote', 'countdown', 'pause', 'settings', 'results', 'endMessage', 'message', 'swapHands', 'calibrateHeight', 'setupPoints', 'identity', 'restartGame', 'recalibrate', 'bench', 'ping'];
 let zoneMod = null, zoneEditor = null, zoneViewObj = null, zoneData = null;
@@ -1612,6 +1615,6 @@ addEventListener('resize', () => {
 
 // за автоматични проби от конзолата
 window.__arena = { frame, build: BUILD, scene, renderer, me, hands, head, players, desk, camera, arena, get anchor() { return anchorState; }, get space() { return spaceType; }, act: msg => send({ type: 'act', ...msg }), get presenting() { return renderer.xr.isPresenting; }, get zoneActive() { return !!zoneEditor?.active; }, get zone() { return zoneEditor?.debug || null; }, get pendingZone() { return !!pendingZone; }, get calib() { return calib; }, get game() { return game; }, get ctx() { return ctx; }, get connected() { return connected; },
-  recv: m => handle(m), overlay, sfx, get vote() { return vote; }, get room() { return room; }, get swapped() { return swapped; }, get heightFix() { return heightFix; }, get worn() { return wornSent; }, get needsCal() { return calSent; }, get zoneEditor() { return zoneEditor; } };
+  recv: m => handle(m), overlay, sfx, get loading() { return { module: loading === loadingDefault ? 'default' : 'loading/index.js', active: gameLoading, pct: loadPct, what: loadWhat, game: loadingName }; }, get vote() { return vote; }, get room() { return room; }, get swapped() { return swapped; }, get heightFix() { return heightFix; }, get worn() { return wornSent; }, get needsCal() { return calSent; }, get zoneEditor() { return zoneEditor; } };
 
 boot();

@@ -26,7 +26,8 @@ export const HOOKS = {
   'range.shot': 'shot',         // the waiting room's shooting range: a pistol shot
   'range.hit': 'hit',           // a target hit (metal)
   'range.best': 'go',           // a new best score on the range
-  'portal.open': 'go',          // a game portal opens for the countdown
+  'portal.open': 'portal',      // a game portal opens for the countdown (a starship hatch)
+  'ambience.hub': 'hum',        // loop: the station's low hum in the hub
   'ambience.fire': 'fire',      // loop: the fire barrel / fire pit, placed in the world
   'ambience.night': 'night',    // loop: crickets and a quiet forest, everywhere
   'ambience.wind': 'wind',      // loop: wind in the trees, far

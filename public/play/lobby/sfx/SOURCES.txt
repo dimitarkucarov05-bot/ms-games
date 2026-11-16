@@ -22,3 +22,5 @@ Hooks: see lobby/sfx.js HOOKS; S8 can replace any of them through /play/assets/s
 shot.ogg     2016 Pole Position Production - Heckler & Koch VP70 9mm / HK_VP70_9mm_1m_in_front_RE20_clean_Double_shots_x_1.wav  0.47-0.93 s (first shot)
 hit.ogg      2016 Alexander Kopeikin - Sci-Fi Metal Elements HD / sci-fi metal impact, steel bulkhead hit, low 01.wav  0.09-1.6 s
 (range.shot / range.hit hooks: the waiting room's shooting range)
+hum.ogg      2017 Zero-G - Dark Skies - Cinematic Ambiences / Sci Fi - Starship Sub Amb.wav   loop, crossfade 1.5 s (the hub)
+portal.ogg   2017 SoundMorph - Portals / Door - SpaceShip_hatchway_06.wav   0-3.8 s (a game portal opens)

@@ -77,7 +77,8 @@ export function createVote({ THREE, root, space, assets, bounds, pointer, onInpu
       const holder = new THREE.Group();                       // what stands on the crate: a framed cover, or the kit
       holder.position.set(0, crateH, 0.05);
       let topH = 0.55;                                        // how high the things on the crate reach (for the labels)
-      if (o.cover) {
+      const kit = !!o.difficulty || (!!KITS[o.key] && o.key !== o.gameId);      // a difficulty is shown by its kit even when the option carries the game's cover
+      if (o.cover && !kit) {
         holder.rotation.x = -0.12;                            // the frame leans back a little, like it rests on something
         const frame = await safeGet(SHOPS, FRAME);
         const fi = assets.info(SHOPS, FRAME);
