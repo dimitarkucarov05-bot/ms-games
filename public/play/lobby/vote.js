@@ -7,14 +7,26 @@
 //   v.set(options, endsAtLocalMs); v.end(key); v.clear(); v.update(dt, t)
 //
 // Options are generic (MS Games ships with one game, so a vote is often about difficulty or rounds):
-//   { id?, gameId?, name, cover?, hint? }  key = id ?? gameId. With a cover the frame holds it; without one the frame holds
-//   the name (and hint) in bold white. The vote goes out as { type: 'vote', id: key, gameId: gameId ?? null }.
+//   { id?, gameId?, name, cover?, props? }  key = id ?? gameId. With a cover a Shops art frame holds it; without one the
+//   crate carries real Synty things that say it (KITS: easy = machete, normal = pistol, hard = shotgun + fuel, nightmare =
+//   chainsaw + propane); the name is only the floating label above. The vote goes out as { type: 'vote', id: key, gameId: gameId ?? null }.
 
 import { makeText } from './text.js';
 
 const APO = 'apocalypse-pack', SHOPS = 'shops-pack';
 const CRATE = 'SM_Prop_Crate_01', FRAME = 'SM_Prop_Art_Frame_01';
-const FRAME_IN = { w: 0.92, h: 0.70 };      // the picture opening of the frame turned landscape (measured on the model)
+const FRAME_IN = { w: 0.92, h: 0.70 };
+const BR = 'battle-royale-pack';
+// what each difficulty looks like on its crate (Synty weapons and props at natural size); a server option may bring its own
+// `props: [{p, n, x, z, yaw, lay, ground}]`
+const REST = { p: APO, n: 'SM_Prop_Ammo_Box_01', x: 0, z: -0.27, yaw: Math.PI / 2 };      // the box a weapon leans on, at the back of the crate
+const KITS = {
+  easy: [REST, { p: APO, n: 'SM_Wep_Melee_Machete_01', x: -0.04, z: -0.02, yaw: 0.06, lean: true }, { p: APO, n: 'SM_Wep_Hammer_01', x: 0.12, z: 0.24, yaw: -0.5, lay: true }],
+  normal: [REST, { p: BR, n: 'SM_Wep_Pistol_Heavy_01', x: -0.05, z: -0.03, yaw: 0.0, lean: true }, { p: BR, n: 'SM_Wep_Pistol_Ammo_Box_01', x: 0.22, z: 0.22, yaw: 0.25 }, { p: BR, n: 'SM_Wep_Pistol_Ammo_Box_01', x: -0.2, z: 0.25, yaw: -0.4 }],
+  hard: [REST, { p: BR, n: 'SM_Wep_Shotgun_01', x: 0, z: -0.02, yaw: 0.05, lean: true }, { p: BR, n: 'SM_Wep_Shotgun_Ammo_Box_01', x: -0.2, z: 0.24, yaw: 0.3 }, { p: APO, n: 'SM_Prop_GasCan_01', x: 0.66, z: 0.12, yaw: -0.5, ground: true }],
+  nightmare: [{ p: APO, n: 'SM_Wep_ChainSaw_01', x: 0, z: 0.02, yaw: 0.4 }, { p: APO, n: 'SM_Wep_Bomb_Propane_01', x: -0.68, z: 0.1, yaw: 0.6, ground: true }, { p: APO, n: 'SM_Prop_GasCan_01', x: 0.66, z: 0.05, yaw: -0.3, ground: true }],
+  default: [{ p: APO, n: 'SM_Prop_Ammo_Box_01', x: 0, z: 0, yaw: 0.3 }],
+};      // the picture opening of the frame turned landscape (measured on the model)
 
 export function createVote({ THREE, root, space, assets, bounds, pointer, onInput, haptic, sfx, send, spot = null }) {
   const group = new THREE.Group();
@@ -27,7 +39,7 @@ export function createVote({ THREE, root, space, assets, bounds, pointer, onInpu
   if (own) { light.position.set(0, 3.2, 0); group.add(light, light.target); }
   const home = { target: light.target.position.clone(), angle: light.angle, intensity: light.intensity };
   const aim = { want: home.target.clone(), angle: home.angle };
-  const timer = makeText(THREE, 1.6, 0.3, 500, { depthTest: true, order: 3 });
+  const timer = makeText(THREE, 3.0, 0.42, 500, { depthTest: true, order: 3 });      // the question over the row
   group.add(timer.mesh);
 
   let question = 'Vote';
@@ -47,7 +59,7 @@ export function createVote({ THREE, root, space, assets, bounds, pointer, onInpu
     const my = ++gen;
     clearStations();
     if (!options.length) return;
-    try { await Promise.all([assets.loadPack(APO), assets.loadPack(SHOPS)]); } catch (e) { console.warn('[vote] packs', e.message); }
+    try { await Promise.all([assets.loadPack(APO), assets.loadPack(SHOPS), assets.loadPack(BR).catch(() => null)]); } catch (e) { console.warn('[vote] packs', e.message); }
     if (my !== gen) return;
     const n = options.length, gap = 1.45;
     const { bx0, bx1, bz0, mx } = bounds;
@@ -62,32 +74,23 @@ export function createVote({ THREE, root, space, assets, bounds, pointer, onInpu
       const crate = await safeGet(APO, CRATE);
       if (crate) { crate.rotation.y = (i % 2 ? 0.08 : -0.06); st.add(crate); }
       const crateH = assets.info(APO, CRATE)?.size?.[1] || 0.82;
-      const holder = new THREE.Group();                       // frame + cover, tilted back a little like it leans on something
+      const holder = new THREE.Group();                       // what stands on the crate: a framed cover, or the kit
       holder.position.set(0, crateH, 0.05);
-      holder.rotation.x = -0.12;
-      const frame = await safeGet(SHOPS, FRAME);
-      const fi = assets.info(SHOPS, FRAME);
-      if (frame) {
-        // portrait frame turned landscape, standing on its long edge, picture facing +Z (the zone)
-        const c = fi ? [(fi.min[0] + fi.max[0]) / 2, (fi.min[1] + fi.max[1]) / 2, (fi.min[2] + fi.max[2]) / 2] : [0, 0.55, 0];
-        frame.position.set(-c[0], -c[1], -c[2]);
-        const turn = new THREE.Group(); turn.rotation.z = Math.PI / 2; turn.add(frame);
-        turn.position.y = (fi ? fi.size[0] : 0.91) / 2;
-        holder.add(turn);
-      }
-      const fH = fi ? fi.size[0] : 0.91, fD = fi ? fi.size[2] : 0.05;
-      if (!o.cover) {      // a non-game option (difficulty, rounds): its words fill the frame, bold white on the dark picture
-        const pic = new THREE.Mesh(new THREE.PlaneGeometry(FRAME_IN.w, FRAME_IN.h), new THREE.MeshBasicMaterial({ color: 0x1a1b18, toneMapped: false }));
-        pic.position.set(0, fH / 2, fD / 2 + 0.004);
-        holder.add(pic);
-        st.userData.pic = pic;
-        const words = makeText(THREE, FRAME_IN.w * 0.94, FRAME_IN.h * 0.9, 600, { depthTest: true, order: 3 });
-        words.set([{ text: o.big || o.name || o.key, px: 120, weight: 900, font: 'num' }, ...(o.hint ? [{ text: o.hint, px: 50, weight: 750, gap: 0.35 }] : [])]);
-        words.mesh.position.set(0, fH / 2, fD / 2 + 0.008);
-        holder.add(words.mesh);
-        st.userData.words = words;
-      }
+      let topH = 0.55;                                        // how high the things on the crate reach (for the labels)
       if (o.cover) {
+        holder.rotation.x = -0.12;                            // the frame leans back a little, like it rests on something
+        const frame = await safeGet(SHOPS, FRAME);
+        const fi = assets.info(SHOPS, FRAME);
+        if (frame) {
+          // portrait frame turned landscape, standing on its long edge, picture facing +Z (the zone)
+          const c = fi ? [(fi.min[0] + fi.max[0]) / 2, (fi.min[1] + fi.max[1]) / 2, (fi.min[2] + fi.max[2]) / 2] : [0, 0.55, 0];
+          frame.position.set(-c[0], -c[1], -c[2]);
+          const turn = new THREE.Group(); turn.rotation.z = Math.PI / 2; turn.add(frame);
+          turn.position.y = (fi ? fi.size[0] : 0.91) / 2;
+          holder.add(turn);
+        }
+        const fH = fi ? fi.size[0] : 0.91, fD = fi ? fi.size[2] : 0.05;
+        topH = fH;
         const mat = new THREE.MeshBasicMaterial({ color: 0x1a1b18, toneMapped: false });      // dark until the cover arrives (a missing cover stays dark, never white)
         new THREE.TextureLoader().load(o.cover, t => {
           t.colorSpace = THREE.SRGBColorSpace;
@@ -99,31 +102,71 @@ export function createVote({ THREE, root, space, assets, bounds, pointer, onInpu
         pic.position.set(0, fH / 2, fD / 2 + 0.004);
         holder.add(pic);
         st.userData.pic = pic;
+      } else {
+        // a non-game option says what it is with real Synty things on the crate, no screen and no drawn words
+        await placeKit(holder, o.props || KITS[o.key] || KITS[String(o.name || '').toLowerCase()] || KITS.default, i);
+        topH = 0.6;      // the same label height over every crate
       }
       st.add(holder);
-      const label = makeText(THREE, Math.min(1.5, gap - 0.08), 0.26, 500, { depthTest: true, order: 3 });      // never wider than the gap to the next game
-      label.set([{ text: o.title || o.name || o.key, px: 96, weight: 850 }]);
-      label.mesh.position.set(0, crateH + fH + 0.44, 0.05);
+      const label = makeText(THREE, Math.min(1.5, gap - 0.08), 0.3, 500, { depthTest: true, order: 3 });      // never wider than the gap to the next game
+      label.set([{ text: o.title || o.name || o.key, px: 118, weight: 900 }]);
+      label.mesh.position.set(0, crateH + topH + 0.44, 0.05);
       st.add(label.mesh);
       const mine = makeText(THREE, 1.4, 0.26, 500, { depthTest: true, order: 3 });
-      mine.mesh.position.set(0, crateH + fH + 0.17, 0.05);
+      mine.mesh.position.set(0, crateH + topH + 0.17, 0.05);
       st.add(mine.mesh);
       // what the laser hits: an invisible box around crate and frame
-      const hit = new THREE.Mesh(new THREE.BoxGeometry(1.25, crateH + fH + 0.2, 0.9), new THREE.MeshBasicMaterial({ visible: false }));
-      hit.position.y = (crateH + fH + 0.2) / 2;
+      const hit = new THREE.Mesh(new THREE.BoxGeometry(1.25, crateH + topH + 0.2, 0.9), new THREE.MeshBasicMaterial({ visible: false }));
+      hit.position.y = (crateH + topH + 0.2) / 2;
       st.add(hit);
       Object.assign(st.userData, { key: o.key, gameId: o.gameId ?? null, hit, holder, label, mine, sink: 1, bob: 0 });
       group.add(st);
       stations.push(st);
     }
-    timer.mesh.position.set(mx, 2.95, bz0 - 1.0);
+    timer.mesh.position.set(mx, 3.35, bz0 - 1.0);
     if (chosen) mark(chosen, false);
   }
+  /**
+   * Puts a kit on the crate top (holder origin = crate top centre). Items: { p: pack, n: name, x, z, yaw, lay, ground }.
+   * lay: the thinnest side down (a weapon lying flat); ground: on the floor next to the crate instead of on it.
+   * Returns how high the kit reaches above the crate top.
+   */
+  async function placeKit(holder, kit, seed) {
+    let top = 0.3;
+    for (const it of kit) {
+      const o = await safeGet(it.p, it.n);
+      if (!o) continue;
+      const d = assets.info(it.p, it.n), turn = new THREE.Group();
+      turn.add(o);
+      if ((it.lay || it.lean) && d) {
+        const s = d.size, k = s[0] <= s[1] && s[0] <= s[2] ? 0 : s[2] <= s[1] ? 2 : 1;
+        if (k === 0) o.rotation.z = Math.PI / 2; else if (k === 2) o.rotation.x = Math.PI / 2;
+      }
+      o.updateMatrixWorld(true);
+      if (it.lean) {      // the long side goes left-right before it is tipped up against the box
+        const b0 = new THREE.Box3().setFromObject(o);
+        if (b0.max.z - b0.min.z > b0.max.x - b0.min.x) { const q = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2); o.quaternion.premultiply(q); o.updateMatrixWorld(true); }
+      }
+      const box = new THREE.Box3().setFromObject(o), c = box.getCenter(new THREE.Vector3());
+      o.position.set(-c.x, -box.min.y, -c.z);
+      turn.rotation.y = (it.yaw || 0) + (seed % 2 ? 0.05 : -0.04);
+      turn.position.set(it.x || 0, it.ground ? -holder.position.y : 0.002, it.z || 0);
+      if (it.lean) {      // lying flat, then tipped up against the box behind it so its side faces the player
+        const lean = new THREE.Group(); lean.rotation.x = 1.05; lean.position.set(0, 0.11, -0.06);
+        lean.add(o); turn.add(lean);
+        o.position.set(-c.x, -c.y, -c.z);
+      }
+      holder.add(turn);
+      if (!it.ground) top = Math.max(top, it.lean ? Math.max(box.max.x - box.min.x, box.max.z - box.min.z) * 0.45 + 0.1 : box.max.y - box.min.y + 0.1);
+    }
+    return top;
+  }
+
   async function safeGet(slug, name) { try { return assets.info(slug, name) ? await assets.get(slug, name) : null; } catch { return null; } }
 
   function clearStations() {
     for (const st of stations) {
-      st.userData.label.dispose(); st.userData.mine.dispose(); st.userData.words?.dispose();
+      st.userData.label.dispose(); st.userData.mine.dispose();
       st.userData.hit.geometry.dispose();
       const pic = st.userData.pic;
       if (pic) { pic.material.map?.dispose(); pic.material.dispose(); pic.geometry.dispose(); }
@@ -167,7 +210,7 @@ export function createVote({ THREE, root, space, assets, bounds, pointer, onInpu
   return {
     get active() { return stations.length > 0 && !ended; },
     get voted() { return chosen; },
-    /** options: [{id?, gameId?, name, cover?, hint?}], endsAtLocal: Date.now()-based end (already corrected for clock skew). */
+    /** options: [{id?, gameId?, name, cover?, props?}], endsAtLocal: Date.now()-based end (already corrected for clock skew). */
     set(options, endsAtLocal, ask = '') {
       const list = (Array.isArray(options) ? options : []).map(x => (x ? { ...x, key: String(x.id ?? x.gameId ?? '') } : null)).filter(x => x && x.key);
       const sig = list.map(x => x.key).join('|');
@@ -214,7 +257,7 @@ export function createVote({ THREE, root, space, assets, bounds, pointer, onInpu
         const sec = Math.max(0, Math.ceil((endsAt - Date.now()) / 1000));
         if (sec !== lastSec) {
           lastSec = sec;
-          timer.set(sec > 0 ? [{ text: `${question}  ${sec}`, px: 80, weight: 850 }] : []);
+          timer.set(sec > 0 ? [{ text: `${question}  ${sec}`, px: 150, weight: 900 }] : []);
           if (sec > 0 && sec <= 3) { sfx?.play('vote.last', { gain: 1 }); }
         }
       }
