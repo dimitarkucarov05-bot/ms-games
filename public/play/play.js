@@ -4,6 +4,8 @@
 // отделно (games/<игра>/scene.js) и получава готов ctx (вж. docs/SPEC.md, т. 10).
 
 import * as THREE from './vendor/three.module.js';
+import { createSfx } from './lobby/sfx.js';
+import { createOverlay } from './lobby/overlay.js';
 
 const $ = id => document.getElementById(id);
 const qs = new URLSearchParams(location.search);
@@ -106,6 +108,16 @@ const fadeMesh = new THREE.Mesh(new THREE.SphereGeometry(0.6, 20, 12), new THREE
 fadeMesh.visible = false; fadeMesh.renderOrder = 15; fadeMesh.frustumCulled = false;
 scene.add(fadeMesh);
 const fadeS = { now: 0, from: 0, to: 0, t0: 0, ms: 1 };
+// a half-dark veil behind the operator's text (pause, results, end message): the world stays visible, the letters readable
+const dimMesh = new THREE.Mesh(new THREE.SphereGeometry(0.55, 20, 12), new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide, transparent: true, opacity: 0, depthTest: false, depthWrite: false, fog: false, toneMapped: false }));
+dimMesh.visible = false; dimMesh.renderOrder = 14; dimMesh.frustumCulled = false;
+scene.add(dimMesh);
+const dimS = { now: 0, to: 0 };
+function dimStep(camNow, dt) {
+  dimS.now += (dimS.to - dimS.now) * Math.min(1, dt * 4);
+  dimMesh.visible = dimS.now > 0.01;
+  if (dimMesh.visible) { dimMesh.material.opacity = dimS.now; camNow.getWorldPosition(dimMesh.position); }
+}
 // Зареждането: корицата на играта изплува пред очите върху тъмното, под нея са името и чертата за напредъка.
 const coverMesh = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 2.6 * 9 / 16), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthTest: false, depthWrite: false, fog: false, toneMapped: false }));
 coverMesh.visible = false; coverMesh.renderOrder = 17; coverMesh.frustumCulled = false;
@@ -358,7 +370,7 @@ function useHands(make) {
  * разменят местата при ново свързване, затова ръката се сменя, ако страната е друга. Кутийката е само докато няма истинска.
  */
 function dressGrip(g) {
-  const side = g.side();
+  const side = g.phys();      // the hand model follows the real controller, even with the hands swapped
   if (g.real && g.realSide !== side) { g.holder?.removeFromParent(); g.real.userData.dispose?.(); g.real = null; g.holder = null; g.realSide = null; }
   if (side && !g.real && handMaker) {
     const m = handMaker(THREE, side);
@@ -396,21 +408,34 @@ const inputFns = new Set();
 function fireInput(type, hand) { for (const fn of inputFns) { try { fn({ type, hand }); } catch (e) { console.warn('input', e); } } }
 
 // контролерите на каската
+// Swap hands (operator action): for a left-handed player the left controller becomes the game's right hand ('r') and
+// the other way round. g.phys() is the real controller side (hand model, fit), g.side() the side games read.
+let swapped = store('arena.swap') === '1';
+const flip = s => (s && swapped ? (s === 'l' ? 'r' : 'l') : s);
+function bindGrip(g) { const s = g.side(); if (s) Object.assign(hands[s], { obj: g.grip, ray: g.ray, pad: g.pad(), active: true, grip: false, trigger: false }); }
+function unbindGrip(g) { const s = g.side(); if (s && hands[s].obj === g.grip) Object.assign(hands[s], { active: false, obj: null, ray: null, pad: null, grip: false, trigger: false }); }
+function setSwap(on) {
+  if (on === swapped) return;
+  for (const g of grips) unbindGrip(g);
+  swapped = !!on; store('arena.swap', swapped ? '1' : '0');
+  for (const g of grips) bindGrip(g);
+}
 const grips = [0, 1].map(i => {
   const grip = renderer.xr.getControllerGrip(i);
   const ray = renderer.xr.getController(i);
-  let side = null;
+  let phys = null, pad = null;
   const mesh = handMesh(COL.neutral);
   mesh.visible = false;
   grip.add(mesh);
-  const g = { grip, ray, mesh, side: () => side, real: null, holder: null, realSide: null };
+  const g = { grip, ray, mesh, side: () => flip(phys), phys: () => phys, pad: () => pad, real: null, holder: null, realSide: null };
   ray.addEventListener('connected', e => {
-    side = e.data.handedness === 'left' ? 'l' : e.data.handedness === 'right' ? 'r' : null;
-    if (side) { hands[side].obj = grip; hands[side].ray = ray; hands[side].pad = e.data.gamepad || null; hands[side].active = true; }
+    phys = e.data.handedness === 'left' ? 'l' : e.data.handedness === 'right' ? 'r' : null;
+    pad = e.data.gamepad || null;
+    bindGrip(g);
     dressGrip(g);
   });
-  ray.addEventListener('disconnected', () => { if (side && hands[side].obj === grip) { hands[side].active = false; hands[side].obj = null; hands[side].ray = null; } side = null; dressGrip(g); });
-  const on = (ev, type, key, val) => ray.addEventListener(ev, () => { if (!side) return; hands[side][key] = val; onButton(type, side); });
+  ray.addEventListener('disconnected', () => { unbindGrip(g); phys = null; pad = null; dressGrip(g); });
+  const on = (ev, type, key, val) => ray.addEventListener(ev, () => { const side = g.side(); if (!side) return; hands[side][key] = val; onButton(type, side); });
   on('selectstart', 'triggerdown', 'trigger', true); on('selectend', 'triggerup', 'trigger', false);
   on('squeezestart', 'gripdown', 'grip', true); on('squeezeend', 'gripup', 'grip', false);
   scene.add(grip, ray);
@@ -421,6 +446,14 @@ function haptic(hand, strength = 0.5, ms = 40) {
   const a = hands[hand]?.pad?.hapticActuators?.[0];
   try { a?.pulse?.(clamp(strength, 0, 1), ms); } catch { /* няма вибрация */ }
 }
+
+// ---------- waiting room, vote, countdown and the operator's messages (lobby/*) ----------
+const sfx = createSfx();
+const overlay = createOverlay({ THREE, scene, sfx, haptic, dim: v => { dimS.to = v; } });
+let lobbyInfo = null, inLobby = true, room = null, vote = null, benched = false, voteWanted = null;
+let serverSkew = 0;      // server Date.now() minus ours, from the pings (the vote end time comes in server time)
+let heightCm = null, heightFix = 0, heightApplied = 0, heightY = NaN;      // calibrate height: offset on top of the anchors
+
 
 // ---------- режим без каска (за проби на компютър) ----------
 
@@ -717,6 +750,7 @@ function calibPoint() {
 
 let bothGripTimer = 0, alignMenu = false;
 function onButton(type, hand) {
+  sfx.wake();
   if (calibRun && type === 'triggerdown' && hand === 'r') return calibPoint();
   if (alignMenu && (game || gameLoading)) alignMenu = false;      // отворено меню не се пренася в играта
   // двата странични бутона заедно за секунда и половина: чертане на зоната направо от каската
@@ -774,6 +808,7 @@ async function startGame(start) {
   const sig = JSON.stringify(start);
   if (gameLoading || (game && sig === startSig)) return;
   startSig = sig;
+  inLobby = false; vote?.clear(); voteWanted = null; overlay.clearSession(); overlay.bench(false);
   gameLoading = true; loadingName = String(start.game || '');      // преди чакането: второ съобщение за старт да не тръгне успоредно
   await endGame();
   sendStatus();                               // веднага: сървърът да не сметне каската за свободна
@@ -822,6 +857,7 @@ async function startGame(start) {
   }
   gameLoading = false; loadingName = null; loadPct = null;
   renderCard();
+  if (inLobby && game) { startSig = ''; endGame(); }      // the waiting room was asked for while the game was loading
 }
 async function endGame() {
   if (!game) return;
@@ -843,7 +879,7 @@ async function endGame() {
 
 // ---------- зона: чертане от каската ----------
 
-const BUILD = 34;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
+const BUILD = 35;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
 let zoneMod = null, zoneEditor = null, zoneViewObj = null, zoneData = null;
 let pendingZone = (() => { try { return JSON.parse(store('arena.zonePending') || 'null'); } catch { return null; } })();
 function zoneConfirmed() { pendingZone = null; store('arena.zonePending', ''); }
@@ -852,6 +888,7 @@ async function zoneReady() {
   try { zoneMod = await import('./zone.js'); } catch (e) { console.warn('zone.js', e.message); return false; }
   zoneEditor = zoneMod.createZoneEditor({
     THREE, space: scene, hands, haptic, panel: showPanel,
+    sound: n => sfx.play(n),
     desktop: () => desk.on,
     /** Точка от проследяването на каската в координатите на залата (както залата стои в момента). */
     toArena(p) { arena.updateMatrixWorld(true); _v.set(p.x, 0, p.z); arena.worldToLocal(_v); return { x: +_v.x.toFixed(3), z: +_v.z.toFixed(3) }; },
@@ -869,6 +906,7 @@ async function zoneReady() {
       // готовият чертеж се пази, докато сървърът потвърди: ако връзката е паднала, тръгва пак при свързване
       if (['zoneDone', 'zoneAligned', 'floorSet', 'zoneObstaclesDone'].includes(msg.type)) { pendingZone = msg; store('arena.zonePending', JSON.stringify(msg)); }
       send(msg);
+      if (msg.type === 'setupPoint' && msg.index === 1) zoneMode(false);      // both marks out: the waiting room comes back
       if (['zoneDone', 'zoneAligned', 'zoneCancelled', 'floorSet', 'zoneObstaclesDone'].includes(msg.type)) { zoneMode(false); if (msg.type === 'zoneDone') zoneViewObj?.setVisible(false); }
     },
   });
@@ -982,7 +1020,162 @@ async function initShowroom() {
     showroom?.dispose();
     showroom = made;
     backdrop.visible = true;
+    if (!kitchen && made?.bounds) buildWaitingRoom(made.bounds);
   } catch (e) { console.warn('showroom', e); }
+}
+
+function buildWaitingRoom(bounds) {
+  room?.dispose(); vote?.dispose(); room = vote = null;
+  import('./lobby/room.js').then(m => {
+    room = m.createRoom({ THREE, root: showRoot, assets: ctx.assets, bounds });
+    if (lobbyInfo) room.set(lobbyInfo);
+  }).catch(e => console.warn('[lobby] room', e));
+  import('./lobby/vote.js').then(m => {
+    vote = m.createVote({
+      THREE, root: showRoot, space: scene, assets: ctx.assets, bounds, haptic, sfx, send,
+      onInput(fn) { inputFns.add(fn); return () => inputFns.delete(fn); },
+      /** Where a controller points (tracking space). In the browser without a headset: from the eye through the mouse hand. */
+      pointer(side, o, d) {
+        const h = hands[side];
+        if (h.ray && h.active && renderer.xr.isPresenting) { h.ray.getWorldPosition(o); h.ray.getWorldQuaternion(_q); d.set(0, 0, -1).applyQuaternion(_q); return true; }
+        if (desk.on && !watch && side === 'r') { o.copy(camera.position); d.copy(desk.hand.position).sub(camera.position).normalize(); return true; }
+        return false;
+      },
+    });
+    if (voteWanted) vote.set(voteWanted.options, voteWanted.endsAt);
+  }).catch(e => console.warn('[lobby] vote', e));
+}
+
+/** calibrateHeight {cm}: the player stands straight; the floor is set so his eyes are where his height says (eye = 0.935 x height). */
+function setHeight(cm) {
+  cm = Number(cm) || 0;
+  if (!(cm >= 90 && cm <= 230)) { heightCm = null; heightFix = 0; overlay.message('Height reset', 3); return; }
+  const cam = renderer.xr.isPresenting ? renderer.xr.getCamera() : camera;
+  const eyeY = cam.getWorldPosition(_v).y, floorY = arena.position.y - heightApplied;
+  heightFix = clamp(eyeY - cm / 100 * 0.935 - floorY, -0.35, 0.35);
+  heightCm = cm;
+  overlay.message(`Height set: ${cm} cm`, 4);
+  haptic('l', 0.6, 80); haptic('r', 0.6, 80);
+}
+/** Every frame around followAnchors: take our offset off before the anchors place the hall, put it back after. */
+function heightBefore() { if (arena.position.y === heightY) arena.position.y -= heightApplied; heightApplied = 0; }
+function heightAfter() {
+  if (!heightFix) { heightY = NaN; return; }
+  arena.position.y += heightFix; heightApplied = heightFix; heightY = arena.position.y;
+  arena.updateMatrixWorld(true);
+}
+
+/** Setup wizard (design section 3): instructions and ghost rings for marks A and B, touches go to the server. */
+async function setupStep(m) {
+  const step = String(m.step || '');
+  if (step === 'done') {
+    if (zoneEditor?.step === 'points') { zoneEditor.cancel(); zoneMode(false); }
+    sfx.play('go', { gain: 0.8 }); haptic('l', 0.8, 160); haptic('r', 0.8, 160);
+    return showPanel('Marks saved', ['This headset is calibrated.'], '', 6);
+  }
+  if (step === 'cancel') { if (zoneEditor?.step === 'points') { zoneEditor.cancel(); zoneMode(false); } return showPanel('', []); }
+  if (step !== 'p1' && step !== 'p2') return;
+  if (step === 'p2' && zoneEditor?.step === 'points' && zoneEditor.pointsLeft === 1) return;      // already on mark B
+  if (!(await zoneReady())) return;
+  if (game || gameLoading) { startSig = ''; await endGame(); }
+  let ghosts = null;
+  if (calib && Array.isArray(m.marks)) {      // rings only where the hall really is: this headset must be aligned
+    arena.updateMatrixWorld(true);
+    ghosts = m.marks.map(p => (Array.isArray(p) && p.length >= 2 ? (_v.set(+p[0], 0, +p[1]).applyMatrix4(arena.matrixWorld), { x: _v.x, z: _v.z }) : null));
+  }
+  zoneMode(true);
+  zoneEditor.startPoints({ step, ghosts });
+  sfx.play('bell', { gain: 0.6 });
+}
+
+// ---------- needsCalibration and worn ----------
+function calReason() {
+  if (desk.on || watch || !renderer.xr.isPresenting) return null;
+  if (!calib) return 'no-calibration';
+  if (anchorState === 'ok') return null;
+  if (needAlign) return savedAnchorIds() ? 'anchors-lost' : 'no-anchors';
+  return null;
+}
+let calSent, wornSent = null, wornSeen = null, wornSince = 0, stillSince = 0;
+const _lastHead = new THREE.Vector3(), _lastQ = new THREE.Quaternion();
+/** On the head = in VR, the session visible, and the head not frozen still for 20 s (a headset on a table does not move at all). */
+function wornNow(now) {
+  if (desk.on) return !document.hidden;
+  if (!renderer.xr.isPresenting) return false;
+  const vs = renderer.xr.getSession()?.visibilityState;
+  if (vs && vs !== 'visible') return false;
+  const moved = head.pos.distanceTo(_lastHead) > 0.0015 || Math.abs(head.quat.dot(_lastQ)) < 0.999999;
+  _lastHead.copy(head.pos); _lastQ.copy(head.quat);
+  if (moved) stillSince = now; else if (!stillSince) stillSince = now;
+  return now - stillSince < 20000;
+}
+function checkWornAndCal() {
+  if (!connected || watch) return;
+  const now = performance.now(), w = wornNow(now);
+  if (w !== wornSeen) { wornSeen = w; wornSince = now; }
+  if (w !== wornSent && now - wornSince > 1500) { wornSent = w; send({ type: 'worn', on: w }); }
+  const r = calReason();
+  if (r !== calSent) { calSent = r; send({ type: 'needsCalibration', reason: r }); }
+}
+
+/** lobby: idempotent; the first one after a game ends that game here, every one refreshes the waiting room's dressing. */
+function onLobby(m) {
+  lobbyInfo = m;
+  if (!inLobby) { inLobby = true; overlay.pause(false); if (game) { startSig = ''; endGame(); } }
+  room?.set(m);
+}
+const coverOf = o => o.cover || `/play/games/${encodeURIComponent(o.client || o.gameId)}/cover.jpg`;
+/** Server messages of MS Games 2 (design section 9). Returns true if it was one of them. */
+function onSession(m) {
+  switch (m.type) {
+    case 'lobby': onLobby(m); return true;
+    case 'vote': {
+      const options = (Array.isArray(m.options) ? m.options : []).map(o => ({ ...o, cover: coverOf(o) }));
+      // endsAt is server time; with `seconds` the server can also say how long is left
+      const endsAt = Number(m.seconds) > 0 ? Date.now() + Number(m.seconds) * 1000 : Number(m.endsAt) ? Number(m.endsAt) - serverSkew : 0;
+      voteWanted = { options, endsAt };
+      overlay.endMessage(null); overlay.clearSession();
+      if (game) { inLobby = true; startSig = ''; endGame(); }
+      vote?.set(options, endsAt);
+      return true;
+    }
+    case 'voteEnd': voteWanted = null; if (m.gameId) vote?.end(m.gameId); else vote?.clear(); return true;      // gameId null: the vote was called off
+    case 'countdown': if (vote?.active) vote.end(); overlay.countdown(m.seconds); return true;
+    case 'pause': overlay.pause(!!m.on, m.who || []); try { game?.scene?.onPause?.(!!m.on); } catch (e) { console.warn(e); } return true;
+    case 'settings':
+      ctx.settings = { ...(ctx.settings || {}), ...m };
+      if (m.volume != null) { volume = clamp(Number(m.volume) || 0, 0, 100); sfx.volume(volume / 100); }
+      try { game?.scene?.onSettings?.(ctx.settings); } catch (e) { console.warn(e); }
+      return true;
+    case 'results': overlay.results(m, m.seconds); return true;
+    case 'endMessage': overlay.endMessage(m.preset || 'custom', m.text); return true;
+    case 'message': overlay.message(m.text, m.seconds); return true;
+    case 'swapHands': {
+      setSwap(typeof m.on === 'boolean' ? m.on : !swapped);
+      sfx.play('click'); haptic('l', 0.7, 90); haptic('r', 0.7, 90);
+      overlay.message(swapped ? 'Hands swapped' : 'Hands back to normal', 3);
+      return true;
+    }
+    case 'calibrateHeight': setHeight(m.cm); sfx.play('click'); return true;
+    case 'setupPoints': setupStep(m); return true;
+    case 'identity':
+      if (m.name) { me.name = String(m.name); store('arena.name', me.name); }
+      if (m.n != null) me.n = Number(m.n) || me.n;
+      if (m.color) me.color = m.color;
+      renderCard();
+      return true;
+    case 'restartGame':      // leave the running game; the server sends gameStart again
+      if (game || gameLoading) { startSig = ''; endGame(); }
+      overlay.message('Restarting your game', 3);
+      return true;
+    case 'recalibrate': zoneStart('align'); return true;
+    case 'bench': benched = !!m.on; overlay.bench(benched); return true;
+    case 'ping':
+      if (Number(m.t)) serverSkew = Number(m.t) - Date.now();
+      send({ type: 'health', t: m.t, pingMs: m.lastMs ?? null });
+      return true;
+  }
+  return false;
 }
 
 // ---------- връзка с пулта ----------
@@ -1046,6 +1239,7 @@ function connect() {
     clearTimeout(calmTimer); calmTimer = setTimeout(() => { replaced = 0; }, 20000);      // връзката се задържа: никой не я оспорва
     if (!watch) send({ type: 'hello', id: me.id, name: me.name, model: desk.on ? 'Browser (no headset)' : 'Meta Quest (browser)', web: true, desktop: desk.on, calibrationVersion: calib?.version ?? null, app: game?.name || null, build: BUILD, inVR: renderer.xr.isPresenting });
     if (pendingZone && !watch) setTimeout(() => { if (pendingZone) send(pendingZone); }, 600);   // чертеж, който не е стигнал до сървъра
+    calSent = undefined; wornSent = null;      // worn and needsCalibration go out again on the new connection
     renderCard();
   };
   ws.onclose = e => {
@@ -1064,6 +1258,12 @@ function connect() {
   ws.onmessage = e => {
     let m;
     try { m = JSON.parse(e.data); } catch { return; }
+    handle(m);
+  };
+}
+/** One server message. Also __arena.recv(msg) for tests from the page console. */
+function handle(m) {
+    if (onSession(m)) return;
     switch (m.type) {
       case 'room': return onRoom(m);
       case 'hall': if (watch) { hall = m.hall; calib = { version: 0, origin: { x: 0, z: 0 }, yawDeg: 0, width: hall.w, depth: hall.d }; hallBuilt = ''; buildHall(); } return;
@@ -1071,9 +1271,9 @@ function connect() {
       case 'gameStart': return startGame(m);
       case 'welcome': me.name = m.name || me.name; store('arena.name', me.name); return renderCard();
       case 'identify':
-        haptic('l', 1, 500); haptic('r', 1, 500);
+        haptic('l', 1, 500); haptic('r', 1, 500); sfx.play('bell');
         return showPanel(`This is ${me.name}`, [me.n ? `№ ${me.n}` : ''], '', 4);
-      case 'volume': volume = clamp(Number(m.value) || 0, 0, 100); return;
+      case 'volume': volume = clamp(Number(m.value) || 0, 0, 100); sfx.volume(volume / 100); return;
       case 'zoneDraw': return zoneStart('draw');
       case 'zoneAlign': return zoneStart('align');
       case 'zoneFloor': return zoneStart('floor');
@@ -1098,10 +1298,9 @@ function connect() {
         if (pendingZone && pendingZone.type !== 'zoneDone') zoneConfirmed();
         send({ type: 'calibApplied', version: m.calibration?.version });
         return showPanel('Arena aligned', [`${hall.w.toFixed(2)} × ${hall.d.toFixed(2)} m`], '', 5);
-      case 'stop': endGame(); return send({ type: 'stopped' });
+      case 'stop': inLobby = true; endGame(); return send({ type: 'stopped' });
       case 'launch': return;   // старият протокол; уеб играта тръгва с gameStart
     }
-  };
 }
 
 let battery = null;
@@ -1119,6 +1318,7 @@ function sendStatus() {
     yaw: +Math.atan2(f.x, f.z).toFixed(3),
     app: game?.name || null, user: null, space: spaceType, anchor: anchorState, anchorN: anchorCount, build: BUILD, inVR: renderer.xr.isPresenting,
     load: gameLoading ? loadPct : null,
+    worn: wornSent, needsCal: calSent ?? null, swap: swapped, heightCm, bench: benched, voted: vote?.active ? vote.voted : null,
   });
 }
 const poseBuf = new Array(21);
@@ -1205,6 +1405,8 @@ async function boot() {
   connect();
   initShowroom();
   setInterval(sendStatus, 500);
+  setInterval(checkWornAndCal, 500);
+  sfx.volume(volume / 100);
   setInterval(sendPose, 50);
   renderer.setAnimationLoop(frame);
 }
@@ -1220,7 +1422,9 @@ function frame(now, xrFrame) {
 
   if (desk.on && !renderer.xr.isPresenting) { povUpdate(); deskUpdate(dt); }
 
+  heightBefore();
   followAnchors(xrFrame, now);
+  heightAfter();
 
   // къде съм в координатите на залата
   arena.updateMatrixWorld();
@@ -1249,7 +1453,9 @@ function frame(now, xrFrame) {
     if (panelUntil && now > panelUntil) panel.mesh.visible = false;
   }
   if (backdrop.visible) backdrop.position.copy(cam.getWorldPosition(_v));
-  try { fadeStep(cam); coverStep(cam, dt); } catch { /* без преход */ }
+  try { fadeStep(cam); coverStep(cam, dt); dimStep(cam, dt); } catch { /* без преход */ }
+  try { overlay.update(now, cam); } catch (e) { console.warn('overlay', e); }
+  if (vote && !game) { try { vote.update(dt, now / 1000); } catch (e) { console.warn('vote', e); } }
   if (!game && showroom?.update) { try { showroom.update(dt, now / 1000); } catch { /* лобито е украса */ } }
   if (game) {
     if (now > shadowDue) { shadowDue = now + (renderer.xr.isPresenting ? 1000 : 250); refreshShadows(); }   // сянката се обновява рядко
@@ -1267,6 +1473,7 @@ addEventListener('resize', () => {
 });
 
 // за автоматични проби от конзолата
-window.__arena = { frame, build: BUILD, scene, renderer, me, hands, head, players, desk, camera, arena, get anchor() { return anchorState; }, get space() { return spaceType; }, act: msg => send({ type: 'act', ...msg }), get presenting() { return renderer.xr.isPresenting; }, get zoneActive() { return !!zoneEditor?.active; }, get zone() { return zoneEditor?.debug || null; }, get pendingZone() { return !!pendingZone; }, get calib() { return calib; }, get game() { return game; }, get ctx() { return ctx; }, get connected() { return connected; } };
+window.__arena = { frame, build: BUILD, scene, renderer, me, hands, head, players, desk, camera, arena, get anchor() { return anchorState; }, get space() { return spaceType; }, act: msg => send({ type: 'act', ...msg }), get presenting() { return renderer.xr.isPresenting; }, get zoneActive() { return !!zoneEditor?.active; }, get zone() { return zoneEditor?.debug || null; }, get pendingZone() { return !!pendingZone; }, get calib() { return calib; }, get game() { return game; }, get ctx() { return ctx; }, get connected() { return connected; },
+  recv: m => handle(m), overlay, sfx, get vote() { return vote; }, get room() { return room; }, get swapped() { return swapped; }, get heightFix() { return heightFix; }, get worn() { return wornSent; }, get needsCal() { return calSent; }, get zoneEditor() { return zoneEditor; } };
 
 boot();

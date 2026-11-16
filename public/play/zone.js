@@ -69,10 +69,10 @@ function label(THREE, text, color = '#c8f03c', w = 0.16) {
   const long = String(text).length > 2;
   c.width = long ? 384 : 128; c.height = 128;
   const g = c.getContext('2d');
-  g.fillStyle = 'rgba(19,20,17,0.9)';
-  g.beginPath(); g.roundRect(4, 4, c.width - 8, 120, 60); g.fill();
-  g.fillStyle = color; g.font = `800 ${long ? 64 : 84}px "Sofia Sans XC", "Sofia Sans", sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
-  g.fillText(String(text), c.width / 2, 70);
+  // only bold white letters with a thin dark outline, no box behind them (owner's rule for every text in the headset)
+  g.font = `900 ${long ? 72 : 100}px "Sofia Sans XC", "Sofia Sans", sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.lineJoin = 'round'; g.lineWidth = 9; g.strokeStyle = 'rgba(0, 0, 0, 0.8)'; g.fillStyle = '#ffffff';
+  g.strokeText(String(text), c.width / 2, 68); g.fillText(String(text), c.width / 2, 68);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false }));
@@ -88,7 +88,9 @@ export function createZoneEditor(env) {
   space.add(group);
   const onDesk = () => !!env.desktop?.();
 
-  let mode = null;                     // 'zone' | 'obstacles' | 'marks' | 'align' | 'floor'
+  let mode = null;                     // 'zone' | 'obstacles' | 'marks' | 'align' | 'floor' | 'points'
+  let pointBase = 0;                   // 'points' (setup wizard): 0 = starts at mark A, 1 = only mark B is left
+  const ghosts = new THREE.Group();    // 'points': rings where the console expects marks A and B
   let floorY = 0;
   let path = [], strokes = [];         // текущата форма: точки { x, z, ox, oy, oz } и колко точки има всеки щрих
   let drawing = false, downAt = 0;
@@ -122,7 +124,7 @@ export function createZoneEditor(env) {
     floorMark.add(ring);
   }
   floorMark.visible = cursor.visible = laser.visible = false;
-  group.add(cur, closing, liveLine, done, dots, markDots, cursor, floorMark);
+  group.add(cur, closing, liveLine, done, dots, markDots, cursor, floorMark, ghosts);
   let off = null, floorMarkTimer = 0;
 
   const col = () => (mode === 'obstacles' ? C.obstacle : mode === 'zone' ? C.zone : C.mark);
@@ -158,6 +160,10 @@ export function createZoneEditor(env) {
     else if (mode === 'obstacles') env.panel(`Obstacles: ${obstacles.length}`, path.length ? [h || 'Grip button: close this.', 'Left trigger: back.'] : [h || 'Outline a pillar or a desk with the laser.', 'Two points make a circle: centre and edge.', only ? 'Ready? Grip button: save.' : 'No more? Grip button: continue.'], 'warn');
     else if (mode === 'marks') env.panel(`Point ${marks.length + 1} of 2`, [h || 'Walk to the spot, touch the right controller', 'to the floor and pull the trigger.', marks.length ? 'At least a metre from point 1.' : 'Pick a spot you can find again.'], 'warn');
     else if (mode === 'align') env.panel(`Point ${marks.length + 1} of 2`, [h || `Touch the right controller to point ${marks.length + 1} on the floor`, 'and pull the trigger.'], 'warn');
+    else if (mode === 'points') {
+      const k = pointBase + marks.length, letter = 'AB'[k] || 'B';
+      env.panel(`Touch mark ${letter}`, [h || `Walk to mark ${letter} on the floor,`, 'touch it with the right controller', 'and pull the trigger.'], 'warn');
+    }
     else if (mode === 'floor') env.panel('Floor height', [h || 'Touch the right controller to the floor', 'and pull the trigger.'], 'warn');
   }
   function redraw() {
@@ -199,6 +205,41 @@ export function createZoneEditor(env) {
     markDots.add(disc, tag);
   }
   function clearMarks() { marks.length = 0; for (const c of [...markDots.children]) { markDots.remove(c); dispose(c); } }
+  /** Rings on the floor where the marks should be (setup wizard); world = tracking-space x, z or null. */
+  function setGhosts(list) {
+    for (const c of [...ghosts.children]) { ghosts.remove(c); c.traverse(dispose); }
+    (list || []).forEach((p, i) => {
+      if (!p) return;
+      const g = new THREE.Group();
+      for (const r of [0.16, 0.3]) {
+        const ring = new THREE.Mesh(new THREE.RingGeometry(r - 0.014, r + 0.014, 40), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.55, depthWrite: false }));
+        ring.rotation.x = -Math.PI / 2; ring.position.y = 0.012;
+        g.add(ring);
+      }
+      const tag = label(THREE, 'AB'[i], '#ffffff', 0.22);
+      tag.position.y = 0.45;
+      g.add(tag);
+      g.position.set(p.x, 0, p.z);
+      g.userData.letter = i;
+      ghosts.add(g);
+    });
+  }
+  /** Setup wizard: a mark touched like the alignment points, but sent raw to the server, one at a time. */
+  function pressPoint() {
+    const t = touch();
+    if (!t) { hint = 'The controller must touch the floor.'; buzz(); return say(); }
+    const k = pointBase + marks.length;
+    if (k === 1 && marks.length && Math.hypot(t.x - marks[0].x, t.z - marks[0].z) < MARK_GAP) { hint = 'Too close to mark A: the marks are 2 m apart.'; buzz(); return say(); }
+    marks.push(t);
+    markDot(t, 'AB'[k]);
+    for (const g of ghosts.children) if (g.userData.letter === k) g.visible = false;
+    env.send({ type: 'setupPoint', index: k, x: t.x, y: t.y, z: t.z });
+    env.sound?.('tick');
+    env.haptic('r', 1, k ? 250 : 90);
+    if (k === 0) return say();
+    env.panel('Marks sent', ['Wait for the console.'], '');
+    stop();
+  }
 
   /** Истинската височина на пода: всичко начертано се пресмята наново върху нея. */
   function setFloor(y) {
@@ -256,6 +297,7 @@ export function createZoneEditor(env) {
     stop();
   }
   function press() {       // десният спусък е натиснат
+    if (mode === 'points') return pressPoint();
     if (mode === 'marks' || mode === 'align') return pressMark();
     if (mode === 'floor') {
       const t = touch();
@@ -284,6 +326,11 @@ export function createZoneEditor(env) {
     if (mode === 'zone' && strokes[strokes.length - 1] > 8 && path.length >= 12 && Math.hypot(path[path.length - 1].x - path[0].x, path[path.length - 1].z - path[0].z) < 0.25) close();
   }
   function undo() {
+    if (mode === 'points') {      // back to the first mark of this run
+      if (!marks.length) return;
+      clearMarks(); for (const g of ghosts.children) g.visible = true; env.haptic('l', 0.3, 30);
+      return say();
+    }
     if (mode === 'marks' || mode === 'align') {
       if (!marks.length) return;
       clearMarks(); env.haptic('l', 0.3, 30);
@@ -374,7 +421,7 @@ export function createZoneEditor(env) {
   function hardReset() {
     path = []; strokes = []; zone = null; obstacles.length = 0; only = false;
     floorY = 0; group.position.y = 0; smooth = false; nearStart = false; drawing = false;
-    clearDots(); clearMarks(); rebuildDone();
+    clearDots(); clearMarks(); rebuildDone(); setGhosts(null); pointBase = 0;
     cur.set([], false); closing.set([], false); liveLine.set([], false);
   }
 
@@ -391,9 +438,22 @@ export function createZoneEditor(env) {
     startFloor() { begin('floor'); },
     /** Каска без подравняване: двете точки на вече начертаната зона. */
     startAlign() { begin('align'); },
+    /**
+     * Setup wizard marks (design section 3). step 'p1' starts at mark A, 'p2' at mark B. ghosts: [{x, z}|null, {x, z}|null]
+     * in tracking space, drawn as rings while the headset is aligned. Each touch goes out as setupPoint {index, x, y, z}.
+     */
+    startPoints({ step = 'p1', ghosts: g = null } = {}) {
+      begin('points');
+      pointBase = step === 'p2' ? 1 : 0;
+      setGhosts(g);
+      for (const r of ghosts.children) r.visible = r.userData.letter >= pointBase;
+      say();
+    },
+    get pointsLeft() { return mode === 'points' ? 2 - pointBase - marks.length : 0; },
     cancel() { if (!mode) return; mode = null; off?.(); off = null; hide(); hardReset(); env.send({ type: 'zoneCancelled' }); },
     update() {
       if (!mode) return;
+      if (ghosts.children.length) { const k = 1 + 0.12 * Math.sin(performance.now() / 260); for (const g of ghosts.children) g.children[1] && g.children[1].scale.setScalar(k); }
       const lasering = mode === 'zone' || mode === 'obstacles' || onDesk();
       if (!lasering) {      // допир: кръгчето е точно под контролера
         laser.visible = false;

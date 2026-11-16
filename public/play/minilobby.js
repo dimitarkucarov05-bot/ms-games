@@ -1,7 +1,8 @@
 // Мини лоби: малък нощен лагер около зоната, в който играчите чакат преди игра и между игрите.
 // Само оригинални модели на Synty в естествен размер (пакетът Apocalypse); подът е тъмен асфалт, който се стапя в тъмното.
 //
-//   createMiniLobby({ THREE, root, assets, hall }) → { group, update(dt, t), dispose() }
+//   createMiniLobby({ THREE, root, assets, hall }) → { group, update(dt, t), dispose(), bounds }
+//   bounds: the box around all zone rooms in hall coordinates; lobby/room.js and lobby/vote.js stand their things around it.
 //
 // Ако нещо липсва, лобито просто остава по-празно: страницата и игрите не зависят от него.
 
@@ -132,5 +133,5 @@ export async function createMiniLobby({ THREE, root, assets, hall, rooms }) {
     fire?.dispose?.();
     flame?.dispose();
   }
-  return { group, update, dispose };
+  return { group, update, dispose, bounds: { bx0, bx1, bz0, bz1, mx, mz } };
 }
