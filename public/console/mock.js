@@ -3,7 +3,7 @@
 // the same state shape (epoch-ms times, run states waiting/countdown/loading/playing/paused/results, `last`),
 // so the console code is identical against the mock and against the real server.
 // fetch() to /api/* is answered here and the state is "pushed" every 500 ms.
-// Options: &two=1 adds a second (archived) game to test multi-game screens.
+// Options: &two=1 adds a plain second test game (for multi-game screens), &area=4 a 4 x 4 m arena.
 // Debug from DevTools: mock.drop('q3'), mock.back('q3'), mock.battery('q2', 12), mock.finish(), mock.usb(3), mock.scene('busy').
 
 'use strict';
@@ -43,11 +43,12 @@
     stages: [{ id: 'boss', name: 'Skip to boss' }, { id: 'wave', name: 'Start next wave now' }],
     scorecard: { columns: ['score', 'kills', 'deaths'] },
   }];
+  // &two=1: a second, plain test game, to check the screens that change with more than one game
   if (qs.has('two')) games.push({
-    id: 'backroom', name: 'The Back Room', tagline: 'Build a pizzeria into an empire', version: '1.5.0', status: 'ready', web: true,
-    cover: '/play/games/backroom/cover.jpg', color: '#c8f03c', minPlayers: 1, maxPlayers: 6, minutes: 15, minArea: [5, 5], cuts: [10, 15, 20],
-    tags: ['cooking', 'co-op', 'management'], levels: LEVELS, modes: [{ id: 'shift', name: 'Shift', description: 'One shift in the shop, then the cellar.', recommended: true }],
-    options: [], stages: [], scorecard: { columns: ['score', 'orders', 'tips', 'mistakes'] },
+    id: 'test2', name: 'Second Game', tagline: 'A test entry for multi-game screens', version: '0.0.1', status: 'ready', web: true,
+    cover: '', color: '#4f8fe0', minPlayers: 1, maxPlayers: 6, minutes: 10, minArea: [5, 5], cuts: [10],
+    tags: ['test'], levels: LEVELS, modes: [{ id: 'one', name: 'One mode', description: 'The only mode.', recommended: true }],
+    options: [], stages: [], scorecard: { columns: ['score'] },
   });
   const gameDef = id => games.find(g => g.id === id);
 
@@ -94,7 +95,7 @@
   const cards = new Map();      // id → full scorecard sidecar
   records.slice(0, 4).forEach((r, i) => {
     const id = `seed-${i + 1}`;
-    cards.set(id, { id, base: `${r.date.slice(0, 10).replace(/-/g, '')}_motel_${r.team.replace(/\W+/g, '-')}`, gameId: r.gameId, game: 'The Motel', team: r.team, score: r.score, rank: i + 1, newRecord: i === 0, difficulty: r.difficulty, minutes: r.minutes, date: r.date, kids: r.kids, won: true,
+    cards.set(i === 0 ? 'seed-run-1' : id, { id: i === 0 ? 'seed-run-1' : id, base: `${r.date.slice(0, 10).replace(/-/g, '')}_motel_${r.team.replace(/\W+/g, '-')}`, gameId: r.gameId, game: 'The Motel', team: r.team, score: r.score, rank: i + 1, newRecord: i === 0, difficulty: r.difficulty, minutes: r.minutes, date: r.date, kids: r.kids, won: true,
       players: r.players.map((n, j) => ({ id: `q${j + 1}`, n: j + 1, name: n, color: COLORS[j % 6], score: Math.round(r.score / r.players.length * rnd(0.6, 1.3)), kills: Math.round(rnd(20, 90)), deaths: Math.round(rnd(0, 6)) })), columns: ['score', 'kills', 'deaths'] });
   });
   let presets = [
@@ -102,6 +103,7 @@
     { name: 'Hard night', items: [{ gameId: 'motel', mode: 'standard', difficulty: 'normal', minutes: 15, options: {} }, { gameId: 'motel', mode: 'standard', difficulty: 'nightmare', minutes: 15, options: {} }], breakSec: 60, names: false },
   ];
 
+  const sessions = [{ id: 'seed-run-1', runId: 'seed-run', kind: 'quick', gameId: 'motel', game: 'The Motel', difficulty: 'normal', minutes: 15, team: 'NIGHT SHIFT', headsets: ['q1', 'q2', 'q4', 'q5'], players: ['Ana', 'Ivo', 'Dani', 'Kris'], reason: 'finished', start: ago(0, 2.3), end: ago(0, 2), result: { score: 48210, won: true, rank: 1, newRecord: true } }];
   let flow = null;          // {kind, step}
   let run = null;           // internal; runView() is what the console sees
   let last = null;
@@ -278,6 +280,7 @@
       scoresVersion++; scorecardsVersion++;
     }
     run.history.push({ gameId: run.item.gameId, reason, score: res ? res.score : null });
+    sessions.push({ id: sessionId, runId: run.id, kind: run.kind, gameId: g.id, game: g.name, difficulty: run.item.difficulty, minutes: run.item.minutes, team: run.team, headsets: run.players.map(p => p.headsetId), players: run.players.map(p => p.name), reason, start: iso(run.gameStartedAt || t), end: iso(t), result: res ? { score: res.score, won: true, rank: res.rank, newRecord: res.newRecord } : null });
     run.results = res;
     if (res) { run.state = 'results'; run.resultsEndsAt = t + settings.resultsSec * 1000; return; }
     stopGame();
@@ -414,9 +417,13 @@
       const gid = q.get('gameId') || q.get('game'), period = q.get('period') || 'all';
       const lim = { day: 1, today: 1, week: 7, month: 30 }[period];
       let list = records.filter(r => (!gid || r.gameId === gid) && (!lim || now() - Date.parse(r.date) < lim * 86400e3));
-      list = list.sort((a, c) => c.score - a.score).slice(0, 100).map((r, i) => ({ ...r, rank: i + 1 }));
-      return ok({ records: list, total: list.length });
+      const lvl = q.get('difficulty');
+      if (lvl) list = list.filter(r => r.difficulty === lvl);
+      const total = list.length, n = Number(q.get('limit')) || 100;
+      list = list.sort((a, c) => c.score - a.score).slice(0, n).map((r, i) => ({ ...r, rank: i + 1, at: r.date }));
+      return ok({ list, total });
     },
+    'GET /api/sessions': () => ok({ sessions: sessions.slice().reverse() }),
     'POST /api/records/rename': b => { const r = records.find(x => x.id === b.id); if (r) r.team = b.team; scoresVersion++; return ok(); },
     'POST /api/records/remove': b => { records = records.filter(x => x.id !== b.id); scoresVersion++; return ok(); },
     'GET /api/scorecards': () => ok({ version: scorecardsVersion, scorecards: [...cards.values()].sort((a, c) => Date.parse(c.date) - Date.parse(a.date)).map(c => ({ id: c.id, base: c.base, game: c.game, gameId: c.gameId, team: c.team, score: c.score, rank: c.rank, date: c.date, png: null, json: null })) }),
@@ -464,7 +471,7 @@
     'POST /api/autostart': b => { settings.autoStart = !!b.on; return ok(); },
     'GET /api/scores': (b, q) => {
       const r = routes['GET /api/records'](b, new URLSearchParams({ gameId: q.get('game') || '', period: q.get('period') || 'all' }));
-      return { list: r.records.map(x => ({ id: x.id, rank: x.rank, team: x.team, score: x.score, players: x.players.map(n => ({ name: n })), at: x.date, size: x.players.length })), total: r.total };
+      return { list: r.list.map(x => ({ id: x.id, rank: x.rank, team: x.team, score: x.score, players: x.players.map(n => ({ name: n })), at: x.date, size: x.players.length })), total: r.total };
     },
     'GET /api/calibration/previous': () => ({ previous: { file: 'cal-6.json', savedAt: ago(1), width: 6, depth: 6, headsets: ['q1', 'q2'] } }),
   };

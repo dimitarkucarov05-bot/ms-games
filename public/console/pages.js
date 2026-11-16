@@ -75,12 +75,12 @@ function renderSettingsForm() {
   const printer = App.printerKind();
   const theme = s.theme || s.season || 'auto';
   const html = `<div class="side-head"><span class="label">Venue</span></div><div class="sets">
-    ${setRow('Venue name', 'Status bar, scorecards, waiting-room floor', `<input class="input input-lg" data-s="venueName" type="text" maxlength="40" style="width:min(420px,50vw)" autocomplete="off">`)}
-    ${setRow('Logo', 'On scorecards and on the waiting-room floor', `<span class="logo-box">${v.logo ? `<img alt="Venue logo" src="${esc(v.logo)}">` : '<span class="ph">No logo</span>'}</span><label class="btn btn-lg">Choose file<input type="file" accept="image/png,image/svg+xml,image/jpeg,image/webp" data-logo hidden></label>${v.logo ? '<button type="button" class="btn btn-lg btn-quiet" data-nologo>Remove</button>' : ''}`)}
-    ${setRow('Seasonal theme', 'Decorations in the waiting room', seg(SEASONS, theme, 'data-sseg="theme"'))}
+    ${setRow('Venue name', 'Status bar, scorecards, lobby floor', `<input class="input input-lg" data-s="venueName" type="text" maxlength="40" style="width:min(420px,50vw)" autocomplete="off">`)}
+    ${setRow('Logo', 'On scorecards and on the lobby floor', `<span class="logo-box">${v.logo ? `<img alt="Venue logo" src="${esc(v.logo)}">` : '<span class="ph">No logo</span>'}</span><label class="btn btn-lg">Choose file<input type="file" accept="image/png,image/svg+xml,image/jpeg,image/webp" data-logo hidden></label>${v.logo ? '<button type="button" class="btn btn-lg btn-quiet" data-nologo>Remove</button>' : ''}`)}
+    ${setRow('Seasonal theme', 'Decorations in the lobby', seg(SEASONS, theme, 'data-sseg="theme"'))}
     </div>
     <div class="side-head"><span class="label">Sessions</span></div><div class="sets">
-    ${setRow('Clock counts', 'What the paid minutes cover', seg([{ id: 'game', name: 'Game only' }, { id: 'all', name: 'Waiting room and game' }], s.clockScope || 'game', 'data-sseg="clockScope"'))}
+    ${setRow('Clock counts', 'What the paid minutes cover', seg([{ id: 'game', name: 'Game only' }, { id: 'all', name: 'Lobby and game' }], s.clockScope || 'game', 'data-sseg="clockScope"'))}
     ${setRow('Default difficulty', 'Chosen at the start of every session', seg(LEVELS, s.difficulty || 'normal', 'data-sseg="difficulty"'))}
     ${setRow('Scores in the headsets', 'How long players see their results', stepper('resultsSec', nOr0(s.resultsSec) || 20, 5, 120, 5, ' s'))}
     ${setRow('End message', 'Shown in the headsets after the scores', seg(ENDMSG, em.preset || 'remove', 'data-sseg="endMessage"') + (em.preset === 'custom' ? `<input class="input input-lg" data-s="endText" type="text" maxlength="60" placeholder="Your text" style="width:260px">` : ''))}
@@ -205,22 +205,6 @@ $('bugSave').onclick = async () => {
   if (r.ok) { text($('bugFile'), `Saved: ${r.data.file}`); toast('Bug report saved on the Desktop', 'ok'); $('bugNote').value = ''; }
 };
 
-// ---------- Records: export ----------
-
-$('boardExport').onclick = async () => {
-  const gid = boardGame;
-  if (!gid) return;
-  const r = await api(`/api/scores?game=${encodeURIComponent(gid)}&period=${boardPeriod}&limit=100`, undefined, {});
-  if (!r.ok) return;
-  const rows = [['Rank', 'Team', 'Score', 'Players', 'When']].concat((r.data.list || []).map(e => [e.rank, e.team, e.score, (e.players || []).map(p => p.name).join(' / '), e.at]));
-  const csv = rows.map(row => row.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv' }));
-  a.download = `records-${gid}-${boardPeriod}-${new Date().toISOString().slice(0, 10)}.csv`;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-};
-
 // ---------- demos for screenshots: ?mock=1&demo=<name> ----------
 
 Object.assign(App.demos, {
@@ -244,12 +228,15 @@ Object.assign(App.demos, {
   'setup-floor': async () => { App.startSetup('first'); W.step = 'floor'; W.ticks = new Set(['clear', 'light', 'marks']); },
   'setup-area': async () => { App.startSetup('first'); W.step = 'area'; },
   'setup-points': async w => { App.startSetup('points'); await w(200); await api('/api/setup/points', { headsetId: 'q1' }); W.firstId = 'q1'; await w(6000); await api('/api/setup/points', { sync: true }); await w(4200); },
-  scorecards: async () => { go('scorecards/s1'); },
+  scorecards: async () => { go('scorecards/seed-run-1'); },
   settings: async () => { go('settings'); },
   diagnose: async () => { go('diagnose'); },
   menu: async w => { await w(200); const c = $('hrList').querySelector('[data-key="q2"]'); App.openMenu('q2', c.querySelector('.hs-more')); },
   status: async () => { App.openDrawer('status'); },
   help: async () => { App.openDrawer('help'); },
   advanced: async () => { setMode('advanced'); go('headsets'); },
-  'advanced-calib': async () => { setMode('advanced'); go('calib'); },
+  arena: async () => { setMode('advanced'); go('arena'); },
+  records: async () => { go('records'); },
+  tools: async () => { App.startSetup('tools'); },
+
 });

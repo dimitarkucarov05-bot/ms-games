@@ -62,7 +62,7 @@ setRail(true);      // the rail opens by itself on launch
 // ---------- headset: one word for its state ----------
 
 function inRun(h) { const r = state && state.run; return !!r && (r.players || []).some(p => p.headsetId === h.id); }
-const WORD_TONE = { Ready: 'idle', 'Waiting room': 'lobby', Loading: 'load', Playing: 'play', Paused: 'warn', Dropped: 'bad', 'Not calibrated': 'warn', Sleeping: 'sleep', Offline: 'off', Calibrating: 'warn', Benched: 'bench' };
+const WORD_TONE = { Ready: 'idle', 'Waiting room': 'lobby', Lobby: 'lobby', Loading: 'load', Playing: 'play', Paused: 'warn', Dropped: 'bad', 'Not calibrated': 'warn', Sleeping: 'sleep', Offline: 'off', Calibrating: 'warn', Benched: 'bench' };
 function droppedFor(h) {
   const r = state.run;
   const d = r && (r.dropped || []).find(x => x.headsetId === h.id);
@@ -83,7 +83,7 @@ function hsWord(h) {
   if (sp0 === 'p1' || sp0 === 'p2') return { s: 'warn', w: sp0 === 'p1' ? 'Touch mark A' : 'Touch mark B' };
   if (h.state && WORD_TONE[h.state]) {      // the server's word (section 9), with the loading percent added
     if (h.state === 'Loading' && typeof h.load === 'number' && h.load > 0) return { s: 'load', w: `Loading ${Math.round(clamp(h.load, 0, 1) * 100)} %` };
-    return { s: WORD_TONE[h.state], w: h.state };
+    return { s: WORD_TONE[h.state], w: h.state === 'Waiting room' ? 'Lobby' : h.state };
   }
   if (h.benched) return { s: 'bench', w: 'Benched' };
   if (h.phase === 'calibrating') return { s: 'warn', w: 'Calibrating' };
@@ -91,7 +91,7 @@ function hsWord(h) {
   if (h.phase === 'playing') return r && r.state === 'paused' ? { s: 'warn', w: 'Paused' } : { s: 'play', w: 'Playing' };
   if (!h.desk && (h.needsCalibration || !h.hasCalibration)) return { s: 'warn', w: 'Not calibrated' };
   if (h.sleeping) return { s: 'sleep', w: 'Sleeping' };
-  if (h.inLobby || state.flow || runOpen(r)) return { s: 'lobby', w: 'Waiting room' };
+  if (h.inLobby || state.flow || runOpen(r)) return { s: 'lobby', w: 'Lobby' };
   return { s: 'idle', w: 'Ready' };
 }
 App.hsWord = hsWord;
@@ -137,7 +137,7 @@ App.issuesNow = issuesNow;
 function renderStatusbar() {
   const hs = state.headsets || [], online = hs.filter(h => h.online).length;
   const venue = venueOf(state.settings).name;
-  text($('sbVenue'), venue);
+  text($('sbVenue'), venue === 'MS Games' ? '' : venue);
   text($('sbOnline'), online);
   text($('sbTotal'), hs.length);
   const iss = issuesNow(), errs = iss.filter(i => i.level === 'error').length, warns = iss.length - errs;
@@ -151,7 +151,6 @@ function renderStatusbar() {
     text($('sbRunState'), runStateWord(r).w);
     attr($('sbRun'), 'data-tone', r.state === 'paused' ? 'warn' : null);
   }
-  if (live) show($('sessionChip'), false);      // the old chip is for sessions started the old way
   tickRunClocks();
   if ($('drawer').dataset.kind === 'status' && !$('drawer').hidden) fillStatus();
 }
@@ -269,7 +268,7 @@ function openMenu(id, anchor) {
     <div class="msep"></div>
     <button type="button" class="mi" data-mi="message" ${h.online ? '' : 'disabled'}>Send message</button>
     <button type="button" class="mi" data-mi="removeMsg" ${h.online ? '' : 'disabled'}>Remove-headset message</button>
-    <button type="button" class="mi" data-mi="bench">${h.benched ? 'Back to the games' : 'Bench'}<small>${h.benched ? 'can be chosen again' : 'keep in the waiting room'}</small></button>
+    <button type="button" class="mi" data-mi="bench">${h.benched ? 'Back to the games' : 'Bench'}<small>${h.benched ? 'can be chosen again' : 'keep in the lobby'}</small></button>
     <button type="button" class="mi" data-mi="rename">Rename</button>
     <div class="msep"></div>
     <button type="button" class="mi" data-mi="reload" ${h.online ? '' : 'disabled'}>Reload page</button>
@@ -326,7 +325,7 @@ $('hsMenu').addEventListener('click', async e => {
   closeMenu();
   if (act === 'identify') { const r = await api('/api/headset/action', { headsetId: id, action: 'identify' }, { quiet: true }); if (!r.ok) await call('/api/headset/identify', { headsetId: id }).catch(() => {}); toast(`${h.name}: controllers vibrate`); return; }
   if (act === 'removeMsg') { const r = await api('/api/endmessage', { headsetIds: [id], preset: 'remove' }); if (r.ok) toast(`${h.name}: remove-headset message sent`); return; }
-  if (act === 'bench') { if (await hsAction(id, 'bench', !h.benched)) toast(h.benched ? `${h.name} can play again` : `${h.name} stays in the waiting room`); return; }
+  if (act === 'bench') { if (await hsAction(id, 'bench', !h.benched)) toast(h.benched ? `${h.name} can play again` : `${h.name} stays in the lobby`); return; }
   if (act === 'rename') { const el = $('hrList').querySelector(`[data-key="${CSS.escape(id)}"] .hs-name`); if (el) startRailRename(el, id); return; }
   if (act === 'recalibrate') { if (await hsAction(id, 'recalibrate')) toast(`${h.name}: touch marks A and B in the headset`); return; }
   const names = { restartGame: 'restarts the game', swapHands: 'hands swapped', reload: 'reloads the page' };
@@ -413,9 +412,9 @@ function fillHelp() {
   body.innerHTML = `
     <h3>Run a game</h3>
     <ol class="help-steps">
-      <li><span><b>Quick Play</b> on Home. Every headset goes to the waiting room at once.</span></li>
+      <li><span><b>Quick Play</b> on Home. Every headset goes to the lobby at once.</span></li>
       <li><span><b>Pick the game.</b> A dimmed game says why it cannot run right now.</span></li>
-      <li><span><b>Pick the players.</b> Untick a headset to leave it in the waiting room.</span></li>
+      <li><span><b>Pick the players.</b> Untick a headset to leave it in the lobby.</span></li>
       <li><span><b>Start.</b> The console checks batteries, controllers and calibration first. Fix what it lists or press Start anyway.</span></li>
       <li><span><b>While it runs</b> you can pause, change the difficulty and quit. If a headset drops, the game pauses by itself and goes on when it is back.</span></li>
     </ol>
@@ -440,92 +439,152 @@ $('modeSeg').addEventListener('click', e => {
   const b = e.target.closest('[data-mode]');
   if (!b) return;
   setMode(b.dataset.mode);
-  const simpleOnly = ['games', 'overview', 'headsets', 'calib', 'match'];
-  if (b.dataset.mode === 'simple' && simpleOnly.includes(section) && !runOpen(state && state.run)) go('home');
   scheduleRender();
 });
 
 // ---------- Home ----------
+// One game (section 0): it is the hero, a full-width band of its key art with one big Play.
+// More games later: the same hero shows the chosen one and small switches for the others.
 
 function playableGames() { return (state.games || []).filter(g => g.web !== false && g.status !== 'soon'); }
 App.playableGames = playableGames;
 
-let presetCount = null, presetAt = 0;
+let presetCount = null, presetAt = 0, heroGame = null;
 function loadPresetCount() {
   if (Date.now() - presetAt < 20000) return;
   presetAt = Date.now();
   api('/api/playlist/presets', undefined, { quiet: true }).then(r => { presetCount = r.ok ? (r.data.presets || []).length : null; scheduleRender(); });
 }
 
+// records and the last session come from their own routes; asked again when they change
+const HOME = { period: 'day', rec: null, recKey: '', recAt: 0, last: null, lastKey: '', lastAt: 0 };
+function loadHomeData(g) {
+  const ver = state.recordsVersion ?? state.scoresVersion ?? 0;
+  const key = `${g ? g.id : ''}|${HOME.period}|${ver}`;
+  if (key !== HOME.recKey || Date.now() - HOME.recAt > 60000) {
+    HOME.recKey = key; HOME.recAt = Date.now();
+    api(`/api/records?gameId=${encodeURIComponent(g ? g.id : '')}&period=${HOME.period}&limit=5`, undefined, { quiet: true })
+      .then(r => { HOME.rec = r.ok ? (r.data.list || r.data.records || []).slice(0, 5) : []; scheduleRender(); });
+  }
+  const lk = `${(state.last && state.last.runId) || ''}|${ver}`;
+  if (lk !== HOME.lastKey || Date.now() - HOME.lastAt > 60000) {
+    HOME.lastKey = lk; HOME.lastAt = Date.now();
+    api('/api/sessions?limit=8', undefined, { quiet: true }).then(r => {
+      const list = r.ok ? r.data.sessions || [] : [];
+      HOME.last = list.find(e => e.reason === 'finished') || list[0] || null;
+      scheduleRender();
+    });
+  }
+}
+
 function renderHome() {
   const s = state.settings || {}, hs = state.headsets || [];
-  text($('homeVenue'), venueOf(s).name);
-  const online = hs.filter(h => h.online), ready = online.filter(h => hsFree(h) && hsAligned(h));
-  const notCal = online.filter(h => !hsAligned(h));
-  const c = state.calibration;
-  const area = s.area || (state.setup && state.setup.area && state.setup.area.w ? state.setup.area : null) || (c && c.width ? { w: c.width, d: c.depth } : null);
-  const bits = [`<b>${online.length}</b> of ${hs.length} headsets online`, `<b>${ready.length}</b> ready`];
-  bits.push(area ? `play area ${esc(fmtArea(area))}` : '<span data-tone="warn">play area not set</span>');
-  if (notCal.length) bits.push(`<span data-tone="warn">${notCal.length} not calibrated</span>`);
-  const line = bits.join(' · ');
-  const el = $('homeLine');
-  if (el._h !== line) { el._h = line; el.innerHTML = line; }
-
-  // covers of the games on the Quick Play tile
   const games = playableGames();
-  syncList($('quickArt'), games.slice(0, 3), g => g.id, () => make('<span><em data-f="n"></em></span>'), (sp, g) => {
-    const p = parts(sp);
-    sp.style.setProperty('--g', g.color || '');
-    text(p.n, g.name);
-    if (sp._url !== g.cover) {
-      sp._url = g.cover;
-      sp.querySelector('img')?.remove();
-      if (g.cover) { const img = new Image(); img.alt = ''; img.onload = () => { sp.prepend(img); p.n.hidden = true; }; img.src = g.cover; }
-    }
-  });
-  // one game: it is the hero of Home (section 0); more games: the tile is Quick Play over their covers
-  const one = games.length === 1 ? games[0] : null;
-  show($('quickEyebrow'), !!one);
-  text($('quickTitle'), one ? one.name : 'Quick Play');
-  text($('quickDesc'), one ? (one.tagline || 'Play it now') : 'One game now. Pick it, pick the players, start.');
-  $('quickArt').classList.toggle('one', !!one);
-  show($('quickGo'), !!one && !(App.whyNot && App.whyNot(one)));
-  if (one) {
-    const cuts = Array.isArray(one.cuts) && one.cuts.length ? one.cuts : [one.minutes || 10];
-    const lo = Math.max(1, nOr0(one.minPlayers) || 1), hi = nOr0(one.maxPlayers) || lo;
-    const why = App.whyNot ? App.whyNot(one) : '';
-    text($('quickMeta'), why || `${lo === hi ? lo : `${lo}–${hi}`} players · ${cuts.join(' or ')} min`);
-    attr($('quickMeta'), 'data-tone', why ? 'warn' : null);
-  } else { text($('quickMeta'), games.length ? `${plural(games.length, 'game', 'games')} installed` : 'No game installed yet'); attr($('quickMeta'), 'data-tone', null); }
+  if (!heroGame || !games.some(g => g.id === heroGame)) heroGame = games[0] ? games[0].id : null;
+  const g = games.find(x => x.id === heroGame) || null;
+  const online = hs.filter(h => h.online), ready = online.filter(h => hsFree(h) && hsAligned(h));
+  const notCal = online.filter(h => !h.desk && !hsAligned(h));
+  const c = state.calibration;
+  const area = (state.setup && state.setup.area && state.setup.area.w ? state.setup.area : null) || (c && c.width ? { w: c.width, d: c.depth } : null);
+
+  // hero: the key art, the title, the facts, one big Play
+  const art = $('heroArt');
+  if (g && art._url !== g.cover) {
+    art._url = g.cover;
+    art.querySelector('img')?.remove();
+    art.classList.remove('has-img');
+    if (g.cover) { const img = new Image(); img.alt = ''; img.onload = () => { if (art._url !== g.cover) return; art.prepend(img); art.classList.add('has-img'); }; img.src = g.cover; }
+  }
+  if (g) art.style.setProperty('--g', g.color || '');
+  text($('heroArtName'), g ? g.name : '');
+  text($('heroEyebrow'), games.length > 1 ? `${games.length} games at ${venueOf(s).name}` : `Tonight at ${venueOf(s).name}`);
+  text($('heroTitle'), g ? g.name : 'No game installed');
+  text($('heroTag'), g ? g.tagline || '' : 'Add a game next to the server and restart MS Games.');
+  const why = g && App.whyNot ? App.whyNot(g) : 'No game';
+  const cuts = g && Array.isArray(g.cuts) && g.cuts.length ? g.cuts : [nOr0(g && g.minutes) || 10];
+  const lo = g ? Math.max(1, nOr0(g.minPlayers) || 1) : 0, hi = g ? nOr0(g.maxPlayers) || lo : 0;
+  const best = HOME.rec && HOME.rec[0];
+  const facts = g ? [
+    [`${lo === hi ? lo : `${lo}–${hi}`}`, 'players'],
+    [cuts.join(' / '), 'minutes'],
+    [ready.length ? `${ready.length}` : '0', ready.length === 1 ? 'headset ready' : 'headsets ready'],
+    ...(best ? [[fmtScore(best.score), HOME.period === 'day' ? 'best today' : 'record']] : []),
+  ] : [];
+  const fh = facts.map(([v, k]) => `<span><b>${esc(v)}</b>${esc(k)}</span>`).join('');
+  if ($('heroFacts')._h !== fh) { $('heroFacts')._h = fh; $('heroFacts').innerHTML = fh; }
+  show($('heroGames'), games.length > 1);
+  if (games.length > 1) syncList($('heroGames'), games, x => x.id, () => make('<button type="button" class="hero-game" data-hero-game></button>'), (el, x) => { text(el, x.name); el.classList.toggle('on', x.id === heroGame); });
+  text($('heroPlayText'), g ? `Play ${g.name}` : 'Play');
+  $('heroPlay').disabled = !g || !!why;
+  show($('heroWhy'), !!(g && why));
+  text($('heroWhy'), why || '');
   loadPresetCount();
-  text($('playlistMeta'), presetCount == null ? '' : presetCount ? plural(presetCount, 'saved playlist', 'saved playlists') : 'No saved playlist yet');
-  // one game: the players vote how hard each round is (S2); more games: they vote the next game
-  text($('partyMeta'), games.length > 1 ? `${games.length} games to vote on` : games.length ? 'Players vote how hard each round is' : '');
-  text($('partyDesc'), games.length === 1 ? `Several rounds of ${games[0].name} in a row, with the vote in the headset.` : 'Players vote in the headset for the next game.');
+  text($('playlistMeta'), presetCount ? plural(presetCount, 'saved playlist', 'saved playlists') : games.length === 1 ? 'Rounds in a row' : 'Games in a row');
+  text($('partyMeta'), games.length > 1 ? 'Players vote the next game' : 'Players vote how hard');
   $('partyTile').classList.toggle('no', !games.length);
-  attr($('partyTile'), 'aria-disabled', !games.length ? 'true' : null);
 
   // one warning line when the arena is not ready to play
   let warn = '', btn = null;
   if (!hs.length) { warn = 'No headset has connected yet.'; btn = ['Add a headset', 'add']; }
-  else if (!online.length) { warn = 'Every headset is offline. Put them on and open the MS Games app.'; }
+  else if (!online.length) { warn = 'Every headset is offline. Put them on: the MS Games app finds this computer by itself.'; }
   else if (!area) { warn = 'The play area is not set, so games do not know where the walls are.'; btn = ['Set the play area', 'area']; }
-  else if (notCal.length === online.length) { warn = 'No headset is calibrated to the two floor marks.'; btn = ['Calibrate points', 'points']; }
+  else if (notCal.length && notCal.length === online.length) { warn = 'No headset is calibrated to the two floor marks.'; btn = ['Calibrate points', 'points']; }
   const w = $('homeWarn');
   show(w, !!warn);
   const sig = warn + (btn ? btn[1] : '');
   if (w._sig !== sig) {
     w._sig = sig;
     w.textContent = warn;
-    if (btn) { const b = make(`<button type="button" class="btn">${esc(btn[0])}</button>`); b.onclick = () => App.startSetup(btn[1]); w.append(b); }
+    if (btn) { const b = make(`<button type="button" class="btn btn-lg">${esc(btn[0])}</button>`); b.onclick = () => App.startSetup(btn[1]); w.append(b); }
   }
+
+  // records: top five
+  loadHomeData(g);
+  for (const b of $('recPeriod').children) b.classList.toggle('on', b.dataset.p === HOME.period);
+  const rec = HOME.rec || [];
+  syncList($('homeRecords'), rec, e => e.id || `${e.team}-${e.score}`, () => make('<li><b class="tl-rank" data-f="r"></b><span class="tl-team" data-f="t"></span><span class="tl-when" data-f="w"></span><b class="tl-score" data-f="s"></b></li>'), (el, e) => {
+    const p = parts(el);
+    text(p.r, e.rank || rec.indexOf(e) + 1);
+    text(p.t, e.team || '');
+    text(p.w, [e.difficulty ? levelName(e.difficulty) : '', whenText(e.at || e.date)].filter(Boolean).join(' · '));
+    text(p.s, fmtScore(e.score));
+  });
+  show($('homeRecordsEmpty'), HOME.rec != null && !rec.length);
+  text($('homeRecordsEmpty'), HOME.period === 'day' ? 'No record yet today. The first team that finishes a game is on top.' : 'No records yet.');
+
+  // last session
+  const L = HOME.last, res = L && L.result;
+  show($('lastBox'), !!L);
+  show($('lastEmpty'), HOME.last === null && HOME.lastAt > 0);
+  if (L) {
+    text($('lastTeam'), L.team || 'No team name');
+    text($('lastScore'), res ? fmtScore(res.score) : '-');
+    text($('lastRank'), res && res.rank ? `#${res.rank}` : '-');
+    text($('lastWhen'), whenText(L.end));
+    const pl = (L.players || []).length;
+    text($('lastMeta'), [L.game, L.difficulty ? levelName(L.difficulty) : '', L.minutes ? `${L.minutes} min` : '', plural(pl, 'player', 'players'), L.reason === 'finished' ? '' : 'stopped early'].filter(Boolean).join(' · '));
+  } else text($('lastWhen'), '');
+  show($('lastCard'), !!(L && res && L.reason === 'finished'));
+  show($('lastAgain'), !!(L && (L.headsets || []).length));
+
+  // arena readiness
   const diagBad = ((App.diag && App.diag.checks) || []).filter(x => x.ok === false && x.group !== 'headset').length;
-  text($('linkDiag'), diagBad ? plural(diagBad, 'problem found', 'problems found') : 'Network and headsets');
-  attr($('linkDiag'), 'data-tone', diagBad ? 'bad' : null);
-  text($('linkSetup'), notCal.length ? `${notCal.length} not calibrated` : 'Play area, calibration, headsets');
-  attr($('linkSetup'), 'data-tone', notCal.length ? 'warn' : null);
+  const rows = [
+    ['Headsets', `${online.length} online, ${ready.length} ready`, online.length ? null : 'warn'],
+    ['Play area', area ? fmtArea(area) : 'not set', area ? null : 'warn'],
+    ['Calibration', notCal.length ? `${notCal.length} not calibrated` : online.length ? 'all calibrated' : '-', notCal.length ? 'warn' : null],
+    ['Network', diagBad ? plural(diagBad, 'problem', 'problems') : App.diag ? 'checked, fine' : 'checking', diagBad ? 'bad' : null],
+  ];
+  const rh = rows.map(([k, v, t]) => `<div><dt>${esc(k)}</dt><dd${t ? ` data-tone="${t}"` : ''}>${esc(v)}</dd></div>`).join('');
+  if ($('readyList')._h !== rh) { $('readyList')._h = rh; $('readyList').innerHTML = rh; }
 }
 App.views.home = renderHome;
+
+$('heroPlay').onclick = () => { if (heroGame && App.openFlow) App.openFlow('quick', heroGame); };
+$('heroGames').addEventListener('click', e => { const b = e.target.closest('[data-hero-game]'); if (b) { heroGame = b.dataset.key; scheduleRender(); } });
+$('recPeriod').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (b) { HOME.period = b.dataset.p; HOME.recKey = ''; scheduleRender(); } });
+$('lastCard').onclick = () => { const L = HOME.last; if (L) go(`scorecards/${encodeURIComponent(L.id)}`); };
+$('lastAgain').onclick = () => { const L = HOME.last; if (!L) return; LS.set('msg.lastGroup', JSON.stringify(L.headsets || [])); App.openFlow('quick', heroGame, { group: L.headsets || [], team: L.team || '' }); };
 
 function fmtArea(a) {
   if (!a || !a.w) return '';
@@ -533,6 +592,19 @@ function fmtArea(a) {
   return `${r(a.w)} × ${r(a.d)} m`;
 }
 App.fmtArea = fmtArea;
+
+// ---------- the network line at the bottom ----------
+
+function renderNetbar() {
+  const hs = state.headsets || [], online = hs.filter(h => h.online).length;
+  text($('stConn'), connected ? 'Connected' : 'No connection to the server');
+  attr($('netConn'), 'data-tone', connected ? null : 'bad');
+  const ip = (state.serverAddresses || [])[0], url = playUrl();
+  text($('netServer'), ip ? `${ip}:${location.port || (location.protocol === 'https:' ? 443 : 80)}` : location.host);
+  text($('netPlay'), url || 'none (no HTTPS)');
+  text($('stHeadsets'), `${online} of ${hs.length}`);
+  text($('navHeadsets'), online ? String(online) : '');
+}
 
 // ---------- glue to console.js ----------
 
@@ -548,11 +620,12 @@ App.render = function (sec) {
     // nothing runs and nothing to show: back Home (a start that is still on its way waits 5 s)
     if (sec === 'run' && !state.run && !App.endPending() && !state.session && Date.now() - (App.awaitRun || 0) > 5000) return go('home');
   }
+  if (!App.booted) { App.booted = true; $('splash').classList.add('out'); setTimeout(() => $('splash').remove(), 400); }
   renderStatusbar();
   renderRail();
+  renderNetbar();
   const fn = App.views[sec];
   if (fn) fn();
-  else if (sec === 'settings' && App.views.settingsForm) App.views.settingsForm();
 };
 /** A finished run whose end view the operator has not closed yet. */
 App.dismissed = LS.get('msg.dismissed', '');

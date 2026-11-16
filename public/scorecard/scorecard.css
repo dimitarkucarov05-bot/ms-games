@@ -7,13 +7,13 @@
 @font-face { font-family: "Sofia Sans XC"; font-weight: 1 1000; font-display: block; src: url(/fonts/sofia-sans-extra-condensed-cyrillic-wght-normal.woff2) format("woff2"); unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
 
 :root {
-  --bg: oklch(0.158 0.006 120); --surface: oklch(0.208 0.007 120); --line: oklch(0.265 0.008 120); --line-2: oklch(0.36 0.010 120);
-  --text: oklch(0.95 0.008 112); --text-2: oklch(0.77 0.012 115); --text-3: oklch(0.63 0.012 115);
-  --signal: oklch(0.9 0.19 122); --signal-ink: oklch(0.21 0.05 122);
+  --bg: oklch(0.155 0.022 155); --surface: oklch(0.19 0.026 155); --line: oklch(0.28 0.03 155); --line-2: oklch(0.36 0.034 155);
+  --text: oklch(0.97 0.012 130); --text-2: oklch(0.83 0.018 138); --text-3: oklch(0.72 0.02 140);
+  --signal: oklch(0.76 0.19 148); --signal-ink: oklch(0.17 0.04 150); --accent: oklch(0.91 0.17 100); --accent-ink: oklch(0.2 0.05 100);
   --font: "Sofia Sans", "Segoe UI", system-ui, sans-serif; --num: "Sofia Sans XC", "Sofia Sans", sans-serif;
 }
 * { box-sizing: border-box; }
-html, body { margin: 0; background: oklch(0.12 0.005 120); }
+html, body { margin: 0; background: oklch(0.12 0.02 155); }
 body { font: 400 20px/1.35 var(--font); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; color: var(--text); }
 h1, p, figure { margin: 0; }
 [hidden] { display: none !important; }
@@ -44,8 +44,8 @@ h1, p, figure { margin: 0; }
 .sc-score, .sc-rank { display: flex; flex-direction: column-reverse; gap: 12px; }
 .sc-score b { font: 800 150px/0.78 var(--num); letter-spacing: 0.005em; }
 .sc-rank b { font: 800 96px/0.78 var(--num); color: var(--text-2); }
-.sc-rank.first b { color: var(--signal); }
-.sc-record { margin-left: auto; align-self: center; padding: 12px 22px; border-radius: 999px; background: var(--signal); color: var(--signal-ink); font-size: 22px; font-weight: 800; letter-spacing: 0.02em; }
+.sc-rank.first b { color: var(--accent); }
+.sc-record { margin-left: auto; align-self: center; padding: 12px 22px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: 22px; font-weight: 800; letter-spacing: 0.02em; }
 
 .sc-players { width: 100%; border-collapse: collapse; margin-top: 18px; }
 .sc-players th { padding: 10px 0 10px; font-size: 14px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); text-align: right; }
@@ -55,7 +55,7 @@ h1, p, figure { margin: 0; }
 .sc-players td.name { text-align: left; font-weight: 650; max-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sc-players td.v { width: 150px; font: 700 34px/1 var(--num); }
 .sc-players td.v:first-of-type { color: var(--text); }
-.sq { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 8px; background: var(--hc); color: oklch(0.17 0.02 120); font: 800 28px/1 var(--num); }
+.sq { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 8px; background: var(--hc); color: oklch(0.17 0.04 150); font: 800 28px/1 var(--num); }
 .sc-players.dense td { padding: 7px 0; font-size: 22px; }
 .sc-players.dense td.v { font-size: 28px; }
 .sc-players.dense .sq { width: 36px; height: 36px; font-size: 22px; }
@@ -81,7 +81,7 @@ h1, p, figure { margin: 0; }
 .card[data-look="print"] .sc-record { background: transparent; color: var(--text); border: 2.5px solid var(--text); }
 .card[data-look="print"] .sc-brand .dot { fill: var(--text); }
 
-.sc-missing { color: oklch(0.77 0.012 115); font: 400 18px/1.4 "Sofia Sans", sans-serif; padding: 40px; text-align: center; }
+.sc-missing { color: oklch(0.83 0.018 138); font: 400 18px/1.4 "Sofia Sans", sans-serif; padding: 40px; text-align: center; }
 
 @media print {
   @page { size: auto; margin: 10mm; }

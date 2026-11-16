@@ -9,6 +9,7 @@ const WIZ = {
   add: ['headsets', 'points', 'done'],
   area: ['area', 'done'],
   points: ['points', 'done'],
+  tools: ['tools'],
 };
 const WSTEP = {
   venue: ['Venue', 'Name, logo, units'],
@@ -17,6 +18,7 @@ const WSTEP = {
   area: ['Play area', 'Size or boundary'],
   points: ['Calibration points', 'Marks A and B'],
   done: ['Done', 'Summary'],
+  tools: ['Calibration tools', 'Per headset, whole arena'],
 };
 const FLOOR = [
   ['clear', 'The floor is clear', 'Nothing to trip over inside the play area.'],
@@ -32,7 +34,7 @@ App.wiz = W;
 const ENTRY = { first: 'first', add: 'addHeadset', area: 'resetArea', points: 'recalibrate' };
 App.startSetup = function (kind) {
   Object.assign(W, { kind, step: WIZ[kind][0], ticks: new Set(), started: false, synced: false, firstId: null, drawId: null });
-  api('/api/setup', { entry: ENTRY[kind], step: W.step, ...(kind === 'points' ? { reset: 'points' } : {}) }, { quiet: true });
+  if (ENTRY[kind]) api('/api/setup', { entry: ENTRY[kind], step: W.step, ...(kind === 'points' ? { reset: 'points' } : {}) }, { quiet: true });
   const a = state && state.setup && state.setup.area;
   if (a && a.kind === 'preset' && a.w) { W.size = `${a.w}x${a.d}`; W.rotation = a.rotation || 0; W.entrance = a.entrance || 'middle'; }
   go('setup');
@@ -77,7 +79,7 @@ function renderSetup() {
   const why = wizCan();
   text($('wizWhy'), why);
   $('wizNext').disabled = !!why;
-  text($('wizNext'), W.step === 'done' ? 'Finish' : W.step === 'area' && W.areaKind === 'preset' ? 'Use this area' : 'Next');
+  text($('wizNext'), W.step === 'done' || W.step === 'tools' ? 'Close' : W.step === 'area' && W.areaKind === 'preset' ? 'Use this area' : 'Next');
   show($('wizSkip'), W.step === 'headsets' || W.step === 'floor');
   text($('wizSkip'), W.step === 'headsets' ? 'Skip, my headsets are ready' : 'Skip');
   text($('wizBack'), ci === 0 ? 'Setup' : 'Back');
@@ -90,8 +92,9 @@ App.views.setup = renderSetup;
 const USB_ART = '<svg viewBox="0 0 76 46" aria-hidden="true"><rect x="2" y="9" width="30" height="20" rx="5"/><path d="M8 29v4a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3v-4"/><path d="M32 19h12c6 0 6 8 12 8h8"/><rect x="64" y="23" width="10" height="8" rx="1.5"/></svg>';
 
 function buildPane(pane, step) {
+  if (step === 'tools') { App.toolsPane(pane); return; }
   if (step === 'venue') {
-    pane.innerHTML = `<div class="pane-intro"><h2 class="pane-title">Venue</h2><p class="pane-sub">Shown on the status bar, on scorecards and on the waiting-room floor.</p></div>
+    pane.innerHTML = `<div class="pane-intro"><h2 class="pane-title">Venue</h2><p class="pane-sub">Shown on the status bar, on scorecards and on the lobby floor.</p></div>
       <div class="sets">${setRow('Venue name', '', '<input class="input input-lg" data-venue="venueName" type="text" maxlength="40" style="width:min(420px,60vw)" autocomplete="off">')}
       ${setRow('Logo', 'PNG or SVG, light on transparent works best', '<span class="logo-box" data-f="logo"></span><label class="btn btn-lg">Choose file<input type="file" accept="image/png,image/svg+xml,image/jpeg" data-logo hidden></label>')}
       ${setRow('Units', '', '<div class="seg seg-lg" data-venue-seg="units"><button type="button" data-v="m">Metres</button><button type="button" data-v="ft">Feet</button></div>')}</div>`;
@@ -107,9 +110,15 @@ function buildPane(pane, step) {
       <div class="seg seg-lg" data-areakind><button type="button" data-v="preset">Preset rectangle</button><button type="button" data-v="draw">Draw in the headset</button></div></div>
       <div class="area"><div class="sets" data-f="ctl"></div><figure class="area-plan"><svg data-f="plan" viewBox="0 0 320 320"></svg><figcaption data-f="cap"></figcaption></figure></div>`;
   } else if (step === 'points') {
-    pane.innerHTML = `<div class="pane-intro"><h2 class="pane-title">Calibration points</h2><p class="pane-sub">The first headset walks to mark A and touches the floor with the controller, then mark B. Then every other headset does the same, one by one. The headset shows what to do in bold white text.</p></div>
-      <div class="points-head"><label class="field-col"><span>First headset</span><select class="select input-lg" data-first></select></label><button type="button" class="btn btn-lg btn-primary" data-pstart>Start with this headset</button><button type="button" class="btn btn-lg" data-psync>Sync to all headsets</button></div>
-      <div class="prow-list" data-f="rows"></div><p class="hint" data-f="note"></p>`;
+    pane.innerHTML = `<div class="pane-intro"><h2 class="pane-title">Calibration points</h2><p class="pane-sub">The first headset walks to mark A and touches the floor with the controller, then mark B. Then every other headset does the same. Each headset shows in bold white text what to touch next.</p></div>
+      <div class="pts-layout">
+        <figure class="pts-plan"><canvas id="ptsCanvas"></canvas><figcaption><span class="pts-now" data-f="now"></span><span class="pts-ab" data-f="ab"></span></figcaption></figure>
+        <div class="pts-side">
+          <ol class="pts-steps" data-f="steps"><li data-k="pick"><b>1</b><span>First headset</span></li><li data-k="a"><b>2</b><span>Touch A</span></li><li data-k="b"><b>3</b><span>Touch B</span></li><li data-k="sync"><b>4</b><span>The others</span></li></ol>
+          <div class="points-head"><select class="select input-lg" data-first aria-label="First headset"></select><button type="button" class="btn btn-lg btn-primary" data-pstart>Start with this headset</button><button type="button" class="btn btn-lg" data-psync>Sync to all headsets</button></div>
+          <div class="prow-list" data-f="rows"></div><p class="hint" data-f="note"></p>
+        </div>
+      </div>`;
   } else {
     pane.innerHTML = `<div class="pane-intro"><h2 class="pane-title">Done</h2><p class="pane-sub">The calibration is saved and kept in the history; Advanced, Calibration can restore an older one. Each headset holds the two marks with persistent anchors, so it stays aligned after it is taken off and put on again.</p></div>
       <div class="done-sum"><div><b data-f="size"></b><span class="label">Play area</span></div><div><b data-f="cal"></b><span class="label">Headsets calibrated</span></div><div><b data-f="off"></b><span class="label">Still to do</span></div></div>`;
@@ -153,6 +162,7 @@ function fillPane(pane, step) {
     for (const c of pane.querySelectorAll('[data-tick]')) c.checked = W.ticks.has(c.dataset.tick);
   } else if (step === 'area') fillArea(pane, p);
   else if (step === 'points') fillPoints(pane, p);
+  else if (step === 'tools') App.toolsFill(pane);
   else if (step === 'done') {
     const hs = (state.headsets || []).filter(h => !h.desk);
     const cal = hs.filter(hsAligned).length;
@@ -270,6 +280,14 @@ function fillPoints(pane, p) {
     redo.className = `btn btn-lg ${off || st === 'failed' ? 'btn-warn' : ''}`;
   });
   const waiting = online.filter(h => h.id !== W.firstId && ptsOf(h.id) !== 'done').length;
+  const others = online.filter(h => h.id !== W.firstId), syncing = others.some(h => ptsOf(h.id));
+  const stage = firstSt === 'p1' || firstSt === 'waiting' ? 'a' : firstSt === 'p2' ? 'b' : firstSt === 'done' ? 'sync' : 'pick';
+  const order = ['pick', 'a', 'b', 'sync'];
+  for (const li of p.steps.children) { const i = order.indexOf(li.dataset.k), si = order.indexOf(stage); attr(li, 'data-s', i < si || (stage === 'sync' && !waiting && syncing && i === 3) ? 'done' : i === si ? 'now' : null); }
+  const fh = online.find(h => h.id === W.firstId);
+  text(p.now, !fh ? 'No headset online' : firstSt === 'p1' || firstSt === 'waiting' ? `${fh.name}: walk to mark A and touch the floor` : firstSt === 'p2' ? `${fh.name}: now mark B` : firstSt === 'done' ? (syncing ? (waiting ? `${plural(waiting, 'headset', 'headsets')} still touching the marks` : 'Every headset matches the marks') : 'Marks set. Sync the other headsets.') : `${fh.name} defines the marks`);
+  const fck = ck[W.firstId], abv = fck && fck.ab ? fck.ab : state.setup && state.setup.refAB;
+  text(p.ab, abv ? `A to B ${String(abv.toFixed(2)).replace('.', ',')} m` : 'A to B: at least 2 m');
   text(p.note, firstSt === 'done' ? (waiting ? `${plural(waiting, 'headset', 'headsets')} still to confirm the marks.` : 'Every connected headset matches the marks.') : 'Choose the headset that defines the marks. Default: the one that drew the boundary.');
 }
 
@@ -283,6 +301,7 @@ function wizEnd() { W.kind = null; api('/api/setup', { step: null, entry: null }
 $('wizStop').onclick = e => twoStep(e.currentTarget, wizEnd);
 $('wizNext').onclick = async () => {
   if (W.step === 'done') { wizEnd(); return go('home'); }
+  if (W.step === 'tools') { W.kind = null; return scheduleRender(); }
   if (W.step === 'area' && W.areaKind === 'preset') {
     const [w, d] = W.size.split('x').map(Number);
     const r = await api('/api/setup/area', { kind: 'preset', w, d, rotation: W.rotation, entrance: W.entrance });

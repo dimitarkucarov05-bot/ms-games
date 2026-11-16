@@ -55,7 +55,7 @@ function renderRunView() {
   attr($('runState'), 'data-s', sw.s);
   text($('runState').lastChild, `${KIND_LABEL[r.kind] || ''} · ${sw.w}`);
   const nextName = pause && r.kind === 'playlist' ? ((r.queue || [])[r.index] || {}).name : '';
-  text($('runName'), voting ? (r.vote.on === 'difficulty' ? `Voting: how hard is round ${nOr0(r.played) + 1}` : 'Voting for the next game') : pause ? (nextName ? `Next: ${nextName}` : 'Waiting room') : r.gameName || '');
+  text($('runName'), voting ? (r.vote.on === 'difficulty' ? `Voting: how hard is round ${nOr0(r.played) + 1}` : 'Voting for the next game') : pause ? (nextName ? `Next: ${nextName}` : 'Lobby') : r.gameName || '');
   const meta = [];
   if (r.team) meta.push(`Team ${r.team}`);
   meta.push(plural((r.players || []).length, 'player', 'players'));
@@ -113,7 +113,7 @@ function renderRunView() {
   show($('stBreak'), pause);
   if (voting) renderVotes(r);
   if (pause) {
-    const html = r.kind === 'party' ? 'Waiting room. The vote opens in <b class="num" data-break></b>' : `Waiting room. ${nextName ? esc(nextName) : 'The next game'} starts in <b class="num" data-break></b>`;
+    const html = r.kind === 'party' ? 'Lobby. The vote opens in <b class="num" data-break></b>' : `Lobby. ${nextName ? esc(nextName) : 'The next game'} starts in <b class="num" data-break></b>`;
     if ($('stBreak')._h !== html) { $('stBreak')._h = html; $('stBreak').innerHTML = html; }
   }
   show($('runTableWrap'), !voting);
@@ -179,11 +179,11 @@ App.tickRun = function (c) {
     text(gp.v, fmtMs(left)); text(gp.k, r.vote ? 'left to vote' : 'break');
   } else { text(gp.v, fmtMs(nOr0(r.minutes) * 60000)); text(gp.k, r.state === 'loading' ? 'starts after loading' : 'game length'); }
   gp.v.classList.toggle('last', !!c.last);
-  // the whole session: what is left (playlist, party), or the time since the waiting room opened (clock scope "all")
+  // the whole session: what is left (playlist, party), or the time since the lobby opened (clock scope "all")
   const multi = r.kind !== 'quick', scopeAll = r.clockScope === 'all' && c.allEl != null;
   show(a, multi || scopeAll);
   if (multi && c.allRem != null) { text(ap.v, fmtMs(c.allRem)); text(ap.k, `${r.kind === 'party' ? 'party' : 'playlist'} left${r.kind === 'party' ? `, ${r.vote && r.vote.on === 'difficulty' || App.playableGames().length === 1 ? 'round' : 'game'} ${Math.min(nOr0(r.played) + 1, nOr0(r.maxGames) || 1)} of ${nOr0(r.maxGames)}` : ''}`); }
-  else if (scopeAll) { text(ap.v, fmtMs(c.allEl)); text(ap.k, 'since the waiting room'); }
+  else if (scopeAll) { text(ap.v, fmtMs(c.allEl)); text(ap.k, 'since the lobby'); }
   if (r.state === 'countdown') { const e = ts(r.countdownEndsAt); text($('cdNum'), Number.isFinite(e) ? Math.max(1, Math.ceil((e - Date.now()) / 1000)) : 3); }
   const vl = $('stVote').querySelector('[data-vleft]');
   if (vl && r.vote) text(vl, fmtMs(ts(r.vote.endsAt) - Date.now()));
@@ -234,7 +234,7 @@ function renderEnd(e) {
   const card = res.sessionId || res.scorecard || res.scorecardId;
   show($('endCard'), !!card && reason === 'finished');
   show($('endPrint'), !!card && reason === 'finished');
-  text($('endNext'), e.final ? 'The waiting room is open in the headsets.' : e.kind === 'party' ? 'The vote for the next game opens by itself.' : 'The next game starts by itself after the scores.');
+  text($('endNext'), e.final ? 'The lobby is open in the headsets.' : e.kind === 'party' ? 'The vote for the next game opens by itself.' : 'The next game starts by itself after the scores.');
   text($('endHome'), e.final ? 'Back to Home' : e.kind === 'playlist' ? 'Next game now' : 'End the party');
   $('endHome').className = `btn btn-lg ${e.final || e.kind === 'playlist' ? 'btn-primary' : 'btn-danger'}`;
   for (const b of $('endMsgs').querySelectorAll('[data-endmsg]')) b.classList.toggle('sent', endSent === b.dataset.endmsg);

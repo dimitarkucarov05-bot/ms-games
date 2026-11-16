@@ -82,7 +82,7 @@ function minutesText(g) { const c = cutsOf(g); return c.length > 1 ? `${c.slice(
 
 // ---------- open and leave ----------
 
-App.openFlow = async function (kind) {
+App.openFlow = async function (kind, gameId, pre = {}) {
   if (runOpen(state && state.run) && !['results', 'ended'].includes(state.run.state)) return go('run');
   Object.assign(F, {
     kind, step: STEPS[kind][0][0], gameId: null, mode: null, ids: null, names: {}, namesOn: false, team: '',
@@ -91,14 +91,17 @@ App.openFlow = async function (kind) {
   });
   if (kind === 'party') { F.votable = new Set(App.playableGames().map(g => g.id)); if (F.votable.size === 1) F.step = 'players'; }
   const only = App.playableGames();
-  if (kind === 'quick' && only.length === 1) {      // one game: it is chosen already, the flow starts at its mode or players
-    F.gameId = only[0].id;
-    const ms = modesOf(only[0]);
+  const pickG = kind === 'quick' ? (gameId ? only.find(g => g.id === gameId) : only.length === 1 ? only[0] : null) : null;
+  if (pickG) {      // Play on the hero (or one game): it is chosen already, the flow starts at its mode or players
+    F.gameId = pickG.id;
+    const ms = modesOf(pickG);
     F.mode = (ms.find(m => m.recommended) || ms[0] || {}).id || null;
     F.step = ms.length > 1 ? 'mode' : 'players';
   }
+  if (pre.group && pre.group.length) F.ids = new Set(pre.group);
+  if (pre.team) F.team = pre.team;
   go('flow');
-  api('/api/flow/open', { kind }, { quiet: true });      // every headset goes to the waiting room now
+  api('/api/flow/open', { kind }, { quiet: true });      // every headset goes to the lobby now
   if (kind === 'playlist') loadPresets();
 };
 App.onGo.flow = () => { if (!F.kind) F.kind = 'quick'; };
@@ -367,7 +370,7 @@ function renderModeStep() {
 
 function renderPlayersStep() {
   const hs = poolHs(), ids = F.ids || new Set(defaultIds()), l = limitsNow();
-  text($('playersSub'), `${chosen().length} chosen${l.hi ? `, up to ${l.hi} on this play area` : ''}. Untick a headset to leave it in the waiting room.`);
+  text($('playersSub'), `${chosen().length} chosen${l.hi ? `, up to ${l.hi} on this play area` : ''}. Untick a headset to leave it in the lobby.`);
   const team = $('flowTeam');
   if (document.activeElement !== team && team.value !== F.team) team.value = F.team;
   $('flowNamesOn').checked = F.namesOn;
@@ -429,19 +432,19 @@ function renderSettingsStep() {
     }
   } else if (F.kind === 'playlist') {
     text($('setSub'), 'For the whole playlist.');
-    html += setRow('Break between games', 'Time in the waiting room', stepper('breakSec', F.breakSec, 0, 300, 15, ' s'));
+    html += setRow('Break between games', 'Time in the lobby', stepper('breakSec', F.breakSec, 0, 300, 15, ' s'));
     html += setRow('Difficulty', 'One for all games, or each game its own', seg([{ id: '', name: 'Per game' }, ...LEVELS], F.allLevel, 'data-seg="allLevel"'));
     html += setRow('Kids mode', 'No blood, softer sounds', toggleHtml('kids', F.kids));
     const total = F.queue.reduce((a, q) => a + nOr0(q.minutes), 0) + Math.max(0, F.queue.length - 1) * F.breakSec / 60;
     html += setRow('Total time', '', `<b class="num" style="font:700 26px/1 var(--font-num)">${Math.round(total)} min</b>`);
   } else {
     const one = App.playableGames().length === 1;
-    text($('setSub'), one ? 'Before every round the players vote in the waiting room how hard it will be.' : 'Players vote in the waiting room before every game.');
+    text($('setSub'), one ? 'Before every round the players vote in the lobby how hard it will be.' : 'Players vote in the lobby before every game.');
     html += setRow(one ? 'Rounds in the party' : 'Games in the party', 'It ends after this many', stepper('maxGames', F.maxGames, 1, 20, 1));
     html += setRow('Time to vote', one ? 'With no vote the difficulty stays' : 'With no vote the next unplayed game is chosen', stepper('voteSec', F.voteSec, 10, 60, 5, ' s'));
-    html += setRow('Break between games', 'Time in the waiting room after the results', stepper('partyBreak', F.partyBreak, 20, 120, 10, ' s'));
+    html += setRow('Break between games', 'Time in the lobby after the results', stepper('partyBreak', F.partyBreak, 20, 120, 10, ' s'));
     html += setRow(one ? 'First round' : 'Difficulty', one ? 'Used when nobody votes' : '', seg(LEVELS, F.difficulty, 'data-seg="difficulty"'));
-    html += setRow('Birthday', 'Balloons and a birthday sign in the waiting room', toggleHtml('birthday', F.birthday));
+    html += setRow('Birthday', 'Balloons and a birthday sign in the lobby', toggleHtml('birthday', F.birthday));
     html += setRow('Kids mode', 'No blood, softer sounds', toggleHtml('kids', F.kids));
   }
   const el = $('setList');
