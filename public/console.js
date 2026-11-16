@@ -8,13 +8,14 @@ const $ = id => document.getElementById(id);
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const nOr0 = v => (Number.isFinite(Number(v)) ? Number(v) : 0);
 
-const TITLES = { overview: 'Watch', headsets: 'Headsets', calib: 'Calibration', games: 'Games', board: 'Leaderboard', match: 'Match', settings: 'Settings' };
+const TITLES = { home: 'Home', flow: 'New session', run: 'Session', setup: 'Setup', overview: 'Watch', headsets: 'Headsets', calib: 'Calibration', games: 'Library', board: 'Records', scorecards: 'Scorecards', match: 'Match', settings: 'Settings', diagnose: 'Diagnose' };
+const APP_SECTIONS = new Set(['home', 'flow', 'run', 'setup', 'scorecards', 'diagnose']);      // drawn by public/console/*.js
 const PHASE_BG = { waiting: 'Waiting for players', countdown: 'Countdown', playing: 'Round running', over: 'Round over' };
 const CAM_NAMES = { cam_1: 'Camera 1', cam_2: 'Camera 2', cam_3: 'Camera 3', cam_4: 'Camera 4', cam_top: 'Top view' };
 
 let state = null;                    // последното състояние от сървъра
 let connected = false;
-let section = 'games';
+let section = 'home';
 let view = { mode: 'plan' };         // plan | persp | corner (idx) | top | grid | headset (id)
 let live = { ok: false, cams: [] };  // кадри на живо от играта на компютъра, ако върви
 let userPickedView = false;
@@ -78,13 +79,18 @@ const sizeText = (w, d) => `${fmtM(w)} × ${fmtM(d)} m`;
 // ---------- връзка със сървъра ----------
 
 function connect() {
+  if (window.MSMock) {      // ?mock=1: the state comes from public/console/mock.js (same shape as the server)
+    connected = true; renderConn();
+    window.MSMock.subscribe(msg => { state = msg; if (window.App) App.stateAt = Date.now(); scheduleRender(); });
+    return;
+  }
   const ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ui`);
   ws.onopen = () => { connected = true; renderConn(); };
   ws.onclose = () => { connected = false; renderConn(); setTimeout(connect, 1500); };
   ws.onmessage = e => {
     let msg;
     try { msg = JSON.parse(e.data); } catch { return; }
-    if (msg.type === 'state') { state = msg; scheduleRender(); }
+    if (msg.type === 'state') { state = msg; if (window.App) App.stateAt = Date.now(); scheduleRender(); }
     else if (msg.type === 'toast') toast(msg.text, msg.level);
   };
 }
@@ -165,6 +171,8 @@ function render() {
   if (pruned && !selected.size) pickAll = true;
   noteSession();
   renderShell();
+  if (window.App) App.render(section);
+  if (APP_SECTIONS.has(section)) return;
   if (section === 'overview') renderOverview();
   else if (section === 'headsets') renderHeadsets();
   else if (section === 'games') renderGames();
@@ -1561,7 +1569,7 @@ function renderSettings() {
 
 function go(dest, push = true) {
   let [sec, sub = ''] = String(dest || '').split('/');
-  if (!TITLES[sec]) { sec = 'games'; sub = ''; }
+  if (!TITLES[sec]) { sec = 'home'; sub = ''; }
   let id = null;
   if (sec === 'games' && sub) { try { id = decodeURIComponent(sub); } catch { id = null; } }
   if (sec === 'board' && sub) { try { boardGame = decodeURIComponent(sub); } catch { sub = ''; } }      // #board/<игра>: класацията на тази игра
@@ -1579,6 +1587,7 @@ function go(dest, push = true) {
   const tail = sec === 'games' ? (id ? encodeURIComponent(id) : '') : sec === 'board' ? sub : '';
   const hash = `#${sec}${tail ? `/${tail}` : ''}`;
   if (push && location.hash !== hash) history.replaceState(null, '', hash);
+  if (window.App) App.went(sec, sub);
   if (state) render();
   syncWatch();
 }
@@ -1753,7 +1762,7 @@ $('teamName').oninput = e => { const g = gameById(gameId); if (g) optsOf(g).team
 $('teamName').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); $('launchBtn').click(); } };
 
 // клавиши 1–7 сменят раздела, по реда им в релсата
-const ORDER = ['games', 'board', 'overview', 'headsets', 'calib', 'match', 'settings'];
+const ORDER = ['home', 'games', 'board', 'overview', 'headsets', 'calib', 'match', 'settings'];
 document.addEventListener('keydown', e => {
   if (e.target.matches('input:not([type="checkbox"]), select, textarea') || e.ctrlKey || e.metaKey || e.altKey) return;
   if (e.key === 'Escape' && section === 'games' && gameId) return go('games');      // от страницата на игра обратно в библиотеката
@@ -1765,7 +1774,7 @@ window.addEventListener('hashchange', () => go(location.hash.slice(1), false));
 // ---------- старт ----------
 
 readColors();
-go(location.hash.slice(1) || 'games', false);
+go(location.hash.slice(1) || 'home', false);
 connect();
 pollLive();
 requestAnimationFrame(frame);

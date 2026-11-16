@@ -1,0 +1,90 @@
+/* MS Games scorecard: 1000 × 1250. Two looks: digital (dark, the console's tokens) and print (white, low ink). */
+
+@font-face { font-family: "Sofia Sans"; font-weight: 1 1000; font-display: block; src: url(/fonts/sofia-sans-latin-wght-normal.woff2) format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212; }
+@font-face { font-family: "Sofia Sans"; font-weight: 1 1000; font-display: block; src: url(/fonts/sofia-sans-latin-ext-wght-normal.woff2) format("woff2"); unicode-range: U+0100-02BA, U+1E00-1E9F, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "Sofia Sans"; font-weight: 1 1000; font-display: block; src: url(/fonts/sofia-sans-cyrillic-wght-normal.woff2) format("woff2"); unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Sofia Sans XC"; font-weight: 1 1000; font-display: block; src: url(/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2) format("woff2"); unicode-range: U+0000-00FF, U+2000-206F, U+2212; }
+@font-face { font-family: "Sofia Sans XC"; font-weight: 1 1000; font-display: block; src: url(/fonts/sofia-sans-extra-condensed-cyrillic-wght-normal.woff2) format("woff2"); unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+
+:root {
+  --bg: oklch(0.158 0.006 120); --surface: oklch(0.208 0.007 120); --line: oklch(0.265 0.008 120); --line-2: oklch(0.36 0.010 120);
+  --text: oklch(0.95 0.008 112); --text-2: oklch(0.77 0.012 115); --text-3: oklch(0.63 0.012 115);
+  --signal: oklch(0.9 0.19 122); --signal-ink: oklch(0.21 0.05 122);
+  --font: "Sofia Sans", "Segoe UI", system-ui, sans-serif; --num: "Sofia Sans XC", "Sofia Sans", sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: oklch(0.12 0.005 120); }
+body { font: 400 20px/1.35 var(--font); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; color: var(--text); }
+h1, p, figure { margin: 0; }
+[hidden] { display: none !important; }
+
+.card {
+  width: 1000px; height: 1250px; margin: 0 auto; overflow: hidden; position: relative;
+  display: flex; flex-direction: column; gap: 0; padding: 56px 64px 52px;
+  background: var(--bg); color: var(--text);
+}
+.sc-label { font-size: 15px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); }
+
+.sc-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 22px; }
+.sc-game { font-size: 17px; font-weight: 750; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-2); }
+.sc-date { font-size: 17px; color: var(--text-3); }
+
+.sc-cover { position: relative; height: 330px; border-radius: 12px; overflow: hidden; background: color-mix(in oklab, var(--g, var(--text-3)) 14%, var(--surface)); flex: none; }
+.sc-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.sc-cover-name { position: absolute; left: 40px; bottom: 30px; font: 800 96px/0.85 var(--num); text-transform: uppercase; letter-spacing: 0.01em; color: color-mix(in oklab, var(--g, var(--text-2)) 80%, var(--text)); }
+.sc-cover.has-img .sc-cover-name { display: none; }
+
+.sc-head { margin-top: 40px; }
+.sc-team-box { display: flex; flex-direction: column; gap: 6px; }
+.sc-team { font-size: 76px; font-weight: 820; letter-spacing: -0.025em; line-height: 0.98; overflow-wrap: anywhere; }
+.sc-team.long { font-size: 58px; }
+.sc-meta { margin-top: 8px; font-size: 21px; color: var(--text-2); }
+
+.sc-nums { display: flex; align-items: flex-end; gap: 56px; margin-top: 30px; padding-bottom: 28px; border-bottom: 1px solid var(--line-2); }
+.sc-score, .sc-rank { display: flex; flex-direction: column-reverse; gap: 12px; }
+.sc-score b { font: 800 150px/0.78 var(--num); letter-spacing: 0.005em; }
+.sc-rank b { font: 800 96px/0.78 var(--num); color: var(--text-2); }
+.sc-rank.first b { color: var(--signal); }
+.sc-record { margin-left: auto; align-self: center; padding: 12px 22px; border-radius: 999px; background: var(--signal); color: var(--signal-ink); font-size: 22px; font-weight: 800; letter-spacing: 0.02em; }
+
+.sc-players { width: 100%; border-collapse: collapse; margin-top: 18px; }
+.sc-players th { padding: 10px 0 10px; font-size: 14px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); text-align: right; }
+.sc-players th:nth-child(1), .sc-players th:nth-child(2) { text-align: left; }
+.sc-players td { padding: 11px 0; border-top: 1px solid var(--line); font-size: 26px; text-align: right; }
+.sc-players td.n { width: 64px; text-align: left; }
+.sc-players td.name { text-align: left; font-weight: 650; max-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sc-players td.v { width: 150px; font: 700 34px/1 var(--num); }
+.sc-players td.v:first-of-type { color: var(--text); }
+.sq { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 8px; background: var(--hc); color: oklch(0.17 0.02 120); font: 800 28px/1 var(--num); }
+.sc-players.dense td { padding: 7px 0; font-size: 22px; }
+.sc-players.dense td.v { font-size: 28px; }
+.sc-players.dense .sq { width: 36px; height: 36px; font-size: 22px; }
+
+.sc-foot { margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; padding-top: 22px; border-top: 1px solid var(--line); }
+.sc-venue { display: flex; flex-direction: column; gap: 8px; }
+.sc-venue #scVenue { font-size: 28px; font-weight: 750; }
+.sc-venue img { max-height: 64px; max-width: 360px; display: block; }
+.sc-brand { display: inline-flex; align-items: center; gap: 10px; font: 800 22px/1 var(--num); letter-spacing: 0.1em; color: var(--text-3); }
+.sc-brand svg { width: 26px; height: 26px; }
+.sc-brand .dot { fill: var(--signal); }
+
+/* print: white, low ink. No cover photo, outlines instead of fills. */
+.card[data-look="print"] {
+  --bg: oklch(0.99 0.002 110); --surface: oklch(0.97 0.003 110); --line: oklch(0.88 0.004 110); --line-2: oklch(0.7 0.006 110);
+  --text: oklch(0.2 0.01 120); --text-2: oklch(0.38 0.01 120); --text-3: oklch(0.5 0.01 120);
+}
+.card[data-look="print"] .sc-cover { height: 150px; background: transparent; border: 2px solid var(--text); }
+.card[data-look="print"] .sc-cover img { display: none; }
+.card[data-look="print"] .sc-cover-name { display: block !important; color: var(--text); font-size: 84px; left: 32px; bottom: 26px; }
+.card[data-look="print"] .sq { background: transparent; color: var(--text); box-shadow: inset 0 0 0 2px var(--text); }
+.card[data-look="print"] .sc-rank.first b { color: var(--text); }
+.card[data-look="print"] .sc-record { background: transparent; color: var(--text); border: 2.5px solid var(--text); }
+.card[data-look="print"] .sc-brand .dot { fill: var(--text); }
+
+.sc-missing { color: oklch(0.77 0.012 115); font: 400 18px/1.4 "Sofia Sans", sans-serif; padding: 40px; text-align: center; }
+
+@media print {
+  @page { size: auto; margin: 10mm; }
+  html, body { background: #fff; }
+  .card { margin: 0 auto; box-shadow: none; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}

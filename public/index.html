@@ -10,30 +10,55 @@
 <link rel="preload" href="fonts/sofia-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="console.css">
+<link rel="stylesheet" href="console/app.css">
 </head>
 <body>
-<div id="app" data-section="games">
+<div id="app" data-section="home" data-mode="simple" data-hsrail="open">
 
-  <nav id="rail" aria-label="Split">
-    <div class="brand">
+  <!-- състояние: винаги на екрана -->
+  <header id="statusbar">
+    <button type="button" class="sb-brand" data-nav="home" aria-label="Home">
       <svg class="brand-mark" viewBox="0 0 28 28" aria-hidden="true">
         <rect x="2.5" y="5.5" width="23" height="17" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.75"/>
         <circle cx="18" cy="14" r="3.25" class="brand-dot"/>
       </svg>
-      <div class="brand-text" aria-label="MS Games"><span class="brand-name">MS</span><span class="brand-word">GAMES</span></div>
+      <span class="sb-venue" id="sbVenue">MS Games</span>
+    </button>
+    <div class="sb-mid">
+      <button type="button" id="sbRun" class="sb-run" data-nav="run" hidden><i></i><span id="sbRunName" class="sb-run-name"></span><span id="sbRunState" class="sb-run-state"></span><b id="sbRunClock" class="num">00:00</b></button>
+      <button type="button" id="sessionChip" class="chip chip-live" title="To the running game" hidden><i></i><span id="sessionName"></span><b id="sessionClock" class="num">00:00</b></button>
     </div>
+    <div class="sb-right">
+      <button type="button" id="sbHeadsets" class="sb-count" title="Show or hide the headsets"><b id="sbOnline" class="num">0</b><span class="sb-of">/</span><span id="sbTotal" class="num">0</span><span class="sb-word">headsets</span></button>
+      <button type="button" id="sbStatus" class="sb-status" data-tone="ok" title="System status"><i></i><span id="sbStatusText">OK</span></button>
+      <div class="seg sb-mode" id="modeSeg" role="radiogroup" aria-label="Interface">
+        <button type="button" data-mode="simple" class="on" role="radio">Simple</button>
+        <button type="button" data-mode="advanced" role="radio">Advanced</button>
+      </div>
+      <button type="button" id="sbHelp" class="btn btn-quiet sb-help">Help</button>
+    </div>
+  </header>
 
+  <nav id="rail" aria-label="Sections">
     <div class="nav-group">
+      <div class="nav-label">Play</div>
+      <button class="nav" data-go="home">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 7.25 8 2.75l5.5 4.5V13a.75.75 0 0 1-.75.75H3.25A.75.75 0 0 1 2.5 13z"/><path d="M6.5 13.75V10h3v3.75"/></svg>
+        <span>Home</span><span class="nav-live" id="navRun" hidden></span>
+      </button>
       <button class="nav" data-go="games">
         <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.25" y="2.25" width="4.75" height="4.75" rx="1"/><rect x="9" y="2.25" width="4.75" height="4.75" rx="1"/><rect x="2.25" y="9" width="4.75" height="4.75" rx="1"/><rect x="9" y="9" width="4.75" height="4.75" rx="1"/></svg>
-        <span>Games</span><span class="nav-live" id="navGames" hidden></span>
+        <span>Library</span><span class="nav-live" id="navGames" hidden></span>
       </button>
       <button class="nav" data-go="board">
         <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.75 4.25h10.5M2.75 8h7M2.75 11.75h4"/></svg>
-        <span>Leaderboard</span>
+        <span>Records</span>
+      </button>
+      <button class="nav" data-go="scorecards">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3.25" y="1.75" width="9.5" height="12.5" rx="1.25"/><path d="M5.75 5.25h4.5M5.75 8h4.5M5.75 10.75h2.5"/></svg>
+        <span>Scorecards</span>
       </button>
     </div>
-
     <div class="nav-group">
       <div class="nav-label">Arena</div>
       <button class="nav" data-go="overview">
@@ -53,31 +78,299 @@
         <span>Match</span><span class="nav-live" id="navMatch" hidden></span>
       </button>
     </div>
-
     <div class="nav-group">
       <div class="nav-label">System</div>
+      <button class="nav" data-go="setup">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 2.5v11M3.5 3.5h8l-1.75 2.5 1.75 2.5h-8"/></svg>
+        <span>Setup</span>
+      </button>
       <button class="nav" data-go="settings">
         <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4.75h5.25M11 4.75h2.5M2.5 11.25H5M8.25 11.25h5.25"/><circle cx="9.4" cy="4.75" r="1.6"/><circle cx="6.6" cy="11.25" r="1.6"/></svg>
         <span>Settings</span>
       </button>
+      <button class="nav" data-go="diagnose">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.75 8.25h2.5l1.5-4 2.5 8 1.75-5.5 1.25 1.5h3"/></svg>
+        <span>Diagnose</span>
+      </button>
     </div>
-
   </nav>
 
   <main id="main">
     <header id="topbar">
       <div class="top-left">
-        <button type="button" id="backBtn" class="btn btn-quiet back" hidden>
-          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.75 3.5 5.25 8l4.5 4.5"/></svg><span>Games</span>
+        <button type="button" id="homeBtn" class="btn btn-quiet back" data-nav="home">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.75 3.5 5.25 8l4.5 4.5"/></svg><span>Home</span>
         </button>
-        <h1 id="title">Games</h1>
+        <button type="button" id="backBtn" class="btn btn-quiet back" hidden>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.75 3.5 5.25 8l4.5 4.5"/></svg><span>Library</span>
+        </button>
+        <h1 id="title">Home</h1>
       </div>
       <div class="top-right">
-        <button type="button" id="sessionChip" class="chip chip-live" title="To the running game" hidden><i></i><span id="sessionName"></span><b id="sessionClock" class="num">00:00</b></button>
         <div id="calibChip" class="chip" hidden></div>
         <div id="offlineChip" class="chip chip-bad" hidden>No connection to the server</div>
       </div>
     </header>
+
+    <!-- НАЧАЛО: три режима и малките връзки -->
+    <section class="view" data-view="home" hidden>
+      <div class="home">
+        <div class="home-head">
+          <h2 class="home-venue" id="homeVenue"></h2>
+          <p class="home-line" id="homeLine"></p>
+        </div>
+        <div class="home-modes">
+          <button type="button" class="mode-tile mode-quick" data-flow="quick">
+            <span class="mode-art" id="quickArt" aria-hidden="true"></span>
+            <span class="mode-text">
+              <span class="mode-eyebrow" id="quickEyebrow" hidden>Quick Play</span>
+              <span class="mode-k" id="quickTitle">Quick Play</span>
+              <span class="mode-d" id="quickDesc">One game now. Pick it, pick the players, start.</span>
+              <span class="mode-meta" id="quickMeta"></span>
+            </span>
+          </button>
+          <button type="button" class="mode-tile" data-flow="playlist">
+            <svg class="mode-ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M8 13h22M8 22h22M8 31h14"/><path d="M33 27v12l9-6z" class="fill"/></svg>
+            <span class="mode-text">
+              <span class="mode-k">Playlist</span>
+              <span class="mode-d">Games in a fixed order, with breaks in the waiting room.</span>
+              <span class="mode-meta" id="playlistMeta"></span>
+            </span>
+          </button>
+          <button type="button" class="mode-tile" data-flow="party" id="partyTile">
+            <svg class="mode-ico" viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="9" width="14" height="14" rx="2"/><rect x="27" y="9" width="14" height="14" rx="2"/><rect x="7" y="27" width="14" height="14" rx="2"/><path d="M29 34l4 4 8-9"/></svg>
+            <span class="mode-text">
+              <span class="mode-k">Party</span>
+              <span class="mode-d">Players vote in the headset for the next game.</span>
+              <span class="mode-meta" id="partyMeta"></span>
+            </span>
+          </button>
+        </div>
+        <div id="homeWarn" class="home-warn" hidden></div>
+        <nav class="home-links" aria-label="More">
+          <button type="button" class="home-link" data-nav="setup"><span>Setup</span><small id="linkSetup">Play area, calibration, new headsets</small></button>
+          <button type="button" class="home-link" data-nav="board"><span>Records</span><small id="linkRecords">Top scores per game</small></button>
+          <button type="button" class="home-link" data-nav="scorecards"><span>Scorecards</span><small id="linkCards">View and print</small></button>
+          <button type="button" class="home-link" data-nav="settings"><span>Settings</span><small>Venue, clock, defaults</small></button>
+          <button type="button" class="home-link" data-nav="diagnose"><span>Diagnose</span><small id="linkDiag">Network and headsets</small></button>
+        </nav>
+      </div>
+    </section>
+
+    <!-- НОВА СЕСИЯ: стъпки Game, Mode, Players, Settings, Start -->
+    <section class="view" data-view="flow" hidden>
+      <div class="flow">
+        <header class="flow-head">
+          <button type="button" id="flowExit" class="btn btn-quiet back"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.75 3.5 5.25 8l4.5 4.5"/></svg><span>Home</span></button>
+          <span class="flow-kind" id="flowKind"></span>
+          <ol class="strip" id="strip"></ol>
+        </header>
+        <div class="flow-body" id="flowBody">
+          <div class="pane" data-step="game" hidden>
+            <div class="pane-intro"><h2 class="pane-title">Pick a game</h2><p class="pane-sub" id="gameSub"></p></div>
+            <div class="cards" id="gameGrid"></div>
+          </div>
+          <div class="pane pane-split" data-step="queue" hidden>
+            <div class="split-main">
+              <div class="pane-intro"><h2 class="pane-title">Build the playlist</h2><p class="pane-sub">Tap a game to add it to the end. Between games everyone waits in the waiting room.</p></div>
+              <div class="cards cards-sm" id="queueGrid"></div>
+            </div>
+            <aside class="split-side">
+              <div class="side-top">
+                <div class="side-head"><span class="label">Saved playlists</span></div>
+                <div id="presetList" class="preset-list"></div>
+              </div>
+              <div class="side-head"><span class="label">Order</span><span id="queueTotal" class="muted num"></span></div>
+              <ol class="qlist" id="queueList"></ol>
+              <p id="queueEmpty" class="empty-note">Empty. Tap a game to add it, or load a saved playlist.</p>
+              <div class="preset-save"><input id="presetName" class="input input-lg" type="text" maxlength="28" placeholder="Name to save this order" autocomplete="off" spellcheck="false"><button type="button" id="presetSave" class="btn btn-lg">Save</button></div>
+            </aside>
+          </div>
+          <div class="pane" data-step="vote" hidden>
+            <div class="pane-intro"><h2 class="pane-title">Games to vote on</h2><p class="pane-sub">Players see these in the waiting room and point at the one they want next.</p></div>
+            <div class="cards cards-sm" id="voteGrid"></div>
+          </div>
+          <div class="pane" data-step="mode" hidden>
+            <div class="pane-intro"><h2 class="pane-title" id="modeTitle">Mode</h2><p class="pane-sub" id="modeSub"></p></div>
+            <div class="modes" id="modeList"></div>
+          </div>
+          <div class="pane" data-step="players" hidden>
+            <div class="pane-intro pane-intro-row">
+              <div><h2 class="pane-title">Players</h2><p class="pane-sub" id="playersSub"></p></div>
+              <div class="btn-row"><button type="button" id="sameGroup" class="btn btn-lg">Same group as last time</button><button type="button" id="allReady" class="btn btn-lg">All ready headsets</button></div>
+            </div>
+            <div class="team-line">
+              <label class="field-col"><span>Team name</span><input id="flowTeam" class="input input-lg" type="text" maxlength="28" autocomplete="off" spellcheck="false" placeholder="Optional"></label>
+              <label class="toggle toggle-lg"><input id="flowNamesOn" type="checkbox"><i></i><span>Player names</span></label>
+            </div>
+            <div class="prow-list" id="playerRows"></div>
+          </div>
+          <div class="pane" data-step="settings" hidden>
+            <div class="pane-intro"><h2 class="pane-title">Settings</h2><p class="pane-sub" id="setSub"></p></div>
+            <div class="sets" id="setList"></div>
+          </div>
+          <div class="pane" data-step="start" hidden>
+            <div class="start">
+              <div class="start-sum">
+                <div class="start-cover" id="startCover"></div>
+                <dl class="start-facts" id="startFacts"></dl>
+              </div>
+              <div class="start-check">
+                <div class="side-head"><span class="label">Pre-start check</span><span id="checkState" class="muted"></span></div>
+                <div id="checkList" class="check-list"></div>
+                <p id="checkOk" class="check-ok" hidden>Every chosen headset is ready.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer class="flow-foot">
+          <button type="button" id="flowBack" class="btn btn-lg">Back</button>
+          <p id="flowWhy" class="flow-why"></p>
+          <button type="button" id="flowAnyway" class="btn btn-lg btn-warn" hidden>Start anyway</button>
+          <button type="button" id="flowNext" class="btn btn-primary btn-lg">Next</button>
+        </footer>
+      </div>
+    </section>
+
+    <!-- СЕСИЯТА ВЪРВИ, после КРАЙ -->
+    <section class="view" data-view="run" hidden>
+      <div class="run" id="runLive">
+        <div id="pauseBanner" class="banner" hidden>
+          <div class="banner-text"><b id="pauseWho"></b><span id="pauseText"></span></div>
+          <button type="button" id="pauseContinue" class="btn btn-lg" data-confirm="Press again to continue">Continue without</button>
+        </div>
+        <header class="run-head">
+          <div class="run-title">
+            <span class="run-state" id="runState"><i></i><span></span></span>
+            <h2 class="run-name" id="runName"></h2>
+            <p class="run-meta" id="runMeta"></p>
+          </div>
+          <div class="run-clocks">
+            <div class="rc" id="rcAll" hidden><b class="clock num" data-f="v">00:00</b><span class="label" data-f="k">session left</span></div>
+            <div class="rc" id="rcGame"><b class="clock clock-big num" data-f="v">00:00</b><span class="label" data-f="k">left</span></div>
+          </div>
+        </header>
+        <div class="run-controls" id="runControls">
+          <button type="button" id="rcPause" class="btn btn-lg">Pause</button>
+          <div class="ctl"><span class="label">Difficulty</span><div class="seg seg-lg" id="rcLevel"></div></div>
+          <div class="ctl" id="rcStagesBox"><span class="label">Stage</span><div class="btn-row" id="rcStages"></div></div>
+          <span class="ctl-gap"></span>
+          <button type="button" id="rcRestart" class="btn btn-lg" data-confirm="Press again to restart">Restart game</button>
+          <button type="button" id="rcNext" class="btn btn-lg" hidden>Next game</button>
+          <button type="button" id="rcSkipVote" class="btn btn-lg" hidden>End the vote</button>
+          <button type="button" id="rcQuit" class="btn btn-lg btn-danger" data-confirm="Press again to quit">Quit</button>
+        </div>
+        <ol class="queue" id="runQueue" hidden></ol>
+        <div class="run-stage">
+          <div id="stCountdown" class="big-count" hidden><b class="num" id="cdNum">3</b><span>Starting in the headsets</span></div>
+          <div id="stVote" class="votes" hidden></div>
+          <div id="stBreak" class="break-note" hidden></div>
+          <div class="table-wrap run-table" id="runTableWrap">
+            <table class="tbl tbl-run"><thead><tr id="runHead"></tr></thead><tbody id="runRows"></tbody></table>
+          </div>
+        </div>
+      </div>
+      <div class="end" id="runEnd" hidden>
+        <div id="recordBanner" class="record-banner" hidden><b>New record</b><span id="recordText"></span></div>
+        <header class="end-head">
+          <div class="end-title"><span class="label" id="endLabel">Results</span><h2 class="end-team" id="endTeam"></h2><p class="run-meta" id="endMeta"></p></div>
+          <div class="end-num"><b class="num" id="endScore"></b><span class="label">Score</span></div>
+          <div class="end-num" id="endRankBox"><b class="num" id="endRank"></b><span class="label" id="endRankLabel">Rank</span></div>
+        </header>
+        <div class="table-wrap"><table class="tbl tbl-run"><thead><tr id="endHead"></tr></thead><tbody id="endRows"></tbody></table></div>
+        <div class="end-msg">
+          <span class="label">End message in the headsets</span>
+          <div class="btn-row" id="endMsgs">
+            <button type="button" class="btn btn-lg" data-endmsg="remove">Remove headset</button>
+            <button type="button" class="btn btn-lg" data-endmsg="thanks">Thank you</button>
+            <button type="button" class="btn btn-lg" data-endmsg="staff">Wait for staff</button>
+            <span class="custom-msg"><input id="endCustom" class="input input-lg" type="text" maxlength="60" placeholder="Your own text" autocomplete="off"><button type="button" class="btn btn-lg" data-endmsg="custom">Send</button></span>
+          </div>
+        </div>
+        <footer class="end-foot">
+          <button type="button" id="endCard" class="btn btn-lg">View scorecard</button>
+          <button type="button" id="endPrint" class="btn btn-lg">Print</button>
+          <span class="ctl-gap"></span>
+          <p id="endNext" class="muted"></p>
+          <button type="button" id="endHome" class="btn btn-primary btn-lg">Back to Home</button>
+        </footer>
+      </div>
+    </section>
+
+    <!-- НАСТРОЙВАНЕ: съветник -->
+    <section class="view" data-view="setup" hidden>
+      <div class="setup-entry" id="setupEntry">
+        <div class="pane-intro"><h2 class="pane-title">Setup</h2><p class="pane-sub" id="setupNow"></p></div>
+        <div class="entry-grid">
+          <button type="button" class="entry" data-entry="first"><b>First setup</b><span>Venue, headsets, floor, play area and the two calibration points, in order.</span><small>6 steps</small></button>
+          <button type="button" class="entry" data-entry="add"><b>Add headset</b><span>Install the headset app over USB, then sync it to the two points.</span><small>2 steps</small></button>
+          <button type="button" class="entry" data-entry="area"><b>Reset play area</b><span>A new size or a new boundary. The two floor points stay.</span><small>1 step</small></button>
+          <button type="button" class="entry" data-entry="points"><b>Re-calibrate points</b><span>Every headset touches marks A and B again. The play area stays.</span><small>1 step</small></button>
+        </div>
+        <p class="hint">Drawing, alignment and height tools per headset are in Advanced mode under Calibration.</p>
+      </div>
+      <div class="wiz" id="setupWiz" hidden>
+        <ol class="wiz-steps" id="wizSteps"></ol>
+        <div class="wiz-main">
+          <div class="wiz-pane" id="wizPane"></div>
+          <footer class="wiz-foot">
+            <button type="button" id="wizStop" class="btn btn-lg btn-quiet" data-confirm="Stop setup? Press again">Stop setup</button>
+            <span class="ctl-gap"></span>
+            <p id="wizWhy" class="flow-why"></p>
+            <button type="button" id="wizSkip" class="btn btn-lg btn-quiet" hidden>Skip</button>
+            <button type="button" id="wizBack" class="btn btn-lg">Back</button>
+            <button type="button" id="wizNext" class="btn btn-lg btn-primary">Next</button>
+          </footer>
+        </div>
+      </div>
+    </section>
+
+    <!-- КАРТИ С РЕЗУЛТАТ -->
+    <section class="view view-pad" data-view="scorecards" hidden>
+      <div class="view-head">
+        <p id="cardsCount" class="muted"></p>
+        <div class="view-actions"><div class="seg seg-lg" id="cardLook"><button type="button" data-look="digital" class="on">Dark</button><button type="button" data-look="print">Print look</button></div></div>
+      </div>
+      <div class="sc-wrap">
+        <div class="sc-grid" id="cardGrid"></div>
+        <aside class="sc-view" id="cardView" hidden>
+          <div class="sc-frame"><iframe id="cardFrame" title="Scorecard"></iframe></div>
+          <div class="btn-row">
+            <button type="button" id="cardPrint" class="btn btn-lg">Print</button>
+            <button type="button" id="cardLabel" class="btn btn-lg">Print label</button>
+            <a id="cardOpen" class="btn btn-lg btn-quiet" target="_blank" rel="noopener">Full size</a>
+            <span class="ctl-gap"></span>
+            <button type="button" id="cardRemove" class="btn btn-lg btn-danger" data-confirm="Press again to delete">Delete</button>
+          </div>
+        </aside>
+      </div>
+      <div id="cardsEmpty" class="empty" hidden><p class="empty-title">No scorecards yet</p><p>Every finished game saves one here with the team, the score and each player. Print it for the group on the way out.</p></div>
+    </section>
+
+    <!-- ДИАГНОСТИКА -->
+    <section class="view view-pad" data-view="diagnose" hidden>
+      <div class="view-head"><p id="diagWhen" class="muted"></p><div class="view-actions"><button type="button" id="diagRun" class="btn btn-lg">Check again</button></div></div>
+      <div class="diag">
+        <div class="diag-col">
+          <div class="side-head"><span class="label">This computer</span></div>
+          <ul class="checks" id="diagChecks"></ul>
+          <div class="side-head"><span class="label">Network adapters</span></div>
+          <ul class="adapters" id="diagAdapters"></ul>
+          <div class="side-head"><span class="label">Router</span></div>
+          <ol class="router" id="diagRouter"></ol>
+        </div>
+        <div class="diag-col">
+          <div class="side-head"><span class="label">Headsets</span></div>
+          <div class="table-wrap"><table class="tbl"><thead><tr><th class="c-num">№</th><th>Headset</th><th class="r">PC to headset</th><th class="r">Headset to PC</th><th>Page</th><th>App</th><th>Last drop</th></tr></thead><tbody id="diagHs"></tbody></table></div>
+          <div class="bug">
+            <div class="side-head"><span class="label">Bug report</span></div>
+            <p class="hint">Saves one zip on the Desktop: the server log, the last sessions, the state and the headset logs that USB reaches. Send it to whoever fixes MS Games.</p>
+            <textarea id="bugNote" class="input textarea" rows="3" placeholder="What happened, and roughly when"></textarea>
+            <div class="btn-row"><button type="button" id="bugSave" class="btn btn-lg">Save bug report</button><span id="bugFile" class="muted"></span></div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- ПРЕГЛЕД: план на залата + списък -->
     <section class="view" data-view="overview">
@@ -301,6 +594,7 @@
           <span id="boardCount" class="muted num"></span>
         </div>
         <div class="view-actions">
+          <button type="button" id="boardExport" class="btn btn-quiet" title="Saves this list as a CSV file">Export</button>
           <a class="btn btn-quiet" href="/board" target="_blank" rel="noopener" title="Opens the leaderboard full screen in a new window, for the TV in the arena">Arena screen</a>
         </div>
       </div>
@@ -461,6 +755,8 @@
 
     <!-- НАСТРОЙКИ -->
     <section class="view view-pad" data-view="settings" hidden>
+      <div class="setform" id="setForm"></div>
+      <div class="side-head"><span class="label">Start by itself</span></div>
       <div class="auto" id="autoBox">
         <label class="toggle"><input id="autoOn" type="checkbox"><i></i><span>Start a game on every headset that joins</span></label>
         <select id="autoGame" class="select" aria-label="Game to start"></select>
@@ -470,6 +766,13 @@
       <p class="hint">Console data (headset names and numbers, calibrations, games) is kept in the folder <span class="code">data</span> next to the server.</p>
     </section>
   </main>
+
+  <!-- каски: винаги вдясно -->
+  <aside id="hsrail" aria-label="Headsets">
+    <div class="hr-head"><span class="label">Headsets</span><span id="hrCount" class="muted num"></span><button type="button" id="hrClose" class="btn btn-quiet hr-close" aria-label="Hide headsets"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5"/></svg></button></div>
+    <div id="hrList" class="hr-list"></div>
+    <div id="hrEmpty" class="hr-empty" hidden><p class="empty-title">No headsets yet</p><p id="hrEmptyText">Put a headset on the arena Wi-Fi and open the MS Games app. It appears here by itself.</p><button type="button" class="btn" data-nav="setup">Add a headset</button></div>
+  </aside>
 
   <!-- мрежа: винаги на екрана -->
   <footer id="netbar" aria-label="Network">
@@ -482,7 +785,22 @@
   </footer>
 </div>
 
+<!-- меню на каска: дълго натискане, десен бутон или бутона с точките -->
+<div id="hsMenu" class="menu" role="menu" hidden></div>
+
+<!-- страничен панел: състояние на системата или помощ -->
+<aside id="drawer" class="drawer" hidden aria-labelledby="drawerTitle">
+  <header class="drawer-head"><h2 id="drawerTitle"></h2><button type="button" id="drawerClose" class="btn btn-quiet">Close</button></header>
+  <div id="drawerBody" class="drawer-body"></div>
+</aside>
+
 <div id="toasts" role="status" aria-live="polite"></div>
+<script src="console/mock.js"></script>
 <script src="console.js"></script>
+<script src="console/shell.js"></script>
+<script src="console/flow.js"></script>
+<script src="console/run.js"></script>
+<script src="console/setup.js"></script>
+<script src="console/pages.js"></script>
 </body>
 </html>
