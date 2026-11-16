@@ -879,7 +879,9 @@ async function endGame() {
 
 // ---------- зона: чертане от каската ----------
 
-const BUILD = 35;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
+const BUILD = 36;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
+// what this page understands of MS Games 2 (the server may fall back to older flows for pages without a cap)
+const CAPS = ['lobby', 'vote', 'countdown', 'pause', 'settings', 'results', 'endMessage', 'message', 'swapHands', 'calibrateHeight', 'setupPoints', 'identity', 'restartGame', 'recalibrate', 'bench', 'ping'];
 let zoneMod = null, zoneEditor = null, zoneViewObj = null, zoneData = null;
 let pendingZone = (() => { try { return JSON.parse(store('arena.zonePending') || 'null'); } catch { return null; } })();
 function zoneConfirmed() { pendingZone = null; store('arena.zonePending', ''); }
@@ -1237,7 +1239,7 @@ function connect() {
   ws.onopen = () => {
     connected = true;
     clearTimeout(calmTimer); calmTimer = setTimeout(() => { replaced = 0; }, 20000);      // връзката се задържа: никой не я оспорва
-    if (!watch) send({ type: 'hello', id: me.id, name: me.name, model: desk.on ? 'Browser (no headset)' : 'Meta Quest (browser)', web: true, desktop: desk.on, calibrationVersion: calib?.version ?? null, app: game?.name || null, build: BUILD, inVR: renderer.xr.isPresenting });
+    if (!watch) send({ type: 'hello', id: me.id, name: me.name, model: desk.on ? 'Browser (no headset)' : 'Meta Quest (browser)', web: true, desktop: desk.on, calibrationVersion: calib?.version ?? null, app: game?.name || null, build: BUILD, inVR: renderer.xr.isPresenting, caps: CAPS });
     if (pendingZone && !watch) setTimeout(() => { if (pendingZone) send(pendingZone); }, 600);   // чертеж, който не е стигнал до сървъра
     calSent = undefined; wornSent = null;      // worn and needsCalibration go out again on the new connection
     renderCard();
