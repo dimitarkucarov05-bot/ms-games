@@ -81,7 +81,7 @@ export function createVote({ THREE, root, space, assets, bounds, pointer, onInpu
         st.userData.pic = pic;
       }
       st.add(holder);
-      const label = makeText(THREE, 1.5, 0.26, 500, { depthTest: true, order: 3 });
+      const label = makeText(THREE, Math.min(1.5, gap - 0.08), 0.26, 500, { depthTest: true, order: 3 });      // never wider than the gap to the next game
       label.set([{ text: o.name || o.gameId, px: 96, weight: 850 }]);
       label.mesh.position.set(0, crateH + fH + 0.44, 0.05);
       st.add(label.mesh);

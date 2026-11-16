@@ -6,7 +6,8 @@
 
 import { makeText } from './text.js';
 
-const KIDS = 'kids-pack', SHOPS = 'shops-pack', APO = 'apocalypse-pack', ALP = 'alpine-mountain-nature-biome';
+const KIDS = 'kids-pack', SHOPS = 'shops-pack', APO = 'apocalypse-pack';
+// not used: the Alpine pines (cut-out leaves turn into flat sheets once merged) and the Shops balloon (it says GRAND OPENING)
 // the board: the Kids pack blackboard on two Apocalypse crates, its face towards the zone
 const BOARD = { pack: KIDS, name: 'SM_Prop_Blackboard_01' };
 
@@ -109,7 +110,8 @@ export function createRoom({ THREE, root, assets, bounds }) {
     const made = [], g = new THREE.Group();
     const put = async (pack, name, x, z, ry = 0, y = 0) => { const o = await get(pack, name); if (o) made.push(place(o, pack, name, x, z, ry, y)); return o; };
     if (key === 'christmas') {
-      await put(ALP, 'SM_Env_Pine_05', L - 2.6, F + 2.4, 0.3);
+      await put(SHOPS, 'SM_Prop_Xmas_Present_03', Rt + 0.9, F + 0.9, 0.7);
+      await put(KIDS, 'SM_Prop_Xmas_Present_01', Rt + 0.4, F + 1.3, -0.4);
       await put(SHOPS, 'SM_Prop_Xmas_Present_01', L - 1.7, F + 1.5, 0.4);
       await put(SHOPS, 'SM_Prop_Xmas_Present_02', L - 1.2, F + 1.9, -0.3);
       await put(SHOPS, 'SM_Prop_Xmas_Present_03', L - 2.0, F + 1.1, 1.1);
@@ -124,11 +126,10 @@ export function createRoom({ THREE, root, assets, bounds }) {
       await put(KIDS, 'SM_Prop_Halloween_Bag_01', L - 0.3, mz + 1.9, 0.9);
     }
     if (birthday) {
-      // the cake stands on a crate next to the board, the big inflatable balloon far behind the camp
+      // the cake stands on a crate next to the board, presents around it (the Shops balloon says GRAND OPENING: not used)
       await put(APO, 'SM_Prop_Crate_01', L - 0.6, mz + 1.9, 0.2);
       const ci = assets.info(APO, 'SM_Prop_Crate_01');
       await put(KIDS, 'SM_Prop_Cake_01', L - 0.6, mz + 1.9, 0.6, ci ? ci.size[1] : 0.82);
-      await put(SHOPS, 'SM_Prop_Sign_Balloon_01', mx + 6, B - 9, -0.4);
       await put(SHOPS, 'SM_Prop_Xmas_Present_02', L - 0.1, mz + 2.6, 0.5);
     }
     if (k !== season.key || disposed) return;
