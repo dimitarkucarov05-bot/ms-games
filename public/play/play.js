@@ -951,6 +951,7 @@ async function startGame(start) {
         hemi.visible = sun.visible = false;
         refreshShadows();
         showRoot.visible = false;
+        introRoot.visible = false;      // the intro camp's lights, shadow and meshes leave with the hub; leaveIntro() resets it after the game
         hallGroup.visible = false;
         backdrop.visible = true;
         send({ type: 'launched', ok: true, game: start.game });
@@ -991,7 +992,7 @@ async function endGame() {
 
 // ---------- зона: чертане от каската ----------
 
-const BUILD = 43;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
+const BUILD = 44;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
 // what this page understands of MS Games 2 (the server may fall back to older flows for pages without a cap)
 const CAPS = ['lobby', 'vote', 'countdown', 'pause', 'settings', 'results', 'endMessage', 'message', 'swapHands', 'calibrateHeight', 'setupPoints', 'identity', 'restartGame', 'recalibrate', 'bench', 'ping'];
 let zoneMod = null, zoneEditor = null, zoneViewObj = null, zoneData = null;
