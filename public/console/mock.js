@@ -166,7 +166,7 @@
       operatorPaused: run.operatorPaused, autoPaused: run.autoPaused,
       queue, index: run.index, maxGames: run.maxGames ?? null, played: run.played,
       breakSec: run.breakSec ?? null, voteSec: run.voteSec ?? null, birthday: !!run.birthday,
-      vote: run.vote ? { endsAt: run.vote.endsAt, counts: voteCounts(), options: run.vote.options, voted: Object.keys(run.vote.votes).length } : null,
+      vote: run.vote ? { on: run.voteOn, endsAt: run.vote.endsAt, counts: voteCounts(), options: run.vote.options, voted: Object.keys(run.vote.votes).length } : null,
       countdownEndsAt: run.state === 'countdown' ? run.countdownEndsAt : null,
       nextAt: run.state === 'waiting' ? (run.vote ? run.vote.endsAt : run.nextAt || null) : null,
       resultsEndsAt: run.state === 'results' ? run.resultsEndsAt : null,
@@ -251,14 +251,14 @@
     if (run && run.state === 'results' && t > run.resultsEndsAt) { stopGame(); afterGame(); }
     if (run && run.state === 'waiting') {
       if (run.vote) {
-        for (const p of run.players) if (Math.random() < 0.08 && !run.vote.votes[p.headsetId]) run.vote.votes[p.headsetId] = pick(run.vote.options).gameId;
+        for (const p of run.players) if (Math.random() < 0.08 && !run.vote.votes[p.headsetId]) run.vote.votes[p.headsetId] = pick(run.vote.options).id;
         if (t >= run.vote.endsAt) closeVote();
       } else if (run.nextAt && t >= run.nextAt) {
         if (run.kind === 'party') openVote(); else startItem(run.queue[run.index]);
       }
     }
   }
-  function voteCounts() { const c = {}; for (const o of run.vote.options) c[o.gameId] = 0; for (const g of Object.values(run.vote.votes)) if (g in c) c[g]++; return c; }
+  function voteCounts() { const c = {}; for (const o of run.vote.options) c[o.id] = 0; for (const g of Object.values(run.vote.votes)) if (g in c) c[g]++; return c; }
   function resume() { if (!run || run.state !== 'paused') return; run.pausedTotal += now() - run.pausedAt; run.pausedAt = 0; run.state = 'playing'; run.autoPaused = false; run.operatorPaused = false; run.backAt = null; }
   function stopGame() { for (const p of run.players) { const h = hsById(p.headsetId); if (h) { h.phase = 'idle'; h.load = null; } } }
 
@@ -296,7 +296,10 @@
     if (flow) flow.step = 'end';
   }
   function openVote() {
-    const opts = run.games.map(gameDef).filter(Boolean).map(g => ({ gameId: g.id, name: g.name, cover: g.cover }));
+    const one = run.games.length === 1, g0 = gameDef(run.games[0]);
+    const opts = one ? LEVELS.map(l => ({ id: l.id, gameId: g0.id, difficulty: l.id, name: l.name, cover: g0.cover, hint: g0.name }))
+      : run.games.map(gameDef).filter(Boolean).map(g => ({ id: g.id, gameId: g.id, name: g.name, cover: g.cover }));
+    run.voteOn = one ? 'difficulty' : 'game';
     run.state = 'waiting'; run.nextAt = 0;
     run.vote = { endsAt: now() + run.voteSec * 1000, votes: {}, options: opts };
   }
@@ -304,10 +307,12 @@
     const c = voteCounts(), best = Math.max(0, ...Object.values(c));
     const top = Object.keys(c).filter(k => c[k] === best);
     const unplayed = run.games.filter(id => !run.queue.some(q => q.gameId === id));
-    const choice = best > 0 ? pick(top) : (unplayed[0] || run.games[0]);
+    const one = run.voteOn === 'difficulty';
+    const choice = one ? run.games[0] : best > 0 ? pick(top) : (unplayed[0] || run.games[0]);
+    const level = one && best > 0 ? pick(top) : run.difficulty;
     run.vote = null;
     const g = gameDef(choice);
-    const it = { gameId: choice, gameName: g.name, mode: (g.modes.find(m => m.recommended) || g.modes[0]).id, minutes: g.cuts[0], difficulty: run.difficulty, kids: run.kids, options: {} };
+    const it = { gameId: choice, gameName: g.name, mode: (g.modes.find(m => m.recommended) || g.modes[0]).id, minutes: g.cuts[0], difficulty: level, kids: run.kids, options: {} };
     run.queue.push(it);
     run.index = run.queue.length - 1;
     startItem(it);

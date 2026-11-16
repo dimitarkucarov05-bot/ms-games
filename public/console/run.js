@@ -55,7 +55,7 @@ function renderRunView() {
   attr($('runState'), 'data-s', sw.s);
   text($('runState').lastChild, `${KIND_LABEL[r.kind] || ''} · ${sw.w}`);
   const nextName = pause && r.kind === 'playlist' ? ((r.queue || [])[r.index] || {}).name : '';
-  text($('runName'), voting ? 'Voting for the next game' : pause ? (nextName ? `Next: ${nextName}` : 'Waiting room') : r.gameName || '');
+  text($('runName'), voting ? (r.vote.on === 'difficulty' ? `Voting: how hard is round ${nOr0(r.played) + 1}` : 'Voting for the next game') : pause ? (nextName ? `Next: ${nextName}` : 'Waiting room') : r.gameName || '');
   const meta = [];
   if (r.team) meta.push(`Team ${r.team}`);
   meta.push(plural((r.players || []).length, 'player', 'players'));
@@ -126,14 +126,16 @@ const toasted = new Set();
 function toastOnce(key, msg, level) { if (toasted.has(key)) return; toasted.add(key); toast(msg, level); }
 
 function renderVotes(r) {
-  const opts = r.vote.options || Object.keys(r.vote.counts || {}).map(id => ({ gameId: id, name: (gameById(id) || {}).name || id }));
-  const counts = r.vote.counts || {}, top = Math.max(1, ...opts.map(o => nOr0(counts[o.gameId])));
+  const oid = o => o.id || o.gameId;      // S2: option id (game id, or difficulty in a one-game party)
+  const opts = r.vote.options || Object.keys(r.vote.counts || {}).map(id => ({ id, gameId: id, name: (gameById(id) || {}).name || id }));
+  const counts = r.vote.counts || {}, top = Math.max(1, ...opts.map(o => nOr0(counts[oid(o)])));
   const box = $('stVote');
   if (!box._head) { box._head = make('<div class="vote-head"><b class="num" data-vleft></b><span class="muted" data-vwho></span></div>'); box.append(box._head); box._rows = make('<div class="votes"></div>'); box.append(box._rows); }
-  const voted = typeof r.vote.voted === 'number' ? r.vote.voted : Array.isArray(r.vote.voted) ? r.vote.voted.length : opts.reduce((a, o) => a + nOr0(counts[o.gameId]), 0);
-  text(box._head.querySelector('[data-vwho]'), `left to vote · ${voted} of ${(r.players || []).length} voted`);
-  syncList(box._rows, opts, o => o.gameId, () => make('<div class="vrow"><b data-f="n"></b><span class="bar"><i data-f="bar"></i></span><em data-f="c"></em></div>'), (el, o) => {
-    const p = parts(el), c = nOr0(counts[o.gameId]);
+  const voted = typeof r.vote.voted === 'number' ? r.vote.voted : Array.isArray(r.vote.voted) ? r.vote.voted.length : opts.reduce((a, o) => a + nOr0(counts[oid(o)]), 0);
+  const voters = (r.players || []).length || (state.headsets || []).filter(h => h.online && h.web !== false && !h.benched).length;
+  text(box._head.querySelector('[data-vwho]'), `left to vote · ${voted} of ${Math.max(voters, voted)} voted`);
+  syncList(box._rows, opts, oid, () => make('<div class="vrow"><b data-f="n"></b><span class="bar"><i data-f="bar"></i></span><em data-f="c"></em></div>'), (el, o) => {
+    const p = parts(el), c = nOr0(counts[oid(o)]);
     text(p.n, o.name);
     text(p.c, c);
     p.bar.style.width = `${(c / top) * 100}%`;
@@ -180,7 +182,7 @@ App.tickRun = function (c) {
   // the whole session: what is left (playlist, party), or the time since the waiting room opened (clock scope "all")
   const multi = r.kind !== 'quick', scopeAll = r.clockScope === 'all' && c.allEl != null;
   show(a, multi || scopeAll);
-  if (multi && c.allRem != null) { text(ap.v, fmtMs(c.allRem)); text(ap.k, `${r.kind === 'party' ? 'party' : 'playlist'} left${r.kind === 'party' ? `, game ${Math.min(nOr0(r.played) + 1, nOr0(r.maxGames) || 1)} of ${nOr0(r.maxGames)}` : ''}`); }
+  if (multi && c.allRem != null) { text(ap.v, fmtMs(c.allRem)); text(ap.k, `${r.kind === 'party' ? 'party' : 'playlist'} left${r.kind === 'party' ? `, ${r.vote && r.vote.on === 'difficulty' || App.playableGames().length === 1 ? 'round' : 'game'} ${Math.min(nOr0(r.played) + 1, nOr0(r.maxGames) || 1)} of ${nOr0(r.maxGames)}` : ''}`); }
   else if (scopeAll) { text(ap.v, fmtMs(c.allEl)); text(ap.k, 'since the waiting room'); }
   if (r.state === 'countdown') { const e = ts(r.countdownEndsAt); text($('cdNum'), Number.isFinite(e) ? Math.max(1, Math.ceil((e - Date.now()) / 1000)) : 3); }
   const vl = $('stVote').querySelector('[data-vleft]');

@@ -499,9 +499,11 @@ function renderHome() {
   } else { text($('quickMeta'), games.length ? `${plural(games.length, 'game', 'games')} installed` : 'No game installed yet'); attr($('quickMeta'), 'data-tone', null); }
   loadPresetCount();
   text($('playlistMeta'), presetCount == null ? '' : presetCount ? plural(presetCount, 'saved playlist', 'saved playlists') : 'No saved playlist yet');
-  text($('partyMeta'), games.length > 1 ? `${games.length} games to vote on` : 'Needs a second game to vote between');
-  $('partyTile').classList.toggle('no', games.length < 2);
-  attr($('partyTile'), 'aria-disabled', games.length < 2 ? 'true' : null);
+  // one game: the players vote how hard each round is (S2); more games: they vote the next game
+  text($('partyMeta'), games.length > 1 ? `${games.length} games to vote on` : games.length ? 'Players vote how hard each round is' : '');
+  text($('partyDesc'), games.length === 1 ? `Several rounds of ${games[0].name} in a row, with the vote in the headset.` : 'Players vote in the headset for the next game.');
+  $('partyTile').classList.toggle('no', !games.length);
+  attr($('partyTile'), 'aria-disabled', !games.length ? 'true' : null);
 
   // one warning line when the arena is not ready to play
   let warn = '', btn = null;

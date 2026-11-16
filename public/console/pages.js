@@ -236,7 +236,7 @@ Object.assign(App.demos, {
   'run-countdown': async w => { window.mock.scene('busy'); await w(900); },
   'run-paused': async w => { window.mock.scene('busy'); await w(6500); window.mock.drop('q2'); await w(4500); },
   'run-playlist': async w => { await api('/api/flow/open', { kind: 'playlist' }); await api('/api/playlist/start', { items: [{ gameId: 'motel', mode: 'short', difficulty: 'easy', minutes: 10 }, { gameId: 'motel', mode: 'standard', difficulty: 'normal', minutes: 10 }, { gameId: 'motel', mode: 'standard', difficulty: 'nightmare', minutes: 15 }], breakSec: 60, team: 'BIRTHDAY 9', headsetIds: ['q1', 'q2', 'q4', 'q5'], ignoreWarnings: true }); await w(6500); },
-  'run-vote': async w => { await api('/api/flow/open', { kind: 'party' }); await api('/api/party/start', { games: ['motel', 'backroom'], maxGames: 3, voteSec: 30, breakSec: 30, team: 'PARTY 12', headsetIds: ['q1', 'q2', 'q4', 'q5'] }); await w(4000); },
+  'run-vote': async w => { await api('/api/flow/open', { kind: 'party' }); await api('/api/party/start', { games: App.playableGames().map(g => g.id), maxGames: 3, voteSec: 30, breakSec: 30, team: 'PARTY 12', headsetIds: ['q1', 'q2', 'q4', 'q5'] }); await w(4000); },
   end: async w => { window.mock.scene('busy'); await w(6500); window.mock.finish(); await w(300); },
   'setup-entry': async () => { go('setup'); },
   'setup-venue': async () => { App.startSetup('first'); },

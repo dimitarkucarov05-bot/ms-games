@@ -89,7 +89,7 @@ App.openFlow = async function (kind) {
     difficulty: (state.settings && state.settings.difficulty) || 'normal', minutes: null, kids: false, fast: false, options: {},
     queue: [], allLevel: '', votable: null, check: null, checking: false, busy: false, checkedFor: '',
   });
-  if (kind === 'party') F.votable = new Set(App.playableGames().map(g => g.id));
+  if (kind === 'party') { F.votable = new Set(App.playableGames().map(g => g.id)); if (F.votable.size === 1) F.step = 'players'; }
   const only = App.playableGames();
   if (kind === 'quick' && only.length === 1) {      // one game: it is chosen already, the flow starts at its mode or players
     F.gameId = only[0].id;
@@ -115,7 +115,7 @@ function stepsNow() {
     let skip = false;
     let fixed = false;
     if (id === 'mode') skip = modesOf(gameOf(F.gameId)).length <= 1;
-    if (id === 'game' && App.playableGames().length === 1) { skip = true; fixed = true; }
+    if ((id === 'game' || id === 'vote') && App.playableGames().length === 1) { skip = true; fixed = true; }
     return { id, name, skip, fixed };
   });
 }
@@ -134,7 +134,7 @@ function stepNote(id) {
   if (id === 'game') return g ? g.name : '';
   if (id === 'mode') { const m = modesOf(g).find(x => x.id === F.mode); return m ? m.name : ''; }
   if (id === 'queue') return F.queue.length ? plural(F.queue.length, 'game', 'games') : '';
-  if (id === 'vote') return F.votable && F.votable.size ? plural(F.votable.size, 'game', 'games') : '';
+  if (id === 'vote') return App.playableGames().length === 1 ? 'Difficulty vote' : F.votable && F.votable.size ? plural(F.votable.size, 'game', 'games') : '';
   if (id === 'players') { const n = chosen().length; return n ? plural(n, 'headset', 'headsets') : ''; }
   if (id === 'settings') return F.kind === 'quick' ? [levelName(F.difficulty), F.minutes ? `${F.minutes} min` : ''].filter(Boolean).join(', ') : levelName(F.difficulty);
   return '';
@@ -435,11 +435,12 @@ function renderSettingsStep() {
     const total = F.queue.reduce((a, q) => a + nOr0(q.minutes), 0) + Math.max(0, F.queue.length - 1) * F.breakSec / 60;
     html += setRow('Total time', '', `<b class="num" style="font:700 26px/1 var(--font-num)">${Math.round(total)} min</b>`);
   } else {
-    text($('setSub'), 'Players vote in the waiting room before every game.');
-    html += setRow('Games in the party', 'It ends after this many games', stepper('maxGames', F.maxGames, 1, 20, 1));
-    html += setRow('Time to vote', 'With no vote the next unplayed game is chosen', stepper('voteSec', F.voteSec, 10, 60, 5, ' s'));
+    const one = App.playableGames().length === 1;
+    text($('setSub'), one ? 'Before every round the players vote in the waiting room how hard it will be.' : 'Players vote in the waiting room before every game.');
+    html += setRow(one ? 'Rounds in the party' : 'Games in the party', 'It ends after this many', stepper('maxGames', F.maxGames, 1, 20, 1));
+    html += setRow('Time to vote', one ? 'With no vote the difficulty stays' : 'With no vote the next unplayed game is chosen', stepper('voteSec', F.voteSec, 10, 60, 5, ' s'));
     html += setRow('Break between games', 'Time in the waiting room after the results', stepper('partyBreak', F.partyBreak, 20, 120, 10, ' s'));
-    html += setRow('Difficulty', '', seg(LEVELS, F.difficulty, 'data-seg="difficulty"'));
+    html += setRow(one ? 'First round' : 'Difficulty', one ? 'Used when nobody votes' : '', seg(LEVELS, F.difficulty, 'data-seg="difficulty"'));
     html += setRow('Birthday', 'Balloons and a birthday sign in the waiting room', toggleHtml('birthday', F.birthday));
     html += setRow('Kids mode', 'No blood, softer sounds', toggleHtml('kids', F.kids));
   }
@@ -467,7 +468,8 @@ function renderStartStep() {
     facts.push(['Games', F.queue.map(q => (gameOf(q.gameId) || {}).name).join(', ')]);
     facts.push(['Breaks', `${F.breakSec} s`], ['Difficulty', F.allLevel ? levelName(F.allLevel) : 'Per game']);
   } else {
-    facts.push(['Vote between', [...F.votable].map(id => (gameOf(id) || {}).name).join(', ')], ['Games', String(F.maxGames)], ['Vote', `${F.voteSec} s`]);
+    if (F.votable.size === 1) facts.push(['Game', (gameOf([...F.votable][0]) || {}).name || ''], ['Players vote', 'how hard each round is'], ['Rounds', String(F.maxGames)], ['Vote', `${F.voteSec} s`]);
+    else facts.push(['Vote between', [...F.votable].map(id => (gameOf(id) || {}).name).join(', ')], ['Games', String(F.maxGames)], ['Vote', `${F.voteSec} s`]);
     if (F.birthday) facts.push(['Birthday', 'On']);
   }
   facts.push(['Players', ids.map(h => (F.namesOn && F.names[h.id]) || h.name).join(', ')]);
