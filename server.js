@@ -1946,6 +1946,7 @@ function lobbyMessage(run) {
   return {
     type: 'lobby', theme: season || 'night', season, birthday: !!run?.birthday || s.theme === 'birthday',
     board: records.board(gameId, 5), venue: venueView(), runId: run?.id || null, kind: run?.kind || engine?.flow?.()?.kind || null,
+    games: games.filter(g => g.web && g.status !== 'soon').map(g => ({ id: g.id, name: g.name, cover: g.cover || null })),      // one portal per installed game (S3)
   };
 }
 
