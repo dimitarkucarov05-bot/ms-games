@@ -1218,7 +1218,7 @@ export function createGame(opts = {}) {
       stock: { ...stock }, offer: offer ? [offer.n, ...offer.kinds] : null, drops: drops.map(d => [d.id, d.k, d.x, d.z]),
       gates: G.map(g => [g.boards, g.busy]), bombs: bombs.map(b => (b.alive ? 1 : 0)), dark: dark ? 1 : 0, heat: r2(heat),
       z: zombies.map(z => [z.id, TYPES.indexOf(z.type), z.look, r2(z.x), r2(z.z), r2(z.h), z.state, r2(z.hp / z.max), time < z.rageUntil ? 1 : 0, z.creep]),
-      players: active().map(pl => ({ id: pl.id, n: pl.n, name: pl.name, hp: Math.round(pl.hp), down: isDown(pl) ? r2(pl.downUntil - time) : 0, score: pl.score, kills: pl.kills, pick: pl.pick, l: pubGun(pl.w.l), r: pubGun(pl.w.r) })),
+      players: active().map(pl => ({ id: pl.id, n: pl.n, name: pl.name, hp: Math.round(pl.hp), down: isDown(pl) ? r2(pl.downUntil - time) : 0, score: pl.score, kills: pl.kills, deaths: pl.downs, pick: pl.pick, l: pubGun(pl.w.l), r: pubGun(pl.w.r) })),
       events: events.map(({ at: _at, ...e }) => e),
       result: over ? { ...result, players: result.players.map(p => ({ ...p })) } : null,
     };

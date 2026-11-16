@@ -840,3 +840,12 @@ test('awards: every player gets a different positive award, in the result and in
   for (const p of r.players) assert.deepEqual(p.extra.award, s.result.players.find(q => q.id === p.id).award);
   assert.ok(r.players.find(p => p.id === 'p1').extra.bossDamage > 0 || r.players.find(p => p.id === 'p2').extra.bossDamage > 0, 'boss damage counted');
 });
+
+test('snapshot: each player entry has deaths next to kills and score during play', () => {
+  const { g, run } = make({ options: { boards: 0 } });
+  g.join('p1', { n: 1 }); g.pose('p1', poseAt());
+  let seen = 0, downs = 0, ok = true;
+  run(150, q => { for (const e of q.events) if (e.i > seen) { seen = e.i; if (e.k === 'down' && e.p === 'p1') downs++; } const p = q.players[0]; if (!Number.isInteger(p.deaths) || p.deaths !== downs) ok = false; });
+  assert.ok(downs > 0, 'the player went down');
+  assert.ok(ok, 'deaths always matched the downs so far');
+});
