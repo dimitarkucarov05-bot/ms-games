@@ -61,13 +61,13 @@ export function createVote({ THREE, root, space, assets, bounds, pointer, onInpu
     if (!options.length) return;
     try { await Promise.all([assets.loadPack(APO), assets.loadPack(SHOPS), assets.loadPack(BR).catch(() => null)]); } catch (e) { console.warn('[vote] packs', e.message); }
     if (my !== gen) return;
-    const n = options.length, gap = 1.45;
+    const n = options.length, gap = n > 3 ? 1.02 : n > 2 ? 1.3 : 1.45;
     const { bx0, bx1, bz0, mx } = bounds;
     const span = (n - 1) * gap, wide = bx1 - bx0 + 2.2;
     for (let i = 0; i < n; i++) {
       const o = options[i];
       // in a row behind the zone; more games than fit bend into a shallow arc
-      let x = mx - span / 2 + i * gap, z = bz0 - 1.0, ry = 0;
+      let x = mx - span / 2 + i * gap, z = bz0 - 0.7, ry = 0;
       if (span > wide) { const a = (i / (n - 1) - 0.5) * Math.min(1.6, span / 3.2); x = mx + Math.sin(a) * 3.6; z = bz0 + 2.6 - Math.cos(a) * 3.6; ry = -a; }
       const st = new THREE.Group();
       st.position.set(x, 0, z); st.rotation.y = ry;
@@ -77,7 +77,8 @@ export function createVote({ THREE, root, space, assets, bounds, pointer, onInpu
       const holder = new THREE.Group();                       // what stands on the crate: a framed cover, or the kit
       holder.position.set(0, crateH, 0.05);
       let topH = 0.55;                                        // how high the things on the crate reach (for the labels)
-      const kit = !!o.difficulty || (!!KITS[o.key] && o.key !== o.gameId);      // a difficulty is shown by its kit even when the option carries the game's cover
+      const kit = !!o.difficulty || (!!KITS[o.key] && o.key !== o.gameId);
+      const kitShown = kit || !o.cover;      // a difficulty is shown by its kit even when the option carries the game's cover
       if (o.cover && !kit) {
         holder.rotation.x = -0.12;                            // the frame leans back a little, like it rests on something
         const frame = await safeGet(SHOPS, FRAME);
@@ -110,11 +111,12 @@ export function createVote({ THREE, root, space, assets, bounds, pointer, onInpu
       }
       st.add(holder);
       const label = makeText(THREE, Math.min(1.5, gap - 0.08), 0.3, 500, { depthTest: true, order: 3 });      // never wider than the gap to the next game
-      label.set([{ text: o.title || o.name || o.key, px: 118, weight: 900 }]);
-      label.mesh.position.set(0, crateH + topH + 0.44, 0.05);
+      label.set([{ text: o.title || o.name || o.key, px: n > 3 ? 100 : 118, weight: 900 }]);
+      // a kit: the name sits just over the crate, in front of the portal frame (not over the wall displays); 'YOUR VOTE' above it
+      label.mesh.position.set(0, crateH + (kitShown ? 0.62 : topH + 0.44), 0.05);
       st.add(label.mesh);
       const mine = makeText(THREE, 1.4, 0.26, 500, { depthTest: true, order: 3 });
-      mine.mesh.position.set(0, crateH + topH + 0.17, 0.05);
+      mine.mesh.position.set(0, crateH + (kitShown ? 0.95 : topH + 0.17), 0.05);
       st.add(mine.mesh);
       // what the laser hits: an invisible box around crate and frame
       const hit = new THREE.Mesh(new THREE.BoxGeometry(1.25, crateH + topH + 0.2, 0.9), new THREE.MeshBasicMaterial({ visible: false }));
@@ -124,7 +126,7 @@ export function createVote({ THREE, root, space, assets, bounds, pointer, onInpu
       group.add(st);
       stations.push(st);
     }
-    timer.mesh.position.set(mx, 3.35, bz0 - 1.0);
+    timer.mesh.position.set(mx, 2.7, bz0 - 0.9);      // under the ceiling detail, over the portal frame
     if (chosen) mark(chosen, false);
   }
   /**

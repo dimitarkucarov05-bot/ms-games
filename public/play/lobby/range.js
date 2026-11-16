@@ -27,6 +27,9 @@ export function createRange({ THREE, root, space, assets, anchor, pointer, onInp
   let best = Number(localStorage.getItem('msgames.rangeBest') || 0) || 0;
   let score = 0, endsAt = 0, shownSig = '', disposed = false;
   const guns = { l: null, r: null };
+  // a hit flashes: one small light that is always there (intensity 0 between hits, so no shader recompiles)
+  const flash = new THREE.PointLight(0xfce343, 0, 2.8, 1.6);
+  group.add(flash);
   const tracer = (() => {
     const g = new THREE.BoxGeometry(0.006, 0.006, 1); g.translate(0, 0, -0.5);
     const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: 0xfce343, transparent: true, opacity: 0, depthWrite: false, toneMapped: false }));
@@ -51,6 +54,20 @@ export function createRange({ THREE, root, space, assets, anchor, pointer, onInp
       pivot.add(hit);
       group.add(pivot);
       targets.push({ pivot, hit, down: 0, swing: 0 });
+    }
+    // the range counter: a Sci-Fi table along the range, an ammo case on it (outside the zone, below the line of fire)
+    if (anchor.counterX != null && assets.info(SCI, 'SM_Prop_Table_01') && !disposed) {
+      const t = await assets.get(SCI, 'SM_Prop_Table_01'), d = assets.info(SCI, 'SM_Prop_Table_01');
+      if (material) t.traverse(m => { if (m.isMesh) m.material = material; });
+      t.rotation.y = Math.PI / 2;
+      t.position.set(anchor.counterX + (d.min[2] + d.max[2]) / 2, -d.min[1], (anchor.z0 + anchor.z1) / 2 - (d.min[0] + d.max[0]) / 2);
+      group.add(t);
+      if (assets.info(SCI, 'SM_Prop_Crate_Ammo_01')) {
+        const c = await assets.get(SCI, 'SM_Prop_Crate_Ammo_01');
+        if (material) c.traverse(m => { if (m.isMesh) m.material = material; });
+        c.position.set(anchor.counterX, d.size[1], (anchor.z0 + anchor.z1) / 2 + 0.9); c.rotation.y = 0.3;
+        group.add(c);
+      }
     }
     if (assets.info(SCI, 'SM_Wep_Pistol_01')) for (const side of ['l', 'r']) {
       const p = await assets.get(SCI, 'SM_Wep_Pistol_01');
@@ -101,6 +118,7 @@ export function createRange({ THREE, root, space, assets, anchor, pointer, onInp
     const t = a.t;
     if (t && !t.down) {
       t.down = 1.6; t.swing = 0;
+      t.pivot.getWorldPosition(flash.position); group.worldToLocal(flash.position); flash.position.x -= 0.35; flash.position.y -= 0.25; flash.intensity = 9;
       score++;
       setTimeout(() => sfx?.play('range.hit', { gain: 0.8, rate: 0.9 + Math.random() * 0.2 }), 40);
       haptic(side, 0.4, 30);
@@ -123,6 +141,7 @@ export function createRange({ THREE, root, space, assets, anchor, pointer, onInp
         g.visible = on;
       }
       tracer.material.opacity = Math.max(0, tracer.material.opacity - dt * 9);
+      flash.intensity = Math.max(0, flash.intensity - dt * 40);
       tracer.visible = tracer.material.opacity > 0.01;
       for (const t of targets) {
         if (t.down > 0) { t.down -= dt; t.swing = Math.min(1, t.swing + dt * 7); } else t.swing = Math.max(0, t.swing - dt * 3);

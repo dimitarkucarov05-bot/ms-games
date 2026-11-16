@@ -45,17 +45,19 @@ export async function createHub({ THREE, root, assets, hall, rooms, scene, light
   const nx = Math.max(3, Math.ceil((bx1 - bx0 + 6) / M)), nz = Math.max(3, Math.ceil((bz1 - bz0 + 6.4) / M));
   const X0 = mx - nx * M / 2, X1 = X0 + nx * M;
   const Z0 = Math.min(bz0 - 3.4, mz - nz * M / 2), Z1 = Z0 + nz * M;      // Z0: the portal wall
-  const made = [], glow = [], doorParts = [];
+  const made = [], glow = [], doorParts = [], ceil = [];
   let rnd = 11;
   const rand = () => { rnd = (rnd * 16807) % 2147483647; return rnd / 2147483647; };
 
   // one shared material for the whole station: the green variant with its green emissive (light strips glow)
   const texLoader = new THREE.TextureLoader();
   const tex = (p, srgb = true) => { const t = texLoader.load(`/play/assets/synty/${SCI}/${p}`); t.flipY = false; if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 2; disposables.push(t); return t; };
-  const mat = new THREE.MeshLambertMaterial({ map: tex(TEX), emissiveMap: tex(EMI), emissive: 0xffffff, emissiveIntensity: 1.2 });
+  const mat = new THREE.MeshLambertMaterial({ map: tex(TEX), emissiveMap: tex(EMI), emissive: 0xffffff, emissiveIntensity: 1.6 });
   disposables.push(mat);
   // the portal doors: the same texture, their own emissive that pulses slowly in the brand yellow
   const doorMat = mat.clone(); doorMat.emissive = new THREE.Color(0xfce343); disposables.push(doorMat);
+  // the ceiling darker than the walls, so light pools on the floor read (its strips still glow)
+  const ceilMat = mat.clone(); ceilMat.color.setScalar(0.32); disposables.push(ceilMat);
   const dress = o => { o.traverse(m => { if (m.isMesh) m.material = Array.isArray(m.material) ? m.material.map(() => mat) : mat; }); return o; };
 
   let spotVote = null;
@@ -91,7 +93,7 @@ export async function createHub({ THREE, root, assets, hall, rooms, scene, light
     for (let i = 0; i < nx; i++) for (let j = 0; j < nz; j++) {
       const centre = Math.abs(X0 + (i + 0.5) * M - mx) < M / 2 && Math.abs(Z0 + (j + 0.5) * M - mz) < M / 2;
       await at(centre ? 'SM_Bld_Floor_08' : floors[(i * 3 + j * 5) % floors.length], X0 + i * M, Z0 + j * M);
-      if (has('SM_Bld_Ceiling_01')) await at('SM_Bld_Ceiling_01', X0 + i * M, Z0 + j * M, 0, 0);
+      if (has('SM_Bld_Ceiling_01')) { const c = await at('SM_Bld_Ceiling_01', X0 + i * M, Z0 + j * M, 0, 0, ceil); c?.traverse(m => { if (m.isMesh) m.material = ceilMat; }); }
     }
     // ---- walls: modules along each side; the frame of each wall piece runs along +X from its origin ----
     // ry 0: along +X at z; PI: along -X; PI/2: along -Z; -PI/2: along +Z (the decorated face looks into the hall)
@@ -159,6 +161,11 @@ export async function createHub({ THREE, root, assets, hall, rooms, scene, light
     // the record board: the first display left free
     const free = Object.keys(displays).map(Number).find(k => !used.has(k));
     if (free != null) { const d = displayOf(free); anchors.board = { x: d.x, y: d.y, z: d.z, ry: 0, w: d.w, h: d.h, display: true }; }
+    // ---- glowing floor strips lead to each portal (Sci-Fi light strips, pulsing with the door) ----
+    for (const p of portals) for (const sx of [-1, 1]) for (let r = 0; r < 2; r++) {
+      const o = await put('SM_Prop_Light_Small_04', p.x + sx * 1.05, Z0 + 1.4 + r * 1.5, 0, 0.005, doorParts);
+      o?.traverse(m => { if (m.isMesh) m.material = doorMat; });
+    }
     // ---- comfort and life: seats and plants behind, crates by the range ----
     await put('SM_Prop_CornerSeat_01', X0 + 1.7, Z1 - 1.7, Math.PI / 2);
     await put('SM_Prop_CornerSeat_01', X1 - 1.7, Z1 - 1.7, Math.PI);
@@ -171,6 +178,7 @@ export async function createHub({ THREE, root, assets, hall, rooms, scene, light
     for (let i = 0; i < nx; i++) for (let j = 0; j < nz; j++) await put('SM_Prop_Light_Panel_01', X0 + (i + 0.5) * M, Z0 + (j + 0.5) * M, 0, 3.88, glow);
 
     if (made.length) { const m = assets.merge(made); m.name = 'hub-shell'; group.add(m); m.traverse(o => { if (o.isMesh) disposables.push(o.geometry); }); }
+    if (ceil.length) { const m = assets.merge(ceil); m.name = 'hub-ceiling'; group.add(m); m.traverse(o => { if (o.isMesh) disposables.push(o.geometry); }); }
     if (doorParts.length) { const m = assets.merge(doorParts); m.name = 'hub-portals'; group.add(m); m.traverse(o => { if (o.isMesh) disposables.push(o.geometry); }); }
     if (glow.length) { const m = assets.merge(glow); m.name = 'hub-lights'; m.traverse(o => { if (o.isMesh) disposables.push(o.geometry); }); group.add(m); }
 
@@ -187,12 +195,14 @@ export async function createHub({ THREE, root, assets, hall, rooms, scene, light
     texLoader.load('/brand/mark.svg', t => { t.colorSpace = THREE.SRGBColorSpace; markMat.map = t; markMat.needsUpdate = true; disposables.push(t); }, undefined, () => {});
 
     // ---- light: white key, green fill along the windows, yellow at the portals, one spot over the vote row ----
-    const key = new THREE.PointLight(BRAND.white, 18, 16, 1.4); key.position.set(mx, 3.6, mz); group.add(key);
-    const fill = new THREE.PointLight(BRAND.green, 14, 14, 1.3); fill.position.set(X0 + 1.2, 2.8, mz); group.add(fill);
+    // few real lights (Quest 2): a white pool over the zone, the yellow portal spot, the range spot; the rest is emissive
+    const key = new THREE.SpotLight(BRAND.white, 55, 9, 0.8, 0.65, 1.2);
+    key.position.set(mx, 3.9, mz + 0.4); key.target.position.set(mx, 0, mz - 0.2);
+    group.add(key, key.target);
     spotVote = new THREE.SpotLight(BRAND.yellow, 40, 12, 0.6, 0.5, 1.1);
     spotVote.position.set(mx, 3.7, bz0 - 0.2); spotVote.target.position.set(mx, 0.9, bz0 - 1.4);
     group.add(spotVote, spotVote.target);
-    anchors.range = { x0: X1 - 0.9, z0: mz - 3, z1: mz + 3 };
+    anchors.range = { x0: X1 - 0.9, z0: mz - 3, z1: mz + 3, counterX: Math.min(X1 - 2.4, bx1 + 1.0) };
     const spotRange = new THREE.SpotLight(BRAND.yellow, 34, 11, 0.62, 0.45, 1.0);      // the range wall stands out
     spotRange.position.set(X1 - 3.4, 3.7, mz); spotRange.target.position.set(X1 - 0.9, 1.6, mz);
     group.add(spotRange, spotRange.target);
@@ -225,13 +235,13 @@ export async function createHub({ THREE, root, assets, hall, rooms, scene, light
       sky.visible = true;
       scene.fog = null;
       scene.background = new THREE.Color(BRAND.base);
-      if (hemi) { hemi.intensity = 0.9; hemi.color.set(0xdfeee4); hemi.groundColor.set(0x0d1a12); }
-      if (sun) { sun.intensity = 0.35; sun.color.set(0xcfe8d6); }
+      if (hemi) { hemi.intensity = 0.42; hemi.color.set(0xb8d8c4); hemi.groundColor.set(0x08120c); }
+      if (sun) { saved.sunVis = sun.visible; sun.visible = false; }      // no sun inside a station
       refreshShadows?.();
     } else {
       scene.fog = saved.fog; scene.background = saved.bg;
       if (hemi && saved.hemi) { hemi.intensity = saved.hemi[0]; hemi.color.setHex(saved.hemi[1]); hemi.groundColor.setHex(saved.hemi[2]); }
-      if (sun && saved.sun) { sun.intensity = saved.sun[0]; sun.color.setHex(saved.sun[1]); }
+      if (sun && saved.sun) { sun.intensity = saved.sun[0]; sun.color.setHex(saved.sun[1]); sun.visible = saved.sunVis ?? true; }
     }
   }
   look(true);
@@ -239,7 +249,7 @@ export async function createHub({ THREE, root, assets, hall, rooms, scene, light
   let time = 0;
   function update(dt, t) {
     time = t ?? time + dt;
-    mat.emissiveIntensity = 1.1 + 0.15 * Math.sin(time * 1.3) + 0.05 * Math.sin(time * 4.1);      // the strips breathe a little
+    mat.emissiveIntensity = 1.55 + 0.2 * Math.sin(time * 1.3) + 0.06 * Math.sin(time * 4.1);      // the strips breathe a little
     doorMat.emissiveIntensity = 1.0 + 1.1 * (0.5 + 0.5 * Math.sin(time * 1.6));                   // the portal calls, slowly
   }
   function dispose() {

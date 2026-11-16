@@ -9,7 +9,7 @@ if (!window.__errHook) { window.__errHook = 1; addEventListener('error', e => wi
 window.__look = (px, py, pz, tx, ty, tz) => { P.desk.free = true; P.camera.position.set(px, py, pz); P.camera.lookAt(tx, ty, tz); const e = new (P.camera.rotation.constructor)().setFromQuaternion(P.camera.quaternion, 'YXZ'); P.desk.yaw = e.y; P.desk.pitch = e.x; };
 // hides the desktop hand box, renders one frame, saves to research/shots/s3/<name>.jpg (stub) or the dev server's _shots
 window.__shot = async (name, dir = '') => {
-  P.desk.mouse.set(5, 5); P.frame(performance.now()); P.renderer.render(P.scene, P.camera);
+  P.desk.mouse.set(5, 5); P.frame(performance.now()); P.desk.hand.visible = false; P.renderer.render(P.scene, P.camera);      // the desktop hand box is not in the headset
   const blob = await new Promise(res => P.renderer.domElement.toBlob(res, 'image/jpeg', 0.9));
   const q = await fetch('/dev/save?path=' + (dir ? '_shots/' + dir + '/' : '') + name + '.jpg', { method: 'PUT', body: blob });
   return q.status;
