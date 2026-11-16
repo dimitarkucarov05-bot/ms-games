@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MS Games: logo options</title>
+<style>
+  @font-face { font-family: 'Sofia Sans Extra Condensed'; src: url('../fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2') format('woff2'); font-weight: 1 1000; }
+  @font-face { font-family: 'Sofia Sans'; src: url('../fonts/sofia-sans-latin-wght-normal.woff2') format('woff2'); font-weight: 1 1000; }
+  :root {
+    --bg: oklch(0.155 0.022 155);
+    --bg2: oklch(0.19 0.026 155);
+    --line: oklch(0.28 0.03 155);
+    --green: oklch(0.76 0.19 148);
+    --green-deep: oklch(0.52 0.15 150);
+    --yellow: oklch(0.91 0.17 100);
+    --white: oklch(0.97 0.012 130);
+    --muted: oklch(0.72 0.02 140);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--white); font-family: 'Sofia Sans', system-ui, sans-serif; }
+  .sheet { width: 1600px; padding: 56px 64px; }
+  h1 { font: 800 15px/1 'Sofia Sans'; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0 0 36px; }
+  .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .opt { background: var(--bg2); border: 1px solid var(--line); border-radius: 8px; padding: 40px 36px 30px; }
+  .lock { display: flex; align-items: center; gap: 22px; height: 150px; }
+  .word { line-height: .86; }
+  .word b { display: block; font: 900 74px/0.86 'Sofia Sans Extra Condensed'; letter-spacing: .01em; }
+  .word span { display: block; font: 800 22px/1 'Sofia Sans Extra Condensed'; letter-spacing: .42em; color: var(--green); margin-top: 8px; }
+  .icons { display: flex; gap: 18px; margin-top: 30px; align-items: center; }
+  .tile { width: 88px; height: 88px; border-radius: 20px; display: grid; place-items: center; }
+  .tile.dark { background: var(--bg); border: 1px solid var(--line); }
+  .tile.green { background: var(--green); }
+  .tile.white { background: var(--white); }
+  .name { margin-top: 26px; font: 800 13px/1 'Sofia Sans'; letter-spacing: .12em; text-transform: uppercase; color: var(--yellow); }
+  .desc { margin-top: 8px; font-size: 15px; line-height: 1.45; color: var(--muted); max-width: 44ch; }
+  .palette { display: flex; gap: 12px; margin-top: 40px; }
+  .sw { width: 170px; }
+  .sw i { display: block; height: 56px; border-radius: 6px; border: 1px solid var(--line); }
+  .sw small { display: block; margin-top: 8px; font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <h1>MS Games: three original M marks (green, white, yellow)</h1>
+  <div class="row">
+
+    <!-- A: Peak. Two leaning blades form the M; the yellow spark sits in the valley -->
+    <div class="opt">
+      <div class="lock">
+        <svg width="132" height="112" viewBox="0 0 132 112" aria-label="Peak M">
+          <path d="M4 108 L34 6 L56 6 L66 40 L76 6 L98 6 L128 108 L104 108 L88 52 L72 108 L60 108 L44 52 L28 108 Z" fill="var(--green)"/>
+          <path d="M66 62 L74 74 L66 86 L58 74 Z" fill="var(--yellow)"/>
+        </svg>
+        <div class="word"><b>MS GAMES</b><span>VR ARENA</span></div>
+      </div>
+      <div class="icons">
+        <div class="tile dark"><svg width="58" height="50" viewBox="0 0 132 112"><path d="M4 108 L34 6 L56 6 L66 40 L76 6 L98 6 L128 108 L104 108 L88 52 L72 108 L60 108 L44 52 L28 108 Z" fill="var(--green)"/><path d="M66 62 L74 74 L66 86 L58 74 Z" fill="var(--yellow)"/></svg></div>
+        <div class="tile green"><svg width="58" height="50" viewBox="0 0 132 112"><path d="M4 108 L34 6 L56 6 L66 40 L76 6 L98 6 L128 108 L104 108 L88 52 L72 108 L60 108 L44 52 L28 108 Z" fill="var(--bg)"/><path d="M66 62 L74 74 L66 86 L58 74 Z" fill="var(--white)"/></svg></div>
+        <div class="tile white"><svg width="58" height="50" viewBox="0 0 132 112"><path d="M4 108 L34 6 L56 6 L66 40 L76 6 L98 6 L128 108 L104 108 L88 52 L72 108 L60 108 L44 52 L28 108 Z" fill="var(--green-deep)"/><path d="M66 62 L74 74 L66 86 L58 74 Z" fill="var(--yellow)"/></svg></div>
+      </div>
+      <div class="name">A · Peak</div>
+      <div class="desc">Two leaning blades make the M. The yellow spark in the middle is the player. It feels fast and sporty, and it holds up as an app icon and as a sticker.</div>
+    </div>
+
+    <!-- B: Visor. A headset visor with the M cut out of it -->
+    <div class="opt">
+      <div class="lock">
+        <svg width="150" height="100" viewBox="0 0 150 100" aria-label="Visor M">
+          <rect x="3" y="14" width="144" height="72" rx="30" fill="var(--green)"/>
+          <path d="M38 70 L38 30 L52 30 L75 52 L98 30 L112 30 L112 70 L99 70 L99 49 L75 72 L51 49 L51 70 Z" fill="var(--bg2)"/>
+          <rect x="62" y="88" width="26" height="6" rx="3" fill="var(--yellow)"/>
+        </svg>
+        <div class="word"><b>MS GAMES</b><span>VR ARENA</span></div>
+      </div>
+      <div class="icons">
+        <div class="tile dark"><svg width="64" height="44" viewBox="0 0 150 100"><rect x="3" y="14" width="144" height="72" rx="30" fill="var(--green)"/><path d="M38 70 L38 30 L52 30 L75 52 L98 30 L112 30 L112 70 L99 70 L99 49 L75 72 L51 49 L51 70 Z" fill="var(--bg)"/><rect x="62" y="88" width="26" height="6" rx="3" fill="var(--yellow)"/></svg></div>
+        <div class="tile green"><svg width="64" height="44" viewBox="0 0 150 100"><rect x="3" y="14" width="144" height="72" rx="30" fill="var(--white)"/><path d="M38 70 L38 30 L52 30 L75 52 L98 30 L112 30 L112 70 L99 70 L99 49 L75 72 L51 49 L51 70 Z" fill="var(--green)"/><rect x="62" y="88" width="26" height="6" rx="3" fill="var(--bg)"/></svg></div>
+        <div class="tile white"><svg width="64" height="44" viewBox="0 0 150 100"><rect x="3" y="14" width="144" height="72" rx="30" fill="var(--green-deep)"/><path d="M38 70 L38 30 L52 30 L75 52 L98 30 L112 30 L112 70 L99 70 L99 49 L75 72 L51 49 L51 70 Z" fill="var(--white)"/><rect x="62" y="88" width="26" height="6" rx="3" fill="var(--yellow)"/></svg></div>
+      </div>
+      <div class="name">B · Visor</div>
+      <div class="desc">A VR headset seen from the front, with the M cut out of its visor. It says what the place is at a glance. The yellow bar is the light under the lens.</div>
+    </div>
+
+    <!-- C: Stack. The M is built from three bars like a level meter, white / green / yellow -->
+    <div class="opt">
+      <div class="lock">
+        <svg width="128" height="112" viewBox="0 0 128 112" aria-label="Stack M">
+          <path d="M4 108 L4 4 L26 4 L64 52 L102 4 L124 4 L124 108 L102 108 L102 46 L64 94 L26 46 L26 108 Z" fill="var(--white)"/>
+          <path d="M4 108 L4 4 L26 4 L26 108 Z" fill="var(--green)"/>
+          <path d="M102 108 L102 4 L124 4 L124 108 Z" fill="var(--yellow)"/>
+        </svg>
+        <div class="word"><b>MS GAMES</b><span>VR ARENA</span></div>
+      </div>
+      <div class="icons">
+        <div class="tile dark"><svg width="54" height="48" viewBox="0 0 128 112"><path d="M4 108 L4 4 L26 4 L64 52 L102 4 L124 4 L124 108 L102 108 L102 46 L64 94 L26 46 L26 108 Z" fill="var(--white)"/><path d="M4 108 L4 4 L26 4 L26 108 Z" fill="var(--green)"/><path d="M102 108 L102 4 L124 4 L124 108 Z" fill="var(--yellow)"/></svg></div>
+        <div class="tile green"><svg width="54" height="48" viewBox="0 0 128 112"><path d="M4 108 L4 4 L26 4 L64 52 L102 4 L124 4 L124 108 L102 108 L102 46 L64 94 L26 46 L26 108 Z" fill="var(--bg)"/><path d="M102 108 L102 4 L124 4 L124 108 Z" fill="var(--yellow)"/></svg></div>
+        <div class="tile white"><svg width="54" height="48" viewBox="0 0 128 112"><path d="M4 108 L4 4 L26 4 L64 52 L102 4 L124 4 L124 108 L102 108 L102 46 L64 94 L26 46 L26 108 Z" fill="var(--bg)"/><path d="M4 108 L4 4 L26 4 L26 108 Z" fill="var(--green-deep)"/><path d="M102 108 L102 4 L124 4 L124 108 Z" fill="var(--yellow)"/></svg></div>
+      </div>
+      <div class="name">C · Stack</div>
+      <div class="desc">A solid, upright M with green and yellow pillars. It is the calmest and most "brand" of the three, and it reads well big on a wall or on the floor of the lobby.</div>
+    </div>
+
+  </div>
+  <div class="palette">
+    <div class="sw"><i style="background:var(--bg)"></i><small>Night green · base</small></div>
+    <div class="sw"><i style="background:var(--bg2)"></i><small>Panel</small></div>
+    <div class="sw"><i style="background:var(--green)"></i><small>Arena green · primary</small></div>
+    <div class="sw"><i style="background:var(--green-deep)"></i><small>Deep green</small></div>
+    <div class="sw"><i style="background:var(--yellow)"></i><small>Signal yellow · accent</small></div>
+    <div class="sw"><i style="background:var(--white)"></i><small>White · text</small></div>
+  </div>
+</div>
+</body>
+</html>
