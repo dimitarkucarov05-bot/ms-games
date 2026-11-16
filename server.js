@@ -18,6 +18,18 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { pipeline } from 'node:stream/promises';
 import { WebSocketServer } from 'ws';
 import { startKeeper } from './keeper.js';
+// MS Games 2 (S2): the session engine and its stores live in lib/ (see research/ms-games-2-design.md sections 4, 6, 8, 9)
+import { createEngine } from './lib/session.js';
+import { createSettings, seasonFor } from './lib/settings.js';
+import { createRecords } from './lib/records.js';
+import { precheck as runPrecheck, tileReason } from './lib/precheck.js';
+import { createPresets } from './lib/presets.js';
+import { createHealth } from './lib/health.js';
+import { createScorecards, labelTspl, printThermal } from './lib/scorecards.js';
+import { appendJsonl, tailJsonl } from './lib/store.js';
+import { createSetupTracker, cleanPreset, presetZone, parseAdbDevices, usbState, installHeadset } from './lib/setup.js';
+import { buildChecks, parsePingMs, firewallStatus, firewallFixCommand } from './lib/diagnose.js';
+import { makeZip, reportDir, reportName, tailFile, teeConsole } from './lib/bugreport.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 47801);
@@ -33,6 +45,7 @@ const CALIB_KEEP = 50;   // gta-vr-1 (07.11.2026): последните 50 ко�
 // Дневник на лобито — един четим ред за всяко събитие с калибровката (време | каска | събитие | размер | ъгъл | резултат).
 // Само на този Mac: data/*.log и calibration_history/ са в .gitignore (картата на залата е лична).
 const JOURNAL = path.join(DATA, 'lobby_journal.log');
+if (process.env.NO_SERVER_LOG !== '1') teeConsole(path.join(DATA, 'server.log'));      // for the bug report
 // картите в APK-то — пази в синхрон с build_apk.sh (-map=...); друга карта = черен екран в очилата
 // ЕДНАТА настройка за лобито: data/lobby_map.txt (един ред). Връщане към старото: /Game/Maps/Lobby. Чете го и VR_Varna_Start.sh/.ps1.
 const LOBBY_MAP = (() => {
@@ -371,6 +384,7 @@ function apiError(message, code, retryAfter) {
 }
 /** Сесията е свършила: никоя нейна каска не играе и не зарежда. */
 function sessionOver() {
+  if (engine.active()) return false;      // a session engine run ends only through the engine
   return !!session && session.headsets.every(id => headsets.get(id)?.phase !== 'playing' && headsets.get(id)?.phase !== 'loading');
 }
 let liveWant = null;            // кои камери от Unreal гледа екранът на лобито (виж lobby_bridge.py)
@@ -557,6 +571,10 @@ function headsetView(h) {
     match: h.match || null,
     team: matchTeamOf(h),   // 0 няма / не се знае, 1 червен, 2 син (по статуса от каската)
     lowBattery: typeof h.battery === 'number' && h.battery < LOW_BATTERY && !h.charging,
+    // MS Games 2 (section 9)
+    color: headsetColor(h.id), state: stateWord(h), health: health.view(h.id, h.wifi ?? null),
+    benched: engine.isBenched(h.id), needsCalibration: h.needsCalibration || null, worn: h.worn ?? null,
+    appVersion: h.appVersion || null, setupPoint: setup.st.points[h.id] || null,
   };
 }
 
@@ -809,6 +827,16 @@ function snapshot() {
     zone: zoneView(),
     autoStart: arena.autoStart || null,      // сам пуска игра на всяка каска, която дойде          // начертаната зона: { poly, obstacles, hall, markers } в координатите на залата
     zoneReady: !!zoneLib,   // откъде каските отварят играта
+    // MS Games 2 (design section 9)
+    flow: engine.flow(), run: engine.view(), last: engine.last(), sessionState: engine.state(),
+    settings: settingsView(), precheck: lastPrecheck, setup: setup.view(), usb: usbList, usbAt,
+    gameReasons: Object.fromEntries(games.filter(g => g.web).map(g => [g.id, tileReason(g, {
+      area: arena.zone?.hall || null,
+      ready: [...headsets.values()].filter(h => h.online && h.web && !engine.isBenched(h.id)).length,
+      calibrated: [...headsets.values()].filter(h => h.online && h.web && (h.desk || arena.calibrations[h.id])).length,
+      running: engine.inGame() ? { gameId: engine.gameId(), gameName: engine.view()?.gameName } : null,
+    })])),
+    recordsVersion: records.version, scorecardsVersion, playlists: presets.list().map(p => p.name),
   };
 }
 
@@ -1226,6 +1254,8 @@ function onHeadsetMessage(ws, msg, ip) {
       user: msg.user || null,
       web: !!msg.web,   // каска през браузър (WebXR): получава позите на другите
       desk: !!msg.desktop,   // проба от компютър без каска: няма стая за подравняване
+      caps: Array.isArray(msg.caps) ? msg.caps.map(String).slice(0, 30) : [],      // what the page understands (e.g. 'setupPoints', 'lobby')
+      appVersion: msg.appVersion ? String(msg.appVersion).slice(0, 20) : (h.appVersion || null),
     });
     headsets.set(id, h);
     ws.send(JSON.stringify({ type: 'welcome', name: arena.names[id] || h.name || id }));
@@ -1260,12 +1290,18 @@ function onHeadsetMessage(ws, msg, ip) {
       }
     }
     if (h.web && wantObstacles.has(id)) setTimeout(() => sendTo(id, { type: 'zoneObstacles' }), 400);      // поискано е чертане на препятствията: тръгва, щом каската влезе във VR
-    if (web && session?.web && !web.game.over && h.web && !web.ids.has(id) && session.headsets.includes(id)) {
+    if (!engine.active() && web && session?.web && !web.game.over && h.web && !web.ids.has(id) && session.headsets.includes(id)) {
       // каската е от текущата игра, но е била извадена (дълго прекъсване, презаредена страница): връща се сама
       try { web.game.join(id, { n: headsetNumber(id), name: headsetView(h).name }); web.ids.add(id); } catch (e) { console.error('rejoin', e); }
     }
-    if (web?.ids.has(id)) { h.phase = 'loading'; h.loadingAt = Date.now(); h.load = 0; h.launchError = null; sendTo(id, web.startMsg); }
-    else if (h.web && msg.app) { sendTo(id, { type: 'stop' }); h.phase = 'idle'; h.app = null; }   // каската още показва игра, която вече не върви тук
+    sendIdentity(id); sendLiveSettings(id);      // full context on every connect (design section 4)
+    if (engine.active()) engine.onConnect(id);      // the engine puts it where it belongs (game or waiting room)
+    else {
+      if (web?.ids.has(id)) { h.phase = 'loading'; h.loadingAt = Date.now(); h.load = 0; h.launchError = null; sendTo(id, web.startMsg); }
+      else if (h.web && msg.app) { sendTo(id, { type: 'stop' }); h.phase = 'idle'; h.app = null; }   // каската още показва игра, която вече не върви тук
+      engine.onConnect(id);
+    }
+    if (setup.pending(id) && h.web) askPoints(id);      // the setup was waiting for this headset
     toast(`${arena.names[id] || h.name || id} connected`);
     return pushState();
   }
@@ -1283,12 +1319,34 @@ function onHeadsetMessage(ws, msg, ip) {
   if (msg.type === 'zoneCancelled') { h.phase = 'idle'; wantObstacles.delete(id); return pushState(); }
   if (msg.type === 'floorSet') { onFloorSet(id, h, msg); return pushState(); }
   if (msg.type === 'zoneObstaclesDone') { onZoneObstacles(id, h, msg); return pushState(); }
+  // MS Games 2 (design section 9)
+  if (msg.type === 'vote') { engine.vote(id, String(msg.gameId || '')); return; }
+  if (msg.type === 'worn') { h.worn = !!msg.on; return pushState(); }
+  if (msg.type === 'needsCalibration') {      // reason null: fine again (S3)
+    if (msg.reason == null || msg.reason === '') { delete h.needsCalibration; return pushState(); }
+    const was = h.needsCalibration;
+    h.needsCalibration = String(msg.reason).slice(0, 80);
+    if (!was) toast(`${headsetView(h).name} needs its points again (${h.needsCalibration})`, 'warn');
+    return pushState();
+  }
+  if (msg.type === 'calibrated') { delete h.needsCalibration; return pushState(); }
+  if (msg.type === 'health') {
+    if (Number.isFinite(msg.t)) health.ping(id, Date.now() - Number(msg.t));
+    else if (Number.isFinite(msg.pingMs)) health.ping(id, Number(msg.pingMs));
+    return;
+  }
+  if (msg.type === 'setupPoint') {
+    const r = setup.touch(id, Number.isFinite(+msg.index) ? +msg.index : null, msg.x, msg.z);
+    if (r.done) onSetupPoints(id, h, r.points, msg.floorY ?? msg.y);
+    return pushState();
+  }
 
   switch (msg.type) {
     case 'status':
-      for (const k of ['battery', 'charging', 'controllers', 'wifi', 'tracking', 'pos', 'app', 'fps', 'sleeping', 'user', 'yaw', 'volume', 'match', 'build', 'inVR', 'anchor', 'anchorN', 'load']) {
+      for (const k of ['battery', 'charging', 'controllers', 'wifi', 'tracking', 'pos', 'app', 'fps', 'sleeping', 'user', 'yaw', 'volume', 'match', 'build', 'inVR', 'anchor', 'anchorN', 'load', 'worn', 'appVersion', 'heightCm', 'swap']) {
         if (k in msg) h[k] = msg[k];
       }
+      if ('needsCal' in msg) { if (msg.needsCal) h.needsCalibration = String(msg.needsCal).slice(0, 80); else delete h.needsCalibration; }
       if ('lbeColumns' in msg) takeLbeColumns(msg.lbeColumns);   // стар APK не праща полето
       // Докато играта зарежда, каската още няма app — оставаме на „зарежда".
       if (h.phase !== 'calibrating') h.phase = h.app ? 'playing' : (h.phase === 'loading' ? 'loading' : 'idle');
@@ -1490,6 +1548,10 @@ async function onZoneDone(id, h, msg) {
   const roomsText = (z.rooms || []).map(r => `${r.w.toFixed(1)} × ${r.d.toFixed(1)}`).join(' + ');
   toast(`Zone saved: ${(z.rooms || []).length > 1 ? 'rooms' : 'play area'} ${roomsText} m${warn ? '. ' + warn : ''}`, z.ok === false ? 'warn' : 'ok');
   sendTo(id, { type: 'zoneSaved', ok: true, hall: z.hall, points: z.poly.length });
+  if (setup.st.area?.kind === 'draw' && setup.st.area.headsetId === id) {      // the wizard's "draw in the headset": the drawer is the first headset
+    setup.reset(); setup.st.ref = id; setup.done(id); setup.st.step = 'points'; arena.setup = setup.saved(); writeJson(ARENA_FILE, arena);
+  }
+  delete h.needsCalibration;
   pushState();
 }
 /** Само препятствията: идват в координатите на залата, зоната и двете точки остават; стаите се смятат наново. */
@@ -1531,6 +1593,8 @@ function onFloorSet(id, h, msg) {
   toast(`${headsetView(h).name}: the floor is at ${(fy * 100).toFixed(0)} cm`, 'ok');
 }
 async function onZoneAligned(id, h, msg) {
+  // an older page answering the setup wizard's two points
+  if (setup.pending(id) && Array.isArray(msg.points) && msg.points.length >= 2) return onSetupPoints(id, h, msg.points.slice(0, 2).map(p => [Number(p?.x ?? p?.[0]), Number(p?.z ?? p?.[1])]), msg.floorY);
   h.phase = 'idle';
   if (!zoneLib) await loadZoneLib();
   if (!zoneLib || !arena.zone) return toast('No saved zone', 'error');
@@ -1604,6 +1668,15 @@ async function loadWebGames() {
       themes: Array.isArray(m.themes) ? m.themes.filter(t => t && t.id).map(t => ({ id: String(t.id), name: String(t.name || t.id) })) : [],
       levels: Array.isArray(m.levels) ? m.levels.filter(t => t && t.id).map(t => ({ id: String(t.id), name: String(t.name || t.id) })) : [],
       tags: Array.isArray(m.tags) ? m.tags.map(String) : [],
+      // MS Games 2 manifest additions (design section 5); absent in older manifests
+      cuts: Array.isArray(m.cuts) ? m.cuts.map(Number).filter(n => n > 0) : null,
+      modes: Array.isArray(m.modes) ? m.modes.filter(x => x && x.id) : null,
+      options: Array.isArray(m.options) ? m.options.filter(x => x && x.id) : null,
+      stages: Array.isArray(m.stages) ? m.stages.filter(x => x && x.id) : null,
+      scorecard: m.scorecard && typeof m.scorecard === 'object' ? m.scorecard : null,
+      players: m.players && typeof m.players === 'object' && !Array.isArray(m.players) ? m.players : null,
+      minArea: Array.isArray(m.minArea) && m.minArea.length === 2 ? m.minArea.map(Number) : null,
+      family: m.family === undefined ? null : !!m.family,
     };
     if (g.status === 'soon' || !m.rules) { games.push({ ...g, status: 'soon', web: true }); continue; }      // обявена, но още без правила
     try {
@@ -1676,7 +1749,7 @@ function webSafe(fn) {
     console.error('Game error:', e);
     try { fs.appendFileSync(path.join(DATA, 'game-errors.log'), `${new Date().toISOString()} ${web?.def?.id || ''} ${e?.stack || e}\n`); } catch { /* без дневник */ }
     if (webErrors === 1) toast(`Game error: ${e.message}`, 'error');
-    if (webErrors >= 30) { webErrors = 0; try { recordScore(); } catch { /* без резултат */ } stopWebGame(true); }
+    if (webErrors >= 30) { webErrors = 0; webCrash = e.message || 'game error'; if (!engine.active()) { try { recordScore(); } catch { /* без резултат */ } } stopWebGame(true); }
   }
 }
 
@@ -1715,37 +1788,514 @@ function webAct(id, msg) {
   if (web?.ids.has(id)) webSafe(() => web.game.act(id, msg));
 }
 
+// The old launch (POST /api/launch, auto-start, obstacles → launch) is now a Quick Play session of the engine:
+// countdown, then the game. Same game already running → the late headsets join it.
 function launchWeb(game, { headsetIds, theme, fast, skipTo, team, difficulty }) {
-  const level = ['easy', 'normal', 'hard', 'nightmare'].includes(difficulty) ? difficulty : 'normal';
-  const def = WEB_GAMES.find(g => g.id === game.id);
-  if (session && sessionOver()) { session = null; stopWebGame(); }
-  if (session && session.gameId !== game.id) throw apiError(`Already running ${session.gameName}: stop it first`, 'busy', 0);
   const ids = headsetIds?.length ? headsetIds : [...headsets.values()].filter(h => h.online && h.web).map(h => h.id);
-  const ready = ids.filter(id => { const h = headsets.get(id); return h?.online && h.web && h.phase === 'idle'; });
+  const playing = new Set(engine.playersOf());
+  const ready = ids.filter(id => { const h = headsets.get(id); return h?.online && h.web && !playing.has(id) && (h.phase === 'idle' || engine.active()); });
+  if (engine.active() && engine.gameId() !== game.id) throw apiError(`Already running ${engine.view()?.gameName || 'a game'}: stop it first`, 'busy', 0);
   if (!ready.length) throw new Error('No free headset with the game page open');
-  if (ready.length + (session ? session.headsets.length : 0) > game.maxPlayers) throw new Error(`${game.name} is for up to ${game.maxPlayers} players`);
+  if (ready.length + playing.size > game.maxPlayers) throw new Error(`${game.name} is for up to ${game.maxPlayers} players`);
   const missing = ready.filter(id => !arena.calibrations[id] && !headsets.get(id).desk);
   if (missing.length) throw new Error(`Calibrate first: ${missing.map(id => headsetView(headsets.get(id)).name).join(', ')}`);
-  if (!session || !web) {
-    const g = def.create({ hall: webHall(), rooms: arena.zone?.rooms?.length ? arena.zone.rooms : undefined, doors: arena.zone?.doors || [], obstacles: arena.zone?.blocked || [], theme: theme === 'kids' ? 'kids' : 'night', fast: !!fast, skipTo, difficulty: level, seed: Date.now() % 1e9, now: Date.now(),
-      career: !skipTo && !fast, team: teamName(team) || undefined, loadSave: key => loadGameSave(game.id, key) });
-    web = { def, game: g, ids: new Set(), startMsg: null, overAt: 0, madeAt: Date.now(), held: 0, begun: false, readyAt: 0 };
-    web.startMsg = { type: 'gameStart', ...g.start(), client: def.client, title: def.name };      // client: папката на играта в public/play/games/
-    toWatchers(JSON.stringify(web.startMsg));
-    session = { gameId: game.id, gameName: game.name, headsets: [], startedAt: new Date().toISOString(), minutes: fast ? Math.ceil(game.minutes / 6) : game.minutes, web: true,
-      theme: theme === 'kids' ? 'kids' : 'night', fast: !!fast, team: teamName(team), difficulty: level };
-    newMatchForEvents();
+  if (engine.active()) {
+    engine.addPlayers(ready);
+    toast(`${ready.length} more ${ready.length === 1 ? 'headset joins' : 'headsets join'} ${game.name}`, 'ok');
+    return { ok: true, session: engine.view(), run: engine.view() };
   }
-  for (const id of ready) {
-    const h = headsets.get(id);
-    web.game.join(id, { n: headsetNumber(id), name: headsetView(h).name });
-    web.ids.add(id);
-    if (!session.headsets.includes(id)) session.headsets.push(id);
-    h.phase = 'loading'; h.loadingAt = Date.now(); h.load = 0; h.launchError = null;
-    sendTo(id, web.startMsg);
-  }
+  const kids = theme === 'kids';
+  const run = engine.start('quick', { gameId: game.id, headsetIds: ready, theme: kids ? 'kids' : 'night', kids, fast: !!fast, skipTo, team, difficulty });
   toast(`${game.name} starts on ${ready.length} ${ready.length === 1 ? 'headset' : 'headsets'}`, 'ok');
-  return { ok: true, session };
+  return { ok: true, session: run, run };
+}
+
+let webCrash = null;            // the game stopped itself after a run of errors (end reason stopped_by_game)
+const playerName = id => engine.runRaw()?.names?.[id] || (headsets.get(id) ? headsetView(headsets.get(id)).name : id);
+
+/** Creates the web game for one engine item (no checks: the pre-start check did them). */
+function createWebGame(def, item, run, count) {
+  const level = ['easy', 'normal', 'hard', 'nightmare'].includes(item.difficulty) ? item.difficulty : 'normal';
+  const theme = item.kids || item.theme === 'kids' ? 'kids' : 'night';
+  const g = def.create({
+    hall: webHall(), rooms: arena.zone?.rooms?.length ? arena.zone.rooms : undefined, doors: arena.zone?.doors || [], obstacles: arena.zone?.blocked || [],
+    theme, fast: !!item.fast, skipTo: item.skipTo, difficulty: level, seed: Date.now() % 1e9, now: Date.now(),
+    career: !item.skipTo && !item.fast, team: teamName(run.team) || undefined, loadSave: key => loadGameSave(def.id, key),
+    // design section 5: games that know these use them, older ones ignore them
+    minutes: item.minutes, kids: !!item.kids, short: !!item.short, players: count, options: item.options || {}, mode: item.mode || undefined,
+  });
+  webCrash = null; webErrors = 0;
+  web = { def, game: g, ids: new Set(), startMsg: null, overAt: 0, madeAt: Date.now(), held: 0, begun: false, readyAt: 0, frozenAt: 0, lastSnap: null, runId: run.id };
+  web.startMsg = { type: 'gameStart', ...g.start(), client: def.client, title: def.name, runId: run.id, difficulty: level, kids: !!item.kids };      // client: папката на играта в public/play/games/
+  toWatchers(JSON.stringify(web.startMsg));
+  session = { gameId: def.id, gameName: def.name, headsets: [], startedAt: new Date().toISOString(), minutes: item.minutes, web: true,
+    theme, fast: !!item.fast, team: teamName(run.team), difficulty: level, runId: run.id };
+  newMatchForEvents();
+}
+
+/** Puts one headset into the running web game (again): the rules module keeps its player, the page gets gameStart. */
+function joinWeb(id) {
+  if (!web) throw new Error('No game is running');
+  const h = headsets.get(id);
+  if (!web.ids.has(id)) {
+    web.game.join(id, { n: headsetNumber(id), name: playerName(id) });
+    web.ids.add(id);
+  }
+  if (session && !session.headsets.includes(id)) session.headsets.push(id);
+  if (h) { h.phase = 'loading'; h.loadingAt = Date.now(); h.load = 0; h.launchError = null; }
+  sendTo(id, web.startMsg);
+}
+
+const gameClock = () => Date.now() - (web?.held || 0);
+
+/** Results in the contract shape (section 5): game.results() when the game has it, else its snapshot's result. */
+function webResults() {
+  if (!web) return null;
+  let r = typeof web.game.results === 'function' ? webSafe(() => web.game.results()) : null;
+  if (!r) r = webSafe(() => web.game.snapshot()?.result) || null;
+  if (!r) return null;
+  const byN = new Map([...web.ids].map(id => [headsetNumber(id), id]));
+  const players = (r.players || []).map(p => {
+    const { id, n, name, score, kills, deaths, downs, extra, ...rest } = p;
+    const hid = id ?? byN.get(n) ?? null;
+    return { id: hid, n: n ?? (hid ? headsetNumber(hid) : null), name: String(name || (hid ? playerName(hid) : '')), score: Math.round(+score || 0),
+      kills: kills ?? null, deaths: deaths ?? downs ?? null, extra: extra || rest };
+  });
+  const { score, money, won, durationMs, difficulty, level, players: _p, extra, ...more } = r;
+  return { score: Math.round(+(score ?? money) || 0), won: won ?? null, durationMs: durationMs ?? null, difficulty: difficulty || session?.difficulty || 'normal',
+    level: level ?? null, players, extra: extra || more };
+}
+
+const webAdapter = {
+  start(item, ids, run) {
+    const def = WEB_GAMES.find(g => g.id === item.gameId);
+    if (!def) throw new Error(`${item.gameName || item.gameId} is not loaded on this PC`);
+    if (web) stopWebGame(true);
+    createWebGame(def, item, run, ids.length);
+    for (const id of ids) joinWeb(id);
+  },
+  join: joinWeb,
+  leave(id) {
+    if (!web?.ids.has(id)) return;
+    webSafe(() => web.game.leave(id));
+    web.ids.delete(id);
+    const h = headsets.get(id); if (h && (h.phase === 'loading' || h.phase === 'playing')) h.phase = 'idle';
+  },
+  has: id => !!web?.ids.has(id),
+  state: () => (web ? { exists: true, begun: !!web.begun, over: !!web.game.over } : { exists: false, error: webCrash }),
+  pause(on) {
+    if (!web) return;
+    if (typeof web.game.pause === 'function') { webSafe(() => web.game.pause(!!on, gameClock())); web.paused = !!on; return; }
+    // a rules module without pause(): its clock is held (tick gets the same time), so timers and enemies stand still
+    if (on && !web.frozenAt) web.frozenAt = Date.now();
+    else if (!on && web.frozenAt) { web.held += Date.now() - web.frozenAt; web.frozenAt = 0; }
+    web.paused = !!on;
+  },
+  setDifficulty(level) {
+    if (!web) return false;
+    if (session) session.difficulty = level;
+    if (typeof web.game.setDifficulty !== 'function') return false;
+    webSafe(() => web.game.setDifficulty(level, gameClock()));
+    return true;
+  },
+  stage(name) {
+    if (!web || typeof web.game.stage !== 'function') return false;
+    const ok = webSafe(() => web.game.stage(name, gameClock()));
+    return ok !== false;
+  },
+  results: webResults,
+  stop() { if (web) stopWebGame(true); else if (session?.web) { session = null; pushState(); } },
+  clock() {
+    const left = web?.lastSnap?.left;
+    return Number.isFinite(left) ? { remainingMs: Math.round(left * 1000) } : null;
+  },
+};
+
+// ---------- MS Games 2: settings, records, scorecards and the session engine (lib/) ----------
+
+const settings = createSettings(path.join(DATA, 'settings.json'), { initial: { autoStart: arena.autoStart ? !!arena.autoStart.on : true } });
+const records = createRecords(path.join(DATA, 'records.json'), { importFrom: scores });
+const presets = createPresets(path.join(DATA, 'playlists.json'));
+const health = createHealth();
+const scorecards = createScorecards(path.join(DATA, 'scorecards'), { profileDir: path.join(DATA, 'edge-profile') });
+const SESSIONS_FILE = path.join(DATA, 'sessions.jsonl');
+let lastPrecheck = null;
+
+// Headset colours: by number, or chosen at install (arena.colors). Our own palette, eight easy-to-tell colours.
+const COLORS = ['#e8453c', '#2f7cf6', '#f2a516', '#2fbf71', '#a259f0', '#ec5fa5', '#16b8c4', '#f3f3f3'];
+arena.colors ||= {};
+const headsetColor = id => arena.colors[id] || COLORS[(headsetNumber(id) - 1) % COLORS.length];
+
+/** The venue logo is served at /venue/logo (never sent inline: it can be a large data URL). */
+function venueView() {
+  const v = settings.get().venue;
+  return { name: v.name, logo: v.logo ? (v.logo.startsWith('/') ? v.logo : `/venue/logo?v=${v.logo.length.toString(36)}`) : null };
+}
+function settingsView() { return { ...settings.get(), venue: venueView() }; }
+
+function lobbyMessage(run) {
+  const s = settings.get();
+  const season = seasonFor(s.theme === 'birthday' ? 'off' : s.theme);
+  const gameId = run?.item?.gameId || engine?.last?.()?.results?.gameId || '';
+  return {
+    type: 'lobby', theme: season || 'night', season, birthday: !!run?.birthday || s.theme === 'birthday',
+    board: records.board(gameId, 5), venue: venueView(), runId: run?.id || null, kind: run?.kind || engine?.flow?.()?.kind || null,
+  };
+}
+
+/** A finished game: the old leaderboard, the records, the scorecard sidecar (and its PNG in the background). */
+function saveResults(run, item, res) {
+  try { recordScore(); } catch (e) { console.warn('scores.json:', e.message); }
+  const { entry, rank, newRecord } = records.add({
+    gameId: item.gameId, game: item.gameName, team: run.team || res.team, score: res.score, players: res.players,
+    difficulty: item.difficulty, minutes: item.minutes, kids: item.kids, sessionId: res.sessionId,
+  });
+  const card = {
+    id: res.sessionId, runId: run.id, gameId: item.gameId, game: item.gameName, cover: games.find(g => g.id === item.gameId)?.cover || null,
+    team: entry.team, score: res.score, won: res.won, rank, newRecord, difficulty: item.difficulty, minutes: item.minutes, kids: !!item.kids,
+    players: res.players, columns: games.find(g => g.id === item.gameId)?.scorecard?.columns || ['score'], date: entry.date,
+    durationMs: res.durationMs, venue: { name: settings.get().venue.name, logo: venueView().logo },
+  };
+  let base = null;
+  try { base = scorecards.save(card); } catch (e) { console.warn('scorecard:', e.message); }
+  if (base && process.env.NO_SCORECARD_CAPTURE !== '1' && fs.existsSync(path.join(HERE, 'public', 'scorecard', 'index.html'))) {      // the console's page (S1) draws the card
+    scorecards.capture(card.id, `http://127.0.0.1:${PORT}/scorecard/?id=${encodeURIComponent(card.id)}`)
+      .then(file => { if (file) { scorecardsVersion++; pushState(); } });
+  }
+  scorecardsVersion++;
+  if (newRecord) toast(`New record in ${item.gameName}: ${entry.team}, ${res.score}`, 'ok');
+  return { rank, newRecord, recordId: entry.id, scorecard: base, team: entry.team };
+}
+let scorecardsVersion = 0;
+
+const engine = createEngine({
+  headsets: () => [...headsets.values()].map(h => ({
+    id: h.id, online: !!h.online, web: !!h.web, desk: !!h.desk, name: arena.names[h.id] || h.name || h.id,
+    n: headsetNumber(h.id), color: headsetColor(h.id), phase: h.phase, app: h.app || null,
+  })),
+  games: () => games.filter(g => g.web),
+  settings: () => settings.get(),
+  send: sendTo,
+  lobbyMsg: run => lobbyMessage(run),
+  game: webAdapter,
+  onResults: saveResults,
+  log: e => { appendJsonl(SESSIONS_FILE, e); console.log(`[session] ${e.game} ${e.reason}${e.result ? ` score ${e.result.score}` : ''} (${e.players.join(', ')})`); },
+  changed: () => pushState(),
+  toast,
+});
+setInterval(() => { try { engine.tick(); } catch (e) { console.error('session engine:', e); } }, 250);
+
+/** Headset view as the console wants it: inputs for the pre-start check. */
+function checkView(id) {
+  const h = headsets.get(id);
+  if (!h) return { id, name: id, online: false };
+  const v = headsetView(h);
+  return { ...v, benched: engine.isBenched(id), needsCalibration: h.needsCalibration || null, worn: h.worn ?? null };
+}
+function doPrecheck(gameId, headsetIds) {
+  const game = games.find(g => g.id === gameId);
+  const ids = headsetIds?.length ? headsetIds : [...headsets.values()].filter(h => h.online && h.web && !engine.isBenched(h.id)).map(h => h.id);
+  const running = engine.inGame() ? { gameId: engine.gameId(), gameName: engine.view()?.gameName } : null;
+  const r = runPrecheck(game || null, ids.map(checkView), { area: arena.zone?.hall || null, pageBuild: pageBuild(), running });
+  lastPrecheck = { at: new Date().toISOString(), gameId, headsetIds: ids, ...r };
+  return r;
+}
+/** Start refused when the check found anything and the operator did not say "Start anyway". */
+function gate(gameIds, headsetIds, ignoreWarnings) {
+  const items = [];
+  for (const gid of new Set(gameIds)) items.push(...doPrecheck(gid, headsetIds).items);
+  if (!items.length) return;
+  const blocking = ignoreWarnings ? items.filter(i => i.code === 'no_game' || i.code === 'busy' || i.code === 'not_ready') : items;
+  if (!blocking.length) return;
+  const e = apiError(ignoreWarnings ? blocking[0].text : `Pre-start check: ${items.length} ${items.length === 1 ? 'problem' : 'problems'}`, 'precheck', 0);
+  e.items = items;
+  throw e;
+}
+const csvIds = v => (Array.isArray(v) ? v : String(v || '').split(',')).map(x => String(x).trim()).filter(Boolean);
+
+/** What the headset card says (design section 2). */
+function stateWord(h) {
+  const run = engine.view();
+  const inRun = run && run.players.some(p => p.headsetId === h.id);
+  if (!h.online) return inRun && ['loading', 'playing', 'paused'].includes(run.state) ? 'Dropped' : 'Offline';
+  if (h.phase === 'calibrating') return 'Calibrating';
+  if (inRun && run.state === 'loading') return 'Loading';
+  if (inRun && run.state === 'paused') return 'Paused';
+  if (inRun && (run.state === 'playing' || run.state === 'results')) return 'Playing';
+  if (h.sleeping) return 'Sleeping';
+  if (!h.desk && (h.needsCalibration || !arena.calibrations[h.id])) return 'Not calibrated';
+  if (engine.isBenched(h.id)) return 'Benched';
+  if (engine.state() !== 'idle') return 'Waiting room';
+  return 'Ready';
+}
+
+/** Per-headset fixes from the console (design section 4, POST /api/headset/action). */
+function headsetAction(id, action, value) {
+  const h = headsets.get(id);
+  if (!h) throw apiError('No such headset', 'no_headset', 0);
+  const name = headsetView(h).name;
+  const send = m => { const ok = sendTo(id, m); if (!ok) throw apiError(`${name} is not connected`, 'offline', 0); return { ok: true }; };
+  switch (action) {
+    case 'identify': return send({ type: 'identify' });
+    case 'restartGame': engine.restartHeadset(id); return { ok: true };
+    case 'recalibrate': return { ok: true, ...setupPoints({ redo: id }) };
+    case 'calibrateHeight': {
+      const cm = Math.round(Number(value?.cm ?? value));
+      if (!(cm >= 100 && cm <= 230)) throw new Error('Height is 100 to 230 cm');
+      (arena.heights ||= {})[id] = cm; writeJson(ARENA_FILE, arena);
+      return send({ type: 'calibrateHeight', cm });
+    }
+    case 'swapHands': h.swapHands = value === undefined ? !h.swapHands : !!value; return send({ type: 'swapHands', on: h.swapHands });
+    case 'message': {
+      const text = String(value?.text ?? value ?? '').replace(/\s+/g, ' ').trim().slice(0, 120);
+      if (!text) throw new Error('The message is empty');
+      return send({ type: 'message', text, seconds: Math.max(2, Math.min(30, Number(value?.seconds) || 6)) });
+    }
+    case 'endMessage': {
+      const preset = ['remove', 'thanks', 'staff', 'custom'].includes(value?.preset ?? value) ? (value?.preset ?? value) : 'custom';
+      return send({ type: 'endMessage', preset, text: preset === 'custom' ? String(value?.text ?? value ?? '').slice(0, 120) : '' });
+    }
+    case 'bench': engine.bench(id, value === undefined ? !engine.isBenched(id) : !!(value?.on ?? value)); return { ok: true, benched: engine.isBenched(id) };
+    case 'reload': return api['POST /api/headset/reload']({ headsetId: id });
+    case 'reboot': {
+      adbSerialFor(id).then(serial => {
+        if (serial) adbRun(['-s', serial, 'reboot']).then(r => toast(r.ok ? `${name} is rebooting` : `${name}: reboot failed (${r.err.slice(0, 80)})`, r.ok ? 'ok' : 'error'));
+        else toast(`${name}: reboot needs the headset on the cable (or wireless adb)`, 'warn');
+      });
+      return { ok: true, queued: true };
+    }
+    case 'rename': return api['POST /api/headset/rename']({ headsetId: id, name: value?.name ?? value });
+    case 'color': {
+      const c = String(value?.color ?? value ?? '');
+      if (c && !/^#[0-9a-f]{6}$/i.test(c)) throw new Error('Colour is #rrggbb');
+      if (c) arena.colors[id] = c.toLowerCase(); else delete arena.colors[id];
+      writeJson(ARENA_FILE, arena);
+      sendIdentity(id);
+      return { ok: true, color: headsetColor(id) };
+    }
+    case 'volume': return api['POST /api/headset/volume']({ headsetId: id, value: value?.value ?? value });
+    default: throw apiError(`Unknown action: ${action}`, 'bad_action', 0);
+  }
+}
+
+function sendIdentity(id) {
+  const h = headsets.get(id);
+  if (!h) return false;
+  return sendTo(id, { type: 'identity', id, n: headsetNumber(id), name: headsetView(h).name, color: headsetColor(id) });
+}
+function sendLiveSettings(id) {
+  const s = settings.get(), run = engine.view(), h = headsets.get(id);
+  return sendTo(id, { type: 'settings', difficulty: run?.difficulty || s.difficulty, kids: !!run?.kids, volume: h?.volume ?? 50, clockScope: s.clockScope,
+    language: s.language, units: s.units, venue: venueView(), heightCm: arena.heights?.[id] ?? null, swapHands: !!h?.swapHands });
+}
+
+// ---------- setup wizard, server side (design section 3) ----------
+
+const setup = createSetupTracker(arena.setup || {});
+const saveSetup = () => { arena.setup = setup.saved(); writeJson(ARENA_FILE, arena); };
+const hasCap = (id, cap) => Array.isArray(headsets.get(id)?.caps) && headsets.get(id).caps.includes(cap);
+const SETUP_POINTS_BUILD = 35;      // headset page build that understands setupPoints (S3, 2026-11-16)
+const knowsSetupPoints = id => hasCap(id, 'setupPoints') || (headsets.get(id)?.build || 0) >= SETUP_POINTS_BUILD;
+
+/** Asks one headset for its two points: the new page gets setupPoints, an older page the old two-point flow. */
+function askPoints(id) {
+  const h = headsets.get(id);
+  const on = !!(h?.online && h.web);
+  setup.ask(id, on);
+  if (!on) return false;
+  h.phase = 'calibrating'; h.calibStep = 0;
+  if (knowsSetupPoints(id)) sendTo(id, { type: 'setupPoints', step: 'p1', marks: arena.zone?.markers || null, ref: setup.st.ref === id || !arena.zone });
+  else sendTo(id, { type: 'zoneAlign', markers: arena.zone?.markers || null });
+  return true;
+}
+
+/** POST /api/setup/points: {headsetId} first headset · {sync:true} every other connected headset · {redo:id} one again. */
+function setupPoints({ headsetId, sync, redo } = {}) {
+  if (engine.inGame()) throw apiError('Stop the game before calibrating', 'busy', 0);
+  if (headsetId) {
+    const id = String(headsetId);
+    if (!headsets.get(id)?.online) throw apiError('The headset is not connected', 'offline', 0);
+    if (!arena.zone && setup.st.area?.kind !== 'preset') throw apiError('Choose the play area first (preset or draw)', 'no_area', 0);
+    if (!arena.zone) setup.reset();      // a new preset: this headset's marks define it
+    setup.st.ref = id;
+    askPoints(id);
+    setup.st.step = 'points'; saveSetup();
+    return { asked: [id] };
+  }
+  if (redo) {
+    const id = String(redo);
+    if (!arena.zone && setup.st.ref !== id) throw apiError('The first headset has to do its points first', 'no_area', 0);
+    if (!headsets.get(id)?.online) throw apiError('The headset is not connected', 'offline', 0);
+    askPoints(id);
+    return { asked: [id] };
+  }
+  if (sync) {
+    if (!arena.zone) throw apiError('The first headset has to do its points first', 'no_area', 0);
+    const asked = [];
+    for (const h of headsets.values()) {
+      if (!h.web || h.desk || h.id === setup.st.ref) continue;
+      if (setup.st.points[h.id] === 'done' && !sync.again) continue;
+      if (askPoints(h.id)) asked.push(h.id); else setup.st.points[h.id] = 'waiting';
+    }
+    setup.st.step = 'sync';
+    return { asked };
+  }
+  throw new Error('Give headsetId, sync or redo');
+}
+
+/** Both points of one headset are in (in its own tracking coordinates). */
+async function onSetupPoints(id, h, points, floorY) {
+  h.phase = 'idle'; h.calibStep = 0;
+  if (!zoneLib) await loadZoneLib();
+  const isRef = setup.st.ref === id || !arena.zone;
+  const r = setup.finish(id, points, { isRef });
+  if (!r.ok) { sendTo(id, { type: 'setupPoints', step: 'cancel', error: setup.st.errors[id] }); toast(`${headsetView(h).name}: ${setup.st.errors[id]}`, 'error'); return pushState(); }
+  if (isRef && setup.st.area?.kind === 'preset') {
+    // the first headset's marks place the preset rectangle; every calibration before it belonged to another area
+    const prevFile = archiveCalibration('setup');
+    arena.zone = { ...presetZone(setup.st.area, r.ab), by: id, at: new Date().toISOString() };
+    arena.calibrations = {};
+    logCalib('setupPreset', id, null, { prevFile, area: setup.st.area, ab: r.ab });
+    broadcastZone();
+  }
+  let frame;
+  try { frame = zoneLib.solveAlign(arena.zone.markers, points); }
+  catch (e) { setup.fail(id, e.message); sendTo(id, { type: 'setupPoints', step: 'cancel', error: e.message }); return pushState(); }
+  setCalibrationFromFrame(id, frame, arena.zone.hall, isRef ? 'setup' : 'setupSync', floorY);
+  delete h.needsCalibration;
+  sendZone(id);
+  sendTo(id, { type: 'setupPoints', step: 'done', abDelta: setup.st.check[id]?.abDelta ?? 0 });
+  saveSetup();
+  const c = setup.st.check[id];
+  toast(`${headsetView(h).name}: points done${c && !c.ok ? `, A–B differs by ${Math.round(c.abDelta * 100)} cm (redo)` : ''}`, c && !c.ok ? 'warn' : 'ok');
+  pushState();
+}
+
+// ---------- USB headsets ----------
+let usbList = [];
+const usbJobs = new Map();       // serial → { state, text, error }
+let usbAt = 0;
+async function refreshUsb() {
+  if (!fs.existsSync(ADB) && ADB !== 'adb') { usbList = []; return usbList; }
+  const r = await adbRun(['devices', '-l'], 8000);
+  const devs = r.ok ? parseAdbDevices(r.out) : [];
+  usbList = devs.map(d => ({ serial: d.serial, model: d.model, product: d.product, ...usbState(d, usbJobs.get(d.serial)) }));
+  for (const [serial, job] of usbJobs) if (!devs.some(d => d.serial === serial) && job.state !== 'installing') usbJobs.delete(serial);
+  usbAt = Date.now();
+  return usbList;
+}
+function headsetApk() {
+  const c = [process.env.HEADSET_APK, path.join(HERE, 'tools', 'apk', 'MSGames-Headset.apk'), path.join(HERE, '..', 'lobby', 'tools', 'apk-lan', 'MSGames-Headset.apk')].filter(Boolean);
+  return c.find(f => fs.existsSync(f)) || null;
+}
+async function usbInstall({ serial, number, color, name }) {
+  const s = String(serial || '');
+  const job = { state: 'installing', text: 'Starting' };
+  usbJobs.set(s, job);
+  const set = text => { job.text = text; refreshUsb().then(pushState); };
+  try {
+    if (number != null) {
+      const n = Math.round(Number(number));
+      if (!(n >= 1 && n <= 99)) throw new Error('Number is 1 to 99');
+      for (const [id, v] of Object.entries(arena.numbers)) if (v === n && id !== s) delete arena.numbers[id];
+      arena.numbers[s] = n;
+    }
+    if (color && /^#[0-9a-f]{6}$/i.test(color)) arena.colors[s] = color.toLowerCase();
+    if (name && String(name).trim()) arena.names[s] = String(name).trim().slice(0, 30);
+    writeJson(ARENA_FILE, arena);
+    const identity = { id: s, number: headsetNumber(s), color: headsetColor(s), name: arena.names[s] || `Headset ${headsetNumber(s)}` };
+    const tmp = path.join(DATA, `id-${s.replace(/\W/g, '')}.json`);
+    await installHeadset({
+      apk: headsetApk(), identity,
+      run: args => adbRun(['-s', s, ...args], 120_000),
+      pushFile: async (remote, text) => {
+        fs.writeFileSync(tmp, text);
+        const r = await adbRun(['-s', s, 'push', tmp, remote], 20_000);
+        fs.rmSync(tmp, { force: true });
+        if (!r.ok) throw new Error(`Writing the identity failed: ${r.err.slice(0, 100)}`);
+      },
+      onStep: set,
+    });
+    Object.assign(job, { state: 'done', text: 'Done', error: null });
+    toast(`${identity.name} is installed (number ${identity.number})`, 'ok');
+  } catch (e) {
+    Object.assign(job, { state: 'failed', text: 'Failed', error: e.message });
+    toast(`USB install on ${s} failed: ${e.message}`, 'error');
+  }
+  await refreshUsb();
+  pushState();
+}
+
+// ---------- diagnose, firewall, bug report (design section 8) ----------
+
+const runExec = (file, args, timeout = 8000) => new Promise(resolve => execFile(file, args, { timeout, windowsHide: true },
+  (err, out, errOut) => resolve({ ok: !err, out: String(out || ''), err: String(errOut || err?.message || '') })));
+const PKG_VERSION = readJson(path.join(HERE, 'package.json'), {}).version || '0';
+let firewallCache = null;
+async function firewallNow(force = false) {
+  if (process.platform !== 'win32') return { tcp: false, udp: false, available: false };
+  if (!force && firewallCache && Date.now() - firewallCache.at < 60_000) return firewallCache.v;
+  const v = await firewallStatus((f, a) => runExec(f, a));
+  firewallCache = { at: Date.now(), v };
+  return v;
+}
+async function runDiagnose() {
+  const addresses = lanAddresses();
+  const chosen = addresses.find(a => a.startsWith('192.168.')) || addresses.find(a => a.startsWith('10.')) || addresses[0] || null;
+  const adbOk = ADB === 'adb' ? (await runExec('adb', ['version'], 4000)).ok : fs.existsSync(ADB);
+  const devs = adbOk ? (await adbRun(['devices'], 5000)).out.split('\n').slice(1).map(l => l.trim().split(/\s+/)).filter(l => l[1] === 'device').map(l => l[0]) : [];
+  const list = await Promise.all([...headsets.values()].map(async h => {
+    const v = headsetView(h), hv = health.view(h.id, h.wifi ?? null);
+    const row = { id: h.id, name: v.name, online: !!h.online, ip: h.ip, desk: !!h.desk, wsPingMs: hv.pingMs, build: h.build || 0, appVersion: h.appVersion || null,
+      battery: h.battery, charging: h.charging, lastDropAt: hv.lastDropAt, drops: hv.drops };
+    if (h.online && !h.desk && h.ip && !/^(127\.|::1)/.test(h.ip)) {
+      const r = await runExec('ping', process.platform === 'win32' ? ['-n', '1', '-w', '1000', h.ip] : ['-c', '1', '-W', '1', h.ip], 4000);
+      row.pcPingMs = r.ok ? parsePingMs(r.out) : null;
+      const serial = devs.find(s => s === h.id || s.startsWith(`${h.ip}:`));
+      if (serial && chosen) { const b = await adbRun(['-s', serial, 'shell', 'ping', '-c', '1', '-W', '1', chosen], 5000); row.backPingMs = b.ok ? parsePingMs(b.out) : null; }
+    }
+    return row;
+  }));
+  const r = buildChecks({ addresses, chosen, version: PKG_VERSION, pageBuild: pageBuild(), firewall: await firewallNow(), headsets: list, adb: adbOk });
+  return { at: new Date().toISOString(), pc: { addresses, chosen, hostname: os.hostname(), node: process.version, version: PKG_VERSION, port: PORT, tlsPort: TLS_PORT }, ...r };
+}
+async function fixFirewall(opts) {
+  if (process.platform !== 'win32') throw new Error('The firewall fix is for Windows');
+  if (process.env.ARENA_DEV === '1' && process.env.ALLOW_FIREWALL_FIX !== '1') {
+    const c = firewallFixCommand(opts);
+    return { skipped: true, reason: 'dev server: not asking Windows for elevation', command: c.cmds };
+  }
+  const c = firewallFixCommand(opts);
+  const r = await runExec(c.file, c.args, 120_000);
+  const v = await firewallNow(true);
+  toast(v.tcp && v.udp ? 'Firewall rules added' : 'The firewall rules are still missing (was the Windows prompt allowed?)', v.tcp && v.udp ? 'ok' : 'warn');
+  return { firewall: v, ran: r.ok };
+}
+async function makeBugReport(note) {
+  const when = new Date();
+  const files = [
+    { name: 'note.txt', data: `${note || '(no note)'}\r\n\r\n${when.toString()}\r\nMS Games ${PKG_VERSION}, node ${process.version}, ${os.hostname()}\r\n` },
+    { name: 'server.log', data: tailFile(path.join(DATA, 'server.log')) },
+    { name: 'sessions-tail.jsonl', data: tailJsonl(SESSIONS_FILE, 200).map(e => JSON.stringify(e)).join('\n') },
+    { name: 'state.json', data: JSON.stringify(snapshot(), null, 2) },
+    { name: 'settings.json', data: JSON.stringify({ ...settings.get(), venue: venueView() }, null, 2) },
+    { name: 'game-errors.log', data: tailFile(path.join(DATA, 'game-errors.log'), 512 * 1024) },
+    { name: 'calibration.log', data: tailFile(path.join(DATA, 'calibration.log'), 512 * 1024) },
+  ];
+  try { files.push({ name: 'diagnose.json', data: JSON.stringify(await runDiagnose(), null, 2) }); } catch (e) { files.push({ name: 'diagnose-error.txt', data: String(e.stack || e) }); }
+  if (fs.existsSync(ADB) || ADB === 'adb') {
+    const devs = (await adbRun(['devices'], 5000)).out.split('\n').slice(1).map(l => l.trim().split(/\s+/)).filter(l => l[1] === 'device').map(l => l[0]);
+    for (const s of devs.slice(0, 8)) {
+      const r = await adbRun(['-s', s, 'logcat', '-d', '-t', '3000'], 20_000);
+      files.push({ name: `logcat-${s.replace(/[^\w.-]/g, '_')}.txt`, data: r.out || r.err });
+    }
+  }
+  const dir = reportDir(process.env.BUGREPORT_DIR || (process.env.ARENA_DEV === '1' ? path.join(DATA, 'bugreports') : null));
+  fs.mkdirSync(dir, { recursive: true });
+  const file = path.join(dir, reportName(when));
+  fs.writeFileSync(file, makeZip(files, when));
+  toast(`Bug report saved: ${path.basename(file)}`, 'ok');
+  return { file, bytes: fs.statSync(file).size, files: files.map(f => f.name) };
 }
 
 setInterval(() => {
@@ -1753,7 +2303,8 @@ setInterval(() => {
   if (!session?.web) return stopWebGame();
   webSafe(() => {
     const now = Date.now();
-    for (const id of [...web.ids]) {   // каска, която е паднала за дълго, излиза от играта
+    // with a session engine run the dropped players are its business (auto-pause, Continue without them)
+    if (!engine.active()) for (const id of [...web.ids]) {   // каска, която е паднала за дълго, излиза от играта
       const h = headsets.get(id);
       if (!h || (!h.online && now - h.lastSeen > SESSION_DROP_MS)) { web.game.leave(id); web.ids.delete(id); }
     }
@@ -1765,15 +2316,17 @@ setInterval(() => {
       if (now - web.madeAt > 45_000 || (web.readyAt && now - web.readyAt >= 2500)) web.begun = true;
       else web.held = now - web.madeAt;
     }
-    web.game.tick(now - web.held);
+    if (!web.frozenAt) web.game.tick(now - web.held);
     writeGameSaves();
-    const out = JSON.stringify({ type: 'game', ...web.game.snapshot() });
+    const snap = web.game.snapshot();
+    web.lastSnap = snap;
+    const out = JSON.stringify({ type: 'game', ...snap, ...(web.paused ? { paused: true } : {}) });
     for (const id of web.ids) { const ws = sockets.get(id); if (ws?.readyState === 1) ws.send(out); }
     toWatchers(out);
     if (web.game.over) {
       web.overAt ||= now;
-      recordScore();
-      if (now - web.overAt > 25_000) stopWebGame(true);   // резултатът стои 25 с, после всички са свободни
+      // the engine takes the results, shows them for resultsSec and then stops the game; without a run: as before
+      if (!engine.active()) { recordScore(); if (now - web.overAt > 25_000) stopWebGame(true); }   // резултатът стои 25 с, после всички са свободни
     }
   });
 }, 100);
@@ -1867,6 +2420,7 @@ const api = {
     arena.autoStart = { on: on === undefined ? !!cur.on : !!on, gameId: id, theme: themes.some(t => t.id === th) ? th : (themes[0]?.id || null) };
     writeJson(ARENA_FILE, arena);
     if (arena.autoStart.on) autoSeen.clear();      // включено наново: каските, които вече са тук, също минават
+    if (settings.get().autoStart !== arena.autoStart.on) settings.update({ autoStart: arena.autoStart.on });
     return { ok: true, autoStart: arena.autoStart };
   },
   'POST /api/zone/align': ({ headsetId }) => {
@@ -2094,14 +2648,17 @@ const api = {
   },
   // отборът се казва по-късно (играта вече върви) или се поправя преди записа
   'POST /api/session/team': ({ team }) => {
-    if (!session) throw new Error('No game');
-    session.team = teamName(team);
+    const run = engine.runRaw();
+    if (!session && !run) throw new Error('No game');
+    if (session) session.team = teamName(team);
+    if (run) run.team = teamName(team);
     pushState();
-    return { ok: true, team: session.team };
+    return { ok: true, team: teamName(team) };
   },
 
   'POST /api/stop': () => {
     if (mapVote && mapVote.state === 'voting') { mapVote.state = 'cancelled'; mapVote.error = 'стоп'; mapVote.endedAt = Date.now(); }
+    if (engine.active()) engine.stop('stopped_by_operator');
     for (const h of headsets.values()) if (h.phase === 'playing' || h.phase === 'loading') sendTo(h.id, { type: 'stop' });
     stopWebGame();
     session = null;
@@ -2376,6 +2933,151 @@ const api = {
     h.volume = clamp(Math.round(Number(value)), 0, 100);
     return { ok: sendTo(headsetId, { type: 'volume', value: h.volume }) };
   },
+
+  // ======== MS Games 2 (design section 9) ========
+  'POST /api/flow/open': ({ kind, step }) => { engine.open({ kind, step }); return { ok: true, flow: engine.flow(), run: engine.view() }; },
+  'POST /api/flow/close': () => { engine.close(); return { ok: true, flow: null }; },
+  'POST /api/flow/step': ({ step }) => { engine.step(step); return { ok: true, flow: engine.flow() }; },
+
+  'GET /api/precheck': (_, req) => {
+    const q = new URL(req.url, 'http://x').searchParams;
+    const r = doPrecheck(String(q.get('gameId') || ''), csvIds(q.get('headsetIds')));
+    return { ok: r.ok, items: r.items };
+  },
+
+  'POST /api/session/start': body => {
+    const ids = csvIds(body.headsetIds);
+    gate([body.gameId], ids, !!body.ignoreWarnings);
+    const run = engine.start('quick', { ...body, headsetIds: ids.length ? ids : null });
+    return { ok: true, run };
+  },
+  'POST /api/session/pause': ({ on }) => ({ ok: true, run: engine.pause(on !== false) }),
+  'POST /api/session/difficulty': ({ level }) => { const r = engine.difficulty(level); return { ok: true, live: r.live, run: engine.view() }; },
+  'POST /api/session/stage': ({ stage }) => ({ ok: true, run: engine.stage(stage) }),
+  'POST /api/session/restart': () => ({ ok: true, run: engine.restart() }),
+  'POST /api/session/stop': ({ reason } = {}) => { engine.stop(reason === 'stopped_by_game' || reason === 'unexpected' ? reason : 'stopped_by_operator'); return { ok: true, run: null, last: engine.last() }; },
+  'POST /api/session/continue': () => { const r = engine.continueWithout(); return { ok: true, removed: r.removed, run: engine.view() }; },
+  'GET /api/sessions': (_, req) => ({ ok: true, sessions: tailJsonl(SESSIONS_FILE, Math.min(500, +new URL(req.url, 'http://x').searchParams.get('limit') || 50)).reverse() }),
+
+  'POST /api/playlist/start': body => {
+    const ids = csvIds(body.headsetIds);
+    let p = body;
+    if (body.preset) { p = presets.list().find(x => x.name.toLowerCase() === String(body.preset).toLowerCase()); if (!p) throw new Error('No such playlist'); p = { ...p, ...body, items: body.items || p.items }; }
+    gate((p.items || []).map(i => i.gameId), ids, !!body.ignoreWarnings);
+    return { ok: true, run: engine.start('playlist', { ...p, headsetIds: ids.length ? ids : null }) };
+  },
+  'POST /api/playlist/next': () => ({ ok: true, run: engine.next() }),
+  'GET /api/playlist/presets': () => ({ ok: true, presets: presets.list() }),
+  'POST /api/playlist/presets': body => {
+    if (body.remove) { presets.remove(body.remove); return { ok: true, presets: presets.list() }; }
+    const saved = presets.save(body, id => games.some(g => g.id === id && g.web));
+    return { ok: true, preset: saved, presets: presets.list() };
+  },
+  'POST /api/party/start': body => {
+    const ids = csvIds(body.headsetIds);
+    const list = Array.isArray(body.games) && body.games.length ? body.games : games.filter(g => g.web && g.status !== 'soon').map(g => g.id);
+    gate(list.slice(0, 1), ids, true);      // the game is not known until the vote: only hard problems stop a party
+    return { ok: true, run: engine.start('party', { ...body, games: list, headsetIds: ids.length ? ids : null }) };
+  },
+  'POST /api/party/skipvote': () => ({ ok: true, run: engine.skipVote() }),
+
+  // per-headset fixes (design section 4)
+  'POST /api/headset/action': ({ headsetId, action, value }) => headsetAction(String(headsetId || ''), String(action || ''), value),
+  'POST /api/endmessage': ({ headsetIds, preset, text }) => {
+    const p = ['remove', 'thanks', 'staff', 'custom'].includes(preset) ? preset : 'remove';
+    const ids = csvIds(headsetIds).length ? csvIds(headsetIds) : [...sockets.keys()];
+    let sent = 0;
+    for (const id of ids) if (sendTo(id, { type: 'endMessage', preset: p, text: p === 'custom' ? String(text || '').slice(0, 120) : '' })) sent++;
+    return { ok: true, sent };
+  },
+
+  // records and scorecards (design section 6)
+  'GET /api/records': (_, req) => {
+    const q = new URL(req.url, 'http://x').searchParams;
+    const opts = { gameId: q.get('gameId') || q.get('game') || '', period: q.get('period') || 'all', difficulty: q.get('difficulty') || '', limit: +q.get('limit') || 100 };
+    if (q.get('format') === 'csv') return { __raw: { type: 'text/csv; charset=utf-8', body: '﻿' + records.csv(opts), name: `records-${opts.gameId || 'all'}-${opts.period}.csv` } };
+    return { ok: true, version: records.version, ...opts, ...records.list(opts) };
+  },
+  'POST /api/records/rename': ({ id, team }) => ({ ok: true, record: records.rename(String(id || ''), team) }),
+  'POST /api/records/remove': ({ id }) => { records.remove(String(id || '')); return { ok: true }; },
+  'GET /api/scorecards': () => ({ ok: true, version: scorecardsVersion, scorecards: scorecards.list() }),
+  'GET /api/scorecard': (_, req) => {
+    const id = new URL(req.url, 'http://x').searchParams.get('id');
+    const card = scorecards.get(id);
+    if (!card) throw apiError('No such scorecard', 'not_found', 0);
+    return { ok: true, scorecard: card };
+  },
+  'POST /api/scorecards/png': ({ id, png }) => {
+    const m = /^data:image\/png;base64,(.+)$/.exec(String(png || ''));
+    if (!m) throw new Error('png must be a data:image/png;base64 URL');
+    const url = scorecards.savePng(String(id || ''), Buffer.from(m[1], 'base64'));
+    scorecardsVersion++;
+    return { ok: true, png: url };
+  },
+  'POST /api/scorecards/remove': ({ id }) => { scorecards.remove(String(id || '')); scorecardsVersion++; return { ok: true }; },
+  'POST /api/scorecards/print': ({ id }) => {
+    const card = scorecards.get(String(id || ''));
+    if (!card) throw new Error('No such scorecard');
+    const p = settings.get().printer;
+    if (p.kind !== 'thermal') throw apiError('The printer in Settings is the system printer: print from the browser', 'system_printer', 0);
+    printThermal(p.thermalHost, p.queue, labelTspl(card, { venue: settings.get().venue.name }))
+      .then(r => toast(r.ok ? `Scorecard sent to the label printer` : `The label printer did not take it (${r.error || `IPP status ${r.status}`})`, r.ok ? 'ok' : 'error'));
+    return { ok: true, queued: true };
+  },
+
+  'GET /api/settings': () => ({ ok: true, settings: settings.get() }),
+  'POST /api/settings': patch => {
+    const s = settings.update(patch);
+    if ('autoStart' in (patch || {})) { arena.autoStart = { ...(arena.autoStart || AUTO_DEFAULT), on: s.autoStart }; writeJson(ARENA_FILE, arena); if (s.autoStart) autoSeen.clear(); }
+    return { ok: true, settings: settingsView() };
+  },
+
+  // setup wizard (design section 3)
+  'POST /api/setup': ({ step, entry, reset }) => {
+    if (step !== undefined) setup.st.step = step ? String(step).slice(0, 20) : null;
+    if (entry !== undefined) setup.st.entry = ['first', 'addHeadset', 'resetArea', 'recalibrate'].includes(entry) ? entry : null;
+    if (reset === 'points' || reset === 'all') { setup.reset(); }
+    if (reset === 'area' || reset === 'all') { setup.st.area = null; }
+    saveSetup();
+    return { ok: true, setup: setup.view() };
+  },
+  'POST /api/setup/area': ({ kind, w, d, rotation, entrance, headsetId }) => {
+    if (engine.inGame()) throw apiError('Stop the game before changing the play area', 'busy', 0);
+    if (kind === 'draw') {
+      const r = api['POST /api/zone/draw']({ headsetId });
+      setup.st.area = { kind: 'draw', headsetId: String(headsetId) };
+      setup.reset(); setup.st.ref = String(headsetId); setup.st.points[setup.st.ref] = 'p1';
+      setup.st.step = 'area'; saveSetup();
+      return { ...r, setup: setup.view() };
+    }
+    if (kind !== 'preset') throw new Error('kind is preset or draw');
+    const spec = cleanPreset({ w, d, rotation, entrance });
+    setup.st.area = spec;
+    // the size and turn are kept; the rectangle is placed when the first headset touches marks A and B
+    if (arena.zone?.preset && arena.zone.markers?.length === 2 && setup.st.refAB) {
+      arena.zone = { ...presetZone(spec, setup.st.refAB), by: arena.zone.by, at: new Date().toISOString() };
+      writeJson(ARENA_FILE, arena);
+      broadcastZone();
+    }
+    setup.st.step = 'area'; saveSetup();
+    return { ok: true, setup: setup.view(), preview: presetZone(spec, Math.min(spec.d, Math.max(2, setup.st.refAB || 2))) };
+  },
+  'POST /api/setup/points': body => ({ ok: true, ...setupPoints(body || {}), setup: setup.view() }),
+  'GET /api/usb': async () => ({ ok: true, usb: await refreshUsb(), apk: headsetApk() ? path.basename(headsetApk()) : null }),
+  'POST /api/usb/install': async body => {
+    const list = await refreshUsb();
+    const dev = list.find(d => d.serial === String(body.serial || ''));
+    if (!dev) throw apiError('That headset is not on the cable', 'not_found', 0);
+    if (dev.state === 'allow') throw apiError('Allow USB debugging in the headset first', 'unauthorized', 0);
+    if (usbJobs.get(dev.serial)?.state === 'installing') throw apiError('Already installing', 'busy', 0);
+    usbInstall(body);
+    return { ok: true, queued: true };
+  },
+
+  // operations (design section 8)
+  'GET /api/diagnose': async () => ({ ok: true, ...(await runDiagnose()) }),
+  'POST /api/firewall/fix': async () => ({ ok: true, ...(await fixFirewall({ node: process.execPath, ports: [PORT, TLS_PORT], udp: [47810] })) }),
+  'POST /api/bugreport': async ({ note }) => ({ ok: true, ...(await makeBugReport(String(note || ''))) }),
 };
 
 const MIME = {
@@ -2456,11 +3158,29 @@ const server = http.createServer(async (req, res) => {
       return res.end(body);
     }
 
+    if (req.method === 'GET' && url.pathname === '/venue/logo') {
+      const logo = settings.get().venue.logo;
+      const m = logo && /^data:([\w/+.-]+);base64,(.+)$/.exec(logo);
+      if (!m) return json(res, 404, { error: 'No logo' });
+      res.writeHead(200, { 'content-type': m[1], 'cache-control': 'no-cache' });
+      return res.end(Buffer.from(m[2], 'base64'));
+    }
+    const card = req.method === 'GET' && url.pathname.match(/^\/scorecards\/([\w.-]+)$/);
+    if (card) {
+      const f = scorecards.file(card[1]);
+      if (!f) return json(res, 404, { error: 'No such scorecard' });
+      res.writeHead(200, { 'content-type': MIME[path.extname(f)] || 'application/octet-stream', 'cache-control': 'no-cache' });
+      return fs.createReadStream(f).pipe(res);
+    }
     const handler = api[`${req.method} ${url.pathname}`];
     if (handler) {
       const body = req.method === 'POST' ? JSON.parse((await readBody(req)).toString() || '{}') : {};
-      const result = handler(body, req);
+      const result = await handler(body, req);
       pushState();
+      if (result && result.__raw) {      // CSV export and other non-JSON answers
+        res.writeHead(200, { 'content-type': result.__raw.type, ...(result.__raw.name ? { 'content-disposition': `attachment; filename="${result.__raw.name}"` } : {}) });
+        return res.end(result.__raw.body);
+      }
       return json(res, 200, result);
     }
 
@@ -2493,6 +3213,7 @@ const server = http.createServer(async (req, res) => {
     const out = { error: err.message };
     if (err.code && typeof err.code === 'string' && !/^E[A-Z]/.test(err.code)) out.code = err.code;   // arena13h: busy / no_maps
     if (err.retryAfter) out.retryAfter = err.retryAfter;
+    if (Array.isArray(err.items)) out.items = err.items;      // the pre-start check: what to fix
     json(res, 400, out);
   }
 });
@@ -2509,13 +3230,13 @@ function autoStartTick() {
   const cfg = arena.autoStart;
   for (const h of headsets.values()) {
     if (!h.online) { autoSeen.delete(h.id); continue; }
-    if (!cfg?.on || h.desk || !h.web) continue;
+    if (!cfg?.on || !settings.get().autoStart || engine.flow() || h.desk || !h.web) continue;
     const seen = autoSeen.get(h.id), now = Date.now();
     if (!seen) { autoSeen.set(h.id, { step: 'new', at: now }); continue; }
     if (seen.step === 'new' && (now - seen.at < 3000 || h.anchor == null)) continue;      // its first status report first
     if (seen?.step === 'started') continue;
     if (seen?.step === 'retry' && now - seen.at < 30_000) continue;
-    if (session && (session.headsets || []).includes(h.id)) { autoSeen.set(h.id, { step: 'started', at: now }); continue; }
+    if (engine.playersOf().includes(h.id)) { autoSeen.set(h.id, { step: 'started', at: now }); continue; }
     if (h.phase !== 'idle') continue;
     const name = arena.names[h.id] || h.name || h.id;
     if (h.anchor !== 'ok') {
@@ -2525,7 +3246,7 @@ function autoStartTick() {
       }
       continue;
     }
-    if (session && session.gameId !== cfg.gameId) continue;      // върви друга игра: каската чака в лобито
+    if (engine.active() && engine.gameId() !== cfg.gameId) continue;      // върви друга игра: каската чака в лобито
     try {
       api['POST /api/launch']({ gameId: cfg.gameId, headsetIds: [h.id], theme: cfg.theme || undefined, fast: false });
       autoSeen.set(h.id, { step: 'started', at: now });
@@ -2617,6 +3338,7 @@ server.on('upgrade', (req, socket, head) => {
 
 wssHeadset.on('connection', (ws, req) => {
   const ip = (req.socket.remoteAddress || '').replace('::ffff:', '');
+  ws.on('pong', () => { if (ws.headsetId && ws.pingAt) health.ping(ws.headsetId, Date.now() - ws.pingAt); ws.pingAt = 0; });
   ws.on('message', data => {
     let msg;
     try { msg = JSON.parse(data); } catch { return; }
@@ -2628,9 +3350,21 @@ wssHeadset.on('connection', (ws, req) => {
     sockets.delete(id);
     const h = headsets.get(id);
     if (h) { h.online = false; if (h.phase === 'calibrating') { h.phase = 'idle'; h.calibStep = 0; } }
+    health.drop(id); engine.onDisconnect(id);
     pushState();
   });
 });
+
+// link health every 5 s: game pages get `ping {t}` and echo `health {t}` (round trip through the page itself);
+// other clients get a WebSocket ping (pong time = ping)
+setInterval(() => {
+  for (const [id, ws] of sockets) {
+    if (ws.readyState !== 1) continue;
+    if (headsets.get(id)?.web) { ws.send(JSON.stringify({ type: 'ping', t: Date.now(), lastMs: health.view(id).pingMs })); continue; }
+    ws.pingAt = Date.now();
+    try { ws.ping(); } catch { /* closing */ }
+  }
+}, 5000);
 
 wssUi.on('connection', ws => {
   uiClients.add(ws);
