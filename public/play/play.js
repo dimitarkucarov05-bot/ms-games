@@ -879,7 +879,7 @@ async function endGame() {
 
 // ---------- зона: чертане от каската ----------
 
-const BUILD = 36;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
+const BUILD = 37;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
 // what this page understands of MS Games 2 (the server may fall back to older flows for pages without a cap)
 const CAPS = ['lobby', 'vote', 'countdown', 'pause', 'settings', 'results', 'endMessage', 'message', 'swapHands', 'calibrateHeight', 'setupPoints', 'identity', 'restartGame', 'recalibrate', 'bench', 'ping'];
 let zoneMod = null, zoneEditor = null, zoneViewObj = null, zoneData = null;
@@ -1147,6 +1147,7 @@ function onSession(m) {
     case 'settings':
       ctx.settings = { ...(ctx.settings || {}), ...m };
       if (m.volume != null) { volume = clamp(Number(m.volume) || 0, 0, 100); sfx.volume(volume / 100); }
+      if (typeof m.swapHands === 'boolean') setSwap(m.swapHands);      // the server keeps it per headset; heightCm is NOT re-applied here: it needs the player standing straight right now
       try { game?.scene?.onSettings?.(ctx.settings); } catch (e) { console.warn(e); }
       return true;
     case 'results': overlay.results(m, m.seconds); return true;
