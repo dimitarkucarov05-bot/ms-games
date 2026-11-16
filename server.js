@@ -3225,7 +3225,11 @@ const server = http.createServer(async (req, res) => {
       // path.resolve + path.sep: еднакво на Mac и Windows (там разделителят е \\ и „/..\\" също е изход)
       const PUBLIC = path.join(HERE, 'public');
       if (url.pathname === '/play' || url.pathname === '/board') { res.writeHead(302, { location: url.pathname + '/' }); return res.end(); }      // /board: класацията за екрана в залата
-      const rel = url.pathname.endsWith('/') ? url.pathname + 'index.html' : url.pathname;
+      // %20 и др. в името на файла (напр. „Alpine_GroundCover_01 1.png"): декодира се преди търсенето на диска
+      let pathname = url.pathname;
+      try { pathname = decodeURIComponent(pathname); } catch { /* развален адрес: търси се както е */ }
+      if (pathname.includes('\0')) return json(res, 400, { error: 'Bad path' });
+      const rel = pathname.endsWith('/') ? pathname + 'index.html' : pathname;
       const file = path.resolve(PUBLIC, '.' + path.sep + path.normalize(rel));
       if (file.startsWith(PUBLIC + path.sep) && fs.existsSync(file) && fs.statSync(file).isFile()) {
         const headers = { 'content-type': MIME[path.extname(file)] || 'application/octet-stream' };
