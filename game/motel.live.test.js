@@ -574,3 +574,24 @@ test('the dev-page console commands do not exist outside the dev server', () => 
   assert.equal(g.act('p1', { a: 'dev', op: 'stage', name: 'boss', hand: 'r' }).ok, false);
   assert.equal(g.paused, false); assert.equal(g.snapshot().phase, 'intro');
 });
+
+test('the zombie whose bite downs the whole group falls with the others and does not get up again', () => {
+  const { g, run } = make({ options: { boards: 0 } });
+  g.join('p1', { n: 1 }); g.pose('p1', poseAt());
+  let biter = null, seen = 0, checked = false;
+  run(200, q => {
+    for (const e of q.events) {
+      if (e.i <= seen) continue;
+      seen = e.i;
+      if (e.k === 'bite') biter = e.z;
+      if (e.k === 'chance' && !checked) {
+        checked = true;
+        const z = q.z.find(r => r[0] === biter);
+        assert.ok(!z || z[6] === STATE.dead, `zombie ${biter} is ${z && z[6]}`);
+        run(1.5);
+        assert.ok(!g.snapshot().z.some(r => r[0] === biter), 'and it is gone');
+      }
+    }
+  });
+  assert.ok(checked, 'the group went down at least once');
+});

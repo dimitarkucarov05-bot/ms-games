@@ -664,6 +664,7 @@ export function createGame(opts = {}) {
         if (z.bash) { hitGate(z.bash, z); z.bash = null; }
         else if (z.type === 'boss') { for (const pl of players.values()) { const [x, zz] = headXZ(pl); if (Math.hypot(x - z.x, zz - z.z) <= RULES.boss.smash) hurt(pl, t.dmg, z); } }
         else if (near && near.d <= t.reach + 0.35) hurt(near.pl, t.dmg, z);
+        if (z.state === STATE.dead) return;      // ударът свали последния прав играч и групата събори и това зомби: остава мъртво
         z.state = STATE.walk; z.hitAt = time + t.every;
       }
       return;

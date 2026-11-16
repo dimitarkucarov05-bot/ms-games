@@ -353,7 +353,7 @@ export async function createZombies(ctx, start, A, fx, audio) {
     else { b.mixer.stopAllAction(); b.cur = null; rec.fall = 0.001; }      // без клип за смърт: пада назад като дъска
     if (kids) fadeable(b);
     corpses.push(rec);
-    while (corpses.length > MAX_CORPSES) { const old = corpses.shift(); if (!old.gone) old.sink = Math.max(old.sink, 0.001), old.deadAt = Math.min(old.deadAt, clock - CORPSE_TIME); }
+    while (corpses.length > MAX_CORPSES) { const old = corpses.shift(); if (old.gone) continue; if (kids && old.b.faded) old.deadAt = Math.min(old.deadAt, clock - FADE_AT); else old.sink = Math.max(old.sink, 0.001), old.deadAt = Math.min(old.deadAt, clock - CORPSE_TIME); }
   }
   function remove(rec) {
     if (rec.gone) return;

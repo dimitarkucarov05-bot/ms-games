@@ -61,6 +61,8 @@ const SCATTER = [
   'SM_Prop_Rubble_Concrete_02', 'SM_Env_Rubble_Pebbles_01', 'SM_Env_Rubble_Pebbles_02', 'SM_Prop_Sandbag_01', 'SM_Prop_CarBattery_Table',
   'SM_Prop_Ammo_Box_01', 'SM_Item_Ammo_Crate_01', 'SM_Prop_MedicalBox_02', 'SM_Prop_Generator_01', 'SM_Prop_Radio_01',
 ];
+// детски режим: без мъртъвци, чували за трупове и локви кръв около лагера
+const SCATTER_KIDS = SCATTER.filter(n => !/Dead|Body/.test(n));
 const BLOOD = 'SM_Prop_BloodPool_01', SITTING = ['SM_Prop_DeadBody_Sitting_Male_01', 'SM_Prop_DeadBody_Sitting_Male_02'];
 const BARREL = 'SM_Prop_Barrel_Open_01', FLAME = 'SM_Flame_FX', FLOOD = 'SM_Prop_Floodlights_01', SIGNS = ['SM_Prop_Sign_KeepOut_01', 'SM_Prop_Sign_Military_01'];
 // Портата: два стълба на GATE_POSTS м от средата и дъски по 1.10 м, заковани от вътрешната страна на стълбовете.
@@ -77,6 +79,7 @@ function rng(seed) {
 
 export async function createWorld(ctx, start) {
   const { THREE, root, assets } = ctx;
+  const KIDS = !!start?.kids;      // детски режим: без кръв и мъртъвци в света
   const qs = new URLSearchParams(location.search);
   const lite = qs.get('lite') === '1' || (qs.get('lite') !== '0' && /Quest 2/.test(navigator.userAgent));
   const group = new THREE.Group();
@@ -454,7 +457,7 @@ export async function createWorld(ctx, start) {
             await put(w.m, sd.ax + sd.tx * mid, sd.az + sd.tz * mid, ry + (rand() - 0.5) * 0.05);
             stats.walls++;
             // тук-там седнал мъртвец, облегнат отвън на барикадата
-            if (rand() < 0.3) await put(pickOf(SITTING), sd.ax + sd.tx * mid + sd.nx * 0.85, sd.az + sd.tz * mid + sd.nz * 0.85, Math.atan2(sd.nx, sd.nz) + (rand() - 0.5) * 0.5);
+            if (!KIDS && rand() < 0.3) await put(pickOf(SITTING), sd.ax + sd.tx * mid + sd.nx * 0.85, sd.az + sd.tz * mid + sd.nz * 0.85, Math.atan2(sd.nx, sd.nz) + (rand() - 0.5) * 0.5);
             s += w.len + 0.07;
           } else {
             // каквото се побира в остатъка: варел, сандък или буре
@@ -521,7 +524,7 @@ export async function createWorld(ctx, start) {
       const p = band();
       if (!p) break;
       const isTall = tallDone < tall && !inFence(p[0], p[1], 2.2);
-      const name = isTall ? pickOf(TALL) : pickOf(SCATTER), d = info(name);
+      const name = isTall ? pickOf(TALL) : pickOf(KIDS ? SCATTER_KIDS : SCATTER), d = info(name);
       if (!d) continue;
       const r = Math.max(d.size[0], d.size[2]) / 2 * 0.92;
       if (inFence(p[0], p[1], 0.35 + r) || laneDist(p[0], p[1]) < r + 0.75 || !free(p[0], p[1], r + 0.12) || inSolid(p[0], p[1], r)) continue;
@@ -532,7 +535,7 @@ export async function createWorld(ctx, start) {
       if (isTall) tallDone++;
     }
     // 5. локви кръв: плоски, може и по пътеките
-    for (let i = 0; i < (lite ? 6 : 12); i++) { const p = band(); if (p && !inSolid(p[0], p[1], 0.4)) await put(BLOOD, p[0], p[1], rand() * 6.28, { y: 0.008 }); }
+    for (let i = 0; i < (KIDS ? 0 : lite ? 6 : 12); i++) { const p = band(); if (p && !inSolid(p[0], p[1], 0.4)) await put(BLOOD, p[0], p[1], rand() * 6.28, { y: 0.008 }); }
 
     // всичко неподвижно се слива в по една мрежа на материал: малко рисувания, колкото и да са предметите
     if (made.length) {
