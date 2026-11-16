@@ -991,7 +991,7 @@ async function endGame() {
 
 // ---------- зона: чертане от каската ----------
 
-const BUILD = 42;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
+const BUILD = 43;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
 // what this page understands of MS Games 2 (the server may fall back to older flows for pages without a cap)
 const CAPS = ['lobby', 'vote', 'countdown', 'pause', 'settings', 'results', 'endMessage', 'message', 'swapHands', 'calibrateHeight', 'setupPoints', 'identity', 'restartGame', 'recalibrate', 'bench', 'ping'];
 let zoneMod = null, zoneEditor = null, zoneViewObj = null, zoneData = null;
@@ -1613,8 +1613,24 @@ addEventListener('resize', () => {
   renderer.setSize(innerWidth, innerHeight, false);
 });
 
+/**
+ * Frame budget of what is on screen right now (also on a Quest through chrome://inspect: __arena.budget()).
+ * calls/tris are from the last rendered frame (per eye pass in VR they add up); lights = lights the shaders pay for.
+ */
+function budget() {
+  const r = renderer.info;
+  let lights = 0, shadowLights = 0, meshes = 0;
+  scene.traverseVisible(o => { if (o.isLight && !o.isAmbientLight) { lights++; if (o.castShadow) shadowLights++; } if (o.isMesh) meshes++; });
+  return {
+    state: game ? 'game' : gameLoading ? 'loading' : introOn ? 'intro' : vote?.active ? 'vote' : 'hub',
+    calls: r.render.calls, tris: r.render.triangles, lights, shadowLights, meshes,
+    geometries: r.memory.geometries, textures: r.memory.textures, programs: r.programs?.length ?? null,
+    fps, inVR: renderer.xr.isPresenting, build: BUILD,
+  };
+}
+
 // за автоматични проби от конзолата
 window.__arena = { frame, build: BUILD, scene, renderer, me, hands, head, players, desk, camera, arena, get anchor() { return anchorState; }, get space() { return spaceType; }, act: msg => send({ type: 'act', ...msg }), get presenting() { return renderer.xr.isPresenting; }, get zoneActive() { return !!zoneEditor?.active; }, get zone() { return zoneEditor?.debug || null; }, get pendingZone() { return !!pendingZone; }, get calib() { return calib; }, get game() { return game; }, get ctx() { return ctx; }, get connected() { return connected; },
-  recv: m => handle(m), overlay, sfx, get loading() { return { module: loading === loadingDefault ? 'default' : 'loading/index.js', active: gameLoading, pct: loadPct, what: loadWhat, game: loadingName }; }, get vote() { return vote; }, get room() { return room; }, get swapped() { return swapped; }, get heightFix() { return heightFix; }, get worn() { return wornSent; }, get needsCal() { return calSent; }, get zoneEditor() { return zoneEditor; } };
+  recv: m => handle(m), budget, overlay, sfx, get loading() { return { module: loading === loadingDefault ? 'default' : 'loading/index.js', active: gameLoading, pct: loadPct, what: loadWhat, game: loadingName }; }, get vote() { return vote; }, get room() { return room; }, get swapped() { return swapped; }, get heightFix() { return heightFix; }, get worn() { return wornSent; }, get needsCal() { return calSent; }, get zoneEditor() { return zoneEditor; } };
 
 boot();

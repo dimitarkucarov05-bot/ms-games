@@ -110,19 +110,22 @@ export function createVote({ THREE, root, space, assets, bounds, pointer, onInpu
         topH = 0.6;      // the same label height over every crate
       }
       st.add(holder);
-      const label = makeText(THREE, Math.min(1.5, gap - 0.08), 0.3, 500, { depthTest: true, order: 3 });      // never wider than the gap to the next game
-      label.set([{ text: o.title || o.name || o.key, px: n > 3 ? 100 : 118, weight: 900 }]);
-      // a kit: the name sits just over the crate, in front of the portal frame (not over the wall displays); 'YOUR VOTE' above it
-      label.mesh.position.set(0, crateH + (kitShown ? 0.62 : topH + 0.44), 0.05);
+      // a kit: the name is written on the crate's front face, just under the lid, so it never crosses the wall displays;
+      // 'YOUR VOTE' under it. A game with a cover: the name over the frame, as before.
+      const front = kitShown;
+      const label = front ? makeText(THREE, 0.8, 0.2, 600, { depthTest: true, order: 3 }) : makeText(THREE, Math.min(1.5, gap - 0.08), 0.3, 500, { depthTest: true, order: 3 });
+      label.set([{ text: o.title || o.name || o.key, px: front ? 92 : n > 3 ? 100 : 118, weight: 900 }]);
+      label.mesh.position.set(0, front ? crateH - 0.15 : crateH + topH + 0.44, front ? 0.44 : 0.05);
       st.add(label.mesh);
-      const mine = makeText(THREE, 1.4, 0.26, 500, { depthTest: true, order: 3 });
-      mine.mesh.position.set(0, crateH + (kitShown ? 0.95 : topH + 0.17), 0.05);
+      const mine = front ? makeText(THREE, 0.8, 0.17, 600, { depthTest: true, order: 3 }) : makeText(THREE, 1.4, 0.26, 500, { depthTest: true, order: 3 });
+      mine.mesh.position.set(0, front ? crateH - 0.37 : crateH + topH + 0.17, front ? 0.44 : 0.05);
+      st.userData.minePx = front ? 74 : 120;
       st.add(mine.mesh);
       // what the laser hits: an invisible box around crate and frame
       const hit = new THREE.Mesh(new THREE.BoxGeometry(1.25, crateH + topH + 0.2, 0.9), new THREE.MeshBasicMaterial({ visible: false }));
       hit.position.y = (crateH + topH + 0.2) / 2;
       st.add(hit);
-      Object.assign(st.userData, { key: o.key, gameId: o.gameId ?? null, hit, holder, label, mine, sink: 1, bob: 0 });
+      Object.assign(st.userData, { kit: kitShown, key: o.key, gameId: o.gameId ?? null, hit, holder, label, mine, sink: 1, bob: 0 });
       group.add(st);
       stations.push(st);
     }
@@ -181,7 +184,7 @@ export function createVote({ THREE, root, space, assets, bounds, pointer, onInpu
 
   function mark(key, loud = true) {
     chosen = key;
-    for (const st of stations) st.userData.mine.set(st.userData.key === key ? [{ text: 'YOUR VOTE', px: 120, weight: 900, font: 'num' }] : []);
+    for (const st of stations) st.userData.mine.set(st.userData.key === key ? [{ text: 'YOUR VOTE', px: st.userData.minePx || 120, weight: 900, font: 'num' }] : []);
     const st = stations.find(s => s.userData.key === key);
     if (st) {
       st.updateMatrixWorld(true); st.getWorldPosition(aim.want); (light.target.parent || group).worldToLocal(aim.want); aim.want.y = 1.2;
@@ -228,7 +231,7 @@ export function createVote({ THREE, root, space, assets, bounds, pointer, onInpu
       if (!stations.length || ended) return;
       ended = key || chosen || stations[0]?.userData.key; endAt = performance.now();
       mark(ended, false);
-      for (const st of stations) st.userData.mine.set(st.userData.key === ended ? [{ text: stations.some(x => x.userData.gameId) ? 'NEXT GAME' : 'CHOSEN', px: 120, weight: 900, font: 'num' }] : []);
+      for (const st of stations) st.userData.mine.set(st.userData.key === ended ? [{ text: stations.some(x => x.userData.gameId && !x.userData.kit) ? 'NEXT GAME' : 'CHOSEN', px: st.userData.minePx || 120, weight: 900, font: 'num' }] : []);
       sfx?.play('vote.win', { gain: 0.9 }); haptic('l', 0.8, 150); haptic('r', 0.8, 150);
       timer.clear();
     },
