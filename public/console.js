@@ -1360,6 +1360,7 @@ function renderBoard() {
     attr(p.when, 'title', whenFull(e.at));
   });
 
+  $('boardTable').classList.toggle('no-stars', !list.some(e => nOr0(e.stars)));      // games without stars (The Motel) hide the column
   const loaded = !!c && c.loaded, failed = !!c && c.failed && !c.loaded;
   show($('boardWrap'), list.length > 0);
   show($('boardEmpty'), !boardGame || failed || (loaded && !list.length));

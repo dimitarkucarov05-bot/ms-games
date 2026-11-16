@@ -489,6 +489,7 @@ function renderHome() {
   text($('quickTitle'), one ? one.name : 'Quick Play');
   text($('quickDesc'), one ? (one.tagline || 'Play it now') : 'One game now. Pick it, pick the players, start.');
   $('quickArt').classList.toggle('one', !!one);
+  show($('quickGo'), !!one && !(App.whyNot && App.whyNot(one)));
   if (one) {
     const cuts = Array.isArray(one.cuts) && one.cuts.length ? one.cuts : [one.minutes || 10];
     const lo = Math.max(1, nOr0(one.minPlayers) || 1), hi = nOr0(one.maxPlayers) || lo;
@@ -516,7 +517,7 @@ function renderHome() {
     w.textContent = warn;
     if (btn) { const b = make(`<button type="button" class="btn">${esc(btn[0])}</button>`); b.onclick = () => App.startSetup(btn[1]); w.append(b); }
   }
-  const diagBad = ((App.diag && App.diag.checks) || []).filter(x => x.ok === false).length;
+  const diagBad = ((App.diag && App.diag.checks) || []).filter(x => x.ok === false && x.group !== 'headset').length;
   text($('linkDiag'), diagBad ? plural(diagBad, 'problem found', 'problems found') : 'Network and headsets');
   attr($('linkDiag'), 'data-tone', diagBad ? 'bad' : null);
   text($('linkSetup'), notCal.length ? `${notCal.length} not calibrated` : 'Play area, calibration, headsets');

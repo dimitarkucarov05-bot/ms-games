@@ -106,9 +106,9 @@
   let run = null;           // internal; runView() is what the console sees
   let last = null;
   let precheck = null;
-  const setup = { step: null, entry: null, area: { kind: 'preset', w: 6, d: 6, rotation: 0, entrance: 'middle' }, ref: null, refAB: null, points: {}, check: {}, errors: {} };
+  const setup = { step: null, entry: null, area: { kind: 'preset', w: Number(qs.get('area')) || 6, d: Number(qs.get('area')) || 6, rotation: 0, entrance: 'middle' }, ref: null, refAB: null, points: {}, check: {}, errors: {} };
   let usb = [];
-  let calibration = { width: 6, depth: 6, version: 7 };
+  let calibration = { width: Number(qs.get('area')) || 6, depth: Number(qs.get('area')) || 6, version: 7 };      // &area=4 makes a 4 × 4 m arena
   let zone = null;
   let scoresVersion = 1, scorecardsVersion = 1;
   const listeners = new Set();

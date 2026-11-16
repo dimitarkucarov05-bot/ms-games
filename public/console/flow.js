@@ -77,7 +77,7 @@ function whyNot(g) {
 }
 App.whyNot = whyNot;
 
-function playersText2(g) { const p = playersOf(g); return p.hi === 0 ? `${p.lo}` : p.lo === p.hi ? `${p.lo}` : `${p.lo}–${p.hi}`; }
+function playersText2(g) { const p = playersOf(g); if (p.hi === 0) { const hi = Math.max(p.lo, nOr0(g.maxPlayers) || p.lo); return p.lo === hi ? `${p.lo}` : `${p.lo}–${hi}`; } return p.lo === p.hi ? `${p.lo}` : `${p.lo}–${p.hi}`; }
 function minutesText(g) { const c = cutsOf(g); return c.length > 1 ? `${c.slice(0, -1).join(', ')} or ${c[c.length - 1]}` : `${c[0]}`; }
 
 // ---------- open and leave ----------
