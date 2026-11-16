@@ -86,7 +86,7 @@ App.openFlow = async function (kind) {
   if (runOpen(state && state.run) && !['results', 'ended'].includes(state.run.state)) return go('run');
   Object.assign(F, {
     kind, step: STEPS[kind][0][0], gameId: null, mode: null, ids: null, names: {}, namesOn: false, team: '',
-    difficulty: (state.settings && state.settings.difficulty) || 'normal', minutes: null, kids: false, options: {},
+    difficulty: (state.settings && state.settings.difficulty) || 'normal', minutes: null, kids: false, fast: false, options: {},
     queue: [], allLevel: '', votable: null, check: null, checking: false, busy: false, checkedFor: '',
   });
   if (kind === 'party') F.votable = new Set(App.playableGames().map(g => g.id));
@@ -231,7 +231,7 @@ async function startNow(ignoreWarnings) {
   F.busy = true; scheduleRender();
   let r;
   if (F.kind === 'quick') {
-    const body = { gameId: F.gameId, mode: F.mode || undefined, difficulty: F.difficulty, minutes: F.minutes, kids: !!F.kids, options: F.options, headsetIds: ids, team, names, ignoreWarnings: !!ignoreWarnings };
+    const body = { gameId: F.gameId, mode: F.mode || undefined, difficulty: F.difficulty, minutes: F.minutes, kids: !!F.kids, fast: !!F.fast || undefined, options: F.options, headsetIds: ids, team, names, ignoreWarnings: !!ignoreWarnings };
     r = await api('/api/session/start', body, { quiet: true });
     if (r.status === 404) {      // old server: the old launch route still works
       r = await api('/api/launch', { gameId: F.gameId, headsetIds: ids, difficulty: F.difficulty, theme: F.kids ? 'kids' : 'night', team }, { quiet: true });
@@ -419,6 +419,7 @@ function renderSettingsStep() {
     const cuts = cutsOf(g);
     html += setRow('Length', cuts.length > 1 ? 'The game ends itself at this time' : 'This game has one length', seg(cuts.map(c => ({ id: c, name: `${c} min` })), F.minutes, 'data-seg="minutes"'));
     html += setRow('Kids mode', 'No blood, softer sounds', toggleHtml('kids', F.kids));
+    html += setRow('Quick trial', 'The whole game runs about 6 times faster. The result does not count for the records.', toggleHtml('fast', F.fast));
     html += setRow('Language', 'More languages later', '<select class="select input-lg" disabled><option>English</option></select>');
     for (const o of (g && g.options) || []) {
       const v = F.options[o.id];
@@ -461,6 +462,7 @@ function renderStartStep() {
     const m = modesOf(g).find(x => x.id === F.mode); if (m && modesOf(g).length > 1) facts.push(['Mode', m.name]);
     facts.push(['Difficulty', levelName(F.difficulty)], ['Length', `${F.minutes} min`]);
     if (F.kids) facts.push(['Kids mode', 'On']);
+    if (F.fast) facts.push(['Quick trial', 'On, not for the records']);
   } else if (F.kind === 'playlist') {
     facts.push(['Games', F.queue.map(q => (gameOf(q.gameId) || {}).name).join(', ')]);
     facts.push(['Breaks', `${F.breakSec} s`], ['Difficulty', F.allLevel ? levelName(F.allLevel) : 'Per game']);

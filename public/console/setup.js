@@ -260,9 +260,9 @@ function fillPoints(pane, p) {
     f.dn.className = st === 'failed' ? 'fail' : order === 3 ? 'done' : '';
     text(f.dn, st === 'failed' ? 'Failed' : 'Done');
     const c = ck[h.id], cm = c && typeof c.abDelta === 'number' ? Math.round(Math.abs(c.abDelta) * 100) : null;
-    const off = c ? c.ok === false || (cm != null && cm > 5) : false;
+    const off = !first && c ? c.ok === false || (cm != null && cm > 5) : false;
     const err = state.setup && state.setup.errors && state.setup.errors[h.id];
-    const word = !h.online ? 'Offline' : err ? err : st === 'waiting' ? 'Waiting' : st === 'p1' ? 'Touch mark A' : st === 'p2' ? 'Touch mark B' : st === 'failed' ? 'Failed, redo it' : st === 'done' ? (cm == null ? (first ? 'Marks set' : 'Matched') : off ? `A to B differs by ${cm} cm from the first headset` : `Matches the first headset (${cm} cm)`) : hsAligned(h) ? 'Calibrated before' : 'Not calibrated';
+    const word = !h.online ? 'Offline' : err ? err : st === 'waiting' ? 'Waiting' : st === 'p1' ? 'Touch mark A' : st === 'p2' ? 'Touch mark B' : st === 'failed' ? 'Failed, redo it' : st === 'done' ? (first ? `Marks set${c && c.ab ? `, A to B ${(Math.round(c.ab * 100) / 100).toString().replace('.', ',')} m` : ''}` : cm == null ? 'Matched' : off ? `A to B differs by ${cm} cm from the first headset` : `Matches the first headset (${cm} cm)`) : hsAligned(h) ? 'Calibrated before' : 'Not calibrated';
     text(f.ck, word);
     attr(f.ck, 'data-tone', off || st === 'failed' || err ? 'warn' : null);
     const redo = el.querySelector('[data-redo]');

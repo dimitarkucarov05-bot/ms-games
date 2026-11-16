@@ -196,7 +196,7 @@ const REASON = { finished: 'results', stopped_by_operator: 'stopped', stopped_by
 function renderEnd(e) {
   const res = e.results || {}, reason = e.reason || (e.results ? 'finished' : 'stopped_by_operator');
   document.title = `${e.team || 'Results'} · MS Games`;
-  text($('endLabel'), `${e.gameName || ''}${e.kind && e.kind !== 'quick' ? ` · ${KIND_LABEL[e.kind]}` : ''} · ${e.live ? 'results' : REASON[reason] || 'over'}`);
+  text($('endLabel'), [e.gameName, e.kind && e.kind !== 'quick' ? KIND_LABEL[e.kind] : '', e.live ? 'results' : REASON[reason] || 'over'].filter(Boolean).join(' · '));
   text($('endTeam'), res.team || e.team || (e.results ? 'Team' : 'Session ended'));
   const meta = [];
   if (res.minutes) meta.push(`${res.minutes} min`);
