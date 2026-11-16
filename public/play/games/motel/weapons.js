@@ -250,7 +250,7 @@ export async function createWeapons(ctx, start, A, fx, audio, zombies) {
     fx.burst(hit.point, 'blood', saw ? 5 : 14, saw ? 2.2 : 3, g.dir);
     audio.hit(hit.part === 1);
     if (saw) audio.saw?.(true); else audio.chop?.();
-    const boss = zombies.list.get(hit.id)?.type === 'boss';
+    const boss = ['boss', 'brute'].includes(zombies.list.get(hit.id)?.type);
     if (!saw && !boss) zombies.localKill(hit.id, g.dir); else zombies.flinch(hit.id);
     ctx.send({ a: 'shot', hand: g.side, o: [r3(g.origin.x), r3(g.origin.y), r3(g.origin.z)], d: [r3(g.dir.x), r3(g.dir.y), r3(g.dir.z)], hits: [[hit.id, hit.part, 1]] });
     return true;

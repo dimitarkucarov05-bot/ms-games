@@ -693,6 +693,10 @@ export async function createWorld(ctx, start) {
   const blastAt = new THREE.Vector3();
   let blastT = -1, borrowed = false;
   let audio = null, fx = null;
+  // алармата на колата: жълти аварийни светлини мигат там, откъдето ще дойде глутницата (на каската само звукът)
+  const alarmLight = lite ? null : new THREE.PointLight(0xffa020, 0, 24, 1.2);
+  if (alarmLight) { group.add(alarmLight); own.lights.push(alarmLight); }
+  let alarmT = -1;
   function boom(e) {
     const i = e.b, b = bombs[i];
     if (b) b.alive = false;
@@ -722,6 +726,8 @@ export async function createWorld(ctx, start) {
     if (e.k === 'bang') { const rec = gateObjs[e.g]; if (rec) { rec.shake = e.big ? 1.6 : 1; try { fx?.burst(v.set(rec.g.x + rec.g.nx * 0.3, 0.9, rec.g.z + rec.g.nz * 0.3), 'dirt', e.big ? 16 : 6, e.big ? 4 : 2.2); } catch { /* само прах */ } } }
     else if (e.k === 'boom') boom(e);
     else if (e.k === 'boss') { boltAt = 0; flickUntil = time + 2.4; }      // шефът идва: светкавица и токът примигва
+    else if (e.k === 'brute') { boltAt = 0; flickUntil = time + 0.8; }      // едрият идва: светкавица
+    else if (e.k === 'alarm' && alarmLight) { alarmLight.position.set(e.x, 1.0, e.zz); alarmT = 0; }
   }
   /** Всичко, което се движи само: панелите на портите, ивиците пред тях, взривът, токът, светкавицата. */
   function live(dt) {
@@ -839,6 +845,7 @@ export async function createWorld(ctx, start) {
       if (f.fire) f.fire.update(dt);
     }
     live(dt);
+    if (alarmT >= 0 && alarmLight) { alarmT += dt; alarmLight.intensity = alarmT < 7.5 && Math.floor(alarmT * 2.4) % 2 === 0 ? 45 : 0; if (alarmT >= 7.5) alarmT = -1; }
     const g = weapons?.mine?.r;
     if (g && g.holder?.visible !== false && g.dir && g.muzzle && (g.active || ctx.hands?.r?.active)) { v.copy(g.muzzle); d.copy(g.dir); }
     else { v.copy(ctx.head.pos); d.set(0, -0.06, -1).applyQuaternion(ctx.head.quat).normalize(); v.addScaledVector(d, 0.1); }

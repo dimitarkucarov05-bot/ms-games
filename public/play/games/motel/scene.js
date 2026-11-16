@@ -31,6 +31,7 @@ export async function createScene(ctx, start) {
   const audio = createAudio(ctx);
   const fx = createFx(ctx);
   if (start.kids) { fx.setKids(true); audio.setSoft(true); }      // детски режим: без кръв, по-тихи писъци
+  audio.ambience(true);      // нощта под цялата игра (само ако банката със записи го има)
   const zombies = await createZombies(ctx, start, A, fx, audio);
   if (typeof world?.floorY === 'function') zombies.setFloor((x, z) => { try { return world.floorY(x, z); } catch { return 0; } });
   const weapons = await createWeapons(ctx, start, A, fx, audio, zombies);
@@ -106,6 +107,7 @@ export async function createScene(ctx, start) {
       event(e, s);
     }
     lastPhase = s.phase;
+    try { audio.music(musicFor(s)); } catch { /* без музика */ }
     if (s.result && !over) {
       over = true;
       const r = s.result;
@@ -119,6 +121,22 @@ export async function createScene(ctx, start) {
       } catch (e) { console.warn('[motel] result', e); }
     }
   }
+  /**
+   * Кой пласт музика трябва сега: спокоен в подготовката и почивките, вълна, напрегнат (пробита порта, трима наблизо
+   * или малко кръв), шефът; тишина в края. Напрегнатият държи поне 4 с, за да не прескача напред-назад.
+   */
+  let tenseUntil = 0;
+  function musicFor(s) {
+    if (s.result) return '';
+    if (s.phase === 'boss') return 'boss';
+    if (s.phase !== 'wave') return 'calm';
+    const me = s.players?.find(p => p.id === myId()), hx = ctx.head.pos.x, hz = ctx.head.pos.z;
+    const near = (s.z || []).filter(r => r[6] !== 3 && Math.hypot(r[3] - hx, r[4] - hz) < 4).length;
+    if ((s.gates || []).some(g => g[0] === 0) || near >= 3 || (me && me.hp < 40)) tenseUntil = time + 4;
+    return time < tenseUntil ? 'intense' : 'wave';
+  }
+  const near = (x, z, r) => Math.hypot(x - ctx.head.pos.x, z - ctx.head.pos.z) < r;
+  const both = (k, ms) => { ctx.haptic('l', k, ms); ctx.haptic('r', k, ms); };
   const v = new THREE.Vector3(), v2 = new THREE.Vector3();
   function event(e, s) {
     switch (e.k) {
@@ -139,12 +157,34 @@ export async function createScene(ctx, start) {
         return;
       }
       case 'kill': {
-        const rec = zombies.killed(e);
-        if (e.p === myId()) { ctx.haptic('l', 0.35, 30); ctx.haptic('r', 0.35, 30); }
+        const rec = zombies.killed(e), type = start.types?.[e.type], heavy = type === 'boss' || type === 'brute';
+        { const z0 = rec || zombies.list.get(e.z); if (z0) audio.death(z0.x, z0.z, heavy); }      // и за паднало вече от моя изстрел
+        if (e.p === myId()) {
+          // моето убийство: удар в ръцете, по-силен за едрия и при поредица; главата има свой хрущящ звук
+          both(heavy ? 0.9 : Math.min(0.85, 0.35 + 0.1 * (e.combo || 0)), heavy ? 160 : 30 + 8 * Math.min(6, e.combo || 0));
+          if (e.head) audio.headshot();
+          if (e.combo >= 2) audio.combo(e.combo);
+        }
         if (rec && rec.type === 'boss') { audio.roar(rec.x, rec.z); fx.burst(rec.head, 'gore', 30, 4); }
+        else if (rec && rec.type === 'brute') fx.burst(rec.head, 'gore', 18, 3.2);
         return;
       }
-      case 'swing': zombies.swingOf(e.z); return;
+      case 'swing': { zombies.swingOf(e.z); const r = zombies.list.get(e.z); if (r) audio.attack(r.x, r.z, r.type === 'boss' || r.type === 'brute'); return; }
+      // разнообразието: едрият идва със светкавица и рев, прескачащият лети над барикадата, изравящият се чупи земята
+      case 'brute': {
+        try { world?.event?.(e); } catch { /* само звук */ }
+        const r = zombies.list.get(e.z);
+        setTimeout(() => audio.brute(r ? r.x : 0, r ? r.z : 12), 500);
+        both(0.4, 220);
+        return;
+      }
+      case 'leap': {
+        audio.leap(e.x0, e.z0);
+        setTimeout(() => { audio.land(e.x1, e.z1); if (near(e.x1, e.z1, 3.5)) both(0.55, 90); try { fx.burst(v.set(e.x1, 0.05, e.z1), 'dirt', 8, 1.8); } catch { /* без прах */ } }, (start.leap?.time || 0.85) * 1000);
+        return;
+      }
+      case 'dig': { audio.dig(e.x, e.zz); if (near(e.x, e.zz, 4)) both(0.45, 260); return; }
+      case 'alarm': { try { world?.event?.(e); } catch { /* само звук */ } audio.alarm(e.x, e.zz); return; }
       case 'bite':
         if (e.p === myId()) { fx.hurt(e.dmg / 9); audio.bite(); ctx.haptic('l', 1, 140); ctx.haptic('r', 1, 140); }
         return;
@@ -164,7 +204,7 @@ export async function createScene(ctx, start) {
         return;
       }
       case 'rage': { const r = zombies.list.get(e.z); audio.roar(r ? r.x : 0, r ? r.z : 10); try { world?.strike?.(); } catch { /* без светкавица */ } hud.title('HE IS ANGRY', 'Keep shooting', 2.6); return; }
-      case 'take': { try { chest.taken(e); } catch { /* оръжието пак изчезва със следващото състояние */ } if (e.p === myId()) audio.pickup(); return; }
+      case 'take': { try { chest.taken(e); } catch { /* оръжието пак изчезва със следващото състояние */ } if (e.p === myId()) { audio.pickup(); audio.take(); } return; }
       case 'offer': return;      // сандъкът го вижда сам в състоянието (chest.onSnapshot)
       case 'spent': if (e.p === myId()) audio.dry(); return;
       case 'chance': if (e.free !== 0) hud.title('SECOND CHANCE', '', 2.6); return;      // без втори шанс всеки става по своето време
@@ -181,7 +221,7 @@ export async function createScene(ctx, start) {
         }
         return;
       }
-      case 'fix': { const g = gateAt(e.g); if (g) audio.hammer(g.x, g.z, e.left >= (g.max || 6)); return; }
+      case 'fix': { const g = gateAt(e.g); if (g) audio.hammer(g.x, g.z, e.left >= (g.max || 6)); if (e.p === myId() && g && e.left >= (g.max || 6)) both(0.5, 70); return; }
       // варел с гориво
       case 'boom': {
         try { world?.event?.(e); } catch { /* само звук */ }

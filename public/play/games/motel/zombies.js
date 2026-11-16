@@ -8,7 +8,7 @@ const GLTF_URL = '/play/vendor/addons/loaders/GLTFLoader.js';
 const SKEL_URL = '/play/vendor/addons/utils/SkeletonUtils.js';
 const FALLBACK_BASE = '/play/assets/synty/_characters/';
 
-export const ST = { walk: 0, attack: 1, stagger: 2, dead: 3, scream: 4, rise: 5 };
+export const ST = { walk: 0, attack: 1, stagger: 2, dead: 3, scream: 4, rise: 5, leap: 6 };
 const ARM = /^(clavicle|upperarm|lowerarm|hand|thumb|indexfinger|finger)_/;
 const NATURAL = { walk: 1.45, run: 3.2 };      // с каква скорост върви клипът при нормален темп (м/с), ако описът не казва
 const CORPSE_TIME = 2.6, SINK_TIME = 1.4, FADE_AT = 1.3, FADE_TIME = 0.9, MAX_CORPSES = /Quest 2/.test(globalThis.navigator?.userAgent || '') ? 5 : 8;
@@ -17,7 +17,9 @@ export async function createZombies(ctx, start, A, fx, audio) {
   const kids = !!start.kids;      // детски режим: без пукнати глави, телата изчезват
   const { THREE, root } = ctx;
   const quest = /Quest/.test(navigator.userAgent);
-  const types = start.types || ['walker', 'runner', 'screamer', 'boss'];
+  const types = start.types || ['walker', 'runner', 'screamer', 'boss', 'brute', 'leaper'];
+  const big = t => t === 'boss' || t === 'brute';
+  const LEAP_T = start.leap?.time || 0.85, LEAP_H = start.leap?.high || 1.35;      // тежките: не падат от един изстрел, тежки стъпки и удари
   const spec = start.zombies || {};
   const group = new THREE.Group();
   group.name = 'zombies';
@@ -41,6 +43,7 @@ export async function createZombies(ctx, start, A, fx, audio) {
   const isBoss = n => /boss/i.test(n);
   const names = {
     walker: have(A?.zombies?.walker), runner: have(A?.zombies?.runner), screamer: have(A?.zombies?.screamer), boss: have(A?.zombies?.boss),
+    brute: have(A?.zombies?.brute), leaper: have(A?.zombies?.leaper),
   };
   if (!names.walker.length) names.walker = all.filter(n => !isBoss(n));
   if (!names.walker.length) names.walker = all.slice();
@@ -48,11 +51,14 @@ export async function createZombies(ctx, start, A, fx, audio) {
   if (!names.boss.length) names.boss = all.filter(isBoss).slice(0, 1);
   { const brute = names.boss.find(n => /brute/i.test(n)); names.boss = brute ? [brute] : names.boss.slice(0, 1); }
   if (!names.boss.length) names.boss = names.walker.slice(0, 1);
+  // едрият: от шефовете, които шефът не ползва (дебелите); прескачащият: от бегачите
+  if (!names.brute.length) names.brute = all.filter(n => /blobber|slobber/i.test(n));
+  if (!names.leaper.length) names.leaper = names.runner.slice();
   if (!names.screamer.length) {      // пищящият е един и същ герой, за да се разпознава: по възможност от шефовете (слабият), иначе жена
     const thin = all.find(n => /wretch/i.test(n)) || names.walker.find(n => man.characters[n].sex === 'f') || names.walker[0];
     names.screamer = [thin];
   }
-  const needed = [...new Set([...names.walker, ...names.runner, ...names.screamer, ...names.boss])];
+  const needed = [...new Set([...names.walker, ...names.runner, ...names.screamer, ...names.boss, ...names.brute, ...names.leaper])];
 
   // клиповете по вид: от assets.json, иначе по името на ключа
   const keysOf = (kind, prefixes) => {
@@ -95,7 +101,10 @@ export async function createZombies(ctx, start, A, fx, audio) {
   }));
   for (const k of Object.keys(names)) names[k] = names[k].filter(n => protos.has(n));
   if (!names.walker.length) throw new Error('no zombie loaded');
-  for (const k of ['runner', 'screamer', 'boss']) if (!names[k].length) names[k] = names.walker.slice(0, 1);
+  for (const k of ['runner', 'screamer', 'boss', 'brute', 'leaper']) {
+    const from = k === 'brute' ? names.boss : k === 'leaper' ? names.runner : names.walker;
+    if (!names[k].length) names[k] = (from.length ? from : names.walker).slice(0, 1);
+  }
 
   /** Клип за даден герой (завъртанията са общи, пътят на таза зависи от ръста). part: 'all' | 'legs' | 'arms'. */
   const clips = new Map();
@@ -252,7 +261,7 @@ export async function createZombies(ctx, start, A, fx, audio) {
     const k = Number(A?.zombies?.scale?.[type]) || 1;
     b.g.scale.setScalar(k);
     const rec = { id, type, t, look, b, k, x, z, h, tx: x, tz: z, th: h, px: x, pz: z, v: 0, state: -1, hp: 1, rage: 0, bornAt: clock, deadAt: 0, local: 0, sink: 0, gone: false,
-      head: new THREE.Vector3(x, 1.6 * k, z), neck: new THREE.Vector3(x, 1.4 * k, z), headR: (type === 'boss' ? 0.24 : 0.17) * k, step: Math.random() * 0.6, groan: 1 + Math.random() * 4,
+      head: new THREE.Vector3(x, 1.6 * k, z), neck: new THREE.Vector3(x, 1.4 * k, z), headR: (big(type) ? 0.24 : 0.17) * k, step: Math.random() * 0.6, groan: 1 + Math.random() * 4,
       vary: look % 7, idle: pick(KEYS.idle, look), walkKey: null, flinch: 0 };
     // три походки: обикновена, приведена и със залитане; тичащите тичат
     const walks = KEYS.walk.filter(q => !/_low$/.test(q));
@@ -260,8 +269,8 @@ export async function createZombies(ctx, start, A, fx, audio) {
     const stalk = clipList.walk_a ? 'walk_a' : plainWalk;      // прегърбеното дебнене: най-зомби походката
     const runs = KEYS.run.filter(q => q !== 'sprint');
     rec.runKey = pick(runs.length ? runs : walks, look);
-    rec.walkKey = type === 'runner' ? rec.runKey : rec.vary === 3 && clipList.walk_low ? 'walk_low' : (rec.vary === 2 || rec.vary === 5) ? plainWalk : stalk;
-    rec.reach = type !== 'boss' && type !== 'runner' && [1, 2, 6].includes(rec.vary) && !!reach;
+    rec.walkKey = type === 'runner' || type === 'leaper' ? rec.runKey : rec.vary === 3 && clipList.walk_low ? 'walk_low' : (rec.vary === 2 || rec.vary === 5) ? plainWalk : stalk;
+    rec.reach = !big(type) && type !== 'runner' && type !== 'leaper' && [1, 2, 6].includes(rec.vary) && !!reach;
     // зловещото бягане на последните вълни: ниско приведен, с протегнати напред ръце, много по-бързо от нормалната крачка
     rec.creep = row[9] === 1 && !!clipList.walk_low;
     if (rec.creep) { rec.runKey = 'walk_low'; rec.reach = !!reach; }
@@ -299,16 +308,23 @@ export async function createZombies(ctx, start, A, fx, audio) {
       armsOn(b, false);
       return;
     }
+    if (state === ST.leap) {      // скок през барикадата: спринт във въздуха, дъгата е в update
+      const key = clipList.sprint ? 'sprint' : rec.runKey;
+      play(b, key, { fade: 0.08, scale: 1.3, restart: true });
+      armsOn(b, false);
+      rec.leapAt = clock;
+      return;
+    }
     if (state === ST.attack) return swing(rec);
     if (prev === ST.attack && rec.attackUntil > clock) return;      // замахът се доиграва
     locomotion(rec, true);
   }
   function swing(rec) {
     const b = rec.b;
-    const key = rec.type === 'boss' ? (clipList.attack_d ? 'attack_d' : KEYS.attack[0]) : (clipList.attack_c ? 'attack_c' : KEYS.attack[0]);
+    const key = big(rec.type) ? (clipList.attack_d ? 'attack_d' : KEYS.attack[0]) : (clipList.attack_c ? 'attack_c' : KEYS.attack[0]);
     if (!key) return;
     const dur = clipList[key].duration || 1;
-    const scale = rec.type === 'boss' ? dur / 1.15 : Math.max(0.9, dur / 0.95);
+    const scale = rec.type === 'boss' ? dur / 1.15 : rec.type === 'brute' ? dur / 1.05 : Math.max(0.9, dur / 0.95);
     rec.mode = -1;
     play(b, key, { once: true, fade: 0.08, scale, restart: true });
     armsOn(b, false);
@@ -318,7 +334,7 @@ export async function createZombies(ctx, start, A, fx, audio) {
   function locomotion(rec, force = false) {
     const b = rec.b;
     if (rec.attackUntil > clock && !force) return;
-    const run = rec.type === 'runner' || rec.v > 1.9;      // разяреният вървящ само ускорява крачката
+    const run = rec.type === 'runner' || rec.type === 'leaper' || rec.v > 1.9;      // разяреният вървящ само ускорява крачката
     const mode = rec.v < 0.12 ? 0 : run ? 1 : 2;
     if (mode === rec.mode && !force && b.cur) {
       if (mode === 1) b.cur.timeScale = Math.min(rec.creep ? 2.6 : 1.5, Math.max(0.5, rec.v / rec.runV));
@@ -349,7 +365,7 @@ export async function createZombies(ctx, start, A, fx, audio) {
       const want = !rec.dx && !rec.dz ? null : d < -0.35 ? 'death_b' : d > 0.35 ? 'death_f' : side > 0 ? 'death_r' : 'death_l';
       key = want && clipList[want] ? want : pick(KEYS.death, rec.look);
     }
-    if (key) play(b, key, { once: true, fade: 0.06, scale: rec.type === 'boss' ? 0.8 : 1.15, restart: true });
+    if (key) play(b, key, { once: true, fade: 0.06, scale: big(rec.type) ? 0.8 : 1.15, restart: true });
     else { b.mixer.stopAllAction(); b.cur = null; rec.fall = 0.001; }      // без клип за смърт: пада назад като дъска
     if (kids) fadeable(b);
     corpses.push(rec);
@@ -403,7 +419,7 @@ export async function createZombies(ctx, start, A, fx, audio) {
   /** Моят изстрел в главата: зомбито пада веднага, без да чака сървъра (ако той не потвърди, се изправя). */
   function localKill(id, dir) {
     const rec = list.get(id);
-    if (!rec || rec.deadAt || rec.type === 'boss') return;
+    if (!rec || rec.deadAt || big(rec.type)) return;      // тежките не падат от един изстрел: чака се сървърът
     rec.dx = dir.x; rec.dz = dir.z; rec.local = clock;
     setState(rec, ST.dead);
     pop(rec);
@@ -499,6 +515,7 @@ export async function createZombies(ctx, start, A, fx, audio) {
       rec.h += dh * Math.min(1, dt * 8);
       let y = floor ? (rec.fy = floor(rec.x, rec.z) || 0) : 0;
       if (rec.state === ST.rise) y -= 0.55 * Math.max(0, 1 - (clock - rec.riseAt) / 0.55);
+      if (rec.state === ST.leap) { const f = Math.min(1, (clock - rec.leapAt) / LEAP_T); y += 4 * LEAP_H * f * (1 - f); }      // дъгата над барикадата
       b.g.position.set(rec.x, y, rec.z);
       b.g.rotation.y = rec.h;
       if (rec.flinch > 0) { rec.flinch -= dt; b.g.rotation.x = -0.16 * Math.max(0, rec.flinch / 0.12); } else b.g.rotation.x = 0;
@@ -511,7 +528,7 @@ export async function createZombies(ctx, start, A, fx, audio) {
       if (b.neck) { tmp3.setFromMatrixPosition(b.neck.matrixWorld); root.worldToLocal(tmp3); if (Math.abs(tmp3.x - rec.x) < 2 && Math.abs(tmp3.z - rec.z) < 2) rec.neck.copy(tmp3); }
       // звук: стъпки на близките и ръмжене
       const dist = Math.hypot(rec.x - hx, rec.z - hz);
-      if (rec.v > 0.3 && dist < 9) { rec.step -= dt * Math.max(0.6, rec.v); if (rec.step <= 0) { rec.step = rec.type === 'boss' ? 0.75 : 0.62; audio.step(rec.x, rec.z, rec.type === 'boss'); } }
+      if (rec.v > 0.3 && dist < 9) { rec.step -= dt * Math.max(0.6, rec.v); if (rec.step <= 0) { rec.step = big(rec.type) ? 0.75 : 0.62; audio.step(rec.x, rec.z, big(rec.type)); } }
       rec.groan -= dt;
       if (rec.groan <= 0) { rec.groan = 3.5 + Math.random() * 6; if (dist < 22) audio.groan(rec.x, rec.z, rec.type); }
     }

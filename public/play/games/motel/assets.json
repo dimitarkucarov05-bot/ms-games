@@ -34,8 +34,21 @@
    "SK_Chr_ZombieBoss_Slobber_01",
    "SK_Chr_ZombieBoss_Wretch_01"
   ],
+  "brute": [
+   "SK_Chr_ZombieBoss_Blobber_01",
+   "SK_Chr_ZombieBoss_Slobber_01"
+  ],
+  "leaper": [
+   "SK_Zombie_Cheerleader_Female_01",
+   "SK_Zombie_Biker_Male_01",
+   "SK_Zombie_Footballer_Male_01",
+   "SK_Zombie_Police_Male_01",
+   "SK_Zombie_Punk_Female_01",
+   "SK_Zombie_Jock_Male_01"
+  ],
   "scale": {
-   "boss": 1.9
+   "boss": 1.9,
+   "brute": 1.3
   }
  },
  "clips": {
@@ -536,7 +549,7 @@
    "slug": "military-pack",
    "model": "SM_Prop_Light_Portable_01",
    "size": [
-    1.0,
+    1,
     1.19,
     0.87
    ]

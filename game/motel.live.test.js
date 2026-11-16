@@ -339,7 +339,7 @@ function playOut(opts, sec = 1000, each) {
 }
 const sorted = set => [...set].sort((a, b) => a - b);
 
-test('cuts: 10 minutes = 5 waves, 15 minutes = 6 longer waves, short = one wave fewer; odd minutes snap to a cut', () => {
+test('cuts: 10 minutes = 5 waves, 15 minutes = 6 longer waves, short = one wave fewer and ends earlier; odd minutes snap to a cut', () => {
   const ten = make().g.start(), fifteen = make({ minutes: 15 }).g.start();
   assert.equal(ten.duration, 600); assert.equal(ten.waves, 5); assert.equal(ten.minutes, 10);
   assert.deepEqual(ten.waveNames, ['First contact', 'They keep coming', 'The rush', 'Blackout', 'The run']);
@@ -357,7 +357,8 @@ test('cuts: 10 minutes = 5 waves, 15 minutes = 6 longer waves, short = one wave 
   assert.deepEqual(sorted(sh.waves), [1, 2, 3, 4]); assert.ok(sh.bossSeen); assert.equal(sh.s.result.won, true);
   // short waves are not bigger than the same wave in the full game, the 15-minute ones are bigger
   const sizeOf = o => { const all = new Set(); playOut({ ...o, options: { crowd: 20 } }, 150, q => { if (q.wave === 1) for (const z of q.z) all.add(z[0]); }); return all.size; };
-  assert.ok(sizeOf({ short: true }) < sizeOf({}), 'short waves are smaller');
+  const full = playOut({}, 700);
+  assert.ok(sh.s.result.durationMs < full.s.result.durationMs - 40000, `short ${sh.s.result.durationMs} ms vs full ${full.s.result.durationMs} ms`);
   assert.ok(sizeOf({ minutes: 15 }) > sizeOf({}), '15-minute waves are bigger');
 });
 
@@ -548,10 +549,10 @@ test('results(): per-player kills, deaths and score mid-game and at the end, mat
   assert.equal(r.extra.reason, s.result.reason); assert.ok(r.extra.boss);
 });
 
-test('manifest 3.0.0: cuts, modes, options, stages and scorecard match the rules', async () => {
+test('manifest 3.1.0: cuts, modes, options, stages and scorecard match the rules', async () => {
   const fs = await import('node:fs');
   const m = JSON.parse(fs.readFileSync(new URL('./motel.game.json', import.meta.url), 'utf8'));
-  assert.equal(m.version, '3.0.0');
+  assert.equal(m.version, '3.1.0');
   assert.deepEqual(m.cuts, RULES.cuts);
   assert.ok(m.cuts.includes(m.minutes));
   assert.deepEqual(m.options, OPTIONS.map(o => ({ ...o })));
@@ -594,4 +595,105 @@ test('the zombie whose bite downs the whole group falls with the others and does
     }
   });
   assert.ok(checked, 'the group went down at least once');
+});
+
+// ── разнообразие: едрият, прескачащият, изравящият се и алармата ──
+/** Цяла игра с бот, всички събития по веднъж (без повторенията от следващите състояния) и всяко състояние. */
+function recordGame(opts, sec = 700, each, spare) {
+  const { g, run } = make(opts);
+  g.join('p1', { n: 1, name: 'Бот' }); g.pose('p1', poseAt());
+  const all = bot(g, 'p1'), events = [], snaps = [];
+  // spare: този вид не се стреля, докато не стигне оградата (за да се види какво прави там)
+  const shoot = spare ? q => all({ ...q, z: q.z.filter(r => TYPES[r[1]] !== spare || Math.hypot(r[3], r[4]) < 2.5) }) : all;
+  let seen = 0;
+  run(sec, (q, now) => { shoot(q); for (const e of q.events) if (e.i > seen) { seen = e.i; events.push({ ...e, wave: q.wave, phase: q.phase, now }); } snaps.push(q); each?.(q, g); });
+  return { g, events, snaps, start: g.start() };
+}
+
+test('brute: one arrives late in wave 2, survives a head shot, tears two planks per hit and is worth more', () => {
+  const { events, snaps } = recordGame({});
+  const brutes = events.filter(e => e.k === 'brute');
+  assert.ok(brutes.length >= 3, `brutes ${brutes.length}`);
+  assert.equal(Math.min(...brutes.map(e => e.wave)), 2, 'the first one comes in wave 2');
+  const kills = events.filter(e => e.k === 'kill' && e.type === TYPES.indexOf('brute') && e.p);
+  assert.ok(kills.length >= 1 && kills.every(e => e.pts >= RULES.zombies.brute.score), 'killed for big points');
+  // the bot shoots every third shot at the head: a brute takes several hits, never dies from the first
+  const id = brutes[0].z, life = snaps.map(q => q.z.find(r => r[0] === id)).filter(Boolean);
+  assert.ok(life.some(r => r[7] < 1 && r[7] > 0), 'it was hurt and kept walking');
+});
+
+test('brute at a gate: two planks per hit', () => {
+  let drops = [];
+  recordGame({ options: { boards: 6, crowd: 20 } }, 400, q => { for (const e of q.events) if (e.k === 'bang' && e.big === 2 && !drops.some(d => d.i === e.i)) drops.push({ i: e.i, left: e.left }); }, 'brute');
+  drops = drops.map(d => d.left);
+  assert.ok(drops.length >= 1, 'a brute reached a gate');
+  for (const left of drops) assert.ok(left % 2 === 0, `left ${left}: planks go two at a time from a full gate`);
+});
+
+test('leaper: from wave 3 it vaults the barricade beside a full gate and lands inside without breaking it', () => {
+  const { events, snaps, start } = recordGame({ options: { boards: 6 } }, 700, null, 'leaper');
+  const leaps = events.filter(e => e.k === 'leap');
+  assert.ok(leaps.length >= 3, `leaps ${leaps.length}`);
+  assert.ok(leaps.every(e => e.wave >= 3), 'not before wave 3');
+  const m = start.fenceOff, inside = (x, z) => start.rooms.some(r => Math.abs(x - r.x) < r.w / 2 + m && Math.abs(z - r.z) < r.d / 2 + m);
+  for (const e of leaps) { assert.ok(!inside(e.x0, e.z0), `takes off outside ${e.x0},${e.z0}`); assert.ok(inside(e.x1, e.z1), `lands inside ${e.x1},${e.z1}`); }
+  // while in the air the zombie is in the leap state; every one that lands alive walks on inside the fence
+  let landed = 0;
+  for (const e of leaps) {
+    const rows = snaps.map(q => q.z.find(r => r[0] === e.z)).filter(Boolean), k = rows.findIndex(r => r[6] === STATE.leap);
+    assert.ok(k >= 0, 'leap state seen');
+    const after = rows.slice(k).find(r => r[6] !== STATE.leap);
+    if (after && after[6] !== STATE.dead) { landed++; assert.ok(inside(after[3], after[4]), `walks on inside: ${JSON.stringify(after)}`); }
+  }
+  assert.ok(landed >= 1, 'at least one landed alive');
+});
+
+test('digger: in the blackout some rise out of the ground inside the fence, away from the players', () => {
+  const rooms = [{ id: 'a', x: 0, z: 0, w: 6, d: 6 }];
+  const { events, start } = recordGame({ hall: { w: 6, d: 6 }, rooms });
+  const digs = events.filter(e => e.k === 'dig');
+  assert.ok(digs.length >= 2, `digs ${digs.length}`);
+  assert.ok(digs.every(e => e.wave >= 4), 'blackout or later');
+  const f = start.fence;
+  for (const e of digs) {
+    assert.ok(e.x > f.x0 && e.x < f.x1 && e.zz > f.z0 && e.zz < f.z1, 'inside the fence');
+    assert.ok(Math.hypot(e.x, e.zz) >= RULES.digger.away - 0.01, `not under the player: ${Math.hypot(e.x, e.zz).toFixed(2)} m`);
+  }
+});
+
+test('alarm: in The rush a car alarm sounds far out, then a pack of runners comes from exactly there', () => {
+  const { events } = recordGame({});
+  const alarms = events.filter(e => e.k === 'alarm');
+  assert.deepEqual(alarms.map(e => e.wave), [3, 5], 'The rush and The run');
+  const a = alarms[0];
+  assert.ok(Math.hypot(a.x, a.zz) > 6, 'far out in the dark');
+  void a;
+});
+
+test('alarm pack spawns near the alarm', () => {
+  const { g, run } = make({ options: { crowd: 20 } });
+  g.join('p1', { n: 1 }); g.pose('p1', poseAt(0, 0));
+  const shoot = bot(g, 'p1');
+  let alarm = null, near = 0, seen = 0;
+  const born = new Set();
+  run(400, q => {
+    shoot(q);
+    for (const e of q.events) if (e.i > seen) { seen = e.i; if (e.k === 'alarm' && !alarm) alarm = e; }
+    for (const r of q.z) if (!born.has(r[0])) { born.add(r[0]); if (alarm && q.t - 0 > 0 && TYPES[r[1]] === 'runner' && Math.hypot(r[3] - alarm.x, r[4] - alarm.zz) < 2.5) near++; }
+  });
+  assert.ok(alarm, 'an alarm went off');
+  assert.ok(near >= 4, `runners born at the alarm: ${near}`);
+});
+
+test('pacing: a fast team gets reinforcements so the paid time is used; the boss comes near the planned time', () => {
+  const r = playOut({}, 700);
+  assert.equal(r.s.result.won, true);
+  assert.ok(r.g.results().extra.reinforced > 10, 'reinforced ' + r.g.results().extra.reinforced);
+  const end = r.s.result.durationMs / 1000;
+  assert.ok(end > 0.7 * 600 && end < 600, 'a perfect bot still plays most of the 10 minutes: ' + end + ' s');
+  // a team that never shoots gets no reinforcements at all
+  const { g, run } = make();
+  g.join('p1', { n: 1 }); g.pose('p1', poseAt(300, 300));
+  run(300);
+  assert.equal(g.results().extra.reinforced, 0);
 });
