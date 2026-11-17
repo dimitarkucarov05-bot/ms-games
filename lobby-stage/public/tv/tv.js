@@ -340,21 +340,14 @@ function banner(title, sub = '', tone = '', ms = 3600, prio = 1) {
   clearTimeout(bannerTimer);
   bannerTimer = setTimeout(() => { el.classList.remove('on'); bannerPrio = 0; }, ms);
 }
-function onEvent(e) {
+function onEvent(e) {      // simple TV: banners only for a wave, a cleared wave, the boss and a player down
   director.event(e);
   const st = S.start, name = id => S.snap?.players?.find(p => p.id === id)?.name || 'A player';
   switch (e.k) {
     case 'wave': return banner(`Wave ${e.n}`, st?.waveNames?.[e.n - 1] || '', '', 4200, 2);
-    case 'dark': return e.on ? banner('Blackout', 'Flashlights only', 'bad', 3600, 2) : banner('Power is back', '', 'good', 2600, 1);
     case 'clear': return banner(`Wave ${e.n} cleared`, e.clean ? 'No gate lost' : '', 'good', 3600, 2);
     case 'boss': return banner('The boss is here', '', 'bad', 5000, 4);
-    case 'rage': return banner('The boss is enraged', '', 'bad', 3600, 3);
-    case 'breach': return banner('Gate broken', 'They are coming through', 'bad', 3400, 2);
     case 'down': return banner(`${name(e.p)} is down`, e.t ? `Back in ${Math.ceil(e.t)} seconds` : '', 'bad', 3600, 3);
-    case 'up': return banner(`${name(e.p)} is back`, '', 'good', 2200, 1);
-    case 'boom': return banner('Barrel', e.p ? `${name(e.p)} lit it up` : '', '', 2200, 1);
-    case 'kill': if (e.combo && e.combo >= 5 && e.combo % 5 === 0) return banner(`${e.combo} in a row`, name(e.p), 'good', 2200, 1); return;
-    case 'level': return banner(DIFF[e.level] || cap(e.level), 'Difficulty changed', '', 2600, 1);
   }
 }
 

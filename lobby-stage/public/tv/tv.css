@@ -1,5 +1,5 @@
 /* MS Games TV: the spectator screen at the counter (S7).
-   Brand (design 0b): night green base, arena green, signal yellow, white. Drawn for 1920 x 1080: 1rem = 10 px there,
+   Brand (design 0b, purple since 18.11.2026): night purple base, arena purple, signal yellow, white. Drawn for 1920 x 1080: 1rem = 10 px there,
    and everything scales with the width of the screen. Motion is transform and opacity only. */
 
 @font-face { font-family: "Sofia Sans"; font-style: normal; font-weight: 1 1000; font-display: block;
@@ -241,3 +241,12 @@ body[data-embed] #attract > :not(.art) { display: none; }
 body[data-embed][data-mode="curtain"] #attract { opacity: 1; visibility: visible; }
 body[data-embed] #attract .art i { animation: none; opacity: 0; inset: 0; }
 body[data-embed] #attract #artA { opacity: 0.55; }
+
+/* ---------- simple TV (Martin, 18.11.2026): only what a bystander needs ---------- */
+[hidden] { display: none !important; }      /* .venue and .bossBar set display: flex, which beat the hidden attribute */
+/* idle: logo, game title, record board, the clock to the next game. No "now playing" tag, tagline, fact chips, helper line or "presented by". */
+.kicker, .tag, .facts, #nextSub, .venue > span { display: none; }
+/* live: the picture, score, wave, time and the names. No mode line, shot name, boss bar or health bars. */
+.bug div span, #hShot, .bossBar, .pl .hp { display: none; }
+/* results: who played and the score (kills and deaths stay in the console) */
+#rDiff, #results th:nth-child(2), #results td:nth-child(2), #results th:nth-child(3), #results td:nth-child(3) { display: none; }
