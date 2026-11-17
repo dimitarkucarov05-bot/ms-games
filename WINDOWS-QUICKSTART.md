@@ -23,6 +23,7 @@
 | Конзолата на оператора | http://localhost:47901 |
 | Играта без каска (W A S D, дясно копче гледа, ляво хваща, интервал е спусъкът) | http://localhost:47901/play/?desktop=1&id=DEV&name=DEV |
 | Телевизорът | http://localhost:47901/tv/ |
+| Скан на играч (служебният телефон; демо кодове HOTDOG, WOMAN1, KID001) | http://localhost:47901/scan/ |
 | HTTPS за телефони/каски (камера на браузъра) | `https://<IP на компютъра>:47843/` |
 
 ## Всеки ден
@@ -34,7 +35,7 @@
 
 Работете от една машина наведнъж, за да не се засичате. Ако `git pull` се оплаче, първо `git commit`, после `git pull`.
 
-## Тестове (98 теста)
+## Тестове (109 теста)
 
     cd lobby-stage
     node --test lib/*.test.js game/*.test.js keeper.test.js

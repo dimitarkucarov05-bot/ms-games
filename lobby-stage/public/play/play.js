@@ -566,6 +566,28 @@ function deskBind() {
 // ---------- другите играчи ----------
 
 const players = new Map();   // id → { n, name, team, head, l, r, group, … }
+
+// LabCoin: името на играча е неговото потребителско име (идва като име на каската), скинът идва със съобщение 'skins'.
+// Етап 1: значка с картинката на скина над надписа. Етап 2 (modelKey → 3D модел) ще замени манекена.
+const labSkins = new Map();   // headsetId → { username, skin: { id, name, stars, modelKey }, perks }
+const skinPics = new Map();   // skin id → { img, ready }
+function skinPic(id) {
+  let p = skinPics.get(id);
+  if (!p) {
+    const img = new Image();
+    p = { img, ready: false };
+    img.onload = () => { p.ready = true; };
+    img.src = `/labcoin-skin/${encodeURIComponent(id)}`;
+    skinPics.set(id, p);
+  }
+  return p;
+}
+function setSkins(list) {
+  labSkins.clear();
+  for (const [id, v] of Object.entries(list || {})) if (v) { labSkins.set(id, v); if (v.skin) skinPic(v.skin.id); }
+  me.lab = labSkins.get(me.id) || null;
+}
+
 function avatarFor(p) {
   let a = players.get(p.id);
   if (a) return a;
@@ -580,12 +602,14 @@ function avatarFor(p) {
   const l = handMesh(teamColor(p.team)), r = handMesh(teamColor(p.team));
   const tag = makeLabel(0.5, 0.22, 256);
   tag.mesh.renderOrder = 5;
-  group.add(headMesh, body, l, r, tag.mesh);
+  const badge = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.2), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false }));
+  badge.renderOrder = 5; badge.visible = false;
+  group.add(headMesh, body, l, r, tag.mesh, badge);
   avatarGroup.add(group);
   a = {
     id: p.id, n: p.n, name: p.name, team: p.team, cal: true, seen: 0, fresh: true,
     head: { pos: new THREE.Vector3(), quat: new THREE.Quaternion() }, l: { pos: new THREE.Vector3(), quat: new THREE.Quaternion() }, r: { pos: new THREE.Vector3(), quat: new THREE.Quaternion() },
-    target: new Float32Array(21), group, headMesh, body, lMesh: l, rMesh: r, tag, mat,
+    target: new Float32Array(21), group, headMesh, body, lMesh: l, rMesh: r, tag, mat, badge, badgeId: '',
   };
   players.set(p.id, a);
   return a;
@@ -624,7 +648,7 @@ function onRoom(msg) {
     drawTag(a);
   }
   for (const [id, a] of players) {
-    if (now - a.seen > 3000) { dropBody(a); avatarGroup.remove(a.group); a.tag.tex.dispose(); players.delete(id); }
+    if (now - a.seen > 3000) { dropBody(a); avatarGroup.remove(a.group); a.tag.tex.dispose(); a.badge.material.map?.dispose(); players.delete(id); }
   }
   renderCard();
 }
@@ -678,6 +702,19 @@ function updateAvatars(dt) {
     }
     a.headMesh.visible = a.body.visible = !real;
     if (real) a.lMesh.visible = a.rMesh.visible = false;
+    // LabCoin skin badge: above the name tag, the same way to the viewer
+    const sk = labSkins.get(a.id)?.skin, pic = sk ? skinPic(sk.id) : null;
+    if (pic?.ready && a.badgeId !== sk.id) {
+      a.badge.material.map?.dispose();
+      // през canvas, не директно от <img>: така работи и SVG, и PNG/WebP, и ъглите излизат закръглени
+      const cv = document.createElement('canvas'); cv.width = cv.height = 128;
+      const cx = cv.getContext('2d'); cx.beginPath(); cx.roundRect(0, 0, 128, 128, 22); cx.clip(); cx.drawImage(pic.img, 0, 0, 128, 128);
+      const tx = new THREE.CanvasTexture(cv); tx.colorSpace = THREE.SRGBColorSpace;
+      a.badge.material.map = tx; a.badge.material.needsUpdate = true; a.badgeId = sk.id;
+    } else if (!sk && a.badgeId) { a.badge.material.map?.dispose(); a.badge.material.map = null; a.badge.material.needsUpdate = true; a.badgeId = ''; }
+    a.badge.position.copy(a.tag.mesh.position); a.badge.position.y += 0.23;
+    a.badge.quaternion.copy(a.tag.mesh.quaternion);
+    a.badge.visible = !!a.badgeId && a.tag.mesh.visible;
   }
 }
 
@@ -992,7 +1029,7 @@ async function endGame() {
 
 // ---------- зона: чертане от каската ----------
 
-const BUILD = 44;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
+const BUILD = 45;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
 // what this page understands of MS Games 2 (the server may fall back to older flows for pages without a cap)
 const CAPS = ['lobby', 'vote', 'countdown', 'pause', 'settings', 'results', 'endMessage', 'message', 'swapHands', 'calibrateHeight', 'setupPoints', 'identity', 'restartGame', 'recalibrate', 'bench', 'ping'];
 let zoneMod = null, zoneEditor = null, zoneViewObj = null, zoneData = null;
@@ -1296,8 +1333,10 @@ function onSession(m) {
     }
     case 'calibrateHeight': setHeight(m.cm); sfx.play('ui.click'); return true;
     case 'setupPoints': setupStep(m); return true;
+    case 'skins': setSkins(m.players); return true;
     case 'identity':
       if (m.name) { me.name = String(m.name); store('arena.name', me.name); }
+      if ('lab' in m) { me.lab = m.lab || null; if (me.lab?.skin) skinPic(me.lab.skin.id); }
       if (m.n != null) me.n = Number(m.n) || me.n;
       if (m.color) me.color = m.color;
       renderCard();

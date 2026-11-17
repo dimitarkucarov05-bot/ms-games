@@ -30,6 +30,7 @@ import { appendJsonl, tailJsonl } from './lib/store.js';
 import { createSetupTracker, cleanPreset, presetZone, parseAdbDevices, usbState } from './lib/setup.js';
 import { buildChecks, parsePingMs, firewallStatus, firewallFixCommand } from './lib/diagnose.js';
 import { makeZip, reportDir, reportName, tailFile, teeConsole } from './lib/bugreport.js';
+import { createLabcoin, buildResultPayloads, errorText as labErrorText } from './lib/labcoin.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 47801);
@@ -542,6 +543,7 @@ function headsetView(h) {
     number: headsetNumber(h.id),
     name: arena.names[h.id] || h.name || h.id,
     nameIsCustom: !!arena.names[h.id],   // arena14: името е сложено с rename (arena.names), не е името на устройството
+    lab: labView(h.id),   // LabCoin: кой играч е вързан към каската (име и скин), или null
     model: h.model,
     web: !!h.web,   // каска през браузър: може да пуска уеб игри
     desk: !!h.desk,
@@ -1295,7 +1297,7 @@ function onHeadsetMessage(ws, msg, ip) {
       // каската е от текущата игра, но е била извадена (дълго прекъсване, презаредена страница): връща се сама
       try { web.game.join(id, { n: headsetNumber(id), name: headsetView(h).name }); web.ids.add(id); } catch (e) { console.error('rejoin', e); }
     }
-    sendIdentity(id); sendLiveSettings(id);      // full context on every connect (design section 4)
+    sendIdentity(id); sendLabSkins(id); sendLiveSettings(id);      // full context on every connect (design section 4)
     if (engine.active()) engine.onConnect(id);      // the engine puts it where it belongs (game or waiting room)
     else {
       if (web?.ids.has(id)) { h.phase = 'loading'; h.loadingAt = Date.now(); h.load = 0; h.launchError = null; sendTo(id, web.startMsg); }
@@ -1971,9 +1973,103 @@ function saveResults(run, item, res) {
   }
   scorecardsVersion++;
   if (newRecord) toast(`New record in ${item.gameName}: ${entry.team}, ${res.score}`, 'ok');
+  try { labQueueResults(item, res); } catch (e) { console.warn('LabCoin result:', e.message); }   // LabCoin: резултатът на вързаните играчи
   return { rank, newRecord, recordId: entry.id, scorecard: base, team: entry.team };
 }
 let scorecardsVersion = 0;
+
+// ---------- LabCoin: скан на играч -> име и скин във всяка игра -> резултат обратно (lib/labcoin.js, docs/LABCOIN-LINK.md) ----------
+// Служебният телефон отваря /scan/, сканира кода от профила на играча; кодът се проверява в LabCoin и играчът се връзва към каска.
+// Докато е вързан, името на каската е неговото потребителско име (arena.names), а скинът му се рисува в играта.
+const LAB_FILE = path.join(DATA, 'labcoin-players.json');
+const labBound = new Map(Object.entries(readJson(LAB_FILE, {})).filter(([, b]) => b && b.player && b.player.id));   // headsetId -> { player, boundAt, prevName }
+const labScanAt = [];                                  // времена на последните проби: най-много 30 на минута
+const labSave = () => writeJson(LAB_FILE, Object.fromEntries(labBound));
+
+const labcoin = createLabcoin({
+  dir: DATA, log: t => console.log(`[labcoin] ${t}`),
+  onResult: (item, a) => labResultDone(item, a),
+});
+
+const labImg = s => (s ? `/labcoin-skin/${encodeURIComponent(s.id)}` : null);
+/** What a page may see of a player: never the key, never anything but the nickname, skin, level, HEX, LabPass and perks. */
+function labPublic(p, boundAt) {
+  if (!p) return null;
+  return {
+    username: p.username, ageGroup: p.ageGroup, level: p.level, hex: p.hex, labpass: p.labpass, perks: p.perks,
+    skin: p.skin ? { id: p.skin.id, name: p.skin.name, stars: p.skin.stars, modelKey: p.skin.modelKey, img: labImg(p.skin) } : null,
+    skinCount: p.skins?.length || 0, ...(boundAt ? { boundAt } : {}),
+  };
+}
+const labView = id => { const b = labBound.get(id); return b ? { username: b.player.username, skin: b.player.skin?.name || null, skinId: b.player.skin?.id || null } : null; };
+const labClient = id => { const b = labBound.get(id); return b ? { username: b.player.username, skin: b.player.skin ? { id: b.player.skin.id, name: b.player.skin.name, stars: b.player.skin.stars, modelKey: b.player.skin.modelKey } : null, perks: b.player.perks } : null; };
+function labSkinsPayload() {
+  const players = {};
+  for (const id of labBound.keys()) players[id] = labClient(id);
+  return { type: 'skins', players };
+}
+function sendLabSkins(id) { if (labBound.size) sendTo(id, labSkinsPayload()); }
+function labBroadcast() {
+  const m = JSON.stringify(labSkinsPayload());
+  for (const ws of sockets.values()) if (ws.readyState === 1) ws.send(m);
+  toWatchers(m);
+}
+function labRow(id) {
+  const h = headsets.get(id), b = labBound.get(id);
+  return { id, number: headsetNumber(id), name: arena.names[id] || h?.name || id, color: headsetColor(id), online: !!h?.online, web: !!h?.web, player: labPublic(b?.player, b?.boundAt) };
+}
+function labTarget(headsetId, number) {
+  if (headsetId) return headsets.has(String(headsetId)) ? String(headsetId) : null;      // a named headset that is not known is an error, never "any free one"
+  const n = Math.round(Number(number));
+  if (number != null && number !== '' && n > 0) for (const id of headsets.keys()) if (headsetNumber(id) === n) return id;
+  const free = [...headsets.values()].filter(h => !labBound.has(h.id)).sort((a, b) => (b.online ? 1 : 0) - (a.online ? 1 : 0) || (b.web ? 1 : 0) - (a.web ? 1 : 0) || headsetNumber(a.id) - headsetNumber(b.id));
+  return free[0]?.id || null;
+}
+/** One player, one headset: the earlier headset of the same player is freed. The name the headset had before comes back on release. */
+function labBind(id, player) {
+  for (const other of [...labBound.keys()]) if (other !== id && labBound.get(other).player.id === player.id) labRelease(other);
+  const prevName = labBound.has(id) ? labBound.get(id).prevName : (arena.names[id] ?? null);
+  labBound.set(id, { player, boundAt: Date.now(), prevName });
+  arena.names[id] = player.username.slice(0, 30);
+  writeJson(ARENA_FILE, arena);
+  labSave();
+  sendIdentity(id); labBroadcast();
+  toast(`${player.username} is on headset ${headsetNumber(id)}${player.skin ? ` (${player.skin.name})` : ''}`, 'ok');
+}
+function labRelease(id) {
+  const b = labBound.get(id);
+  if (!b) return false;
+  labBound.delete(id);
+  if (b.prevName == null) delete arena.names[id]; else arena.names[id] = b.prevName;
+  writeJson(ARENA_FILE, arena);
+  labSave();
+  sendIdentity(id); labBroadcast();
+  return true;
+}
+/** Old bindings end by themselves (data/labcoin.json ttlHours, 6 by default): a player who left must not keep a headset. */
+function labSweep() {
+  const ttl = labcoin.cfg().ttlHours * 3600e3;
+  let changed = false;
+  for (const [id, b] of [...labBound]) if (Date.now() - b.boundAt > ttl) { labRelease(id); changed = true; }
+  if (changed) pushState();
+}
+/** A finished game: one result per bound player goes to LabCoin (queued, retried, paid once). */
+function labQueueResults(item, res) {
+  if (!labBound.size) return;
+  const bound = new Map([...labBound].map(([id, b]) => [id, b.player]));
+  for (const { payload, meta } of buildResultPayloads({ venue: labcoin.cfg().venue, gameId: item.gameId, sessionId: res.sessionId, res, bound })) labcoin.enqueue(payload, meta);
+}
+function labResultDone(item, a) {
+  const hid = item.meta?.headsetId, who = item.meta?.username || 'Player';
+  const text = a.hex > 0 ? `+${a.hex} HEX for ${who}` : (a.capped ? `${who}: the daily HEX limit is reached` : `${who}: no HEX this time`);
+  toast(text, a.hex > 0 ? 'ok' : 'info');
+  const b = hid && labBound.get(hid);
+  if (b && b.player.id === item.payload.playerId) {
+    if (a.total != null) { b.player.hex = a.total; labSave(); }
+    sendTo(hid, { type: 'message', text, seconds: 8 });
+  }
+  pushState();
+}
 
 const engine = createEngine({
   headsets: () => [...headsets.values()].map(h => ({
@@ -1991,6 +2087,8 @@ const engine = createEngine({
   toast,
 });
 setInterval(() => { try { engine.tick(); } catch (e) { console.error('session engine:', e); } }, 250);
+labcoin.start();
+setInterval(labSweep, 60e3).unref?.();
 
 /** Headset view as the console wants it: inputs for the pre-start check. */
 function checkView(id) {
@@ -2088,7 +2186,7 @@ function headsetAction(id, action, value) {
 function sendIdentity(id) {
   const h = headsets.get(id);
   if (!h) return false;
-  return sendTo(id, { type: 'identity', id, n: headsetNumber(id), name: headsetView(h).name, color: headsetColor(id) });
+  return sendTo(id, { type: 'identity', id, n: headsetNumber(id), name: headsetView(h).name, color: headsetColor(id), lab: labClient(id) });
 }
 function sendLiveSettings(id) {
   const s = settings.get(), run = engine.view(), h = headsets.get(id);
@@ -2359,6 +2457,27 @@ function json(res, code, value) {
 }
 
 const api = {
+  // LabCoin: служебният телефон сканира играч (страница /scan/); виж docs/LABCOIN-LINK.md
+  'POST /api/labcoin/scan': async ({ code, headsetId, number } = {}) => {
+    const t = Date.now();
+    while (labScanAt.length && t - labScanAt[0] > 60e3) labScanAt.shift();
+    if (labScanAt.length >= 30) return { ok: false, error: 'too_many', text: labErrorText('too_many') };
+    labScanAt.push(t);
+    const target = labTarget(headsetId, number);      // before the call: a code is single use and must not be burnt without a headset
+    if (!target) return { ok: false, error: 'no_headset', text: labErrorText('no_headset') };
+    const r = await labcoin.scan(code, { headsetNumber: headsetNumber(target) });
+    if (!r.ok) return r;
+    const before = labBound.get(target)?.player;
+    labBind(target, r.player);
+    return { ok: true, headset: labRow(target), player: labPublic(r.player), replaced: before && before.id !== r.player.id ? before.username : null };
+  },
+  'POST /api/labcoin/release': ({ headsetId } = {}) => ({ ok: labRelease(String(headsetId || '')) }),
+  'POST /api/labcoin/release-all': () => { const ids = [...labBound.keys()]; for (const id of ids) labRelease(id); return { ok: true, released: ids.length }; },
+  'GET /api/labcoin/status': () => ({
+    ok: true, ...labcoin.status(), tlsPort: TLS_PORT, secure: !!secureServer,
+    headsets: [...headsets.keys()].map(labRow).sort((a, b) => a.number - b.number),
+  }),
+
   'GET /api/state': (_, req) => {
     const s = snapshot();
     matchSeenBy(req, s.matchCmd);
@@ -3209,6 +3328,15 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200, { 'content-type': MIME[path.extname(f)] || 'application/octet-stream', 'cache-control': 'no-cache' });
       return fs.createReadStream(f).pipe(res);
     }
+    const skinImg = req.method === 'GET' && url.pathname.match(/^\/labcoin-skin\/([\w-]{1,60})$/);
+    if (skinImg) {
+      let imageUrl = '';
+      for (const { player } of labBound.values()) { const s = [player.skin, ...(player.skins || [])].find(x => x && x.id === skinImg[1]); if (s) { imageUrl = s.imageUrl; break; } }
+      const pic = await labcoin.skinImage(skinImg[1], imageUrl);
+      if (!pic) return json(res, 404, { error: 'No picture' });
+      res.writeHead(200, { 'content-type': pic.type, 'cache-control': 'public, max-age=3600', 'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'" });
+      return res.end(pic.body);
+    }
     const handler = api[`${req.method} ${url.pathname}`];
     if (handler) {
       const body = req.method === 'POST' ? JSON.parse((await readBody(req)).toString() || '{}') : {};
@@ -3384,6 +3512,7 @@ wssWatch.on('connection', ws => {
   ws.send(JSON.stringify({ type: 'hall', hall: webHall(), calibrated: !!latestCalibration() }));
   ws.send(JSON.stringify({ type: 'zone', zone: zoneView() }));
   ws.send(JSON.stringify(tvSession()));
+  if (labBound.size) ws.send(JSON.stringify(labSkinsPayload()));
   if (web) ws.send(JSON.stringify(web.startMsg));
   ws.on('close', () => watchers.delete(ws));
   ws.on('error', () => {});

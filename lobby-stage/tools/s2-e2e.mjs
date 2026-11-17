@@ -1,7 +1,7 @@
 // End-to-end test of the session engine against a running dev server with simulated headsets (S2).
 //
 //   node tools/dev-server.mjs --port 47932 --data data-dev-s2      (in another terminal)
-//   node tools/s2-e2e.mjs [port] [parts]       parts: setup,quick,playlist,party,ops (or all, the default) and draw
+//   node tools/s2-e2e.mjs [port] [parts]       parts: setup,quick,labcoin,playlist,party,ops (or all, the default) and draw
 //
 // The Motel runs with `fast` (its trial cut: time runs 6x faster, about 100 s a game). A full run takes about 10 minutes:
 // detach it, e.g. `(node tools/s2-e2e.mjs 47932 > e2e.log 2>&1; echo EXIT $? >> e2e.log) &` (a tool's 2-minute command limit
@@ -265,10 +265,74 @@ async function drawPart() {
   check(true, 'all calibrated after the draw');
 }
 
+async function labcoinPart() {
+  say('== labcoin: three players scanned onto the headsets, their names and skins in the game, the results paid back');
+  await until('sims connected', async () => (await state()).headsets.filter(h => ids.includes(h.id) && h.online).length === 3);
+  try { await post('/api/session/stop'); } catch { /* none */ }
+  try { await post('/api/flow/close'); } catch { /* none */ }
+  await post('/api/settings', { resultsSec: 8, countdownSec: 3, autoStart: false, endMessage: { preset: 'thanks' }, clockScope: 'game' });
+  await post('/api/labcoin/release-all');
+  const st0 = await get('/api/labcoin/status');
+  check(st0.mode === 'mock', `the dev server links to the pretend LabCoin (${st0.mode})`);
+  const bad = await post('/api/labcoin/scan', { code: 'NOPE00', headsetId: ids[0] });
+  check(bad.ok === false && bad.error === 'code_unknown' && !!bad.text, `unknown code refused: ${bad.text}`);
+  check((await post('/api/labcoin/scan', { code: 'abc' })).error === 'code_bad', 'a code that is not 6 characters is refused');
+  check((await post('/api/labcoin/scan', { code: 'EXPIRE', headsetId: ids[0] })).error === 'code_expired', 'expired code refused');
+  check((await get('/api/labcoin/status')).headsets.every(h => !h.player), 'a refused code binds nothing');
+
+  const a = await post('/api/labcoin/scan', { code: 'hotdog', headsetId: ids[0] });
+  check(a.ok && a.player.username === 'HotDogKing' && a.player.skin.name === 'Хот-дог' && a.headset.id === ids[0], `HOTDOG on headset 1: ${a.player?.username} / ${a.player?.skin?.name}`);
+  check(!JSON.stringify(a).includes('"key"') && !('id' in a.player), 'the page answer carries no key and no LabCoin id');
+  const b = await post('/api/labcoin/scan', { code: 'WOMAN1', headsetId: ids[1] });
+  check(b.ok && b.player.skin.modelKey === 'woman', 'WOMAN1 on headset 2');
+  const c = await post('/api/labcoin/scan', { code: 'KID001' });      // no headset given: the first free one
+  check(c.ok && c.headset.id === ids[2], `KID001 without a headset goes to the first free one (${c.headset?.id})`);
+
+  await wait(300);
+  const s = await state();
+  const row = id => s.headsets.find(h => h.id === id);
+  check(row(ids[0]).name === 'HotDogKing' && row(ids[0]).lab?.skin === 'Хот-дог', 'the console card carries the username and the skin');
+  check(sims[0].seen('identity').some(m => m.name === 'HotDogKing' && m.lab?.skin?.modelKey === 'hotdog'), 'the headset got its new identity with the skin');
+  const skinsMsg = sims[2].seen('skins').at(-1);
+  check(skinsMsg && Object.keys(skinsMsg.players).length === 3 && skinsMsg.players[ids[1]].username === 'Marinka_77', 'every headset got the skins of everyone');
+  const img = await fetch(`${BASE}/labcoin-skin/481`);
+  check(img.status === 200 && /svg/.test(img.headers.get('content-type')), 'the skin picture is served by the arena (no internet needed)');
+  check((await fetch(`${BASE}/labcoin-skin/..%2f..%2fserver.js`)).status === 404, 'the picture route takes only plain ids');
+
+  const moved = await post('/api/labcoin/scan', { code: 'HOTDOG', headsetId: ids[1] });
+  check(moved.ok && moved.replaced === 'Marinka_77', `the same player on another headset replaces the one there (${moved.replaced})`);
+  const s1 = await state();
+  check(!s1.headsets.find(h => h.id === ids[0]).lab && s1.headsets.find(h => h.id === ids[0]).name === 'Sim 1', 'the first headset is free again, with its own name back');
+  await post('/api/labcoin/scan', { code: 'WOMAN1', headsetId: ids[0] });
+  const s2 = await state();
+  check(['HotDogKing', 'LittleDino'].every(n => s2.headsets.some(h => h.name === n)) && s2.headsets.find(h => h.id === ids[0]).name === 'Marinka_77', 'final: Marinka_77, HotDogKing, LittleDino');
+
+  await post('/api/flow/open', { kind: 'quick' });
+  await wait(800);
+  await post('/api/session/start', { gameId: 'motel', difficulty: 'normal', minutes: 10, headsetIds: ids, team: 'LabCoin Link', fast: true });
+  await until('playing', async () => (await runState()) === 'playing', 30_000);
+  say('  waiting for the game to end by itself (trial cut, ~100 s)');
+  await until('results', async () => (await runState()) === 'results', 200_000, 1000);
+  const res = (await state()).run.results;
+  check(['HotDogKing', 'Marinka_77', 'LittleDino'].every(n => res.players.some(p => p.name === n)), `the results carry the usernames: ${res.players.map(p => p.name).join(', ')}`);
+  const paid = await until('three results paid', async () => { const x = await get('/api/labcoin/status'); return x.recent.length >= 3 && x; }, 15_000);
+  check(paid.pending === 0 && paid.failed === 0, `nothing waits in the outbox (pending ${paid.pending}, failed ${paid.failed})`);
+  check(paid.recent.every(r => r.hex >= 50) && ['HotDogKing', 'Marinka_77', 'LittleDino'].every(n => paid.recent.some(r => r.username === n)), `HEX per player: ${paid.recent.map(r => `${r.username} +${r.hex}`).join(', ')}`);
+  check(sims.every(sm => sm.seen('message').some(m => /HEX/.test(m.text))), 'each headset was told what it earned');
+
+  const rel = await post('/api/labcoin/release', { headsetId: ids[2] });
+  check(rel.ok && (await state()).headsets.find(h => h.id === ids[2]).name === 'Sim 3', 'release brings the headset name back');
+  await post('/api/labcoin/release-all');
+  const end = await get('/api/labcoin/status');
+  check(end.headsets.every(h => !h.player), 'everyone released');
+  await post('/api/session/stop').catch(() => {});
+}
+
 try {
   if (PARTS.includes('draw')) await drawPart();
   if (want('setup')) await setupPart();
   if (want('quick')) await quickPart();
+  if (want('labcoin')) await labcoinPart();
   if (want('playlist')) await playlistPart();
   if (want('party')) await partyPart();
   if (want('ops')) await opsPart();
