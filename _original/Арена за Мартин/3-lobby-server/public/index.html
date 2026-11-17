@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VR Varna · Лоби</title>
+<meta name="theme-color" content="#181410">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='3' fill='%238f4f25'/%3E%3Cpath d='M16 16 8 5a13 13 0 0 1 16 0zM16 16l13 2a13 13 0 0 1-8 11zM16 16l-5 13a13 13 0 0 1-8-11z' fill='%23181410'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="lobby.css">
+</head>
+<body>
+<div id="app">
+  <!-- ляв панел с раздели — като операторската конзола -->
+  <nav id="sidebar">
+    <div class="side-brand"><svg class="emblem" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18.5" fill="#2a241c" stroke="#8f4f25" stroke-width="2.5" stroke-dasharray="58 4 30 3 17"/><path d="M20 20 12 6a16 16 0 0 1 16 0zM20 20h16a16 16 0 0 1-8 14zM20 20l-8 14a16 16 0 0 1-8-14z" fill="#cfa055"/><circle cx="20" cy="20" r="3.4" fill="#181410"/></svg><span class="logo">VR</span><span class="brandword">VARNA</span></div>
+    <div class="side-nav">
+      <button class="nav on" data-section="cameras" data-title="Камери"><span class="ni">▦</span> Камери</button>
+      <button class="nav" data-section="headsets" data-title="Каски"><span class="ni">⬡</span> Каски</button>
+      <button class="nav" data-section="games" data-title="Игри"><span class="ni">▶</span> Игри</button>
+      <button class="nav" data-section="results" data-title="Резултати"><span class="ni">✪</span> Резултати</button>
+      <button class="nav" data-section="mapshare" data-title="Карти / LBE"><span class="ni">⬚</span> Карти / LBE</button>
+      <button class="nav" data-section="calib" data-title="Калибровка"><span class="ni">⊹</span> Калибровка</button>
+      <button class="nav" data-section="setup" data-title="Настройки"><span class="ni">⚙︎</span> Настройки</button>
+      <button class="nav" data-section="credits" data-title="Кредити"><span class="ni">©</span> Кредити</button>
+    </div>
+    <div class="side-foot">
+      <div id="conn" class="badge off">Няма връзка</div>
+      <div id="unrealBadge" class="badge off">Unreal: няма връзка</div>
+      <div class="muted small ver">VR Varna · лоби</div>
+    </div>
+  </nav>
+
+  <!-- дясна част: заглавна лента + съдържание на избрания раздел -->
+  <main id="main">
+    <header id="topbar">
+      <h1 id="sectionTitle">Камери</h1>
+      <div id="calibBadge" class="badge">—</div>
+    </header>
+
+    <div id="content">
+      <!-- КАМЕРИ: 3D изглед на залата + кадри на живо от Unreal -->
+      <section class="panel cams-panel" data-panel="cameras">
+        <div class="cambar">
+          <button class="btn cam" data-cam="overview">Общ изглед</button>
+          <button class="btn cam" data-cam="corner:0">Камера 1</button>
+          <button class="btn cam" data-cam="corner:1">Камера 2</button>
+          <button class="btn cam" data-cam="corner:2">Камера 3</button>
+          <button class="btn cam" data-cam="corner:3">Камера 4</button>
+          <button class="btn cam" data-cam="top">Отгоре</button>
+          <button class="btn cam" data-cam="grid">Решетка</button>
+          <select id="camHead" class="btn" title="Виж през очите на каска"><option value="">От каска…</option></select>
+        </div>
+        <div id="stage">
+          <canvas id="room"></canvas>
+          <div id="live" class="live" hidden></div>
+          <div id="camLabel" class="cam-label"></div>
+        </div>
+      </section>
+
+      <!-- КАСКИ (таблица като Hero Zone Devices) -->
+      <section class="panel list-panel" data-panel="headsets" hidden>
+        <div class="panel-head"><h2>Каски</h2><span id="hsCount" class="muted small"></span><button type="button" id="showOnline" class="btn">Покажи каските</button><button type="button" id="shareLbe" class="btn">Сподели LBE зона</button></div>
+        <div id="lbeShareInfo" class="lbe-share-info" hidden></div>
+        <table class="tbl devices-tbl">
+          <thead><tr>
+            <th class="c-col"></th><th class="c-col"></th><th>Каска</th><th>Статус</th>
+            <th>Батерия</th><th>FPS</th><th>Звук</th><th>Калибровка</th><th>LBE карта</th><th></th>
+          </tr></thead>
+          <tbody id="headsets"></tbody>
+        </table>
+        <div id="noHeadsets" class="muted small empty" hidden>Още няма свързани каски. Включи каска в същия Wi-Fi — ще се появи тук.</div>
+      </section>
+
+      <!-- ИГРИ -->
+      <section class="panel list-panel" data-panel="games" hidden>
+        <div class="panel-head"><h2>Игри</h2><span id="selectHint" class="muted small"></span></div>
+        <div id="games"></div>
+        <div class="session-bar">
+          <span id="sessionInfo" class="muted small" hidden></span>
+          <button id="stopBtn" class="btn danger" hidden>Спри играта</button>
+        </div>
+      </section>
+
+      <!-- КАЛИБРОВКА -->
+      <section class="panel info-panel" data-panel="calib" hidden>
+        <div class="info-card">
+          <h2>Калибровка на залата</h2>
+          <p class="muted">Всяка каска се калибрира веднъж — после се помни. Можеш да нагласиш залата сама по
+            границата на LBE, или ръчно с 4-те ъгъла.</p>
+          <button id="calibStart" class="btn primary big">Отвори калибровката</button>
+          <button id="calibUndo" class="btn ghost" title="Връща последната запазена калибровка от историята и я праща на каските. Спряно по време на мач.">↶ Върни предишната калибровка</button>
+          <p class="muted small">Всяка смяна на калибровката се пази (последните 50) и се пише в дневника на лобито.</p>
+        </div>
+      </section>
+
+      <!-- РЕЗУЛТАТИ (жива таблица на мача) -->
+      <section class="panel list-panel" data-panel="results" hidden>
+        <div class="match-controls">
+          <button id="matchStart" class="btn primary">Пусни рунд</button>
+          <button id="matchRestart" class="btn">Нов рунд</button>
+          <button id="matchStop" class="btn danger">Спри</button>
+          <label class="mc-field"><input id="matchTeams" type="checkbox" checked> Отбори</label>
+          <label class="mc-field">Цел убийства <input id="matchTarget" type="number" min="1" max="100" value="20"></label>
+          <label class="mc-field">Рунд, мин <input id="matchMinutes" type="number" min="1" max="30" value="5"></label>
+          <label class="mc-field" title="Колко спечелени рунда печелят мача">Рундове до победа <input id="matchRoundsToWin" type="number" min="1" max="9" value="3"></label>
+          <label class="mc-field" title="Може ли да раниш свой играч"><input id="matchFriendlyFire" type="checkbox"> Огън по свои</label>
+          <label class="mc-field" title="Попадение в главата убива веднага"><input id="matchHeadshot" type="checkbox" checked> Глава = 1 изстрел</label>
+        </div>
+        <div class="results-top">
+          <div class="match-phase"><span id="matchPhase">—</span> <span id="matchTimer" class="muted"></span></div>
+          <div class="team-scores">
+            <div class="teambox red"><span class="k">ЧЕРВЕНИ</span><span id="redScore" class="v">0</span></div>
+            <div class="score-sep">:</div>
+            <div class="teambox blue"><span class="k">СИНИ</span><span id="blueScore" class="v">0</span></div>
+            <div id="matchRounds" class="score-rounds muted"></div>
+          </div>
+        </div>
+        <div id="matchWarn" class="match-warn" hidden></div>
+        <!-- Arena6x6: кой е в кръга преди рунда; скрито, ако играта не праща тези полета -->
+        <div id="circleBox" class="circle-box" hidden>
+          <span class="circle-count red">Червени в кръга <b id="circleRed"></b></span>
+          <span class="circle-count blue">Сини в кръга <b id="circleBlue"></b></span>
+          <span id="circleTimer" class="circle-timer"></span>
+          <button type="button" id="forceStart" class="btn danger">Старт въпреки това</button>
+          <div id="circleMissing" class="circle-missing muted small"></div>
+        </div>
+        <!-- отборите: клик на каска я мести в другия отбор (команда setTeam към играта) -->
+        <div class="team-cols">
+          <div class="team-col red"><h3>Червени <span id="redCount" class="muted"></span></h3><div id="teamRed" class="team-list"></div></div>
+          <div class="team-col blue"><h3>Сини <span id="blueCount" class="muted"></span></h3><div id="teamBlue" class="team-list"></div></div>
+        </div>
+        <div id="teamNone" class="team-none muted small"></div>
+        <table class="tbl">
+          <thead><tr><th class="c-col">#</th><th>Играч</th><th>Отбор</th><th>Убийства</th><th>Смъртове</th><th>Точки</th></tr></thead>
+          <tbody id="scoreboard"></tbody>
+        </table>
+        <div id="noMatch" class="muted small empty" hidden>Няма активен мач. Пусни игра на каските.</div>
+      </section>
+
+      <!-- КАРТИ / LBE (Map Sharing) -->
+      <section class="panel list-panel" data-panel="mapshare" hidden>
+        <div class="ms-top">
+          <div class="ms-toggle">
+            <div><b>Pico LBE режим</b><div class="muted small">изключва ръчната калибровка</div></div>
+            <button id="mapLbeToggle" class="switch" type="button" role="switch" aria-checked="false"><i></i></button>
+          </div>
+          <div class="ms-actions">
+            <button id="mapLspace" class="btn">Ново LBE в очилата</button>
+            <button id="mapFit" class="btn primary">Нагласи залата по LBE</button>
+            <button id="mapRotate" class="btn">Завърти на 180°</button>
+            <button id="lbeStart" class="btn ghost">Още настройки…</button>
+          </div>
+        </div>
+        <div class="panel-head"><h2>Pico каски</h2><span id="msCount" class="muted small"></span></div>
+        <table class="tbl">
+          <thead><tr><th class="c-col"></th><th>Връзка</th><th>Device ID</th><th>Име</th><th>Карта / LBE</th><th>Размер</th><th></th></tr></thead>
+          <tbody id="mapHeadsets"></tbody>
+        </table>
+        <div id="msEmpty" class="muted small empty" hidden>Няма свързани каски. Включи каска в същия Wi-Fi — ще се появи тук.</div>
+      </section>
+
+      <!-- НАСТРОЙКИ (Setup) -->
+      <section class="panel list-panel" data-panel="setup" hidden>
+        <div class="panel-head"><h2>Настройки</h2></div>
+        <div id="setupCards" class="setup-grid"></div>
+      </section>
+      <section class="panel list-panel" data-panel="credits" hidden>
+        <div class="panel-head"><h2>Кредити и лицензи</h2></div>
+        <div id="creditsBody" class="credits-body">Зареждам…</div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- Калибриране -->
+<dialog id="calibDialog">
+  <form method="dialog" class="dlg">
+    <h2>Калибриране на каска</h2>
+
+    <div id="calibPick">
+      <p>Всяка каска се калибрира веднъж — после се помни. Избери каската, сложи я и застани в
+        <b>ъгъл 1</b> (отбелязан на пода). Всички каски минават <b>същите ъгли в същия ред</b> — иначе
+        играчите няма да са там, където са в залата.</p>
+      <button type="button" id="calibLbe" class="btn primary" title="Залата 10 × 5 се нагласява по границата на LBE от LSpace — без ходене по ъглите. Става и сама при нова LBE карта.">Нагласи по LBE (всички каски)</button>
+      <p class="muted small">Или ръчно с 4-те ъгъла — избери каската (в очилата се вижда залата през камерите):</p>
+      <div id="calibHeadsets" class="pick-list"></div>
+      <button type="button" id="calibRotate" class="btn ghost small" title="Ако залата е обърната наобратно — завърта я на 180° около центъра, без ново калибриране">Завърти залата на 180°</button>
+      <button type="button" id="calibClear" class="btn ghost small">Изтрий записаните калибровки</button>
+    </div>
+
+    <div id="calibRun" hidden>
+      <p>Опри десния контролер в ъгъла и натисни <b>спусъка</b>. Ъгъл 2 е по <b>дългата</b> стена (10 м),
+        после ъгли 3 и 4 — в същата посока.</p>
+      <ol class="corners" id="cornerSteps">
+        <li>Ъгъл 1</li><li>Ъгъл 2</li><li>Ъгъл 3</li><li>Ъгъл 4</li>
+      </ol>
+    </div>
+
+    <div id="calibResult" hidden>
+      <div class="result-size" id="resultSize"></div>
+      <div id="resultWarn" class="warn" hidden></div>
+      <p class="muted small">След „Запази" калибровката отива на компютъра и на всички каски. Каска, която се включи по-късно, я получава сама.</p>
+    </div>
+
+    <div class="dlg-actions">
+      <button type="button" id="calibCancel" class="btn ghost">Откажи</button>
+      <button type="button" id="calibRetry" class="btn ghost" hidden>Отначало</button>
+      <button type="button" id="calibConfirm" class="btn primary" hidden>Запази</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- LBE: PICO Large Space (бърз режим) на всички каски -->
+<dialog id="lbeDialog">
+  <form method="dialog" class="dlg">
+    <h2>LBE — голямо пространство</h2>
+    <p class="muted small">Картата на залата се прави веднъж в очилата (LSpace) и се пази в каската.
+      Тук включваш и изключваш LBE на всички каски. С LBE калибрираш залата <b>веднъж</b> — важи за всички.
+      Включване или изключване изтрива калибровките. След смяна рестартирай играта на каските.</p>
+    <div id="lbeHeadsets" class="pick-list"></div>
+    <div class="dlg-actions">
+      <button type="button" id="lbeClose" class="btn ghost">Затвори</button>
+      <button type="button" id="lbeSysOff" class="btn danger">Изключи LBE на всички</button>
+      <button type="button" id="lbeLSpace" class="btn" title="Отваря LSpace на каските — там правиш нова LBE карта: сканиране на залата, под, граница, маркер">Ново LBE в очилата</button>
+      <button type="button" id="lbeSysOn" class="btn primary">Включи LBE на всички</button>
+      <button type="button" id="lbeFit" class="btn" title="Залата 10 × 5 се нагласява по границата на LBE — става и сама при нова LBE карта">Нагласи залата по LBE</button>
+      <button type="button" id="lbeRotate" class="btn" title="Ако залата е обърната наобратно — завърта я на 180° около центъра">Завърти залата на 180°</button>
+    </div>
+    <details>
+      <summary class="muted small">Още (бърз режим без LSpace, маркер, проследяване)</summary>
+      <label class="field"><span>Дължина, м</span><input id="lbeLength" type="number" min="3" max="10" step="1"></label>
+      <label class="field"><span>Ширина, м</span><input id="lbeWidth" type="number" min="3" max="10" step="1"></label>
+      <label class="field"><span>Нула</span>
+        <select id="lbeOrigin"><option value="1">от маркер (обща за всички)</option><option value="0">сама (всяка каска своя)</option></select>
+      </label>
+      <label class="field"><span>Разстояние нула – маркер, м</span><input id="lbeDistance" type="number" min="0.5" step="0.1"></label>
+      <label class="field check"><input id="lbeVst" type="checkbox"> <span>камерите на каската се виждат, докато търси маркера</span></label>
+      <div class="dlg-actions">
+        <button type="button" id="lbeOff" class="btn ghost">Изключи бързия режим</button>
+        <button type="button" id="lbeOn" class="btn" title="Бърз режим на PICO — само ако НЕ ползваш карта от LSpace: презаписва нулата">Бърз режим (без LSpace)</button>
+        <button type="button" id="lbeRescan" class="btn">Сканирай маркера пак</button>
+        <button type="button" id="lbeTracking" class="btn" title="Включва проследяването (6DoF) — спира играта, после я рестартирай">Включи проследяването</button>
+        <button type="button" id="lbeBorder" class="btn" title="Обикновената граница на PICO (за един играч на място) — под, височина, кръг">Граница за един играч</button>
+      </div>
+    </details>
+  </form>
+</dialog>
+
+<!-- Сподели LBE карта от една каска към другите -->
+<dialog id="lbeShareDialog">
+  <form method="dialog" class="dlg">
+    <h2>Сподели LBE зона</h2>
+    <p class="muted small">Картата от <b id="lbeShareFrom">—</b> се изнася, минава през лобито и се вкарва в избраните каски.
+      Отнема до няколко минути. По подразбиране са избрани каските без същата карта.</p>
+    <div id="lbeShareTargets" class="pick-list"></div>
+    <div class="dlg-actions">
+      <button type="button" id="lbeShareCancel" class="btn ghost">Откажи</button>
+      <button type="button" id="lbeShareGo" class="btn primary">Сподели</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Покажи каските: всички онлайн, с номер; оттук се избира от коя се споделя LBE зоната -->
+<dialog id="onlineDialog">
+  <form method="dialog" class="dlg">
+    <h2>Каски онлайн</h2>
+    <p id="onlineCount" class="muted small"></p>
+    <div id="onlineList" class="online-list"></div>
+    <div class="dlg-actions">
+      <button type="button" id="onlineClose" class="btn ghost">Затвори</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Сподели LBE зона: първо от коя каска (по номер), после към кои -->
+<dialog id="lbePickDialog">
+  <form method="dialog" class="dlg">
+    <h2>От коя каска да се сподели зоната?</h2>
+    <p class="muted small">Картата се изнася от избраната каска и се вкарва в останалите.</p>
+    <div id="lbePickList" class="online-list"></div>
+    <div class="dlg-actions">
+      <button type="button" id="lbePickClose" class="btn ghost">Откажи</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toasts"></div>
+<script src="lobby.js"></script>
+<script src="credits.js"></script>
+</body>
+</html>

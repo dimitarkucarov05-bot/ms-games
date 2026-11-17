@@ -1,0 +1,1730 @@
+// scene.js: клиентската сцена на „Задната стая" (docs/SPEC.md, т. 10).
+// Не внася three: всичко идва през ctx.THREE. Моделите идват от ./models.js; ако го няма, рисува кутии.
+//
+// Как се пести рисуването (Quest 2: около 100 draw calls):
+//   * Всичко неподвижно (под, стени, станции без състояние) се слива в една геометрия с цвят по върховете.
+//   * Предмет, клиент и поръчка се рисуват от „изпечена" геометрия: моделът от models.js се слива в 1 до 2 меша
+//     и се пази в кеш по (kind + закръглено състояние). Пица с всичките си добавки е един draw call.
+//   * Станция със състояние е жив модел, докато състоянието ѝ се мени; щом се успокои, също се изпича.
+//   * Пръстени, ленти за търпение, искри и надписи са по един общ меш.
+
+import { createHud, hudLayout, roomsOf, wallsOf } from './hud.js';
+
+const SURFACE_Y = 0.85;
+const REACH = 0.55;        // рафт с продукт
+const GRAB_R = 0.30;       // свободен предмет
+const SLOT_R = 0.45;       // гнездо при пускане
+const STACK_R = 0.38;      // сурова пица, върху която ляга добавка
+const USE_R = { button: 0.20, grinder: 0.30 };      // копче и лост: ръката трябва да е при самото копче
+const PREDICT_S = 0.4;     // колко се чака сървърът да потвърди
+const IDLE_BAKE_S = 0.6;   // станция без промяна толкова време се изпича
+const CACHE_MAX = 96;
+
+const SIZES = {
+  pizza: [0.58, 0.05, 0.58], sauce: [0.14, 0.03, 0.11], cheese: [0.12, 0.10, 0.28], veg: [0.18, 0.07, 0.15], meat: [0.11, 0.05, 0.11],
+  cup: [0.07, 0.12, 0.07], tray: [0.76, 0.13, 0.57], meatbox: [0.76, 0.20, 0.57],
+  bin: [0.30, 0.85, 0.30], oven: [0.70, 0.85, 0.50], drinks: [0.50, 1.40, 0.40],
+  prep: [0.80, 0.85, 0.50], counter: [6, 0.85, 0.50], trash: [0.35, 0.60, 0.35], grinder: [0.60, 0.85, 0.50], hopper: [0.70, 1.60, 0.50],
+  wall: [2.4, 2.6, 0.10], door: [1.20, 2.0, 0.08], shutter: [6, 1.2, 0.05], sign: [1.6, 0.5, 0.05], customer: [0.45, 1.70, 0.30],
+  elevator: [1.6, 2.3, 1.6], button: [0.14, 0.10, 0.06], cover: [1.0, 0.05, 1.0], crate: [0.5, 0.4, 0.4],
+};
+const PARTS = new Set(['sauce', 'cheese', 'veg', 'meat']);
+const USE_KINDS = new Set(['button', 'grinder', 'elevator']);
+const LIVE_KINDS = new Set(['grinder', 'button', 'door', 'shutter', 'sign', 'elevator']);
+const PIN_KINDS = new Set(['grinder', 'button']);      // светят и мигат: не се изпичат
+const SINK_KINDS = new Set(['trash', 'bin']);          // гнездото им никога не е заето (кошът; рафтът с месото приема тавите)
+const DEF_STATE = { pizza: { stack: [], cook: 0, ball: false }, cup: { fill: 0, drink: null } };
+const HK = ['l', 'r'];
+const T_NONE = 0, T_ITEM = 1, T_BIN = 2, T_USE = 3, T_SLOT = 4, T_STACK = 5;
+const M_FREE = 0, M_MINE = 1, M_OTHER = 2, M_DROP = 3;
+
+const clamp01 = v => (v < 0 ? 0 : v > 1 ? 1 : v);
+const angDiff = (to, from) => { let d = (to - from) % (Math.PI * 2); if (d > Math.PI) d -= Math.PI * 2; else if (d < -Math.PI) d += Math.PI * 2; return d; };
+const sameId = (a, b) => a === b || (a != null && b != null && String(a) === String(b));
+const q = (v, n) => Math.round((+v || 0) * n);
+
+// ---------- събирач на геометрия ----------
+
+class GeoBuilder {
+  constructor(uv = false) { this.p = []; this.n = []; this.c = uv ? null : []; this.uv = uv ? [] : null; this.i = []; this.count = 0; }
+  vert(x, y, z, nx, ny, nz, r, g, b, u, v) {
+    this.p.push(x, y, z); this.n.push(nx, ny, nz);
+    if (this.c) this.c.push(r, g, b); else this.uv.push(u, v);
+    return this.count++;
+  }
+  /** четири точки [x, y, z], обратно на часовника, гледано откъм лицето */
+  quad(a, b, c, d, col) {
+    const ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2], vx = c[0] - a[0], vy = c[1] - a[1], vz = c[2] - a[2];
+    let nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+    const l = Math.hypot(nx, ny, nz) || 1;
+    nx /= l; ny /= l; nz /= l;
+    const i0 = this.count;
+    this.vert(a[0], a[1], a[2], nx, ny, nz, col[0], col[1], col[2]); this.vert(b[0], b[1], b[2], nx, ny, nz, col[0], col[1], col[2]);
+    this.vert(c[0], c[1], c[2], nx, ny, nz, col[0], col[1], col[2]); this.vert(d[0], d[1], d[2], nx, ny, nz, col[0], col[1], col[2]);
+    this.i.push(i0, i0 + 1, i0 + 2, i0, i0 + 2, i0 + 3);
+  }
+  /** кутия с начало в центъра на основата */
+  box(cx, y0, cz, w, h, d, col, yaw = 0, bottom = false) {
+    const c = Math.cos(yaw), s = Math.sin(yaw), hw = w / 2, hd = d / 2, y1 = y0 + h;
+    const P = (lx, y, lz) => [cx + lx * c + lz * s, y, cz - lx * s + lz * c];
+    const A = P(-hw, y0, hd), B = P(hw, y0, hd), C = P(hw, y0, -hd), D = P(-hw, y0, -hd);
+    const E = P(-hw, y1, hd), F = P(hw, y1, hd), G = P(hw, y1, -hd), H = P(-hw, y1, -hd);
+    this.quad(A, B, F, E, col); this.quad(B, C, G, F, col); this.quad(C, D, H, G, col); this.quad(D, A, E, H, col); this.quad(E, F, G, H, col);
+    if (bottom) this.quad(A, D, C, B, col);
+  }
+  /** добавя геометрия на меш, преместена с матрицата m4 (n3 е нормалната ѝ матрица) */
+  addMesh(geo, m4, n3, flip, back, dbl, cr, cg, cb, vc, flat) {
+    const pos = geo.attributes.position, nor = geo.attributes.normal, col = vc ? geo.attributes.color : null;
+    const uvA = this.uv ? geo.attributes.uv : null, idx = geo.index, e = m4.elements, n = n3.elements;
+    const tri = ((idx ? idx.count : pos.count) / 3) | 0;
+    const P = [0, 0, 0], N = [0, 0, 0];
+    const tp = (i, o) => {
+      const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+      o[0] = e[0] * x + e[4] * y + e[8] * z + e[12]; o[1] = e[1] * x + e[5] * y + e[9] * z + e[13]; o[2] = e[2] * x + e[6] * y + e[10] * z + e[14];
+    };
+    const put = (i, nx, ny, nz) => {
+      tp(i, P);
+      if (this.c) this.vert(P[0], P[1], P[2], nx, ny, nz, col ? cr * col.getX(i) : cr, col ? cg * col.getY(i) : cg, col ? cb * col.getZ(i) : cb);
+      else this.vert(P[0], P[1], P[2], nx, ny, nz, 0, 0, 0, uvA ? uvA.getX(i) : 0, uvA ? uvA.getY(i) : 0);
+    };
+    if (flat || !nor) {
+      const A = [0, 0, 0], B = [0, 0, 0], C = [0, 0, 0];
+      for (let t = 0; t < tri; t++) {
+        let a = idx ? idx.getX(t * 3) : t * 3, b = idx ? idx.getX(t * 3 + 1) : t * 3 + 1, c = idx ? idx.getX(t * 3 + 2) : t * 3 + 2;
+        if (flip) { const s = b; b = c; c = s; }
+        tp(a, A); tp(b, B); tp(c, C);
+        let nx = (B[1] - A[1]) * (C[2] - A[2]) - (B[2] - A[2]) * (C[1] - A[1]);
+        let ny = (B[2] - A[2]) * (C[0] - A[0]) - (B[0] - A[0]) * (C[2] - A[2]);
+        let nz = (B[0] - A[0]) * (C[1] - A[1]) - (B[1] - A[1]) * (C[0] - A[0]);
+        const l = Math.hypot(nx, ny, nz) || 1;
+        nx /= l; ny /= l; nz /= l;
+        const i0 = this.count;
+        put(a, nx, ny, nz); put(b, nx, ny, nz); put(c, nx, ny, nz);
+        this.i.push(i0, i0 + 1, i0 + 2);
+        if (dbl) { const j = this.count; put(a, -nx, -ny, -nz); put(c, -nx, -ny, -nz); put(b, -nx, -ny, -nz); this.i.push(j, j + 1, j + 2); }
+      }
+      return;
+    }
+    const tn = i => {
+      const x = nor.getX(i), y = nor.getY(i), z = nor.getZ(i);
+      const a = n[0] * x + n[3] * y + n[6] * z, b = n[1] * x + n[4] * y + n[7] * z, c = n[2] * x + n[5] * y + n[8] * z, l = Math.hypot(a, b, c) || 1;
+      N[0] = a / l; N[1] = b / l; N[2] = c / l;
+    };
+    for (let pass = 0; pass < (dbl ? 2 : 1); pass++) {
+      const base = this.count, sg = (back ? -1 : 1) * (pass ? -1 : 1), sw = flip !== (pass === 1);
+      for (let v = 0; v < pos.count; v++) { tn(v); put(v, N[0] * sg, N[1] * sg, N[2] * sg); }
+      for (let t = 0; t < tri; t++) {
+        const a = idx ? idx.getX(t * 3) : t * 3, b = idx ? idx.getX(t * 3 + 1) : t * 3 + 1, c = idx ? idx.getX(t * 3 + 2) : t * 3 + 2;
+        if (sw) this.i.push(base + a, base + c, base + b); else this.i.push(base + a, base + b, base + c);
+      }
+    }
+  }
+  build(THREE) {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(this.p, 3));
+    g.setAttribute('normal', new THREE.Float32BufferAttribute(this.n, 3));
+    if (this.c) g.setAttribute('color', new THREE.Float32BufferAttribute(this.c, 3));
+    else g.setAttribute('uv', new THREE.Float32BufferAttribute(this.uv, 2));
+    g.setIndex(this.i);
+    g.computeBoundingSphere();
+    return g;
+  }
+}
+
+// ---------- кутии вместо модели (когато models.js липсва или не знае някой kind) ----------
+
+const BOX = {
+  pizza: 0xe8c27a, sauce: 0xd9412a, cheese: 0xf6c445, veg: 0xcbb89a, meat: 0xa8322a, cup: 0xf4f4f0, tray: 0x8f9aa3, meatbox: 0x8a2f2a,
+  bin: 0x56616b, oven: 0x8a5a44, drinks: 0xb8412f, prep: 0xb98a5e, counter: 0x9c6b43, trash: 0x2f3a33,
+  grinder: 0x4a5a6a, hopper: 0x5a6068, button: 0xd0281e, cover: 0x44484c, crate: 0xb98a5e,
+  wall: 0xcfc6b4, door: 0x7a5a3c, shutter: 0x8c9299, sign: 0x1b1c18,
+};
+const LOOKS = [0xd9634a, 0x4a8fd9, 0x59b36b, 0xd9b84a, 0x9a62c9, 0x4ab8b0];
+const mixHex = (a, b, t) => {
+  const ch = s => Math.round(((a >> s) & 255) + (((b >> s) & 255) - ((a >> s) & 255)) * t);
+  return (ch(16) << 16) | (ch(8) << 8) | ch(0);
+};
+const cookHex = (kind, cook) => {
+  const c = Math.round(Math.max(0, Math.min(2, +cook || 0)) * 8) / 8;
+  const raw = kind === 'fries' ? 0xf1e3a0 : 0xd98a86, done = kind === 'fries' ? 0xe2a93a : 0x7a4a2a, burnt = 0x241c18;
+  return c <= 1 ? mixHex(raw, done, c) : mixHex(done, burnt, c - 1);
+};
+
+function makeBoxKit(THREE) {
+  const unit = new THREE.BoxGeometry(1, 1, 1);
+  unit.translate(0, 0.5, 0);
+  const plane = new THREE.PlaneGeometry(1, 1);
+  const mats = new Map(), texs = [];
+  const mat = (hex, basic) => {
+    const k = (basic ? 'b' : 'l') + hex;
+    let m = mats.get(k);
+    if (!m) { m = basic ? new THREE.MeshBasicMaterial({ color: hex }) : new THREE.MeshLambertMaterial({ color: hex }); mats.set(k, m); }
+    return m;
+  };
+  const part = (g, w, h, d, hex, x = 0, y = 0, z = 0, basic = false) => {
+    const m = new THREE.Mesh(unit, mat(hex, basic));
+    m.scale.set(w, h, d); m.position.set(x, y, z);
+    g.add(m);
+    return m;
+  };
+
+  function make(kind, o = {}) {
+    const g = new THREE.Group(), u = g.userData, sz = SIZES[kind] || [0.2, 0.2, 0.2];
+    const w = o.w || sz[0], h = o.h || sz[1], d = o.d || sz[2];
+    u.w = w; u.h = h; u.d = d;
+    switch (kind) {
+      case 'customer': {
+        part(g, 0.38, 0.74, 0.22, 0x33363c);
+        part(g, 0.46, 0.60, 0.28, LOOKS[(o.look | 0) % 6], 0, 0.74, 0);
+        part(g, 0.25, 0.27, 0.25, 0xe8b894, 0, 1.39, 0);
+        if (o.special) { part(g, 0.36, 0.04, 0.36, 0x18181c, 0, 1.66, 0); part(g, 0.24, 0.1, 0.24, 0x18181c, 0, 1.70, 0); part(g, 0.26, 0.05, 0.02, 0x0e0e12, 0, 1.50, 0.13); }
+        break;
+      }
+      case 'bin': part(g, w, h, d, BOX.bin); part(g, w * 0.78, 0.05, d * 0.78, BOX[o.gives] ?? (o.gives === 'patty' ? 0xd98a86 : o.gives === 'fries' ? 0xe2a93a : 0x999999), 0, h - 0.02, 0); break;
+      case 'patty': u.body = part(g, w, h, d, cookHex('patty', 0)); break;
+      case 'fries': part(g, w, h * 0.6, d, 0xc9412f); u.body = part(g, w * 0.84, h * 0.45, d * 0.7, cookHex('fries', 0), 0, h * 0.55, 0); break;
+      case 'cup': part(g, w, h, d, BOX.cup); u.liq = part(g, w * 1.06, 0.01, d * 1.06, 0x3b1d10, 0, 0.012, 0); u.liq.visible = false; break;
+      case 'plate': part(g, w, h, d, BOX.plate); u.stack = []; break;
+      case 'beaker':
+        u.body = part(g, w * 0.86, h, d * 0.86, BOX.beaker);
+        u.layers = [0, 1, 2, 3].map(i => { const m = part(g, w, 0.03, d, 0xffffff, 0, 0.012 + i * 0.033, 0); m.visible = false; return m; });
+        break;
+      case 'tray': part(g, w, h, d, BOX.tray); u.load = part(g, w * 0.86, 0.022, d * 0.8, 0x5fd0e6, 0, h, 0); break;
+      case 'drinks':
+        part(g, w, SURFACE_Y, d, BOX.drinks); part(g, w, h - SURFACE_Y, d * 0.4, BOX.drinks, 0, SURFACE_Y, -d * 0.3);
+        part(g, 0.09, 0.07, 0.09, 0x3b1d10, -0.125, 1.12, -d * 0.06); part(g, 0.09, 0.07, 0.09, 0xf08a1c, 0.125, 1.12, -d * 0.06);
+        break;
+      case 'burner':
+        part(g, w, h, d, BOX.burner); part(g, 0.36, 0.06, 0.03, 0x101113, 0, h + 0.09, -d / 2 + 0.04);
+        u.zone = part(g, 0.08, 0.062, 0.034, 0x3fae5a, 0, h + 0.089, -d / 2 + 0.04, true);
+        u.needle = part(g, 0.014, 0.1, 0.04, 0xffffff, 0, h + 0.07, -d / 2 + 0.04, true);
+        u.lamps = [0, 1, 2].map(i => part(g, 0.04, 0.04, 0.03, 0x3a3a3a, -0.06 + i * 0.06, h + 0.18, -d / 2 + 0.04, true));
+        break;
+      case 'mixer':
+        part(g, w, h, d, BOX.mixer);
+        u.recipe = [0, 1, 2, 3].map(i => { const m = part(g, 0.07, 0.07, 0.03, 0xffffff, -0.135 + i * 0.09, h + 0.1, -d / 2 + 0.04, true); m.visible = false; return m; });
+        break;
+      case 'packer':
+        part(g, w, h, d, BOX.packer); part(g, 0.42, 0.05, 0.03, 0x101113, 0, h + 0.1, -d / 2 + 0.04);
+        u.bar = part(g, 0.4, 0.04, 0.034, 0xc8f03c, 0, h + 0.105, -d / 2 + 0.04, true); u.bar.visible = false;
+        break;
+      case 'trash': part(g, w, h, d, BOX.trash); part(g, w * 0.8, 0.02, d * 0.8, 0x0c100e, 0, h, 0); break;
+      case 'hatch': part(g, w, h, d, BOX.hatch); part(g, w * 0.7, h * 0.5, 0.02, 0x08080a, 0, h * 0.25, d / 2); break;
+      case 'door': u.body = part(g, w, h, d, BOX.door); break;
+      case 'shutter': u.body = part(g, w, h, d, BOX.shutter); break;
+      case 'grow': {                                   // леха: сандък с пръст, стръкове и лампа над тях
+        part(g, w, h - 0.14, d, 0x6b4a32); part(g, w * 0.94, 0.05, d * 0.86, 0x2a1d15, 0, h - 0.14, 0);
+        u.plants = []; u.tips = [];
+        for (let i = 0; i < 6; i++) {
+          const x = -w * 0.38 + (i % 3) * w * 0.38, z = i < 3 ? -d * 0.18 : d * 0.18;
+          u.plants.push(part(g, 0.06, 0.05, 0.06, 0x4caf50, x, h - 0.09, z));
+          const t = part(g, 0.09, 0.06, 0.09, 0xff5fa8, x, h, z, true);
+          t.visible = false; u.tips.push(t);
+        }
+        for (const s of [-1, 1]) part(g, 0.03, 0.7, 0.03, 0x2c3238, s * (w / 2 - 0.03), h - 0.14, -d / 2 + 0.04);
+        part(g, w, 0.04, 0.12, 0xb06cff, 0, h + 0.56, -d / 2 + 0.07, true);
+        break;
+      }
+      case 'elevator': {                               // кабина: под, таван, три стени, рамка и две крила на вратата към +Z
+        const t = 0.05, wall = 0x59636e, trim = 0x2c3238, dw = Math.min(1.0, w - 0.3), dh = Math.min(2.05, h - 0.15);
+        part(g, w, 0.03, d, 0x3b4148); part(g, w, t, d, wall, 0, h - t, 0);
+        part(g, w, h, t, wall, 0, 0, -d / 2 + t / 2);
+        part(g, t, h, d, wall, -w / 2 + t / 2, 0, 0); part(g, t, h, d, wall, w / 2 - t / 2, 0, 0);
+        part(g, (w - dw) / 2, h, t, trim, -(w + dw) / 4, 0, d / 2 - t / 2); part(g, (w - dw) / 2, h, t, trim, (w + dw) / 4, 0, d / 2 - t / 2);
+        part(g, dw, h - dh, t, trim, 0, dh, d / 2 - t / 2);
+        u.doorL = part(g, dw / 2, dh, 0.03, 0x9aa5b0, -dw / 4, 0, d / 2 - t - 0.02);
+        u.doorR = part(g, dw / 2, dh, 0.03, 0x9aa5b0, dw / 4, 0, d / 2 - t - 0.02);
+        u.dw = dw;
+        part(g, w * 0.5, 0.02, 0.14, 0xfff2cc, 0, h - t - 0.02, 0, true);                       // лампата вътре
+        u.lamp = part(g, 0.16, 0.06, 0.02, 0xc8f03c, 0, dh + 0.04, d / 2 + 0.002, true);        // отвън, над вратата: къде е кабината
+        const bx = dw / 2 + (w - dw) / 4;
+        part(g, 0.07, 0.12, 0.02, 0xc8f03c, bx, 1.14, d / 2 - t - 0.011, true);                 // копчето вътре, до вратата
+        part(g, 0.07, 0.12, 0.02, 0xc8f03c, -bx, 1.09, d / 2 + 0.011, true);                    // копчето за повикване отвън
+        u.buttons = [{ side: 'in', x: bx, y: 1.2, z: d / 2 - t - 0.02 }, { side: 'out', x: -bx, y: 1.15, z: d / 2 + 0.02 }];
+        break;
+      }
+      case 'sign': {
+        part(g, w, h, d, BOX.sign);
+        const c = document.createElement('canvas');
+        c.width = 512; c.height = 160;
+        const tex = new THREE.CanvasTexture(c);
+        tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+        texs.push(tex);
+        const m = new THREE.Mesh(plane, new THREE.MeshBasicMaterial({ map: tex }));
+        m.scale.set(w * 0.96, h * 0.9, 1); m.position.set(0, h / 2, d / 2 + 0.003);
+        g.add(m);
+        u.canvas = c; u.tex = tex; u.text = null;
+        setState(g, 'sign', { text: o.text || '' });
+        break;
+      }
+      default: part(g, w, h, d, BOX[kind] ?? 0x8a8a8a);
+    }
+    return g;
+  }
+
+  function setState(obj, kind, s) {
+    const u = obj.userData;
+    if (!s) return;
+    switch (kind) {
+      case 'patty': case 'fries': u.body.material = mat(cookHex(kind, s.cook)); break;
+      case 'cup': {
+        const f = clamp01(+s.fill || 0);
+        u.liq.visible = f > 0.02; u.liq.scale.y = Math.max(0.005, u.h * 0.9 * f); u.liq.material = mat(s.drink === 'orange' ? 0xf08a1c : 0x3b1d10);
+        break;
+      }
+      case 'plate': {
+        for (const m of u.stack) obj.remove(m);
+        u.stack.length = 0;
+        let y = u.h, pi = 0;
+        for (const k of s.stack || []) {
+          const z = SIZES[k] || [0.1, 0.02, 0.1];
+          u.stack.push(part(obj, z[0], z[1], z[2], k === 'patty' ? cookHex('patty', (s.cooks || [])[pi++] ?? 1) : BOX[k] ?? 0x999999, 0, y, 0));
+          y += z[1];
+        }
+        break;
+      }
+      case 'beaker': {
+        const mix = s.mix || [];
+        u.layers.forEach((m, i) => { m.visible = i < mix.length; if (m.visible) m.material = mat(s.ruined ? 0x2a2622 : s.mixed ? mixHex(0x35c8d8, 0xff8a3c, clamp01(+s.heat || 0)) : BOX[mix[i]] ?? 0x999999); });
+        break;
+      }
+      case 'tray': u.load.visible = s.ready !== false; break;
+      case 'door': u.body.position.x = clamp01(+s.open || 0) * u.w * 0.96; break;
+      case 'grow': {
+        const st = clamp01(+s.stage || 0), len = 0.05 + 0.34 * st, hex = s.dry ? 0xb9a04a : mixHex(0x7ccf6a, 0x2f9a47, st);
+        u.plants.forEach((m, i) => { m.scale.y = len * (0.8 + (i % 3) * 0.1); m.material = mat(hex); });
+        u.tips.forEach((m, i) => { m.visible = !!s.ready || st >= 1; m.position.y = u.h - 0.09 + len * (0.8 + (i % 3) * 0.1); });
+        break;
+      }
+      case 'elevator': {
+        const o = clamp01(+s.doors || 0), wd = Math.max(0.02, u.dw / 2 * (1 - 0.94 * o));
+        u.doorL.scale.x = wd; u.doorL.position.x = -(u.dw / 2 - wd / 2);
+        u.doorR.scale.x = wd; u.doorR.position.x = u.dw / 2 - wd / 2;
+        u.lamp.material = mat(s.moving ? 0xf2b84a : s.level ? 0xb06cff : 0xc8f03c, true);
+        break;
+      }
+      case 'shutter': { const o = clamp01(+s.open || 0); u.body.scale.y = u.h * (1 - 0.92 * o); u.body.position.y = u.h * 0.92 * o; break; }
+      case 'burner': {
+        const z = s.zone || [0.5, 0.7];
+        u.needle.position.x = (clamp01(+s.needle || 0) - 0.5) * 0.34;
+        u.zone.position.x = ((z[0] + z[1]) / 2 - 0.5) * 0.34; u.zone.scale.x = Math.max(0.01, (z[1] - z[0]) * 0.34);
+        u.lamps.forEach((m, i) => { m.material = mat(i < (s.hits | 0) ? 0xc8f03c : 0x3a3a3a, true); });
+        break;
+      }
+      case 'mixer': u.recipe.forEach((m, i) => { const k = (s.recipe || [])[i]; m.visible = !!k; if (k) m.material = mat(BOX[k] ?? 0x999999, true); }); break;
+      case 'packer': { const p = clamp01(+s.progress || 0); u.bar.visible = p > 0.01; u.bar.scale.x = Math.max(0.001, 0.4 * p); u.bar.position.x = -0.2 + 0.2 * p; break; }
+      case 'sign': {
+        const text = String(s.text ?? '');
+        if (text === u.text || !u.canvas) break;
+        u.text = text;
+        const g = u.canvas.getContext('2d');
+        g.fillStyle = '#131411'; g.fillRect(0, 0, 512, 160);
+        g.fillStyle = '#eef0e8'; g.textAlign = 'center'; g.textBaseline = 'middle';
+        const lines = text.split('\n').slice(0, 2);
+        let px = lines.length > 1 ? 52 : 64;
+        do { g.font = `700 ${px}px "Sofia Sans", "Segoe UI", sans-serif`; px -= 4; } while (px > 20 && Math.max(...lines.map(l => g.measureText(l).width)) > 480);
+        lines.forEach((l, i) => g.fillText(l, 256, 84 + (i - (lines.length - 1) / 2) * (px + 12)));
+        u.tex.needsUpdate = true;
+        break;
+      }
+    }
+  }
+
+  return {
+    make, setState,
+    dispose() { unit.dispose(); plane.dispose(); for (const m of mats.values()) m.dispose(); for (const t of texs) t.dispose(); mats.clear(); texs.length = 0; },
+  };
+}
+
+// ---------- моделите: истинските, ако ги има ----------
+
+async function loadKit(THREE, mode) {
+  const box = makeBoxKit(THREE);
+  let real = null, why = '';
+  if (mode === 'boxes') why = 'поискани са кутии';
+  else {
+    try {
+      const m = await import('./models.js');
+      if (typeof m.makeModel === 'function') real = m; else why = 'models.js няма makeModel';
+    } catch (e) { why = `models.js не се зареди: ${e?.message || e}`; }
+  }
+  const kinds = !real ? null : Array.isArray(real.KINDS) ? new Set(real.KINDS) : real.KINDS instanceof Set ? real.KINDS : null;
+  const isReal = new WeakSet(), boxed = new Set(), bad = new Set();
+  const fromModels = o => isReal.has(o);
+  // models.js връща сива кутия-заместител (userData.placeholder), когато няма истински модел за вида.
+  // Тогава моята шарена кутия казва повече; оставям техния заместител само за уредите с показание.
+  const KEEP_PLACEHOLDER = new Set(['burner', 'packer', 'mixer', 'sign']);
+  function make(kind, opts) {
+    if (real) {                                        // и за вид извън KINDS: доставчикът може вече да го има (асансьорът, лехата)
+      try {
+        const o = real.makeModel(THREE, kind, opts);
+        if (o && o.isObject3D && (!o.userData?.placeholder || KEEP_PLACEHOLDER.has(kind))) { isReal.add(o); return o; }
+      } catch (e) { if (!bad.has(`m:${kind}`)) { bad.add(`m:${kind}`); console.warn('[backroom] makeModel', kind, e); } }
+    }
+    boxed.add(kind);
+    return box.make(kind, opts);
+  }
+  /** dt = undefined: стойността влиза веднага (за изпичане) */
+  function setState(obj, kind, state, dt) {
+    if (state == null) return;
+    if (!isReal.has(obj)) return box.setState(obj, kind, state);
+    if (typeof real.setModelState !== 'function' || bad.has(kind)) return;
+    try { real.setModelState(THREE, obj, kind, state, dt); } catch (e) { bad.add(kind); console.warn('[backroom] setModelState', kind, e); }
+  }
+  function marker() {
+    if (!real || typeof real.slotMarker !== 'function') return null;
+    try { const o = real.slotMarker(THREE); return o && o.isObject3D ? o : null; } catch { return null; }
+  }
+  return { make, setState, marker, fromModels, real: !!real, why, boxed, dispose: box.dispose };
+}
+
+// ---------- сцената ----------
+
+export async function createScene(ctx, start, opts = {}) {
+  const THREE = ctx.THREE;
+  const hall = { w: start.hall?.w || ctx.hall?.w || 6, d: start.hall?.d || ctx.hall?.d || 6 };
+  const theme = start.theme || ctx.theme || 'night';
+  const me = ctx.me || {};
+  const kit = await loadKit(THREE, opts.models);
+
+  const group = new THREE.Group();
+  group.name = 'backroom-scene';
+  // Две виртуални нива в една и съща зала (SPEC т. 12): строят се всички, вижда се нивото на местния играч.
+  // Липсващо level значи 0, затова със сървър без нива всичко е както преди.
+  const lvl = v => (typeof v === 'number' && v > 0 ? Math.min(3, v | 0) : v === '1' ? 1 : 0);
+  let nLevels = Math.max(1, Math.min(4, start.levels | 0 || 1));
+  for (const s of start.stations || []) nLevels = Math.max(nLevels, lvl(s.level) + 1);
+  let myLevel = 0;
+  const staticL = [], stationL = [], roomL = [];
+  const stationAll = new THREE.Group(), itemGroup = new THREE.Group(), custGroup = new THREE.Group(), fxGroup = new THREE.Group();
+  for (let i = 0; i < nLevels; i++) {
+    staticL.push(new THREE.Group()); stationL.push(new THREE.Group()); roomL.push(new THREE.Group());
+    staticL[i].visible = stationL[i].visible = i === 0; roomL[i].visible = false;
+    group.add(staticL[i], stationL[i], roomL[i]);
+  }
+  group.add(stationAll, itemGroup, custGroup, fxGroup);   // stationAll: асансьорът, който е и на двете нива
+
+  // Една обща и една насочена светлина; hud ги води по фаза и при патрул.
+  // Ако основата дава своите (ctx.lights = { hemi, sun }, със сянка), ползват се те. Иначе сцената прави свои, без сенки,
+  // и гаси чуждите в същата сцена, докато играта върви (иначе патрулът не може да притъмни); връщат се в dispose.
+  const ext = !opts.ownLights && ctx.lights && ctx.lights.hemi?.isLight && ctx.lights.sun?.isLight ? ctx.lights : null;
+  const muted = [];
+  let hemi, dir;
+  if (ext) { hemi = ext.hemi; dir = ext.sun; }
+  else {
+    hemi = new THREE.HemisphereLight(0xfff3dc, 0x8c7a62, 2.5);
+    dir = new THREE.DirectionalLight(0xfff0d8, 1.7);
+    dir.position.set(hall.w * 0.22, 4.6, hall.d * 0.12);
+    dir.castShadow = false;
+    let top = ctx.root;
+    while (top.parent) top = top.parent;
+    top.traverse(o => { if (o.isLight && o.intensity > 0) { muted.push(o, o.intensity); o.intensity = 0; } });
+    group.add(hemi, dir, dir.target);
+  }
+  ctx.root.add(group);
+
+  const own = [];                                  // геометрии, материали и текстури, които са мои
+  const keep = o => { own.push(o); return o; };
+  const MAT_LIT = keep(new THREE.MeshLambertMaterial({ vertexColors: true }));
+  const MAT_LIT_HL = keep(new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0x34361c }));
+  const MAT_UNLIT = keep(new THREE.MeshBasicMaterial({ vertexColors: true }));
+  const C = new THREE.Color();
+  const lin = hex => { C.setHex(hex); return [C.r, C.g, C.b]; };
+  const _n3 = new THREE.Matrix3(), _m4 = new THREE.Matrix4(), _v = new THREE.Vector3(), _right = new THREE.Vector3(), _up = new THREE.Vector3();
+  let now = performance.now() / 1000;
+
+  // ---------- изпичане: модел → 1 до 2 меша ----------
+
+  const newBake = () => ({ lit: new GeoBuilder(), unlit: new GeoBuilder(), tex: new Map(), extras: [], skinned: false, cast: false, recv: false });
+  function walk(o, B) {
+    if (!o.visible) return;
+    if (o.isSkinnedMesh) B.skinned = true;
+    if (o.isMesh || o.isLine || o.isPoints || o.isSprite) {
+      const m = o.material, geo = o.geometry;
+      let done = false;
+      if (o.castShadow) B.cast = true;
+      if (o.receiveShadow) B.recv = true;
+      if (o.isMesh && !o.isInstancedMesh && !o.isSkinnedMesh && !o.isBatchedMesh && m && !Array.isArray(m) && geo?.attributes?.position && !geo.morphAttributes?.position) {
+        _n3.getNormalMatrix(o.matrixWorld);
+        const mirror = o.matrixWorld.determinant() < 0, back = m.side === THREE.BackSide, dbl = m.side === THREE.DoubleSide;
+        const known = m.isMeshLambertMaterial || m.isMeshBasicMaterial || m.isMeshPhongMaterial || m.isMeshStandardMaterial || m.isMeshToonMaterial;
+        const solid = !m.map && !m.alphaMap && !m.transparent && m.opacity >= 1 && !m.wireframe && !(m.alphaTest > 0) && m.color;
+        if (known && solid) {
+          let r = m.color.r, g = m.color.g, b = m.color.b, unlit = !!m.isMeshBasicMaterial;
+          if (!unlit && m.emissive) {
+            const k = m.emissiveIntensity ?? 1, er = m.emissive.r * k, eg = m.emissive.g * k, eb = m.emissive.b * k;
+            if (Math.max(er, eg, eb) > 0.04) { unlit = true; r = Math.min(1, r * 0.45 + er); g = Math.min(1, g * 0.45 + eg); b = Math.min(1, b * 0.45 + eb); }
+          }
+          (unlit ? B.unlit : B.lit).addMesh(geo, o.matrixWorld, _n3, mirror !== back, back, dbl, r, g, b, m.vertexColors === true, m.flatShading === true);
+          done = true;
+        } else if (known && geo.attributes.uv && geo.attributes.normal && !m.vertexColors) {
+          let tb = B.tex.get(m);                    // с текстура: слива се по материал, материалът остава техният
+          if (!tb) { tb = new GeoBuilder(true); B.tex.set(m, tb); }
+          tb.addMesh(geo, o.matrixWorld, _n3, mirror, false, false, 1, 1, 1, false, false);
+          done = true;
+        }
+      }
+      if (!done && !o.isSkinnedMesh) {
+        const c = o.clone(false);
+        c.matrixAutoUpdate = false; c.matrix.copy(o.matrixWorld);
+        B.extras.push(c);
+      }
+    }
+    const ch = o.children;
+    for (let i = 0; i < ch.length; i++) walk(ch[i], B);
+  }
+  /** obj не трябва да е закачен никъде: така матриците му са спрямо самия него */
+  function collect(obj, B) { obj.updateMatrixWorld(true); walk(obj, B); }
+  function finish(B) {
+    const parts = [];
+    if (B.lit.count) parts.push({ geo: B.lit.build(THREE), mat: MAT_LIT });
+    if (B.unlit.count) parts.push({ geo: B.unlit.build(THREE), mat: MAT_UNLIT });
+    for (const [m, tb] of B.tex) if (tb.count) parts.push({ geo: tb.build(THREE), mat: m });
+    return { key: '', parts, extras: B.extras, refs: 0, live: null, pool: null, cast: B.cast, recv: B.recv };
+  }
+  function disposeEntry(e) { for (const p of e.parts) p.geo.dispose(); e.parts.length = 0; }
+
+  const cache = new Map();
+  /** изпечен образ по ключ; build() връща нов незакачен Object3D */
+  function entryFor(key, build) {
+    let e = cache.get(key);
+    if (e) return e;
+    const obj = build(), B = newBake();
+    collect(obj, B);
+    if (B.skinned) e = { key, parts: [], extras: [], refs: 0, live: build, pool: [obj], cast: false, recv: false };   // с кости: не се слива, ползва се живият модел
+    else { e = finish(B); e.key = key; }
+    cache.set(key, e);
+    if (cache.size > CACHE_MAX) for (const [k, old] of cache) { if (cache.size <= CACHE_MAX * 0.75) break; if (old.refs <= 0 && old !== e) { disposeEntry(old); cache.delete(k); } }
+    return e;
+  }
+
+  const viewPool = [];
+  function getView(parent) {
+    const v = viewPool.pop() || { g: new THREE.Group(), meshes: [], extras: [], entry: null, liveObj: null, hl: false, cast: false, recv: false };
+    v.cast = v.recv = false;
+    v.g.visible = true; v.g.position.set(0, 0, 0); v.g.rotation.set(0, 0, 0); v.g.scale.setScalar(1);
+    parent.add(v.g);
+    return v;
+  }
+  function setEntry(v, e) {
+    if (v.entry === e) return;
+    const old = v.entry;
+    if (old) {
+      old.refs--;
+      for (let i = 0; i < v.meshes.length; i++) v.meshes[i].visible = false;
+      for (let i = 0; i < v.extras.length; i++) v.g.remove(v.extras[i]);
+      v.extras.length = 0;
+      if (v.liveObj) { v.g.remove(v.liveObj); old.pool.push(v.liveObj); v.liveObj = null; }
+    }
+    v.entry = e;
+    if (!e) return;
+    e.refs++;
+    if (e.live) { v.liveObj = e.pool.pop() || e.live(); v.g.add(v.liveObj); return; }
+    for (let i = 0; i < e.parts.length; i++) {
+      let m = v.meshes[i];
+      if (!m) { m = new THREE.Mesh(e.parts[i].geo, e.parts[i].mat); v.meshes[i] = m; v.g.add(m); }
+      m.geometry = e.parts[i].geo;
+      m.material = v.hl ? hlOf(e.parts[i].mat) : e.parts[i].mat;
+      m.castShadow = v.cast; m.receiveShadow = v.recv;
+      m.visible = true;
+    }
+    for (let i = 0; i < e.extras.length; i++) {
+      const c = e.extras[i].clone(false);
+      c.matrixAutoUpdate = false; c.matrix.copy(e.extras[i].matrix);
+      v.g.add(c); v.extras.push(c);
+    }
+  }
+  // „светъл" вариант на материал за подсветка: общ за всички, прави се веднъж (чуждите материали не се пипат)
+  const hlMats = new Map();
+  function hlOf(mat) {
+    if (mat === MAT_LIT) return MAT_LIT_HL;
+    let h = hlMats.get(mat);
+    if (h === undefined) {
+      h = mat;
+      if (mat.emissive && mat.clone) { h = keep(mat.clone()); h.emissive.setHex(0x34361c); h.emissiveIntensity = 1; }
+      hlMats.set(mat, h);
+    }
+    return h;
+  }
+  function tint(v, on) {
+    if (v.hl === on) return;
+    v.hl = on;
+    const e = v.entry;
+    if (!e || e.live) return;
+    for (let i = 0; i < e.parts.length && i < v.meshes.length; i++) v.meshes[i].material = on ? hlOf(e.parts[i].mat) : e.parts[i].mat;
+  }
+  function setCast(v, on) { v.cast = on; for (let i = 0; i < v.meshes.length; i++) v.meshes[i].castShadow = on; }
+  function freeView(v) { tint(v, false); setEntry(v, null); v.g.removeFromParent(); viewPool.push(v); }
+
+  // ---------- неподвижният свят ----------
+
+  const lay = hudLayout(start);
+  const seats = (start.seats || []).map(s => ({ i: s.i, x: +s.x || 0, z: +s.z || 0 }));
+  const seatByI = new Map(seats.map(s => [s.i, s]));
+  // Капаците в пода под клиентите: черен кръг (дупката) и оригиналният капак върху него. Щом копчето се натисне, капакът
+  // пада надолу заедно с клиента (в детската тема: със сандъка на доставчика) и после се връща.
+  const TRAP_Y = 0.03;
+  const trapList = [];
+
+  // Стаите от gameStart (SPEC т. 13): до три правоъгълника, свързани с отвори; без тях една стая с размера на залата.
+  // Нищо тук не се слага по размера на залата: всичко идва от стаите, станциите и гнездата.
+  const rooms = roomsOf(start), roomDoors = Array.isArray(start.doors) ? start.doors : [];
+  /** четириъгълник, обърнат към дадена посока (редът на върховете се нагласява сам) */
+  function quadTo(Bd, a, b, c, d, nx, ny, nz, col) {
+    const ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2], vx = c[0] - a[0], vy = c[1] - a[1], vz = c[2] - a[2];
+    if ((uy * vz - uz * vy) * nx + (uz * vx - ux * vz) * ny + (ux * vy - uy * vx) * nz >= 0) Bd.quad(a, b, c, d, col); else Bd.quad(a, d, c, b, col);
+  }
+  /**
+   * Простата стая за проби без декор: под и стени на всяка стая (с отворите между стаите и над тезгяха), очертание,
+   * места на клиентите и улица пред стената с тезгяха. Ниво 0: стая a е щандът, другите са склад. Другите нива: лаборатория.
+   */
+  function buildRoom(B, lv) {
+    const L = B.lit, U = B.unlit, H = 2.9, W0 = 0.95, DOOR_H = 2.05, lab = lv > 0;
+    const counter = lab ? null : stations.find(s => s.kind === 'counter' && s.level <= 0) || null;
+    const edge = lin(0xc8f03c), uv = lin(0x9a6bff);
+    for (const r of rooms) {
+      const shop = !lab && (r.id === 'a' || rooms.length === 1);
+      const ca = lin(lab ? 0x35304c : shop ? 0xd8cdb6 : 0x8d8a82), cb = lin(lab ? 0x2e2944 : shop ? 0xc8bca4 : 0x84817a), size = shop ? 0.5 : 1.0;
+      const lo = lin(lab ? 0x1f1934 : shop ? 0x2f8079 : 0x5d5a54), hi = lin(lab ? 0x33285a : shop ? 0xe9e0ce : 0xa9a59c);
+      const x0 = r.x - r.w / 2, x1 = r.x + r.w / 2, z0 = r.z - r.d / 2, z1 = r.z + r.d / 2;
+      for (let ix = 0, x = x0; x < x1 - 1e-6; x += size, ix++) for (let iz = 0, z = z0; z < z1 - 1e-6; z += size, iz++) {
+        const xe = Math.min(x1, x + size), ze = Math.min(z1, z + size);
+        L.quad([x, 0, z], [x, 0, ze], [xe, 0, ze], [xe, 0, z], (ix + iz) % 2 ? ca : cb);
+      }
+      for (const W of wallsOf(r)) {
+        const Pt = (u, y, inn = 0) => [W.ox + W.dx * u + W.nx * inn, y, W.oz + W.dz * u + W.nz * inn];
+        const seg = (u0, u1, y0, y1, col, Bd = L) => { if (u1 - u0 > 0.005 && y1 - y0 > 0.005) quadTo(Bd, Pt(u0, y0), Pt(u1, y0), Pt(u1, y1), Pt(u0, y1), W.nx, 0, W.nz, col); };
+        const band = (u0, u1, y0, y1) => {               // парче стена в два тона; в лабораторията с UV ивица между тях
+          seg(u0, u1, y0, Math.min(y1, W0), lo);
+          if (lab && y0 < W0 && y1 > W0) { seg(u0, u1, W0, W0 + 0.05, uv, U); seg(u0, u1, W0 + 0.05, y1, hi); }
+          else seg(u0, u1, Math.max(y0, W0), y1, hi);
+        };
+        // дупките в тази стена: [от, до, от височина, до височина]
+        const holes = [];
+        for (const dr of roomDoors) {
+          if ((dr.a !== r.id && dr.b !== r.id) || (dr.axis === 'x') !== (W.dx === 1)) continue;
+          if (Math.abs((dr.x - W.ox) * W.nx + (dr.z - W.oz) * W.nz) > 0.12) continue;
+          const u = (dr.x - W.ox) * W.dx + (dr.z - W.oz) * W.dz, half = (+dr.w || 0.9) / 2;
+          holes.push([u - half, u + half, 0, DOOR_H]);
+        }
+        let street = false;
+        if (counter) {                                   // стената с тезгяха: отворена от пода до горния ръб на ролетката
+          const dist = (counter.x - W.ox) * W.nx + (counter.z - W.oz) * W.nz, u = (counter.x - W.ox) * W.dx + (counter.z - W.oz) * W.dz;
+          if (Math.abs(counter.cos * W.dx - counter.sin * W.dz) > 0.7 && dist > -0.1 && dist < 0.6 && u > 0 && u < W.len) { holes.push([u - counter.w / 2, u + counter.w / 2, 0, SURFACE_Y + 1.23]); street = true; }
+        }
+        holes.sort((a, b) => a[0] - b[0]);
+        let from = 0;
+        for (const h of holes) {
+          const a = Math.max(from, h[0]), b = Math.min(W.len, h[1]);
+          if (b <= a) continue;
+          band(from, a, 0, H); band(a, b, 0, h[2]); band(a, b, h[3], H);
+          from = b;
+        }
+        band(from, W.len, 0, H);
+        // очертанието на стаята на пода: свети винаги, за да се вижда и на тъмно
+        quadTo(U, Pt(0, 0.008), Pt(W.len, 0.008), Pt(W.len, 0.008, 0.035), Pt(0, 0.008, 0.035), 0, 1, 0, edge);
+        if (street) {                                    // улицата пред тезгяха: тротоар, платно, фасада с прозорци
+          const u0 = -3, u1 = W.len + 3, far = 4.2, g = -0.004;
+          quadTo(L, Pt(u0, g), Pt(u1, g), Pt(u1, g, -1.4), Pt(u0, g, -1.4), 0, 1, 0, lin(0x565a60));
+          quadTo(L, Pt(u0, g, -1.4), Pt(u1, g, -1.4), Pt(u1, g, -far), Pt(u0, g, -far), 0, 1, 0, lin(0x2b2d32));
+          quadTo(L, Pt(u0, 0, -1.36), Pt(u1, 0, -1.36), Pt(u1, 0, -1.44), Pt(u0, 0, -1.44), 0, 1, 0, lin(0x80858c));
+          quadTo(L, Pt(u0, 0, -far), Pt(u1, 0, -far), Pt(u1, 3.6, -far), Pt(u0, 3.6, -far), W.nx, 0, W.nz, lin(0x1d2129));
+          const winOn = lin(0xf2c66d), winOff = lin(0x2b3140);
+          for (let i = 0, u = u0 + 0.5; u < u1 - 1; u += 1.25, i++) for (let k = 0; k < 2; k++) {
+            const y = 0.9 + k * 1.3;
+            quadTo(U, Pt(u, y, 0.01 - far), Pt(u + 0.8, y, 0.01 - far), Pt(u + 0.8, y + 0.85, 0.01 - far), Pt(u, y + 0.85, 0.01 - far), W.nx, 0, W.nz, (i * 7 + k * 5) % 3 !== 0 ? winOn : winOff);
+          }
+        }
+      }
+    }
+    if (lab) return;
+    // преграда вътре в стая (станции wall и врата): продължава до тавана
+    const fill = lin(0xe9e0ce);
+    for (const s of stations) {
+      if ((s.kind !== 'wall' && s.kind !== 'door') || s.level > 0) continue;
+      const top = s.y + s.h;
+      if (top < H - 0.01) L.box(s.x, top, s.z, s.w, H - top, s.kind === 'door' ? 0.08 : s.d || 0.08, fill, s.yaw, true);
+    }
+    const pad = lin(0x767b83);                           // местата на клиентите
+    for (const s of seats) {
+      const pts = [];
+      for (let k = 0; k < 8; k++) pts.push([s.x + Math.sin(k * Math.PI / 4 + Math.PI / 8) * 0.24, 0.01, s.z + Math.cos(k * Math.PI / 4 + Math.PI / 8) * 0.24]);
+      L.quad(pts[0], pts[1], pts[2], pts[3], pad); L.quad(pts[0], pts[3], pts[4], pts[7], pad); L.quad(pts[4], pts[5], pts[6], pts[7], pad);
+    }
+  }
+  /** Табла няма: времето се чете от монитора на hud.js. */
+  function buildShell() {}
+
+  // станциите
+  const stations = [], stationByKey = new Map(), slots = [], slotByKey = new Map(), dyn = [];
+  const accepts = (sl, kind) => !sl.accepts || !sl.accepts.length || sl.accepts.includes(kind) || sl.accepts.includes('*') || sl.accepts.includes('any');
+  for (const def of start.stations || []) {
+    if (def.kind === 'sign') continue;                  // табла по стените няма
+    const kind = def.kind, sz = SIZES[kind] || [0.5, SURFACE_Y, 0.5];
+    const s = {
+      id: def.id, kind, x: +def.x || 0, y: +def.y || 0, z: +def.z || 0, yaw: +def.yaw || 0,
+      w: +def.w || sz[0], h: +def.h || sz[1], d: +def.d || sz[2], gives: def.gives ?? null, slots: [],
+      mode: LIVE_KINDS.has(kind) ? 'live' : 'static', pinLive: PIN_KINDS.has(kind), live: null, v: null, entry: null,
+      btn: def.btn && typeof def.btn.x === 'number' ? { x: +def.btn.x, y: +def.btn.y || 0, z: +def.btn.z || 0 } : null, seat: def.seat ?? null,
+      state: def.state ?? null, view: {}, skey: '', keyT: now, n1: 0, nV: 0, nT: 0, shook: false,
+    };
+    s.level = kind === 'elevator' ? -1 : Math.min(nLevels - 1, lvl(def.level));   // −1: на всички нива
+    s.on = s.level <= 0;                                // на нивото на местния играч ли е
+    s.parent = s.level < 0 ? stationAll : stationL[s.level];
+    s.cos = Math.cos(s.yaw); s.sin = Math.sin(s.yaw);
+    s.q = new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI / 2, s.yaw, 0, 'YXZ'));   // пръстен, изправен срещу лицето на станцията
+    s.live = kit.make(kind, { theme, w: s.w, h: s.h, d: s.d, y: s.y, gives: def.gives, nat: def.nat, rack: def.rack, tray: def.tray, text: def.text ?? def.state?.text ?? '' });
+    s.live.position.set(s.x, s.y, s.z);
+    s.live.rotation.y = s.yaw;
+    if (s.state) { Object.assign(s.view, s.state); kit.setState(s.live, kind, s.state, undefined); }
+    (def.slots || []).forEach((sd, i) => {
+      let r = 0.06;
+      for (const k of sd.accepts || []) { const z = SIZES[k]; if (z) r = Math.max(r, Math.max(z[0], z[2]) / 2); }
+      const sl = { id: sd.id, key: String(sd.id), x: +sd.x || 0, y: +sd.y || 0, z: +sd.z || 0, accepts: sd.accepts || null, st: s, index: i, item: null, r: Math.min(0.16, r + 0.03), sink: SINK_KINDS.has(kind) };
+      sl.level = sd.level != null ? Math.min(nLevels - 1, lvl(sd.level)) : Math.max(0, s.level);
+      sl.on = sl.level === 0;
+      sl.up = sl.y > 1.15;                              // гнездо на рафт над друго: легнал пръстен не се вижда оттам, където стои човек
+      s.slots.push(sl); slots.push(sl); slotByKey.set(sl.key, sl);
+    });
+    stations.push(s); stationByKey.set(String(s.id), s);
+    if (s.mode === 'live') { dyn.push(s); s.parent.add(s.live); }
+  }
+  const bins = stations.filter(s => s.kind === 'bin'), useStations = stations.filter(s => USE_KINDS.has(s.kind));
+  // асансьорът и подът на кабината му (центърът и размерът идват от gameStart; иначе от самата станция)
+  const elev = stations.find(s => s.kind === 'elevator') || null;
+  const cab = elev && start.elevator && typeof start.elevator.x === 'number' && typeof start.elevator.z === 'number'
+    ? { x: start.elevator.x, z: start.elevator.z, hw: (+start.elevator.w || elev.w) / 2, hd: (+start.elevator.d || elev.d) / 2 } : null;
+  function inCabin(p) {
+    if (!elev) return false;
+    if (cab) return Math.abs(p.x - cab.x) <= cab.hw && Math.abs(p.z - cab.z) <= cab.hd;
+    const dx = p.x - elev.x, dz = p.z - elev.z;
+    return Math.abs(dx * elev.cos - dz * elev.sin) <= elev.w / 2 && Math.abs(dx * elev.sin + dz * elev.cos) <= elev.d / 2;
+  }
+  // Копчетата на асансьора в координатите на залата. Моделът ги казва в userData.buttons ({ side: 'in' | 'out', x, y, z },
+  // местни координати); ако ги няма, приема се едно вътре, в средата на кабината.
+  const BTN_R = 0.32;
+  const elevBtns = [], elevQ = new THREE.Quaternion();
+  if (elev) {
+    const given = elev.live.userData && Array.isArray(elev.live.userData.buttons) && elev.live.userData.buttons.length ? elev.live.userData.buttons : [{ side: 'in', x: 0, y: 1.2, z: 0 }];
+    for (const b of given) {
+      const inside = b.side !== 'out', k = inside ? -0.014 : 0.014;       // пръстенът стои малко пред стената, към която е копчето
+      const x = elev.x + b.x * elev.cos + b.z * elev.sin, z = elev.z - b.x * elev.sin + b.z * elev.cos;
+      elevBtns.push({ inside, x, y: elev.y + b.y, z, rx: x + k * elev.sin, rz: z + k * elev.cos });
+    }
+    elevQ.setFromEuler(new THREE.Euler(Math.PI / 2, elev.yaw, 0, 'YXZ'));   // пръстенът се изправя срещу вратата
+  }
+  /** копчето, което ръка на това място би натиснала: вътрешните само отвътре, външното само за да повика кабината от другото ниво */
+  function elevButton(px, py, pz) {
+    if (!elev || !elev.on || (elev.state && elev.state.moving)) return null;
+    const inside = inCabin(ctx.head.pos), away = !!(elev.state && lvl(elev.state.level) !== myLevel);
+    let best = null, bd = BTN_R * BTN_R;
+    for (let i = 0; i < elevBtns.length; i++) {
+      const b = elevBtns[i];
+      if (b.inside ? !inside : !away) continue;
+      const dx = b.x - px, dy = b.y - py, dz = b.z - pz, d2 = dx * dx + dy * dy + dz * dz;
+      if (d2 <= bd) { bd = d2; best = b; best.d2 = d2; }
+    }
+    return best;
+  }
+  /** квадратът на разстоянието от точка до кутията на станция (0, ако е вътре) */
+  function boxDist2(s, px, py, pz) {
+    const dx = px - s.x, dz = pz - s.z, lx = Math.abs(dx * s.cos - dz * s.sin) - s.w / 2, lz = Math.abs(dx * s.sin + dz * s.cos) - s.d / 2;
+    const ly = py < s.y ? s.y - py : py > s.y + s.h ? py - s.y - s.h : 0;
+    return (lx > 0 ? lx * lx : 0) + ly * ly + (lz > 0 ? lz * lz : 0);
+  }
+
+  let staticParts = [], needStatic = false;
+  function rebuildStatic() {
+    for (const p of staticParts) p.geo.dispose();
+    staticParts = [];
+    for (let lv = 0; lv < nLevels; lv++) {
+      const G = staticL[lv];
+      G.clear();
+      const B = newBake();
+      buildShell(B, lv);
+      for (const s of stations) {
+        if (s.mode !== 'static' || s.level !== lv) continue;
+        const before = B.skinned;
+        B.skinned = false;
+        collect(s.live, B);
+        if (B.skinned) { s.mode = 'live'; s.pinLive = true; dyn.push(s); s.parent.add(s.live); }   // рядко: модел с кости остава жив
+        B.skinned = before;
+      }
+      const e = finish(B);
+      for (const p of e.parts) { staticParts.push(p); const m = new THREE.Mesh(p.geo, p.mat); m.castShadow = true; m.receiveShadow = true; G.add(m); }
+      for (const x of e.extras) G.add(x);
+    }
+    ctx.refreshShadows?.();
+  }
+  rebuildStatic();
+
+  // Простата стая (под, стени, улица, очертание) е само за проби: щом основата носи ctx.assets, декорът рисува своята
+  // и моята не се строи изобщо. setRoom(true|false) го решава на ръка.
+  let roomForce = typeof opts.room === 'boolean' ? opts.room : undefined, roomBuilt = false;
+  function applyRoom() {
+    const on = roomForce !== undefined ? roomForce : !ctx.assets;
+    if (on && !roomBuilt) {
+      roomBuilt = true;
+      for (let lv = 0; lv < nLevels; lv++) {
+        const B = newBake();
+        buildRoom(B, lv);
+        for (const p of finish(B).parts) { const m = new THREE.Mesh(keep(p.geo), p.mat); m.receiveShadow = true; roomL[lv].add(m); }
+      }
+    }
+    for (let lv = 0; lv < nLevels; lv++) roomL[lv].visible = on && lv === myLevel;
+  }
+  applyRoom();
+
+  /** какво вижда местният играч: едно ниво, сменя се в един кадър и нищо не се строи */
+  function applyLevel(lv) {
+    myLevel = lv;
+    for (let i = 0; i < nLevels; i++) staticL[i].visible = stationL[i].visible = i === lv;
+    applyRoom();
+    for (let i = 0; i < stations.length; i++) { const s = stations[i]; s.on = s.level < 0 || s.level === lv; }
+    for (let i = 0; i < slots.length; i++) slots[i].on = slots[i].level === lv;
+    for (let i = 0; i < itemList.length; i++) itemList[i].on = itemList[i].level === lv;
+    custGroup.visible = lv === 0;
+    if (elev) { elev.keyT = now; if (elev.mode === 'baked') toLive(elev); }   // вратите му зависят от това на кое ниво съм
+    hud.setLevel(lv);
+    ctx.refreshShadows?.();
+  }
+
+  function toBaked(s) {
+    if (s.state) kit.setState(s.live, s.kind, s.view, undefined);
+    s.parent.remove(s.live);
+    const B = newBake();
+    collect(s.live, B);
+    if (B.skinned) { s.pinLive = true; s.parent.add(s.live); return; }
+    s.entry = finish(B);
+    s.v = getView(s.parent);
+    s.v.cast = s.v.recv = true;
+    setEntry(s.v, s.entry);
+    s.mode = 'baked';
+    ctx.refreshShadows?.();
+  }
+  function toLive(s) {
+    if (s.v) { freeView(s.v); s.v = null; }
+    if (s.entry) { disposeEntry(s.entry); s.entry = null; }
+    s.parent.add(s.live);
+    s.mode = 'live';
+    ctx.refreshShadows?.();
+  }
+
+  // ---------- пръстени: свободни гнезда и това, което ръката ще хване ----------
+
+  const RING_MAX = 48;
+  let ringGeo = null, ringUnit = 1;
+  {
+    const mk = kit.marker();
+    if (mk) {
+      const B = newBake();
+      collect(mk, B);
+      const e = finish(B);
+      if (e.parts.length === 1 && !e.extras.length) {
+        ringGeo = e.parts[0].geo;
+        ringGeo.computeBoundingBox();
+        const bb = ringGeo.boundingBox;
+        ringUnit = Math.max(bb.max.x - bb.min.x, bb.max.z - bb.min.z) / 2 || 1;
+      } else disposeEntry(e);
+    }
+    if (!ringGeo) { ringGeo = new THREE.RingGeometry(0.84, 1, 36); ringGeo.rotateX(-Math.PI / 2); ringUnit = 1; }
+    keep(ringGeo);
+  }
+  const ringMesh = new THREE.InstancedMesh(ringGeo, keep(new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false, side: THREE.DoubleSide })), RING_MAX);
+  ringMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  ringMesh.frustumCulled = false;
+  ringMesh.count = 0; ringMesh.visible = false;
+  const RING_DIM = new THREE.Color(0xe6ead8), RING_ON = new THREE.Color(0xc8f03c);   // свободно гнездо: топло бяло; целта на ръката: сигналният лайм
+  ringMesh.setColorAt(0, RING_DIM);
+  ringMesh.instanceColor.setUsage(THREE.DynamicDrawUsage);
+  fxGroup.add(ringMesh);
+  let ringN = 0;
+  const _s3 = new THREE.Vector3();
+  /** изправен пръстен: около копче на стена или пред гнездо на рафт */
+  function ringUp(x, y, z, radius, color, q = elevQ) {
+    if (ringN >= RING_MAX) return;
+    const s = radius / ringUnit;
+    _m4.compose(_v.set(x, y, z), q, _s3.set(s, s, s));
+    ringMesh.setMatrixAt(ringN, _m4);
+    ringMesh.setColorAt(ringN, color);
+    ringN++;
+  }
+  /** пръстенът на гнездо: легнал на плота, а за гнездо на рафт изправен пред него */
+  function slotRing(sl, radius, color, lift) {
+    if (sl.up) ringUp(sl.x + sl.st.sin * 0.02, sl.y + radius, sl.z + sl.st.cos * 0.02, radius, color, sl.st.q);
+    else ring(sl.x, sl.y + lift, sl.z, radius, color);
+  }
+  function ring(x, y, z, radius, color) {
+    if (ringN >= RING_MAX) return;
+    const s = radius / ringUnit;
+    _m4.makeScale(s, s, s).setPosition(x, y, z);
+    ringMesh.setMatrixAt(ringN, _m4);
+    ringMesh.setColorAt(ringN, color);
+    ringN++;
+  }
+
+  // ---------- общи правоъгълници: ленти, искри, надписи ----------
+
+  function quadBatch(n, material, order, rgba) {
+    const cs = rgba ? 4 : 3;
+    const pos = new Float32Array(n * 12), col = new Float32Array(n * 4 * cs), uv = new Float32Array(n * 8), idx = new Uint16Array(n * 6);
+    for (let i = 0; i < n; i++) { idx.set([i * 4, i * 4 + 1, i * 4 + 2, i * 4, i * 4 + 2, i * 4 + 3], i * 6); uv.set([0, 0, 1, 0, 1, 1, 0, 1], i * 8); }
+    const geo = keep(new THREE.BufferGeometry());
+    const aPos = new THREE.BufferAttribute(pos, 3).setUsage(THREE.DynamicDrawUsage), aCol = new THREE.BufferAttribute(col, cs).setUsage(THREE.DynamicDrawUsage), aUv = new THREE.BufferAttribute(uv, 2);
+    geo.setAttribute('position', aPos); geo.setAttribute('color', aCol); geo.setAttribute('uv', aUv);
+    geo.setIndex(new THREE.BufferAttribute(idx, 1));
+    const mesh = new THREE.Mesh(geo, material);
+    mesh.frustumCulled = false; mesh.visible = false; mesh.renderOrder = order;
+    fxGroup.add(mesh);
+    let was = false;
+    return {
+      mesh,
+      /** център, вектор надясно, вектор нагоре, половин ширина и височина, цвят */
+      set(i, cx, cy, cz, rx, ry, rz, ux, uy, uz, hw2, hh2, r, g, b, a) {
+        const o = i * 12, ax = rx * hw2, ay = ry * hw2, az = rz * hw2, bx = ux * hh2, by = uy * hh2, bz = uz * hh2;
+        pos[o] = cx - ax - bx; pos[o + 1] = cy - ay - by; pos[o + 2] = cz - az - bz;
+        pos[o + 3] = cx + ax - bx; pos[o + 4] = cy + ay - by; pos[o + 5] = cz + az - bz;
+        pos[o + 6] = cx + ax + bx; pos[o + 7] = cy + ay + by; pos[o + 8] = cz + az + bz;
+        pos[o + 9] = cx - ax + bx; pos[o + 10] = cy - ay + by; pos[o + 11] = cz - az + bz;
+        for (let k = 0, c = i * 4 * cs; k < 4; k++, c += cs) { col[c] = r; col[c + 1] = g; col[c + 2] = b; if (rgba) col[c + 3] = a; }
+      },
+      hide(i) { pos.fill(0, i * 12, i * 12 + 12); },
+      uvRect(i, u0, v0, u1, v1) { const o = i * 8; uv[o] = u0; uv[o + 1] = v0; uv[o + 2] = u1; uv[o + 3] = v0; uv[o + 4] = u1; uv[o + 5] = v1; uv[o + 6] = u0; uv[o + 7] = v1; aUv.needsUpdate = true; },
+      commit(active) {
+        mesh.visible = active > 0;
+        if (active > 0 || was) { aPos.needsUpdate = true; aCol.needsUpdate = true; }
+        was = active > 0;
+      },
+    };
+  }
+
+  // ленти за търпението на клиентите (фон + запълване)
+  const BAR_N = 20;
+  const barBatch = quadBatch(BAR_N, keep(new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false })), 6, false);
+  const cCalm = new THREE.Color(0x7bd66a), cWarn = new THREE.Color(0xf2b84a), cBad = new THREE.Color(0xf06a45), cBarBg = new THREE.Color(0x15170f), cT = new THREE.Color();
+
+  // искри и пушек
+  const FX_N = 48;
+  const dotCanvas = document.createElement('canvas');
+  dotCanvas.width = dotCanvas.height = 64;
+  {
+    const g = dotCanvas.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.45, 'rgba(255,255,255,0.75)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+  }
+  const dotTex = keep(new THREE.CanvasTexture(dotCanvas));
+  const fxBatch = quadBatch(FX_N, keep(new THREE.MeshBasicMaterial({ map: dotTex, vertexColors: true, transparent: true, depthWrite: false, toneMapped: false })), 10, true);
+  const fx = { on: new Uint8Array(FX_N), d: new Float32Array(FX_N * 14), next: 0, live: 0 };   // x y z vx vy vz age life s0 s1 r g b grav
+  function spark(x, y, z, vx, vy, vz, life, s0, s1, hex, grav = 0) {
+    let i = -1;
+    for (let k = 0; k < FX_N; k++) { const j = (fx.next + k) % FX_N; if (!fx.on[j]) { i = j; break; } }
+    if (i < 0) i = fx.next;
+    fx.next = (i + 1) % FX_N;
+    if (!fx.on[i]) fx.live++;
+    fx.on[i] = 1;
+    C.setHex(hex);
+    fx.d.set([x, y, z, vx, vy, vz, 0, life, s0, s1, C.r, C.g, C.b, grav], i * 14);
+  }
+  let seed = 1;
+  const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  function puff(x, y, z, hex, n = 6, speed = 0.5, size = 0.07, life = 0.55, lift = 0.25) {
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2 + rnd(), s = speed * (0.6 + rnd() * 0.6);
+      spark(x, y, z, Math.cos(a) * s, lift + rnd() * 0.3, Math.sin(a) * s, life * (0.75 + rnd() * 0.5), size * 0.5, size * 1.5, hex, 0);
+    }
+  }
+  const flash = (x, y, z, hex, size = 0.3, life = 0.28) => spark(x, y, z, 0, 0, 0, life, size * 0.25, size, hex, 0);
+  function updateFx(dt) {
+    if (!fx.live) { fxBatch.commit(0); return; }
+    const d = fx.d, damp = Math.exp(-dt * 3.2);
+    let live = 0;
+    for (let i = 0; i < FX_N; i++) {
+      if (!fx.on[i]) continue;
+      const o = i * 14;
+      d[o + 6] += dt;
+      const t = d[o + 6] / d[o + 7];
+      if (t >= 1) { fx.on[i] = 0; fxBatch.hide(i); continue; }
+      d[o] += d[o + 3] * dt; d[o + 1] += d[o + 4] * dt; d[o + 2] += d[o + 5] * dt;
+      d[o + 3] *= damp; d[o + 4] = d[o + 4] * damp - d[o + 13] * dt; d[o + 5] *= damp;
+      const e = 1 - (1 - t) * (1 - t), s = d[o + 8] + (d[o + 9] - d[o + 8]) * e, a = (1 - t) * (1 - t);
+      fxBatch.set(i, d[o], d[o + 1], d[o + 2], _right.x, _right.y, _right.z, _up.x, _up.y, _up.z, s, s, d[o + 10], d[o + 11], d[o + 12], a);
+      live++;
+    }
+    fx.live = live;
+    fxBatch.commit(live || 1);
+  }
+
+  // надписи, които изплуват („+12", защо е отказано)
+  const POP_N = 8, POP_W = 256, POP_H = 64;
+  const popCanvas = document.createElement('canvas');
+  popCanvas.width = POP_W * 2; popCanvas.height = POP_H * 4;
+  const popG = popCanvas.getContext('2d');
+  const popTex = keep(new THREE.CanvasTexture(popCanvas));
+  popTex.colorSpace = THREE.SRGBColorSpace; popTex.anisotropy = 4;
+  const popBatch = quadBatch(POP_N, keep(new THREE.MeshBasicMaterial({ map: popTex, transparent: true, depthWrite: false, depthTest: false, toneMapped: false })), 20, false);
+  const pops = [];
+  for (let i = 0; i < POP_N; i++) {
+    pops.push({ on: false, x: 0, y: 0, z: 0, age: 0, life: 1, hw: 0.3, hh: 0.075 });
+    const cx = i % 2, cy = (i / 2) | 0;
+    popBatch.uvRect(i, cx / 2, 1 - (cy + 1) / 4, (cx + 1) / 2, 1 - cy / 4);
+  }
+  let popNext = 0, popLive = 0;
+  function pop(text, x, y, z, color, big) {
+    let i = pops.findIndex(p => !p.on);
+    if (i < 0) i = popNext;
+    popNext = (i + 1) % POP_N;
+    const p = pops[i], px = (i % 2) * POP_W, py = ((i / 2) | 0) * POP_H;
+    popG.clearRect(px, py, POP_W, POP_H);
+    popG.save();
+    popG.beginPath(); popG.rect(px, py, POP_W, POP_H); popG.clip();
+    popG.textAlign = 'center'; popG.textBaseline = 'middle'; popG.lineJoin = 'round';
+    let size = big ? 58 : 34;
+    const fam = big ? '"Sofia Sans XC", "Sofia Sans", "Segoe UI", sans-serif' : '"Sofia Sans", "Segoe UI", sans-serif';
+    do { popG.font = `800 ${size}px ${fam}`; size -= 3; } while (size > 16 && popG.measureText(text).width > POP_W - 20);
+    popG.lineWidth = 8; popG.strokeStyle = 'rgba(19,20,17,0.92)'; popG.strokeText(text, px + POP_W / 2, py + POP_H / 2 + 2);
+    popG.fillStyle = color; popG.fillText(text, px + POP_W / 2, py + POP_H / 2 + 2);
+    popG.restore();
+    popTex.needsUpdate = true;
+    p.on = true; p.x = x; p.y = y; p.z = z; p.age = 0; p.life = big ? 1.5 : 1.8;
+    p.hh = big ? 0.085 : 0.06; p.hw = p.hh * POP_W / POP_H;
+    popLive++;
+  }
+  function updatePops(dt) {
+    if (!popLive) { popBatch.commit(0); return; }
+    let live = 0;
+    for (let i = 0; i < POP_N; i++) {
+      const p = pops[i];
+      if (!p.on) continue;
+      p.age += dt;
+      if (p.age >= p.life) { p.on = false; popBatch.hide(i); continue; }
+      p.y += dt * 0.26 * Math.max(0, 1 - p.age / p.life);
+      const tin = Math.min(1, p.age / 0.14), tout = Math.min(1, (p.life - p.age) / 0.22);
+      const s = (1 - (1 - tin) * (1 - tin)) * tout;
+      popBatch.set(i, p.x, p.y, p.z, _right.x, _right.y, _right.z, _up.x, _up.y, _up.z, p.hw * s, p.hh * s, 1, 1, 1, 1);
+      live++;
+    }
+    popLive = live;
+    popBatch.commit(live || 1);
+  }
+
+  // ---------- предмети ----------
+
+  const items = new Map(), itemList = [];
+  function itemKey(kind, s) {
+    if (!s) return kind;
+    switch (kind) {
+      case 'pizza': return `pizza|${(s.stack || []).join(',')}|${s.cook >= 2 ? 2 : s.cook >= 1 ? 1 : 0}|${s.ball ? 1 : 0}`;
+      case 'cup': return `cup|${s.drink || ''}|${q(s.fill, 10)}`;
+      default: return kind;
+    }
+  }
+  const itemEntry = (kind, state, key) => entryFor(key, () => {
+    const o = kit.make(kind, { theme });
+    kit.setState(o, kind, state || DEF_STATE[kind], undefined);
+    return o;
+  });
+
+  function handYaw(qt, prev) {
+    const fx2 = -2 * (qt.x * qt.z + qt.w * qt.y), fz2 = -(1 - 2 * (qt.x * qt.x + qt.y * qt.y));
+    return fx2 * fx2 + fz2 * fz2 < 0.09 ? prev : Math.atan2(fx2, fz2);
+  }
+  function inHand(r, h, head) {
+    const p = h.pos;
+    if (p.x * p.x + p.y * p.y + p.z * p.z < 1e-6 && head) { r.x = head.pos.x; r.y = head.pos.y - 0.45; r.z = head.pos.z; }   // ръката не се следи: носи се пред гърдите
+    else { r.x = p.x; r.y = p.y - Math.min(r.h * 0.5, 0.08); r.z = p.z; }
+    r.yaw = handYaw(h.quat, r.yaw);
+    r.fresh = false;
+  }
+
+  // ръцете ми: какво държа, какво съм предположил, към какво соча
+  const mkHand = () => ({
+    held: null, btn: null,
+    act: 'none', actId: null, actT: 0, ghostKind: null, ghost: null, ghostYaw: 0,
+    rel: { on: false, id: null, t: 0, x: 0, y: 0, z: 0, yaw: 0 },
+    tgt: { type: T_NONE, rec: null, st: null, slot: null, control: 0, btn: null, ctl: null },
+    press: 0, spare: null,
+  });
+  const hand = { l: mkHand(), r: mkHand() };
+  let lastHand = 'r';
+
+  function refreshModes() {
+    hand.l.held = hand.r.held = null;
+    for (let i = 0; i < itemList.length; i++) {
+      const r = itemList[i];
+      let mode = r.holder == null ? M_FREE : r.mine ? M_MINE : M_OTHER, hk = r.hand;
+      for (let j = 0; j < 2; j++) {
+        const k = HK[j], R = hand[k].rel;
+        if (R.on && (R.id === r.id || (R.id === -1 && r.mine && r.hand === k))) { mode = M_DROP; hk = k; }
+      }
+      for (let j = 0; j < 2; j++) { const k = HK[j]; if (hand[k].act === 'grab' && hand[k].actId === r.id) { mode = M_MINE; hk = k; } }
+      r.mode = mode; r.hk = hk;
+      if (mode === M_MINE) hand[hk].held = r;
+    }
+  }
+
+  function updateItems(dt) {
+    const k = 1 - Math.exp(-dt * 18);
+    for (let i = 0; i < itemList.length; i++) {
+      const r = itemList[i], g = r.v.g;
+      let vis = true;
+      if (r.mode === M_MINE) inHand(r, ctx.hands[r.hk], ctx.head);
+      else if (r.mode === M_OTHER) { const o = r.other; if (o) inHand(r, r.hand === 'l' ? o.l : o.r, o.head); else vis = false; }
+      else {
+        let tx = r.tx, ty = r.ty, tz = r.tz, tyaw = r.tyaw;
+        if (r.mode === M_DROP) { const R = hand[r.hk].rel; tx = R.x; ty = R.y; tz = R.z; tyaw = R.yaw; }
+        if (r.fresh) { r.x = tx; r.y = ty; r.z = tz; r.yaw = tyaw; r.fresh = false; }
+        else { r.x += (tx - r.x) * k; r.y += (ty - r.y) * k; r.z += (tz - r.z) * k; r.yaw += angDiff(tyaw, r.yaw) * k; }
+      }
+      r.age += dt;
+      if (r.mode === M_FREE) vis = r.on;                 // свободен предмет на другото ниво не се вижда; в ръка се вижда винаги
+      const cast = r.mode === M_FREE && r.on;            // сянка хвърля само предмет, който лежи (сянката се обновява рядко)
+      if (cast !== r.v.cast) setCast(r.v, cast);
+      g.visible = vis;
+      g.position.set(r.x, r.y, r.z);
+      g.rotation.y = r.yaw;
+      g.scale.setScalar((r.age < 0.12 ? 0.55 + 0.45 * (r.age / 0.12) : 1) * (r.hl ? 1.07 : 1));
+    }
+    for (let j = 0; j < 2; j++) {              // предположеният предмет от bin
+      const H = hand[HK[j]];
+      if (!H.ghost) continue;
+      const on = H.act === 'take';
+      H.ghost.g.visible = on;
+      if (!on) continue;
+      const h = ctx.hands[HK[j]], hh = SIZES[H.ghostKind]?.[1] || 0.1;
+      H.ghostYaw = handYaw(h.quat, H.ghostYaw);
+      H.ghost.g.position.set(h.pos.x, h.pos.y - Math.min(hh * 0.5, 0.08), h.pos.z);
+      H.ghost.g.rotation.y = H.ghostYaw;
+    }
+  }
+
+  // ---------- към какво сочи ръката ----------
+
+  function findTarget(k) {
+    const H = hand[k], h = ctx.hands[k], T = H.tgt;
+    T.type = T_NONE; T.rec = null; T.st = null; T.slot = null; T.control = 0; T.btn = null; T.ctl = null;
+    if (!h || h.active === false) return T;
+    const px = h.pos.x, py = h.pos.y, pz = h.pos.z;
+    const kind = H.held ? H.held.kind : H.act === 'take' ? H.ghostKind : null;
+    if (kind) {
+      // добавка над сурова пица: ляга върху нея (преди гнездата, както решава и сървърът)
+      if (PARTS.has(kind)) {
+        let bd = STACK_R * STACK_R;
+        for (let i = 0; i < itemList.length; i++) {
+          const r = itemList[i];
+          if (r.kind !== 'pizza' || r.mode !== M_FREE || !r.on || r.cook > 0.05) continue;
+          const dx = r.tx - px, dy = r.ty - py, dz = r.tz - pz, d2 = dx * dx + dy * dy + dz * dz;
+          if (d2 <= bd) { bd = d2; T.rec = r; }
+        }
+        if (T.rec) { T.type = T_STACK; return T; }
+      }
+      let bd = SLOT_R * SLOT_R, best = null;
+      for (let i = 0; i < slots.length; i++) {
+        const s = slots[i];
+        if (!s.on || (s.item != null && !s.sink) || !accepts(s, kind)) continue;
+        const dx = s.x - px, dy = s.y - py, dz = s.z - pz, d2 = dx * dx + dy * dy + dz * dz;
+        if (d2 <= bd) { bd = d2; best = s; }
+      }
+      if (best) { T.type = T_SLOT; T.slot = best; }
+      return T;
+    }
+    // празна ръка. Първо копче или лост, ако ръката е при самото него (тесен обхват, затова не краде хващането)
+    let ud = Infinity;
+    for (let i = 0; i < useStations.length; i++) {
+      const s = useStations[i];
+      if (!s.on) continue;
+      if (s === elev) {                                  // асансьорът: ръката трябва да е при някое от копчетата му
+        const b = elevButton(px, py, pz);
+        if (b && b.d2 < ud) { ud = b.d2; T.st = s; T.btn = b; T.ctl = null; }
+        continue;
+      }
+      if (!s.btn) continue;
+      const dx = s.btn.x - px, dy = s.btn.y - py, dz = s.btn.z - pz, d2 = dx * dx + dy * dy + dz * dz, rr = USE_R[s.kind] || 0.25;
+      if (d2 <= rr * rr && d2 < ud) { ud = d2; T.st = s; T.btn = null; T.ctl = s.btn; }
+    }
+    if (T.st) { T.type = T_USE; return T; }
+    // после най-близкият свободен предмет
+    let bd = GRAB_R * GRAB_R;
+    for (let i = 0; i < itemList.length; i++) {
+      const r = itemList[i];
+      if (r.mode !== M_FREE || !r.on) continue;
+      const dx = r.tx - px, dy = r.ty - py, dz = r.tz - pz, d2 = dx * dx + dy * dy + dz * dz;
+      if (d2 <= bd) { bd = d2; T.rec = r; }
+    }
+    if (T.rec) { T.type = T_ITEM; return T; }
+    // накрая рафт с продукт (до горния му център)
+    let bb = REACH * REACH;
+    for (let i = 0; i < bins.length; i++) {
+      const s = bins[i];
+      if (!s.on) continue;
+      const dx = s.x - px, dy = s.y + s.h - py, dz = s.z - pz, d2 = dx * dx + dy * dy + dz * dz;
+      if (d2 <= bb) { bb = d2; T.st = s; }
+    }
+    if (T.st) T.type = T_BIN;
+    return T;
+  }
+
+  function updateTargets() {
+    for (let i = 0; i < itemList.length; i++) itemList[i].hl = false;
+    ringN = 0;
+    for (let j = 0; j < 2; j++) {
+      const k = HK[j], H = hand[k], T = findTarget(k);
+      const kind = H.held ? H.held.kind : H.act === 'take' ? H.ghostKind : null;
+      const pulse = 1.12 + 0.06 * Math.sin(now * 9);
+      if (kind && ctx.hands[k].active !== false) {
+        for (let i = 0; i < slots.length; i++) {
+          const s = slots[i];
+          if (!s.on || (s.item != null && !s.sink) || !accepts(s, kind)) continue;
+          if (s === T.slot) slotRing(s, s.r * pulse, RING_ON, 0.007); else slotRing(s, s.r, RING_DIM, 0.006);
+        }
+      }
+      if (T.type === T_ITEM || T.type === T_STACK) { T.rec.hl = true; ring(T.rec.x, T.rec.y + 0.005, T.rec.z, (T.rec.rad + 0.035) * pulse, RING_ON); }
+      else if (T.type === T_BIN) {
+        const b = T.st;                                  // кашон на рафт: пръстенът е отпред, не отгоре
+        if (b.y + b.h > 1.15) ringUp(b.x + b.sin * (b.d / 2 + 0.012), b.y + b.h - 0.14, b.z + b.cos * (b.d / 2 + 0.012), 0.13 * pulse, RING_ON, b.q);
+        else ring(b.x, b.y + b.h + 0.012, b.z, 0.17 * pulse, RING_ON);
+      }
+      else if (T.type === T_USE) {
+        const p = 1 - H.press * 0.25;
+        if (T.ctl) ring(T.ctl.x, T.ctl.y + 0.03, T.ctl.z, 0.12 * pulse * p, RING_ON);
+        else if (T.btn) ringUp(T.btn.rx, T.btn.y, T.btn.rz, 0.085 * pulse * p, RING_ON);
+        else ring(T.st.x, T.st.y + T.st.h + 0.01, T.st.z, 0.15 * pulse * p, RING_ON);
+      } else if (kind && elev) {                         // пълна ръка при копче: другият ѝ бутон го натиска
+        const b = elevButton(ctx.hands[k].pos.x, ctx.hands[k].pos.y, ctx.hands[k].pos.z);
+        if (b) { b.lit = true; ringUp(b.rx, b.y, b.rz, 0.085 * pulse * (1 - H.press * 0.25), RING_ON); }
+      }
+    }
+    // копчетата, които могат да се натиснат сега, са оградени и когато ръката не е при тях
+    if (elev && elev.on && !(elev.state && elev.state.moving)) {
+      const inside = inCabin(ctx.head.pos), away = !!(elev.state && lvl(elev.state.level) !== myLevel);
+      for (let i = 0; i < elevBtns.length; i++) {
+        const b = elevBtns[i];
+        if ((b.inside ? inside : away) && !b.lit && b !== hand.l.tgt.btn && b !== hand.r.tgt.btn) ringUp(b.rx, b.y, b.rz, 0.075, RING_DIM);
+        b.lit = false;
+      }
+    }
+    for (let i = 0; i < itemList.length; i++) { const r = itemList[i]; if (r.hl !== r.v.hl) tint(r.v, r.hl); }
+    ringMesh.count = ringN;
+    ringMesh.visible = ringN > 0;
+    if (ringN) { ringMesh.instanceMatrix.needsUpdate = true; ringMesh.instanceColor.needsUpdate = true; }
+  }
+
+  // ---------- действия ----------
+
+  function onInput(ev) {
+    if (!ev || over) return;
+    const k = ev.hand === 'l' ? 'l' : 'r', H = hand[k], h = ctx.hands[k];
+    const btn = ev.type === 'gripdown' || ev.type === 'gripup' ? 'grip' : 'trigger';
+    const down = ev.type === 'gripdown' || ev.type === 'triggerdown', up = ev.type === 'gripup' || ev.type === 'triggerup';
+    if (!h || (!down && !up)) return;
+    now = performance.now() / 1000;
+    if (down) {
+      if (H.held || H.act === 'take') {                      // ръката е пълна
+        // в асансьора другият бутон на същата ръка натиска копчето, без да пуска предмета (возим се с пълни ръце)
+        if (elev && (H.btn ? H.btn !== btn : btn === 'trigger') && elevButton(h.pos.x, h.pos.y, h.pos.z)) {
+          ctx.send({ a: 'use', hand: k, station: elev.id });
+          H.spare = btn; H.press = 1; lastHand = k;
+          ctx.haptic(k, 0.35, 20);
+        }
+        return;
+      }
+      const T = findTarget(k);
+      if (T.type === T_ITEM) {
+        ctx.send({ a: 'grab', hand: k, item: T.rec.id });
+        H.act = 'grab'; H.actId = T.rec.id; H.actT = now; H.btn = btn; lastHand = k;
+        ctx.haptic(k, 0.6, 30);
+        refreshModes();
+      } else if (T.type === T_BIN) {
+        ctx.send({ a: 'take', hand: k, station: T.st.id });
+        const kind = T.st.gives || T.st.view.gives;
+        H.act = 'take'; H.actT = now; H.btn = btn; H.ghostKind = kind || null; lastHand = k;
+        if (kind) {
+          if (!H.ghost) H.ghost = getView(itemGroup);
+          setEntry(H.ghost, itemEntry(kind, null, itemKey(kind, DEF_STATE[kind])));
+          H.ghostYaw = handYaw(h.quat, 0);
+        }
+        ctx.haptic(k, 0.6, 30);
+      } else if (T.type === T_USE) {
+        ctx.send({ a: 'use', hand: k, station: T.st.id, control: T.control });
+        H.press = 1; lastHand = k;
+        ctx.haptic(k, 0.35, 20);
+      }
+      return;
+    }
+    if (H.spare === btn) { H.spare = null; return; }         // това беше копчето на асансьора, не пускане
+    const ghost = H.act === 'take', held = H.held;
+    if (!held && !ghost) return;
+    if (H.btn && H.btn !== btn) return;                      // пуска се със същия бутон, с който е хванато
+    const T = findTarget(k), yaw = handYaw(h.quat, held ? held.yaw : H.ghostYaw);
+    ctx.send({ a: 'release', hand: k, p: [+h.pos.x.toFixed(3), +h.pos.y.toFixed(3), +h.pos.z.toFixed(3)], yaw: +yaw.toFixed(3) });
+    const R = H.rel;
+    R.on = true; R.id = held ? held.id : -1; R.t = now; R.yaw = yaw;
+    if (T.type === T_SLOT) { R.x = T.slot.x; R.y = T.slot.y; R.z = T.slot.z; ctx.haptic(k, 0.5, 25); }
+    else if (T.type === T_STACK) { R.x = T.rec.tx; R.y = T.rec.ty + 0.03; R.z = T.rec.tz; ctx.haptic(k, 0.3, 15); }
+    else if (held) { R.x = held.x; R.y = held.y; R.z = held.z; }
+    else { R.x = h.pos.x; R.y = h.pos.y - 0.05; R.z = h.pos.z; }
+    H.act = 'none'; H.btn = null; lastHand = k;
+    refreshModes();
+  }
+  const offInput = ctx.onInput(onInput);
+
+  // ---------- капаците в пода ----------
+  const litMats = [];
+  const litOf = base => { const m = keep(base.clone()); if (m.emissive) m.emissive.setHex(0xff2a1a); litMats.push(m); return m; };
+  {
+    const holeGeo = keep(new THREE.CircleGeometry(start.trap?.r || 0.5, 28).rotateX(-Math.PI / 2));
+    const holeMat = keep(new THREE.MeshBasicMaterial({ color: 0x000000, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
+    for (const s of seats) {
+      const hole = new THREE.Mesh(holeGeo, holeMat);
+      hole.position.set(s.x, TRAP_Y, s.z);
+      const cover = kit.make('cover', { theme });
+      cover.position.set(s.x, TRAP_Y + 0.004, s.z);
+      const crate = theme === 'kids' ? kit.make('crate', { theme }) : null;
+      if (crate) { crate.position.set(s.x, TRAP_Y + 0.062, s.z - 0.1); crate.visible = false; stationL[0].add(crate); }
+      stationL[0].add(hole, cover);
+      trapList.push({ i: s.i, x: s.x, z: s.z, hole, cover, crate, crateOn: false, seenOpen: false, open: 0, to: 0, lit: false, wasLit: false });
+    }
+  }
+
+  // ---------- клиенти ----------
+
+  const custs = new Map(), custList = [];
+  let custLive = null;                              // true: живи модели (models.js ги движи сам); false: изпечени, движа ги аз
+  const custPool = new Map();
+  const orderKeyOf = o => (o && o.kind !== 'none' ? `order|${o.kind}|${(o.stack || []).join(',')}|${o.drink || ''}` : 'order|none');
+  function buildOrder(o) {
+    const wrap = new THREE.Group(), g = new THREE.Group();
+    wrap.add(g);
+    if (!o || o.kind === 'none') return wrap;
+    const m = kit.make(o.kind, { theme });
+    if (!m) return wrap;
+    if (o.kind === 'pizza') {                       // изпечената пица, изправена с лице към гледащия
+      kit.setState(m, 'pizza', { stack: o.stack || [], cook: 1, ball: false }, undefined);
+      m.rotation.x = Math.PI / 2 * 0.86;
+      m.position.set(0, 0.02, 0);
+      g.add(m);
+      g.scale.setScalar(0.62);
+      wrap.userData.face = true;
+    } else {
+      kit.setState(m, 'cup', { fill: 1, drink: o.drink || 'cola' }, undefined);
+      m.position.y = -(SIZES[o.kind]?.[1] || 0.1) / 2;
+      g.add(m);
+      g.scale.setScalar(1.55);
+    }
+    return wrap;
+  }
+  const moodOf = st => (st === 'happy' || st === 'angry' ? st : 'wait');
+  function newCustModel(look, special) {
+    const o = kit.make('customer', { theme, look, special });
+    // Поръчката и търпението ги рисува сцената (над главата, под горния ръб на ролетката);
+    // показанието, което моделът носи за същото, се скрива, за да не са две ленти.
+    if (o.userData.indicator) o.userData.indicator.visible = false;
+    return o;
+  }
+  function custBody(r) {
+    if (custLive === null) {                        // решава се по първия модел: с кости или малко мешове → жив (models.js го движи сам)
+      const probe = newCustModel(r.look, r.special);
+      let n = 0, skinned = false;
+      probe.traverse(o => { if (o.isMesh) n++; if (o.isSkinnedMesh) skinned = true; });
+      custLive = kit.fromModels(probe) && (skinned || n <= 3);
+      if (custLive) custPool.set(`${r.look}|${r.special}`, [probe]);
+    }
+    if (custLive) {
+      const key = `${r.look}|${r.special}`;
+      let free = custPool.get(key);
+      if (!free) { free = []; custPool.set(key, free); }
+      r.model = free.pop() || newCustModel(r.look, r.special);
+      r.poolKey = key;
+      r.tall = Math.max(1.4, Math.min(2.0, +r.model.userData.height || 1.7));
+      custGroup.add(r.model);
+    } else {
+      r.v = getView(custGroup);
+      custSkin(r);
+    }
+  }
+  function custSkin(r) {
+    const mood = moodOf(r.state);
+    if (custLive || r.mood === mood) return;
+    r.mood = mood;
+    const look = r.look, special = r.special;
+    setEntry(r.v, entryFor(`cust|${look}|${special ? 1 : 0}|${mood}`, () => {
+      const o = newCustModel(look, special);
+      kit.setState(o, 'customer', { state: mood, look, special, patience: 1 }, undefined);
+      return o;
+    }));
+  }
+  function dropCust(r) {
+    if (r.model) { custGroup.remove(r.model); custPool.get(r.poolKey).push(r.model); r.model = null; }
+    if (r.v) { freeView(r.v); r.v = null; }
+    freeView(r.ov);
+  }
+
+  function updateCustomers(dt) {
+    const k = 1 - Math.exp(-dt * 9), ko = 1 - Math.exp(-dt * 10);
+    let bars = 0;
+    for (let i = 0; i < custList.length; i++) {
+      const r = custList[i];
+      r.st += dt;
+      if (r.fresh) { r.x = r.tx; r.z = r.tz; r.yaw = r.tyaw; r.fresh = false; }
+      const ox = r.x, oz = r.z;
+      r.x += (r.tx - r.x) * k; r.z += (r.tz - r.z) * k; r.yaw += angDiff(r.tyaw, r.yaw) * k;
+      const sd = r.slideTo - r.slide, sm = dt * 0.6;
+      r.slide += sd > sm ? sm : sd < -sm ? -sm : sd;
+      const sp = dt > 0 ? Math.min(1.5, Math.hypot(r.x - ox, r.z - oz) / dt + Math.abs(sd) * 3) : 0;
+      r.walk += sp * dt * 8;
+      let x = r.x + r.slide * 0.7, z = r.z + r.slide * 3.2, y = 0, tilt = 0;
+      const fall = r.state === 'fall' ? r.st : 0, fy = -4.6 * fall * fall;      // пада с капака
+      if (r.model) {
+        r.model.position.set(x, fy, z); r.model.rotation.y = r.yaw + fall * 2.4;
+        if (myLevel === 0) kit.setState(r.model, 'customer', r.view, dt);
+      } else {
+        y = (sp / 1.5) * Math.abs(Math.sin(r.walk)) * 0.035;
+        if (r.state === 'happy' && r.st < 1) y += Math.abs(Math.sin(r.st * Math.PI * 3)) * 0.13 * (1 - r.st);
+        else if (r.state === 'angry' && r.st < 0.9) { const a = Math.sin(r.st * 34) * (1 - r.st / 0.9); tilt = a * 0.07; x += a * 0.02; }
+        const g = r.v.g;
+        g.position.set(x, y + fy, z); g.rotation.set(0, r.yaw + fall * 2.4, tilt);
+      }
+      const show = (r.state === 'in' || r.state === 'wait') && r.okey !== 'order|none';
+      r.os += ((show ? 1 : 0) - r.os) * ko;
+      // лентата е точно над главата, поръчката над нея; и двете остават под горния ръб на отвора (2.05 м)
+      const by = Math.min(r.tall + 0.075, 1.84), og = r.ov.g;
+      og.visible = r.os > 0.02;
+      // стоят малко пред клиента, откъм гледащия (на която и стена да е тезгяхът)
+      const hx = ctx.head.pos.x - x, hz = ctx.head.pos.z - z, hl = Math.hypot(hx, hz) || 1, nx = hx / hl, nz = hz / hl;
+      const fx = x + nx * 0.12, fz = z + nz * 0.12;
+      if (og.visible) {
+        og.position.set(fx, by + 0.175 + Math.sin(now * 2 + r.seed) * 0.012, fz);
+        if (r.face) og.rotation.y = Math.atan2(nx, nz); else og.rotation.y += dt * 0.9;
+        og.scale.setScalar(r.os);
+      }
+      if (r.state === 'wait' && r.os > 0.5 && myLevel === 0 && bars + 2 <= BAR_N) {
+        const p = clamp01(r.patience), rx = nz, rz = -nx, bw = 0.15;
+        cT.copy(cBad).lerp(cWarn, clamp01(p / 0.35));
+        if (p > 0.35) cT.lerp(cCalm, clamp01((p - 0.35) / 0.3));
+        if (p < 0.25) cT.multiplyScalar(0.75 + 0.25 * Math.sin(now * 12));
+        barBatch.set(bars++, fx, by, fz, rx, 0, rz, 0, 1, 0, bw + 0.012, 0.03, cBarBg.r, cBarBg.g, cBarBg.b, 1);
+        const f = Math.max(0.02, p);
+        barBatch.set(bars++, fx - rx * bw * (1 - f) + nx * 0.004, by, fz - rz * bw * (1 - f) + nz * 0.004, rx, 0, rz, 0, 1, 0, bw * f, 0.019, cT.r, cT.g, cT.b, 1);
+      }
+    }
+    for (let i = bars; i < barsWas; i++) barBatch.hide(i);
+    barsWas = bars;
+    barBatch.commit(bars);
+  }
+  let barsWas = 0;
+
+  // ---------- събития ----------
+
+  const seenEv = new Array(160).fill(null);
+  let seenN = 0;
+  const plLevel = new Map();                          // id на играч → ниво, от последната снимка
+  /** на кое ниво е станало събитието: казано от сървъра, иначе по играча, иначе по най-близката станция */
+  function evLevel(e, has, x, z) {
+    if (e.level != null) return lvl(e.level);
+    if (e.player != null) { const v = plLevel.get(String(e.player)); if (v !== undefined) return v; }
+    if (has && nLevels > 1) {
+      let best = null, bd = 0.64;
+      for (let i = 0; i < stations.length; i++) {
+        const s = stations[i];
+        if (s.level < 0) continue;
+        const dx = s.x - x, dz = s.z - z, d2 = dx * dx + dz * dz;
+        if (d2 < bd) { bd = d2; best = s; }
+      }
+      if (best) return best.level;
+    }
+    return myLevel;
+  }
+  function showEvent(e) {
+    const mine = sameId(e.player, me.id);
+    let x = e.x, y = e.y, z = e.z, has = typeof x === 'number' && typeof z === 'number';
+    if (!has && mine) { const h = ctx.hands[lastHand]; x = h.pos.x; y = h.pos.y + 0.1; z = h.pos.z; has = true; }
+    if (typeof y !== 'number') y = SURFACE_Y + 0.2;
+    if (!mine && e.kind !== 'ride_start' && e.kind !== 'ride_end' && evLevel(e, has, x, z) !== myLevel) return;   // на другото ниво е
+    switch (e.kind) {
+      case 'cash':
+        if (!has) break;
+        if (e.amount < 0) { pop(`−${-e.amount}`, x, y + 0.12, z, '#f06a45', true); flash(x, y, z, 0xf06a45, 0.3); }
+        else { pop(`+${e.amount ?? ''}`, x, y + 0.12, z, '#c8f03c', true); puff(x, y, z, 0xc8f03c, 6, 0.55, 0.035, 0.6, 0.5); }
+        break;
+      case 'order_ok': if (has) puff(x, y, z, 0x7bd66a, 8, 0.6, 0.06, 0.6, 0.35); break;
+      case 'order_bad':
+        if (!has) break;
+        flash(x, y, z, 0xf06a45, 0.35); puff(x, y, z, 0xf06a45, 6, 0.5, 0.06);
+        if (e.text && mine) pop(String(e.text), x, y + 0.14, z, '#f2b84a', false);
+        break;
+      case 'burn': if (has) { flash(x, y, z, 0xff8a2a, 0.34, 0.35); puff(x, y + 0.05, z, 0x2a2622, 7, 0.22, 0.1, 1.1, 0.5); } break;
+      case 'ruin': if (has) { flash(x, y, z, 0xb04cff, 0.36, 0.35); puff(x, y, z, 0x3a2a4a, 7, 0.3, 0.1, 0.9, 0.45); } break;
+      case 'hit': if (has) { flash(x, y, z, 0xc8f03c, 0.3); puff(x, y, z, 0xc8f03c, 5, 0.5, 0.035, 0.45, 0.4); } if (mine) ctx.haptic(lastHand, 0.8, 60); break;
+      case 'miss': if (has) flash(x, y, z, 0xf06a45, 0.3); if (mine) ctx.haptic(lastHand, 1, 160); break;
+      case 'ground': if (has) puff(x, y + 0.05, z, 0xc8f03c, 9, 0.6, 0.045, 0.6, 0.5); break;
+      case 'stock': if (has) { pop(`+${e.amount ?? ''}`, x, y + 0.12, z, '#c8f03c', true); puff(x, y, z, 0xc8f03c, 8, 0.6, 0.04, 0.6, 0.5); } break;
+      case 'top': if (has) puff(x, y + 0.04, z, 0xe6ead8, 4, 0.3, 0.03, 0.35, 0.2); break;
+      case 'poured': if (has) flash(x, y + 0.1, z, 0xc8f03c, 0.2, 0.3); break;
+      case 'poof': if (has) puff(x, y + 0.04, z, 0xb9bcb0, 7, 0.38, 0.075, 0.5, 0.3); break;
+      case 'drop':
+        if (has) { flash(x, 0.1, z, 0xff3b30, 0.5, 0.4); puff(x, 0.15, z, 0x2a2622, 9, 0.6, 0.1, 0.8, 0.2); }
+        if (mine) { ctx.haptic('l', 0.8, 120); ctx.haptic('r', 0.8, 120); }
+        break;
+      case 'crate': {
+        const t = trapList.find(q => q.i === e.seat);
+        if (t && t.crate) { t.crate.visible = true; t.crateOn = true; }
+        if (has) puff(x, 0.15, z, 0x8a8478, 6, 0.4, 0.08, 0.6, 0.2);
+        break;
+      }
+      case 'trap': if (has) puff(x, 0.15, z, 0x8a8478, 6, 0.4, 0.08, 0.6, 0.2); break;
+      case 'innocent': if (has) flash(x, 1.2, z, 0xff3b30, 0.8, 0.6); if (mine) hud.flash(); break;
+      case 'load': if (has) puff(x, y, z, 0x8a8478, 8, 0.5, 0.09, 0.8, 0.3); if (myLevel === 1) { ctx.haptic('l', 0.5, 80); ctx.haptic('r', 0.5, 80); } break;
+      case 'ride_start': if (inCabin(ctx.head.pos)) { ctx.haptic('l', 0.7, 90); ctx.haptic('r', 0.7, 90); } break;
+      case 'ride_end': if (inCabin(ctx.head.pos)) { ctx.haptic('l', 0.6, 140); ctx.haptic('r', 0.6, 140); } break;
+      case 'caught':
+        if (has) flash(x, y, z, 0xff3b30, 0.7, 0.5);
+        if (mine) { hud.flash(); ctx.haptic('l', 1, 220); ctx.haptic('r', 1, 220); }
+        break;
+      case 'deny':
+        if (!mine) break;
+        ctx.haptic(lastHand, 0.9, 90);
+        if (hand[lastHand].act !== 'none') { hand[lastHand].act = 'none'; refreshModes(); }
+        if (e.text && has) pop(String(e.text), x, y + 0.08, z, '#f2b84a', false);
+        break;
+    }
+  }
+
+  // ---------- снимка от сървъра ----------
+
+  const hud = createHud(ctx, start, { group, hemi, dir });
+  let snapN = 0, over = false, buzzT = 0;
+
+  function findPlayer(id) {
+    let p = ctx.players.get(id);
+    if (!p) for (const [pid, v] of ctx.players) if (String(pid) === String(id)) { p = v; break; }
+    return p || null;
+  }
+
+  function onSnapshot(snap) {
+    if (!snap) return;
+    now = performance.now() / 1000;
+    snapN++;
+    over = snap.phase === 'over';
+    // нивата на играчите; моето решава какво се вижда
+    let mine = myLevel;
+    plLevel.clear();
+    if (Array.isArray(snap.players)) for (const p of snap.players) {
+      const v = Math.min(nLevels - 1, lvl(p.level));
+      plLevel.set(String(p.id), v);
+      if (sameId(p.id, ctx.viewId ?? me.id)) mine = v;
+    }
+    if (mine !== myLevel) applyLevel(mine);
+
+    // станции
+    if (Array.isArray(snap.stations)) for (const u of snap.stations) {
+      const s = stationByKey.get(String(u.id));
+      if (!s || u.state == null) continue;
+      const key = JSON.stringify(u.state);
+      if (s.mode === 'static') { s.mode = 'live'; dyn.push(s); s.parent.add(s.live); needStatic = true; s.skey = ''; }
+      if (key === s.skey) continue;
+      if (typeof u.state.needle === 'number') { s.nV = s.nT ? (u.state.needle - s.n1) / Math.max(0.05, now - s.nT) : 0; s.n1 = u.state.needle; s.nT = now; }
+      s.skey = key; s.keyT = now; s.state = u.state;
+      Object.assign(s.view, u.state);
+      if (s.mode === 'baked') toLive(s);
+    }
+    if (needStatic) { needStatic = false; rebuildStatic(); }
+
+    // капаците в пода и кой стои върху светещ капак
+    if (Array.isArray(snap.traps)) for (let i = 0; i < trapList.length; i++) { const v = snap.traps[trapList[i].i]; trapList[i].to = typeof v === 'number' ? v : 0; trapList[i].lit = false; }
+    for (const c of snap.customers || []) if (c.mark && c.state === 'wait') { const t = trapList.find(q => q.i === c.seat); if (t) t.lit = true; }
+
+    // гнезда
+    if (snap.slots) for (let i = 0; i < slots.length; i++) { const v = snap.slots[slots[i].key]; slots[i].item = v == null ? null : v; }
+
+    // предмети
+    for (const it of snap.items || []) {
+      let r = items.get(it.id);
+      if (!r) {
+        const sz = SIZES[it.kind];
+        r = {
+          id: it.id, kind: it.kind, v: getView(itemGroup), key: null, x: 0, y: 0, z: 0, yaw: 0, tx: 0, ty: 0, tz: 0, tyaw: 0,
+          holder: null, hand: 'r', mine: false, other: null, mode: M_FREE, hk: 'r', fresh: true, seen: 0, hl: false, age: 0,
+          h: sz ? sz[1] : 0.1, rad: sz ? Math.max(sz[0], sz[2]) / 2 : 0.06, cook: -1, level: 0, on: true,
+        };
+        items.set(it.id, r); itemList.push(r);
+      }
+      r.seen = snapN;
+      if (it.state && typeof it.state.cook === 'number') {     // сървърът няма събитие за „готово": хващам го от състоянието
+        const c = it.state.cook;
+        if (r.cook >= 0 && r.cook < 1 && c >= 1 && it.holder == null) { flash(r.x, r.y + 0.05, r.z, 0xc8f03c, 0.2, 0.3); puff(r.x, r.y + 0.05, r.z, 0xc8f03c, 5, 0.3, 0.03, 0.55, 0.45); }
+        r.cook = c;
+      }
+      const key = itemKey(it.kind, it.state);
+      if (key !== r.key) { r.key = key; setEntry(r.v, itemEntry(it.kind, it.state, key)); }
+      r.holder = it.holder ?? null;
+      r.hand = it.hand === 'l' ? 'l' : 'r';
+      r.mine = r.holder != null && sameId(r.holder, me.id);
+      r.other = r.holder != null && !r.mine ? findPlayer(r.holder) : null;
+      if (r.holder == null) {
+        const sl = it.slot != null ? slotByKey.get(String(it.slot)) : null;
+        r.tx = typeof it.x === 'number' ? it.x : sl ? sl.x : r.tx;
+        r.ty = typeof it.y === 'number' ? it.y : sl ? sl.y : r.ty;
+        r.tz = typeof it.z === 'number' ? it.z : sl ? sl.z : r.tz;
+        r.tyaw = +it.yaw || 0;
+        r.level = it.level != null ? Math.min(nLevels - 1, lvl(it.level)) : sl ? sl.level : 0;
+      }
+      r.on = r.level === myLevel;
+    }
+    for (let i = itemList.length - 1; i >= 0; i--) {
+      const r = itemList[i];
+      if (r.seen === snapN) continue;
+      freeView(r.v);
+      items.delete(r.id);
+      itemList[i] = itemList[itemList.length - 1]; itemList.pop();
+    }
+
+    // потвърждаване на предположенията
+    for (let j = 0; j < 2; j++) {
+      const k = HK[j], H = hand[k];
+      if (H.act === 'grab') { const r = items.get(H.actId); if (!r || (r.mine && r.hand === k)) H.act = 'none'; }
+      else if (H.act === 'take') {
+        for (let i = 0; i < itemList.length; i++) { const r = itemList[i]; if (r.mine && r.hand === k && !(H.rel.on && H.rel.id === r.id)) { H.act = 'none'; break; } }
+      }
+      if (H.rel.on && H.rel.id !== -1) { const r = items.get(H.rel.id); if (!r || !(r.mine && r.hand === k)) H.rel.on = false; }
+    }
+    refreshModes();
+
+    // клиенти
+    for (const c of snap.customers || []) {
+      let r = custs.get(c.id);
+      const seat = seatByI.get(c.seat);
+      const cx = typeof c.x === 'number' ? c.x : seat ? seat.x : 0, cz = typeof c.z === 'number' ? c.z : seat ? seat.z : 0;
+      const near = !!seat && Math.hypot(cx - seat.x, cz - seat.z) < 0.06;   // сървърът не го мести сам: плъзгам го аз
+      if (!r) {
+        r = {
+          id: c.id, look: c.look | 0, special: !!c.special, v: null, model: null, poolKey: '', ov: getView(custGroup), okey: null, mood: null,
+          x: 0, z: 0, yaw: 0, tx: 0, tz: 0, tyaw: 0, state: c.state, st: 0, patience: 1, fresh: true, seen: 0,
+          slide: c.state === 'in' && near ? 1 : 0, slideTo: 0, walk: 0, os: 0, seed: (c.id | 0) * 1.7, tall: 1.7,
+          view: { state: c.state, patience: 1, look: c.look | 0, special: !!c.special, mark: !!c.mark, order: null }, mark: !!c.mark, face: false,
+        };
+        custs.set(c.id, r); custList.push(r);
+        custBody(r);
+      }
+      r.seen = snapN;
+      if (r.state !== c.state) { r.state = c.state; r.st = 0; }
+      r.patience = typeof c.patience === 'number' ? c.patience : 1;
+      r.tx = cx; r.tz = cz; r.tyaw = typeof c.yaw === 'number' ? c.yaw : Math.PI;
+      r.slideTo = c.state === 'out' && near ? 1 : 0;
+      r.view.state = c.state; r.view.patience = r.patience; r.view.order = c.order || null;
+      custSkin(r);
+      const okey = orderKeyOf(c.order);
+      if (okey !== r.okey) { r.okey = okey; const order = c.order; r.face = !!order && order.kind === 'pizza'; setEntry(r.ov, entryFor(okey, () => buildOrder(order))); }
+    }
+    for (let i = custList.length - 1; i >= 0; i--) {
+      const r = custList[i];
+      if (r.seen === snapN) continue;
+      dropCust(r);
+      custs.delete(r.id);
+      custList[i] = custList[custList.length - 1]; custList.pop();
+    }
+
+    // събития: всяко веднъж
+    for (const e of snap.events || []) {
+      if (e.id == null || seenEv.includes(e.id)) continue;
+      seenEv[seenN++ % seenEv.length] = e.id;
+      showEvent(e);
+    }
+
+    hud.onSnapshot(snap);
+  }
+
+  // ---------- кадър ----------
+
+  function update(dt) {
+    now = performance.now() / 1000;
+    if (!(dt > 0)) dt = 0;
+    else if (dt > 0.1) dt = 0.1;
+
+    // предположение без потвърждение: връща се
+    let changed = false;
+    for (let j = 0; j < 2; j++) {
+      const H = hand[HK[j]];
+      if (H.act !== 'none' && now - H.actT > PREDICT_S) { H.act = 'none'; changed = true; }
+      if (H.rel.on && now - H.rel.t > PREDICT_S) { H.rel.on = false; changed = true; }
+      if (H.press > 0) H.press = Math.max(0, H.press - dt * 5);
+    }
+    if (changed) refreshModes();
+
+    // станции със състояние
+    for (let i = 0; i < dyn.length; i++) {
+      const s = dyn[i];
+      if (s.mode !== 'live') continue;
+      if (s.nT) {                                        // иглата се движи и между две снимки
+        let n = s.n1 + s.nV * Math.min(0.12, now - s.nT);
+        if (n < 0) n = -n; if (n > 1) n = 2 - n;
+        s.view.needle = clamp01(n);
+      }
+      if (s === elev && s.state) s.view.doors = lvl(s.state.level) === myLevel ? +s.state.doors || 0 : 0;   // на другото ниво вратите са затворени
+      if (s.state) kit.setState(s.live, s.kind, s.view, dt);
+      if (!s.pinLive && now - s.keyT > IDLE_BAKE_S && !(s.state && s.state.moving)) toBaked(s);
+    }
+
+    // возене: кабината трепери (не камерата), а който е вътре, го усеща и в двете ръце
+    if (elev) {
+      const moving = !!(elev.state && elev.state.moving), inside = moving && inCabin(ctx.head.pos);
+      if (moving && elev.mode === 'live' && !kit.fromModels(elev.live)) {   // моделът от models.js се тресе сам в setModelState
+        const a = inside ? 0.004 : 0.002;
+        elev.live.position.set(elev.x + Math.sin(now * 61) * a, elev.y + Math.sin(now * 47) * a * 0.5, elev.z + Math.cos(now * 53) * a);
+        elev.shook = true;
+      } else if (elev.shook) { elev.live.position.set(elev.x, elev.y, elev.z); elev.shook = false; }
+      if (inside && now - buzzT > 0.22) { buzzT = now; ctx.haptic('l', 0.22, 60); ctx.haptic('r', 0.22, 60); }
+      hud.setRide(inside);
+    }
+
+    for (let i = 0; i < trapList.length; i++) {
+      const t = trapList[i];
+      t.open += (t.to - t.open) * (1 - Math.exp(-dt * 16));
+      const y = TRAP_Y + 0.004 - t.open * t.open * 2.6;
+      t.cover.position.y = y;
+      if (t.crate) { if (t.crateOn && t.open < 0.02 && t.to === 0 && t.seenOpen) { t.crate.visible = false; t.crateOn = false; t.seenOpen = false; } if (t.open > 0.5) t.seenOpen = true; t.crate.position.y = y + 0.058; }
+      if (t.lit !== t.wasLit) { t.wasLit = t.lit; t.cover.traverse(o => { if (o.isMesh) o.material = t.lit ? (o.userData.litMat ||= litOf(o.userData.baseMat ||= o.material)) : (o.userData.baseMat || o.material); }); }
+      if (t.lit) for (const m of litMats) m.emissiveIntensity = 0.55 + 0.45 * Math.sin(now * 6);
+    }
+
+    _right.set(1, 0, 0).applyQuaternion(ctx.head.quat);
+    _up.set(0, 1, 0).applyQuaternion(ctx.head.quat);
+    updateItems(dt);
+    updateCustomers(dt);
+    if (over) { ringN = 0; ringMesh.visible = false; for (let i = 0; i < itemList.length; i++) if (itemList[i].v.hl) tint(itemList[i].v, false); }
+    else updateTargets();
+    updateFx(dt);
+    updatePops(dt);
+    hud.update(dt, now);
+  }
+
+  function dispose() {
+    try { offInput?.(); } catch { /* вече е отписан */ }
+    hud.dispose();
+    ctx.root.remove(group);
+    for (let i = 0; i < muted.length; i += 2) muted[i].intensity = muted[i + 1];
+    muted.length = 0;
+    for (const e of cache.values()) disposeEntry(e);
+    cache.clear();
+    for (const p of staticParts) p.geo.dispose();
+    staticParts = [];
+    const freeObj = o => o.traverse(c => {            // живи модели: освобождава се само паметта във видеокартата, кешът на models.js остава годен
+      c.geometry?.dispose?.();
+      for (const m of Array.isArray(c.material) ? c.material : c.material ? [c.material] : []) { m.map?.dispose?.(); m.dispose?.(); }
+    });
+    for (const s of stations) { if (s.entry) disposeEntry(s.entry); freeObj(s.live); }
+    for (const list of custPool.values()) for (const o of list) freeObj(o);
+    for (const r of custList) if (r.model) freeObj(r.model);
+    for (const o of own) o.dispose?.();
+    own.length = 0;
+    kit.dispose();
+    items.clear(); itemList.length = 0; custs.clear(); custList.length = 0; viewPool.length = 0; dyn.length = 0;
+    group.clear();
+  }
+
+  return {
+    onSnapshot, update, dispose,
+    /** простата стая (под, стени, улица, очертание): true/false я показва или крие; без аргумент важи правилото (само без ctx.assets) */
+    setRoom(on) { roomForce = on === undefined ? undefined : !!on; applyRoom(); },
+    /** за проби: кои модели се ползват, какво е паднало на кутии, на кое ниво съм */
+    info: { get models() { return kit.real ? 'models.js' : 'кутии'; }, get why() { return kit.why; }, get boxed() { return [...kit.boxed]; }, get cache() { return cache.size; }, get level() { return myLevel; }, get levels() { return nLevels; }, group },
+  };
+}

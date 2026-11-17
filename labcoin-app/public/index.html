@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LabCoin Арена</title>
+<link rel="icon" href="/brand/favicon.png">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="island">
+    <img class="logo" src="/brand/logo.png" alt=""><span class="mark"><span class="coin-pip"></span><span><span class="vr">VR&nbsp;</span><span class="city">VARNA</span></span></span><span class="chip">LabCoin Арена</span><span class="grow"></span>
+    <span id="lobbyPill" class="pill">лоби…</span>
+  </div>
+  <div id="app"></div>
+</div>
+<div id="toast" class="toast" hidden></div>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const LETTERS = ['А', 'Б', 'В', 'Г'];
+let lastKey = '', tab = 'kids', B = null, status = null, timer = null, editingKids = false;
+
+async function api(path, body, method) {
+  const r = await fetch(path, { method: method || (body ? 'POST' : 'GET'), headers: { 'content-type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || 'Грешка ' + r.status);
+  return j;
+}
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2600); }
+const act = (name, body = {}) => api(`/api/b/${B.id}/${name}`, body).then(refresh).catch(e => toast(e.message));
+
+async function pollStatus() {
+  try {
+    status = await api('/api/status');
+    const p = $('#lobbyPill');
+    const on = status.lobby.headsets.filter(h => h.online).length;
+    p.className = 'pill ' + (status.lobby.ok ? 'ok' : 'bad');
+    p.textContent = status.lobby.ok ? `Арена: ${on} каски онлайн` : 'Арена: няма връзка';
+    p.title = status.lobby.error || status.config.lobbyUrl;
+  } catch {}
+}
+setInterval(pollStatus, 3000); pollStatus();
+
+// ─── Начало ──────────────────────────────────────────────────────────────────
+async function home() {
+  clearInterval(timer); B = null;
+  const [t, hist] = await Promise.all([api('/api/today'), api('/api/history')]);
+  $('#app').innerHTML = `
+    <div class="card">
+      <div class="row"><h2 class="grow">Днес, ${esc(t.date)}</h2><span class="pill ${t.source === 'panel' ? 'ok' : ''}">${{ panel: 'от панела', calendar: 'от календара (резерва)', none: 'няма източник' }[t.source]}</span><button onclick="api('/api/today?refresh=1').then(home)">↻ Обнови</button></div>
+      ${t.calendarError ? `<p class="muted small">${esc(t.calendarError)}</p>` : ''}
+      ${t.calendar.length ? `<table><tr><th>Час</th><th>Рожденик</th><th>Деца</th><th>Аниматор</th><th>Пакет</th><th></th></tr>
+        ${t.calendar.map(e => `<tr style="${e.cancelled ? 'opacity:.45' : ''}"><td>${esc(e.time)}${e.endTime ? '–' + esc(e.endTime) : ''}</td><td>${esc(e.childName)}${e.theme ? `<div class="small muted">${esc(e.theme)}</div>` : ''}</td><td>${e.childrenCount ?? '–'}</td><td>${esc((e.animators || []).join(', ') || '–')}</td><td class="small muted">${esc(e.pkg || '')}</td>
+        <td class="num">${e.cancelled ? 'отменен' : e.opened ? `<a href="#/b/${e.opened}">Отвори</a>` : `<button class="primary" onclick='openCal(${JSON.stringify(e.uid)})'>Започни</button>`}</td></tr>`).join('')}</table>`
+        : `<p class="muted">Няма рождени дни за днес.</p>`}
+    </div>
+    <div class="card">
+      <h2>Нов рожден ден на ръка</h2>
+      <div class="row">
+        <input id="nName" placeholder="Име на рожденика" class="grow" maxlength="24">
+        <input id="nCount" type="number" min="1" max="20" value="10" style="width:90px" title="Брой деца">
+        <button class="primary" onclick="openManual()">Създай</button>
+      </div>
+    </div>
+    ${t.birthdays.length ? `<div class="card"><h2>Започнати днес</h2>${t.birthdays.map(b => `<div class="row"><a class="grow" href="#/b/${b.id}">${esc(b.title)}</a><span class="muted small">${b.time} · ${b.kids} деца</span></div>`).join('')}</div>` : ''}
+    <div class="card"><h2>Последни рождени дни</h2>
+      ${hist.length ? `<table><tr><th>Дата</th><th>Рожден ден</th><th>Деца</th><th>Победител</th><th></th></tr>${hist.map(h => `<tr><td>${esc(h.date)}</td><td><a href="#/b/${h.id}">${esc(h.title)}</a></td><td>${h.kids}</td><td>${esc(h.winner || '–')}</td><td class="num"><a href="/lb/${h.slug}" target="_blank">Лидерборд</a></td></tr>`).join('')}</table>` : '<p class="muted">Още няма.</p>'}
+    </div>`;
+}
+async function openCal(uid) { try { const r = await api('/api/birthdays', { calendarUid: uid }); location.hash = '#/b/' + r.id; } catch (e) { toast(e.message); } }
+async function openManual() {
+  const name = $('#nName').value.trim();
+  if (!name) return toast('Напиши името на рожденика');
+  const r = await api('/api/birthdays', { childName: name, childrenCount: $('#nCount').value });
+  location.hash = '#/b/' + r.id;
+}
+
+// ─── Рожден ден ──────────────────────────────────────────────────────────────
+async function refresh() {
+  if (!B) return;
+  try { B = await api('/api/b/' + B.id); } catch (e) { toast(e.message); return; }
+  // Прерисуваме само при промяна — иначе кликът на таблета „пада“ между две прерисувания.
+  const key = JSON.stringify({ ...B, quizView: { ...B.quizView, remainingMs: 0 } }) + tab;
+  const t = document.getElementById('qtimer');
+  if (t) t.textContent = Math.ceil(B.quizView.remainingMs / 1000);
+  if (key === lastKey) return;
+  lastKey = key;
+  render();
+}
+async function openBday(id) {
+  clearInterval(timer);
+  B = await api('/api/b/' + id);
+  editingKids = false;
+  render();
+  timer = setInterval(() => { if (!editingKids) refresh(); }, 1000);
+}
+
+function render() {
+  const kidName = id => B.kids.find(k => k.id === id)?.name || '?';
+  const tabs = [['kids', '1. Деца'], ['quiz', '2. Куиз'], ['arena', '3. Арена'], ['step', '4. Step Matrix'], ['board', 'Класиране']];
+  $('#app').innerHTML = `
+    <div class="row" style="margin-top:12px">
+      <a href="#/">← Начало</a>
+      <h2 class="grow" style="margin:0 0 0 8px">${esc(B.title)}</h2>
+      <a href="/screen/${B.id}" target="_blank"><button>📺 Голям екран</button></a>
+    </div>
+    ${scheduleCard()}
+    <div class="tabs">${tabs.map(([k, l]) => `<button class="${tab === k ? 'on' : ''}" onclick="tab='${k}';editingKids=false;render()">${l}</button>`).join('')}</div>
+    <div id="pane"></div>
+    <div class="card row small muted">На екрана сега: <b style="color:var(--text)">${esc(B.screen)}</b>
+      ${['seats', 'quiz', 'teams', 'arena', 'board', 'final'].map(m => `<button onclick="act('screen',{mode:'${m}'})">${{ seats: 'Места', quiz: 'Куиз', teams: 'Отбори', arena: 'Арена', board: 'Класиране', final: 'Финал + QR' }[m]}</button>`).join('')}
+    </div>`;
+  ({ kids: paneKids, quiz: paneQuiz, arena: paneArena, step: paneStep, board: paneBoard })[tab](kidName);
+}
+
+function scheduleCard() {
+  const sv = B.scheduleView;
+  const lc = sv.parts.filter(p => p.labcoin);
+  return `<div class="card small">
+    <div class="row">
+      <b class="grow">График ${sv.totalMinutes} мин${sv.manual ? ' · ръчен старт' : sv.fromEnd ? ' · по края на рождения ден' : ' · от създаването'}${lc.length ? ` · LabCoin ${lc[0].fromHm}–${lc[lc.length - 1].toHm}` : ''}</b>
+      <select title="Пакет" onchange="act('pkg',{key:this.value})"><option value="">Пакет: ${esc(sv.packageLabel || 'по подразбиране')}</option>${sv.packages.map(p => `<option value="${esc(p.key)}" ${p.key === sv.packageKey ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}</select>
+      <button onclick="act('schedule/start',{})">▶ РД почва сега</button>
+      ${lc.length ? `<button class="primary" onclick="act('schedule/start',{part:'${lc[0].key}'})">▶ LabCoin почва сега</button>` : ''}
+      ${sv.manual ? `<button onclick="act('schedule/auto')">По календара</button>` : ''}
+    </div>
+    ${sv.mismatch ? `<p class="err">Рожденият ден е ${sv.realMinutes} мин, а графикът на пакета е ${sv.totalMinutes} мин. Избери друг пакет или натисни „Старт сега“.</p>` : ''}
+    ${sv.assumed ? `<p class="muted">Дължината на този пакет е предположение (няма я на сайта) — чака Митко.</p>` : ''}
+    <div class="row" style="gap:6px;margin-top:6px">${sv.parts.map(p => `<span class="pill ${p.now ? 'ok' : ''}" style="${p.labcoin ? 'border-color:var(--gold)' : ''}" title="${p.minutes} мин">${p.fromHm}–${p.toHm} ${esc(p.label)}</span>`).join('')}</div>
+  </div>`;
+}
+
+function paneKids() {
+  $('#pane').innerHTML = `
+    <div class="card">
+      <p class="muted small">Рожденикът идва от Bookeo. Останалите имена ги пише аниматорът. Мястото е номерът на бутоните за куиза.</p>
+      <div class="kids-grid">${B.kids.map((k, i) => `
+        <div class="kid-input"><div class="seat">${i + 1}</div><input data-id="${k.id}" data-bk="${k.birthdayKid ? 1 : ''}" data-st="${k.status || 'present'}" value="${esc(k.name)}" placeholder="Никнейм (без фамилия)" maxlength="24" onfocus="editingKids=true" class="grow" style="${(k.status || 'present') !== 'present' ? 'opacity:.5;text-decoration:line-through' : ''}">${k.birthdayKid ? '🎂' : ''}
+          <select title="Присъствие" onchange="act('kid/status',{kidId:'${k.id}',status:this.value})" ${k.id ? '' : 'disabled'}>${[['present', '✓ тук'], ['late', '⏰ закъсня'], ['absent', '✗ липсва']].map(([v, l]) => `<option value="${v}" ${(k.status || 'present') === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>`).join('')}</div>
+      <p class="muted small">Закъснялите и липсващите не влизат в LabCoin игрите (правило — родителите са предупредени предварително).</p>
+      <div class="row" style="margin-top:12px">
+        <button onclick="addKid()">+ Дете</button>
+        <button class="primary" onclick="saveKids()">Запази</button>
+        <span class="muted small grow">Празните места не играят.</span>
+        <button class="danger" onclick="delBday()">Изтрий рождения ден</button>
+      </div>
+    </div>`;
+}
+function readKids() { return [...document.querySelectorAll('#pane input[data-id]')].map(i => ({ id: i.dataset.id, name: i.value, birthdayKid: !!i.dataset.bk, status: i.dataset.st })); }
+function addKid() { const k = readKids(); k.push({ id: '', name: '' }); B.kids = k.map((x, i) => ({ ...x, seat: i + 1 })); editingKids = true; paneKids(); }
+async function saveKids() { await act('kids', { kids: readKids() }); editingKids = false; toast('Записано'); }
+async function delBday() { if (!confirm('Да изтрия ли „' + B.title + '“ и точките му?')) return; await api('/api/b/' + B.id, null, 'DELETE'); location.hash = '#/'; }
+
+function paneQuiz(kidName) {
+  const q = B.quizView;
+  const kids = B.kids.filter(k => B.activeKids.includes(k.id));
+  const answered = new Set(q.answered);
+  $('#pane').innerHTML = `
+    <div class="card">
+      <div class="row">
+        <h2 class="grow">Куиз ${q.total ? `— въпрос ${Math.max(0, q.idx + 1)} от ${q.total}` : ''}</h2>
+        <button onclick="act('quiz/start')">Нов куиз</button>
+        <button class="primary" onclick="act('quiz/next')" ${q.phase === 'question' || !q.total ? 'disabled' : ''}>${q.idx + 1 >= q.total && q.total ? 'Край на куиза' : 'Следващ въпрос ▶'}</button>
+        <button onclick="act('quiz/reveal')" ${q.phase !== 'question' ? 'disabled' : ''}>Покажи отговора</button>
+      </div>
+      ${q.question ? `<p style="font-size:20px">${esc(q.question.q)}</p>
+        <div class="row">${q.question.a.map((a, i) => `<span class="pill opt-${i}" style="border-color:var(--o);${q.question.correct === i ? 'background:var(--o);color:#111' : ''}">${LETTERS[i]}: ${esc(a)}</span>`).join('')}</div>
+        <p class="muted">${q.phase === 'question' ? `Остават <b id="qtimer">${Math.ceil(q.remainingMs / 1000)}</b> с · отговорили ${answered.size} от ${kids.length}` : 'Отговорът е показан.'}</p>` : `<p class="muted">${q.total ? 'Натисни „Следващ въпрос“.' : 'Натисни „Нов куиз“.'}</p>`}
+    </div>
+    <div class="card">
+      <h3>Бутони</h3>
+      <p class="muted small">Истинските бутони (USB енкодер = джойстик) се четат от големия екран. Тук са тестови бутони за всяко място.</p>
+      <div class="pads">${kids.map(k => `<div class="pad"><div class="row"><div class="seat">${k.seat}</div><span class="grow">${esc(k.name)}</span>${answered.has(k.id) ? '✅' : ''}</div>
+        <div class="btns">${LETTERS.map((L, i) => `<button class="opt-${i}" onclick="act('quiz/press',{seat:${k.seat},choice:${i}})" ${q.phase !== 'question' ? 'disabled' : ''}>${L}</button>`).join('')}</div></div>`).join('')}</div>
+    </div>
+    ${miniBoard('quiz')}`;
+}
+
+function paneArena(kidName) {
+  const ar = B.arena;
+  const team = id => ar.teams.find(t => t.id === id);
+  const hsOpts = sel => `<option value="">–</option>` + Array.from({ length: Math.max(B.maxHeadsets, 6) }, (_, i) => i + 1).map(n => {
+    const h = status?.lobby.headsets.find(x => Number(x.number) === n);
+    return `<option value="${n}" ${Number(sel) === n ? 'selected' : ''}>${n}${h ? (h.online ? ' ●' : ' ○') : ''}</option>`;
+  }).join('');
+  $('#pane').innerHTML = `
+    <div class="card">
+      <div class="row">
+        <h2 class="grow">Арена</h2>
+        <select id="tc">${[2, 3, 4, 5, 6].map(n => `<option ${n === 4 ? 'selected' : ''}>${n}</option>`).join('')}</select><span class="muted small">отбора</span>
+        <button class="primary" onclick="act('arena/teams',{teamCount:$('#tc').value})">🎲 Случайни отбори</button>
+        <button class="danger" onclick="confirm('Да изчистя ли отборите и мачовете?')&&act('arena/reset')">Изчисти</button>
+      </div>
+      <p class="small">${B.lobbyControl ? '🔗 При „Старт“ приложението праща имената и отборите в лобито и пуска мача. Не натискай „разпредели отборите“ в лобито.' : 'Лобито не се управлява от приложението (lobbyControl: false).'}
+        ${B.namesToRestore ? ` <button onclick="act('arena/restore-names')">↩ Върни имената на каските (${B.namesToRestore})</button>` : ''}</p>
+      <p class="muted small">Каски на арената: ${B.maxHeadsets}. В един мач влизат двата отбора заедно (червени срещу сини).
+        ${status?.lobby.ok ? 'Убийствата идват от лобито.' : '<span class="err">Лобито не отговаря. Убийствата се пишат на ръка.</span>'}</p>
+      ${ar.teams.length ? `<div class="teams">${ar.teams.map(t => `<div class="team" style="--c:${t.color}"><b>${t.name}</b><div class="small">${t.kidIds.map(kidName).map(esc).join(', ')}</div></div>`).join('')}</div>` : ''}
+    </div>
+    ${ar.matches.map(m => {
+      const kids = Object.keys(m.sides || {});
+      const withHs = Object.values(m.headsets || {}).filter(x => x).length; const over = withHs > B.maxHeadsets; const waiting = kids.filter(k => !m.headsets[k]).length;
+      return `<div class="match ${m.status}">
+        <div class="row"><b class="grow">${m.label}: ${m.a ? `<span style="color:${team(m.a).color}">${team(m.a).name}</span> (червени в играта) срещу <span style="color:${team(m.b).color}">${team(m.b).name}</span> (сини)` : 'чака полуфиналите'}</b>
+          ${m.status === 'planned' && m.a ? `<button class="primary" onclick="this.disabled=true;act('arena/start',{matchId:'${m.id}'})" ${over ? 'disabled' : ''}>▶ ${B.lobbyControl ? 'Старт на мача' : 'Старт на записа'}</button>` : ''}
+          ${m.lobbyRounds ? `<span class="pill">рундове ${m.lobbyRounds.red}:${m.lobbyRounds.blue}</span>` : ''}
+          ${m.status === 'live' ? `<button onclick="act('arena/end',{matchId:'${m.id}',winner:'a'})">Победа ${team(m.a).name}</button><button onclick="act('arena/end',{matchId:'${m.id}',winner:'b'})">Победа ${team(m.b).name}</button><button class="gold" onclick="act('arena/end',{matchId:'${m.id}'})">■ Край (по убийства)</button>` : ''}
+          ${m.status === 'done' ? `<span class="pill ok">Победител: ${m.winner ? team(m.winner).name : 'равно'}</span><button onclick="act('arena/reopen',{matchId:'${m.id}'})">Отвори пак</button>` : ''}
+        </div>
+        ${over ? `<p class="err small">С каска са ${withHs} деца, а каските са ${B.maxHeadsets}. Сложи „–“ на едно дете.</p>` : ''}${waiting && m.status === 'planned' ? `<p class="muted small">${waiting} дете чака (без каска) — може да влезе на смяна.</p>` : ''}
+        ${kids.length ? `<table><tr><th>Дете</th><th>Каска №</th><th class="num">Убийства</th><th class="num">Смърти</th></tr>
+          ${kids.map(k => { const r = m.result?.[k] || {}; const side = m.sides[k]; return `<tr>
+            <td><span style="color:${side === 'a' ? 'var(--red)' : 'var(--blue)'}">●</span> ${esc(kidName(k))}</td>
+            <td><select onchange="act('arena/headset',{matchId:'${m.id}',kidId:'${k}',number:this.value})" ${m.status !== 'planned' ? 'disabled' : ''}>${hsOpts(m.headsets[k])}</select></td>
+            <td class="num"><input type="number" min="0" style="width:70px" value="${r.kills ?? 0}" onfocus="editingKids=true" onchange="editingKids=false;act('arena/kills',{matchId:'${m.id}',kidId:'${k}',kills:this.value,deaths:this.closest('tr').querySelector('.d').value})" ${m.status === 'planned' ? 'disabled' : ''}>${m.manual?.[k] ? ' ✎' : ''}</td>
+            <td class="num"><input class="d" type="number" min="0" style="width:70px" value="${r.deaths ?? 0}" onfocus="editingKids=true" onchange="editingKids=false;act('arena/kills',{matchId:'${m.id}',kidId:'${k}',kills:this.closest('tr').querySelector('input').value,deaths:this.value})" ${m.status === 'planned' ? 'disabled' : ''}></td></tr>`; }).join('')}</table>` : ''}
+      </div>`;
+    }).join('')}
+    ${miniBoard('arena')}`;
+}
+
+function paneStep(kidName) {
+  const next = B.stepOrder.find(id => B.step.scores[id] === undefined || B.step.scores[id] === '');
+  $('#pane').innerHTML = `
+    <div class="card">
+      <div class="row"><h2 class="grow">Step Matrix</h2>
+        ${B.stepLocked ? `<span class="pill ok">Редът е заключен</span><button onclick="act('step/unlock')">Отключи</button>` : `<button class="primary" onclick="act('step/lock')">🔒 Заключи реда и почни</button>`}</div>
+      <p class="muted small">Първо играе <b>последният в класирането</b>. Редът се заключва при първия резултат. Резултатът (точките от машината) се пише на ръка, докато Step Matrix не се свърже.</p>
+      ${next ? `<p>Сега играе: <b style="font-size:20px">${esc(kidName(next))}</b></p>` : B.stepOrder.length ? '<p class="pill ok">Всички изиграха ✓</p>' : ''}
+      <table><tr><th>#</th><th>Дете</th><th class="num">Резултат</th></tr>
+      ${B.stepOrder.map((id, i) => `<tr style="${id === next ? 'background:var(--panel2)' : ''}"><td>${i + 1}</td><td>${esc(kidName(id))}</td><td class="num"><input type="number" min="0" style="width:100px" value="${B.step.scores[id] ?? ''}" onfocus="editingKids=true" onchange="editingKids=false;act('step/score',{kidId:'${id}',score:this.value})"></td></tr>`).join('')}</table>
+    </div>
+    ${miniBoard('step')}`;
+}
+
+function miniBoard(focus) {
+  return `<div class="card"><h3>Класиране</h3>${boardTable()}</div>`;
+}
+function boardTable() {
+  return `<table><tr><th>#</th><th>Дете</th><th class="num">Куиз</th><th class="num">Арена</th><th class="num">Step</th><th class="num">Убийства</th><th class="num">Общо</th></tr>
+    ${B.board.map(r => `<tr class="place-${r.place}"><td>${r.place}</td><td>${esc(r.name)}</td><td class="num">${r.quiz ? r.quiz.points : '–'}</td><td class="num">${r.arena ? r.arena.points : '–'}</td><td class="num">${r.step ? r.step.points : '–'}</td><td class="num">${r.kills}</td><td class="num"><b>${r.total}</b></td></tr>`).join('')}</table>`;
+}
+function paneBoard() {
+  $('#pane').innerHTML = `
+    <div class="card"><h2>Общо класиране</h2>
+      <p class="muted small">Точки по място във всяка игра: 1-во 10, 2-ро 8, 3-то 7 … При равни точки решават убийствата, после куизът.</p>
+      ${boardTable()}
+    </div>
+    <div class="card row">
+      <img src="/api/qr/${B.slug}.svg" width="160" height="160" style="background:#fff;border-radius:8px" alt="QR">
+      <div class="grow"><b>Лидерборд за родителите</b><br><a href="${B.lbUrl}" target="_blank">${esc(B.lbUrl)}</a>
+        <p class="small">${B.publicOn
+          ? (B.publish ? (B.publish.ok ? `🌐 Качено в интернет ✓ (${new Date(B.publish.at).toLocaleTimeString('bg-BG')}). Работи от всеки телефон.` : `<span class="err">Не се качи: ${esc(B.publish.error)}</span> — пробва пак след малко.`) : '🌐 Качва се…')
+          : '<span class="muted">Адресът работи само в мрежата на залата (няма publicBaseUrl/publishKey в config.json).</span>'}</p>
+        <p class="muted small">На публичната страница: само първото име на рожденика, никнеймите и точките. Пиши никнейм, без фамилия.</p></div>
+    </div>`;
+}
+
+function route() {
+  const m = location.hash.match(/^#\/b\/([\w-]+)/);
+  if (m) openBday(m[1]).catch(e => { toast(e.message); location.hash = '#/'; });
+  else home().catch(e => toast(e.message));
+}
+addEventListener('hashchange', route);
+route();
+</script>
+</body>
+</html>

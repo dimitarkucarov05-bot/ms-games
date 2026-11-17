@@ -1,0 +1,31 @@
+{
+  "id": "backroom",
+  "name": "The Back Room",
+  "tagline": "Pizzeria by day, something else by night",
+  "description": "Your team runs a pizzeria in the mall: dough, sauce, cheese, oven, drinks, customers at the counter. In the evening the rude ones stand under the red lamp, and there is a button under the counter. Whatever falls down, the grinder in the cellar turns into meat for the most expensive pizza. The patrol comes by when you least expect it.",
+  "version": "1.0.0",
+  "status": "ready",
+  "rules": "backroom.js",
+  "client": "backroom",
+  "cover": "/play/games/backroom/cover.jpg",
+  "color": "#c8f03c",
+  "minPlayers": 1,
+  "maxPlayers": 6,
+  "minutes": 12,
+  "themes": [
+    {
+      "id": "night",
+      "name": "Standard"
+    },
+    {
+      "id": "kids",
+      "name": "Kids"
+    }
+  ],
+  "tags": [
+    "cooking",
+    "co-op",
+    "two levels",
+    "dark humour"
+  ]
+}

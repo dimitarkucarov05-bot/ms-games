@@ -1,0 +1,109 @@
+{
+ "pack": "POLYGON/Nightclubs",
+ "models": {
+  "SM_Item_Crate_01": {
+   "tris": 194,
+   "size": [
+    0.453,
+    0.395,
+    0.756
+   ],
+   "min": [
+    -0.226,
+    0,
+    -0.378
+   ],
+   "max": [
+    0.226,
+    0.395,
+    0.378
+   ],
+   "skinned": false,
+   "bytes": 13388,
+   "materials": [
+    {
+     "name": "PolygonClub_MAT",
+     "map": "tex/PolygonClub_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Bar_Tap_01": {
+   "tris": 292,
+   "size": [
+    0.139,
+    0.576,
+    0.273
+   ],
+   "min": [
+    -0.071,
+    0,
+    -0.218
+   ],
+   "max": [
+    0.067,
+    0.576,
+    0.055
+   ],
+   "skinned": false,
+   "bytes": 20924,
+   "materials": [
+    {
+     "name": "PolygonClub_MAT",
+     "map": "tex/PolygonClub_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Bar_Tap_02": {
+   "tris": 296,
+   "size": [
+    0.139,
+    0.576,
+    0.273
+   ],
+   "min": [
+    -0.071,
+    0,
+    -0.218
+   ],
+   "max": [
+    0.067,
+    0.576,
+    0.055
+   ],
+   "skinned": false,
+   "bytes": 21204,
+   "materials": [
+    {
+     "name": "PolygonClub_MAT",
+     "map": "tex/PolygonClub_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Bar_Tap_03": {
+   "tris": 280,
+   "size": [
+    0.139,
+    0.576,
+    0.273
+   ],
+   "min": [
+    -0.071,
+    0,
+    -0.218
+   ],
+   "max": [
+    0.067,
+    0.576,
+    0.055
+   ],
+   "skinned": false,
+   "bytes": 20596,
+   "materials": [
+    {
+     "name": "PolygonClub_MAT",
+     "map": "tex/PolygonClub_Texture_01_A.png"
+    }
+   ]
+  }
+ }
+}

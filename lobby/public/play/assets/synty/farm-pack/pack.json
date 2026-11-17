@@ -1,0 +1,207 @@
+{
+ "pack": "POLYGON/Farm Pack",
+ "models": {
+  "SM_Prop_Hemp_01_S": {
+   "tris": 56,
+   "size": [
+    0.188,
+    0.246,
+    0.285
+   ],
+   "min": [
+    -0.094,
+    0,
+    -0.127
+   ],
+   "max": [
+    0.094,
+    0.246,
+    0.158
+   ],
+   "skinned": false,
+   "bytes": 5224,
+   "materials": [
+    {
+     "name": "Farm_Mat",
+     "map": null,
+     "image": "PolygonFarm_Texture_01_A_2k.psd"
+    },
+    {
+     "name": "Leaves",
+     "map": null,
+     "image": "leaves_Master.tga"
+    }
+   ]
+  },
+  "SM_Prop_Hemp_01_M": {
+   "tris": 234,
+   "size": [
+    0.686,
+    1.06,
+    0.631
+   ],
+   "min": [
+    -0.345,
+    0,
+    -0.307
+   ],
+   "max": [
+    0.341,
+    1.06,
+    0.324
+   ],
+   "skinned": false,
+   "bytes": 14892,
+   "materials": [
+    {
+     "name": "Leaves",
+     "map": null,
+     "image": "leaves_Master.tga"
+    },
+    {
+     "name": "Farm_Mat",
+     "map": null,
+     "image": "PolygonFarm_Texture_01_A_2k.psd"
+    }
+   ]
+  },
+  "SM_Prop_Hemp_01_L": {
+   "tris": 350,
+   "size": [
+    0.804,
+    1.232,
+    0.833
+   ],
+   "min": [
+    -0.403,
+    0,
+    -0.374
+   ],
+   "max": [
+    0.401,
+    1.232,
+    0.459
+   ],
+   "skinned": false,
+   "bytes": 20836,
+   "materials": [
+    {
+     "name": "Leaves",
+     "map": null,
+     "image": "leaves_Master.tga"
+    },
+    {
+     "name": "Farm_Mat",
+     "map": null,
+     "image": "PolygonFarm_Texture_01_A_2k.psd"
+    }
+   ]
+  },
+  "SM_Prop_SeedPacket_01": {
+   "tris": 96,
+   "size": [
+    0.229,
+    0.276,
+    0.067
+   ],
+   "min": [
+    -0.114,
+    0,
+    -0.034
+   ],
+   "max": [
+    0.114,
+    0.276,
+    0.034
+   ],
+   "skinned": false,
+   "bytes": 8000,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": "tex/PolygonFarm_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_SeedPacket_02": {
+   "tris": 96,
+   "size": [
+    0.229,
+    0.276,
+    0.061
+   ],
+   "min": [
+    -0.114,
+    0,
+    -0.031
+   ],
+   "max": [
+    0.114,
+    0.276,
+    0.031
+   ],
+   "skinned": false,
+   "bytes": 6716,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": "tex/PolygonFarm_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cabbage_01_S": {
+   "tris": 66,
+   "size": [
+    0.181,
+    0.13,
+    0.198
+   ],
+   "min": [
+    -0.091,
+    0,
+    -0.099
+   ],
+   "max": [
+    0.091,
+    0.13,
+    0.099
+   ],
+   "skinned": false,
+   "bytes": 7680,
+   "materials": [
+    {
+     "name": "Farm",
+     "map": null,
+     "image": "PolygonFarm_Texture_01_A_2k.psd"
+    }
+   ]
+  },
+  "SM_Prop_Broccoli_01": {
+   "tris": 160,
+   "size": [
+    0.278,
+    0.278,
+    0.251
+   ],
+   "min": [
+    -0.15,
+    0.008,
+    -0.108
+   ],
+   "max": [
+    0.129,
+    0.286,
+    0.143
+   ],
+   "skinned": false,
+   "bytes": 13196,
+   "materials": [
+    {
+     "name": "Farm",
+     "map": null,
+     "image": "PolygonFarm_Texture_01_A_2k.psd"
+    }
+   ]
+  }
+ }
+}

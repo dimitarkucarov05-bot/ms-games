@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- MS Games VR: the arena's game as a full-screen web app (Trusted Web Activity) of the Quest browser, started
+     as a VR app, at power-on and whenever the headset is put on. No screen of its own. The site proves the link with /.well-known/assetlinks.json (same key). -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="bg.arena.vr">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- lets the service bring the game back from the background (granted once by tools/apk-vr/install.ps1) -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <uses-feature android:name="android.hardware.vr.headtracking" android:required="false" android:version="1" />
+    <!-- hands work too: without this the headset refuses to start the app while the controllers sleep -->
+    <uses-permission android:name="com.oculus.permission.HAND_TRACKING" />
+    <uses-feature android:name="oculus.software.handtracking" android:required="false" />
+
+    <queries>
+        <package android:name="com.oculus.browser" />
+        <intent>
+            <action android:name="android.support.customtabs.action.CustomTabsService" />
+        </intent>
+    </queries>
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false"
+        android:theme="@style/Launch">
+
+        <meta-data android:name="horizonos.pwa.APP_MODE" android:value="@string/app_mode" />
+        <meta-data android:name="com.oculus.ossplash.background" android:value="passthrough-contextual" />
+
+        <activity
+            android:name=".LauncherActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape"
+            android:configChanges="orientation|screenSize|screenLayout|keyboard|keyboardHidden|navigation|uiMode|density">
+            <meta-data android:name="android.support.customtabs.trusted.DISPLAY_MODE" android:value="immersive" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="com.oculus.intent.category.VR" />
+            </intent-filter>
+        </activity>
+
+        <service android:name=".KeepService" android:exported="false" />
+
+        <receiver android:name=".BootReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

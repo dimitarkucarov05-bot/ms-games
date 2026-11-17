@@ -1,0 +1,7031 @@
+{
+ "pack": "POLYGON/Gang Warfare Pack",
+ "models": {
+  "SM_Prop_Lab_Beaker_01": {
+   "tris": 120,
+   "size": [
+    0.154,
+    0.328,
+    0.154
+   ],
+   "min": [
+    -0.077,
+    0,
+    -0.077
+   ],
+   "max": [
+    0.077,
+    0.328,
+    0.077
+   ],
+   "skinned": false,
+   "bytes": 11772,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Glass",
+     "map": null,
+     "image": "Polygon_Texture_01.psd"
+    }
+   ]
+  },
+  "SM_Prop_Lab_Beaker_02": {
+   "tris": 120,
+   "size": [
+    0.141,
+    0.282,
+    0.141
+   ],
+   "min": [
+    -0.07,
+    0,
+    -0.07
+   ],
+   "max": [
+    0.07,
+    0.282,
+    0.07
+   ],
+   "skinned": false,
+   "bytes": 11772,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Glass",
+     "map": null,
+     "image": "Polygon_Texture_01.psd"
+    }
+   ]
+  },
+  "SM_Prop_Lab_Beaker_03": {
+   "tris": 65,
+   "size": [
+    0.05,
+    0.219,
+    0.052
+   ],
+   "min": [
+    -0.025,
+    0,
+    -0.026
+   ],
+   "max": [
+    0.025,
+    0.219,
+    0.026
+   ],
+   "skinned": false,
+   "bytes": 6824,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Glass",
+     "map": null,
+     "image": "Polygon_Texture_01.psd"
+    }
+   ]
+  },
+  "SM_Prop_Lab_Beaker_04": {
+   "tris": 88,
+   "size": [
+    0.107,
+    0.397,
+    0.107
+   ],
+   "min": [
+    -0.053,
+    0,
+    -0.053
+   ],
+   "max": [
+    0.053,
+    0.397,
+    0.053
+   ],
+   "skinned": false,
+   "bytes": 8996,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Glass",
+     "map": null,
+     "image": "Polygon_Texture_01.psd"
+    }
+   ]
+  },
+  "SM_Prop_Lab_Beaker_05": {
+   "tris": 184,
+   "size": [
+    0.218,
+    0.316,
+    0.218
+   ],
+   "min": [
+    -0.109,
+    0,
+    -0.109
+   ],
+   "max": [
+    0.109,
+    0.316,
+    0.109
+   ],
+   "skinned": false,
+   "bytes": 17844,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Glass",
+     "map": null,
+     "image": "Polygon_Texture_01.psd"
+    },
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Lab_Beaker_06": {
+   "tris": 136,
+   "size": [
+    0.154,
+    0.328,
+    0.154
+   ],
+   "min": [
+    -0.077,
+    0.001,
+    -0.077
+   ],
+   "max": [
+    0.077,
+    0.329,
+    0.077
+   ],
+   "skinned": false,
+   "bytes": 13144,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Glass",
+     "map": null,
+     "image": "Polygon_Texture_01.psd"
+    }
+   ]
+  },
+  "SM_Prop_Lab_Bulb_01": {
+   "tris": 184,
+   "size": [
+    0.346,
+    0.505,
+    0.346
+   ],
+   "min": [
+    -0.173,
+    0.001,
+    -0.173
+   ],
+   "max": [
+    0.173,
+    0.506,
+    0.173
+   ],
+   "skinned": false,
+   "bytes": 17280,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Glass",
+     "map": null,
+     "image": "Polygon_Texture_01.psd"
+    }
+   ]
+  },
+  "SM_Prop_Lab_Bulb_02": {
+   "tris": 152,
+   "size": [
+    0.172,
+    0.337,
+    0.172
+   ],
+   "min": [
+    -0.086,
+    0,
+    -0.086
+   ],
+   "max": [
+    0.086,
+    0.337,
+    0.086
+   ],
+   "skinned": false,
+   "bytes": 14500,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Glass",
+     "map": null,
+     "image": "Polygon_Texture_01.psd"
+    }
+   ]
+  },
+  "SM_Prop_Lab_Bulb_03": {
+   "tris": 152,
+   "size": [
+    0.172,
+    0.237,
+    0.172
+   ],
+   "min": [
+    -0.086,
+    0.001,
+    -0.086
+   ],
+   "max": [
+    0.086,
+    0.237,
+    0.086
+   ],
+   "skinned": false,
+   "bytes": 14520,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Glass",
+     "map": null,
+     "image": "Polygon_Texture_01.psd"
+    }
+   ]
+  },
+  "SM_Prop_Lab_Burner_01": {
+   "tris": 398,
+   "size": [
+    0.338,
+    0.2,
+    0.551
+   ],
+   "min": [
+    -0.309,
+    0,
+    -0.025
+   ],
+   "max": [
+    0.028,
+    0.2,
+    0.526
+   ],
+   "skinned": false,
+   "bytes": 34068,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Lab_Burner_02": {
+   "tris": 150,
+   "size": [
+    0.101,
+    0.195,
+    0.117
+   ],
+   "min": [
+    -0.051,
+    0,
+    -0.059
+   ],
+   "max": [
+    0.051,
+    0.195,
+    0.059
+   ],
+   "skinned": false,
+   "bytes": 14132,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_MiniStove_01": {
+   "tris": 140,
+   "size": [
+    0.509,
+    0.146,
+    0.322
+   ],
+   "min": [
+    -0.254,
+    0,
+    -0.161
+   ],
+   "max": [
+    0.254,
+    0.146,
+    0.161
+   ],
+   "skinned": false,
+   "bytes": 12276,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Tray_01": {
+   "tris": 92,
+   "size": [
+    0.569,
+    0.046,
+    0.342
+   ],
+   "min": [
+    -0.285,
+    0,
+    -0.171
+   ],
+   "max": [
+    0.285,
+    0.046,
+    0.171
+   ],
+   "skinned": false,
+   "bytes": 8384,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Tray_Blue_01": {
+   "tris": 92,
+   "size": [
+    0.569,
+    0.046,
+    0.342
+   ],
+   "min": [
+    -0.285,
+    0,
+    -0.171
+   ],
+   "max": [
+    0.285,
+    0.046,
+    0.171
+   ],
+   "skinned": false,
+   "bytes": 8388,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Pill_Tray_01": {
+   "tris": 222,
+   "size": [
+    0.228,
+    0.027,
+    0.38
+   ],
+   "min": [
+    -0.114,
+    -0.019,
+    -0.19
+   ],
+   "max": [
+    0.114,
+    0.008,
+    0.19
+   ],
+   "skinned": false,
+   "bytes": 18028,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_ZipBag_Blue_S_01": {
+   "tris": 92,
+   "size": [
+    0.167,
+    0.075,
+    0.254
+   ],
+   "min": [
+    -0.083,
+    0,
+    -0.127
+   ],
+   "max": [
+    0.083,
+    0.075,
+    0.127
+   ],
+   "skinned": false,
+   "bytes": 9352,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_ZipBag_Blue_L_01": {
+   "tris": 176,
+   "size": [
+    0.385,
+    0.311,
+    0.198
+   ],
+   "min": [
+    -0.192,
+    0,
+    -0.099
+   ],
+   "max": [
+    0.192,
+    0.311,
+    0.099
+   ],
+   "skinned": false,
+   "bytes": 17296,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Bag_Blue_01": {
+   "tris": 230,
+   "size": [
+    0.393,
+    0.35,
+    0.282
+   ],
+   "min": [
+    -0.197,
+    0,
+    -0.141
+   ],
+   "max": [
+    0.197,
+    0.35,
+    0.141
+   ],
+   "skinned": false,
+   "bytes": 21544,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Packet_01": {
+   "tris": 310,
+   "size": [
+    0.391,
+    0.136,
+    0.299
+   ],
+   "min": [
+    -0.195,
+    -0.018,
+    -0.15
+   ],
+   "max": [
+    0.195,
+    0.118,
+    0.15
+   ],
+   "skinned": false,
+   "bytes": 28436,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Chemical_01": {
+   "tris": 196,
+   "size": [
+    0.23,
+    0.313,
+    0.106
+   ],
+   "min": [
+    -0.115,
+    0,
+    -0.053
+   ],
+   "max": [
+    0.115,
+    0.313,
+    0.053
+   ],
+   "skinned": false,
+   "bytes": 16616,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Chemical_02": {
+   "tris": 156,
+   "size": [
+    0.137,
+    0.354,
+    0.07
+   ],
+   "min": [
+    -0.069,
+    0,
+    -0.033
+   ],
+   "max": [
+    0.069,
+    0.354,
+    0.037
+   ],
+   "skinned": false,
+   "bytes": 13292,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Chemical_03": {
+   "tris": 200,
+   "size": [
+    0.149,
+    0.344,
+    0.149
+   ],
+   "min": [
+    -0.075,
+    0,
+    -0.075
+   ],
+   "max": [
+    0.075,
+    0.344,
+    0.075
+   ],
+   "skinned": false,
+   "bytes": 16000,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Chemical_04": {
+   "tris": 152,
+   "size": [
+    0.161,
+    0.381,
+    0.161
+   ],
+   "min": [
+    -0.081,
+    0,
+    -0.081
+   ],
+   "max": [
+    0.081,
+    0.381,
+    0.081
+   ],
+   "skinned": false,
+   "bytes": 13324,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Chemical_05": {
+   "tris": 232,
+   "size": [
+    0.17,
+    0.408,
+    0.17
+   ],
+   "min": [
+    -0.085,
+    0,
+    -0.085
+   ],
+   "max": [
+    0.085,
+    0.408,
+    0.085
+   ],
+   "skinned": false,
+   "bytes": 19248,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Chemical_06": {
+   "tris": 148,
+   "size": [
+    0.186,
+    0.358,
+    0.07
+   ],
+   "min": [
+    -0.09,
+    0,
+    -0.035
+   ],
+   "max": [
+    0.096,
+    0.358,
+    0.035
+   ],
+   "skinned": false,
+   "bytes": 11684,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Container_01": {
+   "tris": 130,
+   "size": [
+    0.392,
+    0.406,
+    0.219
+   ],
+   "min": [
+    -0.196,
+    0,
+    -0.109
+   ],
+   "max": [
+    0.196,
+    0.406,
+    0.109
+   ],
+   "skinned": false,
+   "bytes": 12260,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Container_02": {
+   "tris": 180,
+   "size": [
+    0.275,
+    0.396,
+    0.133
+   ],
+   "min": [
+    -0.137,
+    0,
+    -0.067
+   ],
+   "max": [
+    0.137,
+    0.396,
+    0.067
+   ],
+   "skinned": false,
+   "bytes": 15960,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Container_03": {
+   "tris": 162,
+   "size": [
+    0.148,
+    0.324,
+    0.219
+   ],
+   "min": [
+    -0.074,
+    0,
+    -0.105
+   ],
+   "max": [
+    0.074,
+    0.324,
+    0.114
+   ],
+   "skinned": false,
+   "bytes": 14772,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_PlasticBottle_01": {
+   "tris": 200,
+   "size": [
+    0.144,
+    0.424,
+    0.144
+   ],
+   "min": [
+    -0.072,
+    0,
+    -0.072
+   ],
+   "max": [
+    0.072,
+    0.424,
+    0.072
+   ],
+   "skinned": false,
+   "bytes": 19924,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    },
+    {
+     "name": "PolygonGangWarfare_Glass",
+     "map": null,
+     "image": "Polygon_Texture_01.psd"
+    }
+   ]
+  },
+  "SM_Prop_PlasticBottle_02": {
+   "tris": 192,
+   "size": [
+    0.125,
+    0.355,
+    0.125
+   ],
+   "min": [
+    -0.062,
+    0.001,
+    -0.062
+   ],
+   "max": [
+    0.062,
+    0.356,
+    0.062
+   ],
+   "skinned": false,
+   "bytes": 17932,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Blender_01": {
+   "tris": 208,
+   "size": [
+    0.234,
+    0.224,
+    0.294
+   ],
+   "min": [
+    -0.117,
+    0,
+    -0.126
+   ],
+   "max": [
+    0.117,
+    0.224,
+    0.168
+   ],
+   "skinned": false,
+   "bytes": 16768,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Scales_01": {
+   "tris": 162,
+   "size": [
+    0.305,
+    0.129,
+    0.391
+   ],
+   "min": [
+    -0.152,
+    0,
+    -0.195
+   ],
+   "max": [
+    0.152,
+    0.129,
+    0.195
+   ],
+   "skinned": false,
+   "bytes": 11688,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Table_Metal_01": {
+   "tris": 494,
+   "size": [
+    2.253,
+    0.922,
+    0.876
+   ],
+   "min": [
+    -1.127,
+    0,
+    -0.438
+   ],
+   "max": [
+    1.127,
+    0.922,
+    0.438
+   ],
+   "skinned": false,
+   "bytes": 35276,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Pot_01": {
+   "tris": 264,
+   "size": [
+    0.611,
+    0.268,
+    0.437
+   ],
+   "min": [
+    -0.306,
+    0,
+    -0.218
+   ],
+   "max": [
+    0.306,
+    0.268,
+    0.218
+   ],
+   "skinned": false,
+   "bytes": 22300,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Slowcooker_01": {
+   "tris": 382,
+   "size": [
+    0.527,
+    0.257,
+    0.37
+   ],
+   "min": [
+    -0.264,
+    0,
+    -0.185
+   ],
+   "max": [
+    0.264,
+    0.257,
+    0.185
+   ],
+   "skinned": false,
+   "bytes": 31096,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Lab_MachinePanel_01": {
+   "tris": 372,
+   "size": [
+    0.37,
+    0.486,
+    0.257
+   ],
+   "min": [
+    -0.185,
+    -0.243,
+    0
+   ],
+   "max": [
+    0.185,
+    0.243,
+    0.257
+   ],
+   "skinned": false,
+   "bytes": 27732,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Lab_MachinePanel_02": {
+   "tris": 686,
+   "size": [
+    0.755,
+    1.19,
+    0.435
+   ],
+   "min": [
+    -0.386,
+    0,
+    -0.217
+   ],
+   "max": [
+    0.369,
+    1.19,
+    0.217
+   ],
+   "skinned": false,
+   "bytes": 51928,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Lab_MachinePanel_03": {
+   "tris": 320,
+   "size": [
+    0.452,
+    0.77,
+    0.404
+   ],
+   "min": [
+    -0.226,
+    0.605,
+    0.049
+   ],
+   "max": [
+    0.226,
+    1.376,
+    0.454
+   ],
+   "skinned": false,
+   "bytes": 25416,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Lab_Tank_01": {
+   "tris": 870,
+   "size": [
+    1.371,
+    2.067,
+    1.266
+   ],
+   "min": [
+    -0.686,
+    0,
+    -0.633
+   ],
+   "max": [
+    0.686,
+    2.067,
+    0.633
+   ],
+   "skinned": false,
+   "bytes": 68136,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Lab_Tank_02": {
+   "tris": 336,
+   "size": [
+    0.565,
+    1.717,
+    0.601
+   ],
+   "min": [
+    -0.283,
+    0,
+    -0.455
+   ],
+   "max": [
+    0.283,
+    1.717,
+    0.145
+   ],
+   "skinned": false,
+   "bytes": 29012,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Propane_01": {
+   "tris": 480,
+   "size": [
+    0.453,
+    0.624,
+    0.453
+   ],
+   "min": [
+    -0.227,
+    0,
+    -0.227
+   ],
+   "max": [
+    0.227,
+    0.624,
+    0.227
+   ],
+   "skinned": false,
+   "bytes": 41016,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Barrel_Plastic_01": {
+   "tris": 216,
+   "size": [
+    0.759,
+    1.05,
+    0.786
+   ],
+   "min": [
+    -0.386,
+    0,
+    -0.391
+   ],
+   "max": [
+    0.373,
+    1.05,
+    0.394
+   ],
+   "skinned": false,
+   "bytes": 19020,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_AirVent_01": {
+   "tris": 510,
+   "size": [
+    1.074,
+    1.06,
+    0.552
+   ],
+   "min": [
+    -0.537,
+    -0.53,
+    -0.044
+   ],
+   "max": [
+    0.537,
+    0.53,
+    0.508
+   ],
+   "skinned": false,
+   "bytes": 29840,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_AirVent_02": {
+   "tris": 472,
+   "size": [
+    1.219,
+    0.811,
+    0.522
+   ],
+   "min": [
+    -0.61,
+    0,
+    -0.261
+   ],
+   "max": [
+    0.61,
+    0.811,
+    0.261
+   ],
+   "skinned": false,
+   "bytes": 26388,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Powerbox_01": {
+   "tris": 362,
+   "size": [
+    1.219,
+    1.253,
+    1.219
+   ],
+   "min": [
+    -0.609,
+    0,
+    -0.609
+   ],
+   "max": [
+    0.609,
+    1.253,
+    0.609
+   ],
+   "skinned": false,
+   "bytes": 25776,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Box_01": {
+   "tris": 84,
+   "size": [
+    0.348,
+    0.123,
+    0.218
+   ],
+   "min": [
+    -0.174,
+    0,
+    -0.109
+   ],
+   "max": [
+    0.174,
+    0.123,
+    0.109
+   ],
+   "skinned": false,
+   "bytes": 7376,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_CardboardBox_Open_01": {
+   "tris": 60,
+   "size": [
+    1.024,
+    0.795,
+    0.961
+   ],
+   "min": [
+    -0.517,
+    0,
+    -0.486
+   ],
+   "max": [
+    0.507,
+    0.795,
+    0.475
+   ],
+   "skinned": false,
+   "bytes": 6612,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Shelf_01": {
+   "tris": 120,
+   "size": [
+    1.207,
+    1.929,
+    0.508
+   ],
+   "min": [
+    -0.604,
+    0,
+    -0.254
+   ],
+   "max": [
+    0.604,
+    1.929,
+    0.254
+   ],
+   "skinned": false,
+   "bytes": 10472,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Shelf_Wall_01": {
+   "tris": 66,
+   "size": [
+    1.531,
+    0.528,
+    0.336
+   ],
+   "min": [
+    -0.766,
+    -0.264,
+    0
+   ],
+   "max": [
+    0.766,
+    0.264,
+    0.336
+   ],
+   "skinned": false,
+   "bytes": 6164,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Rack_01": {
+   "tris": 136,
+   "size": [
+    1.255,
+    0.477,
+    4.093
+   ],
+   "min": [
+    -0.628,
+    -0.04,
+    -2.047
+   ],
+   "max": [
+    0.628,
+    0.438,
+    2.047
+   ],
+   "skinned": false,
+   "bytes": 11220,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Cabinets_01": {
+   "tris": 320,
+   "size": [
+    0.48,
+    1.512,
+    0.564
+   ],
+   "min": [
+    -0.24,
+    0,
+    -0.282
+   ],
+   "max": [
+    0.24,
+    1.512,
+    0.282
+   ],
+   "skinned": false,
+   "bytes": 22360,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Setup_Clean_01": {
+   "tris": 2554,
+   "size": [
+    1.415,
+    0.978,
+    0.658
+   ],
+   "min": [
+    -0.601,
+    -0.004,
+    -0.329
+   ],
+   "max": [
+    0.815,
+    0.973,
+    0.329
+   ],
+   "skinned": false,
+   "bytes": 212332,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    },
+    {
+     "name": "PolygonGangWarfare_Glass",
+     "map": null,
+     "image": "Polygon_Texture_01.psd"
+    }
+   ]
+  },
+  "SM_Bld_Ceiling_Light_01": {
+   "tris": 20,
+   "size": [
+    1.02,
+    0.09,
+    1.02
+   ],
+   "min": [
+    -0.51,
+    -0.045,
+    -0.51
+   ],
+   "max": [
+    0.51,
+    0.045,
+    0.51
+   ],
+   "skinned": false,
+   "bytes": 2836,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Fence_Pole_01": {
+   "tris": 20,
+   "size": [
+    0.144,
+    2.428,
+    0.144
+   ],
+   "min": [
+    -0.072,
+    0,
+    -0.072
+   ],
+   "max": [
+    0.072,
+    2.428,
+    0.072
+   ],
+   "skinned": false,
+   "bytes": 3148,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Fence_Wire_01": {
+   "tris": 392,
+   "size": [
+    3.425,
+    0.775,
+    0.806
+   ],
+   "min": [
+    -0.203,
+    3.165,
+    -0.333
+   ],
+   "max": [
+    3.222,
+    3.94,
+    0.473
+   ],
+   "skinned": false,
+   "bytes": 35252,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Interior_Door_01": {
+   "tris": 176,
+   "size": [
+    1.015,
+    2.213,
+    0.246
+   ],
+   "min": [
+    0,
+    0,
+    -0.161
+   ],
+   "max": [
+    1.015,
+    2.213,
+    0.085
+   ],
+   "skinned": false,
+   "bytes": 15140,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Metal_Door_01": {
+   "tris": 124,
+   "size": [
+    1.015,
+    2.213,
+    0.246
+   ],
+   "min": [
+    -1.015,
+    0,
+    -0.085
+   ],
+   "max": [
+    0,
+    2.213,
+    0.161
+   ],
+   "skinned": false,
+   "bytes": 11944,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Piping_01": {
+   "tris": 86,
+   "size": [
+    0.258,
+    3,
+    0.258
+   ],
+   "min": [
+    -0.129,
+    0,
+    -0.129
+   ],
+   "max": [
+    0.129,
+    3,
+    0.129
+   ],
+   "skinned": false,
+   "bytes": 7536,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Roof_Beam_01": {
+   "tris": 160,
+   "size": [
+    0.125,
+    0.473,
+    8.545
+   ],
+   "min": [
+    -0.062,
+    -0.237,
+    -4.273
+   ],
+   "max": [
+    0.062,
+    0.237,
+    4.273
+   ],
+   "skinned": false,
+   "bytes": 15208,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Roof_Truss_01": {
+   "tris": 268,
+   "size": [
+    0.194,
+    2.154,
+    9.12
+   ],
+   "min": [
+    -0.097,
+    -0.536,
+    -9.06
+   ],
+   "max": [
+    0.097,
+    1.618,
+    0.06
+   ],
+   "skinned": false,
+   "bytes": 24104,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Beam_01": {
+   "tris": 44,
+   "size": [
+    0.382,
+    3,
+    0.405
+   ],
+   "min": [
+    -0.191,
+    0,
+    -0.005
+   ],
+   "max": [
+    0.191,
+    3,
+    0.4
+   ],
+   "skinned": false,
+   "bytes": 5200,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Beam_Support_01": {
+   "tris": 180,
+   "size": [
+    2.959,
+    2.617,
+    0.105
+   ],
+   "min": [
+    0.021,
+    0.085,
+    0.05
+   ],
+   "max": [
+    2.979,
+    2.702,
+    0.154
+   ],
+   "skinned": false,
+   "bytes": 15584,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Bag_01": {
+   "tris": 72,
+   "size": [
+    0.089,
+    0.132,
+    0.083
+   ],
+   "min": [
+    -0.047,
+    -0.032,
+    -0.042
+   ],
+   "max": [
+    0.042,
+    0.1,
+    0.041
+   ],
+   "skinned": false,
+   "bytes": 8108,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Barrel_Metal_01": {
+   "tris": 334,
+   "size": [
+    0.726,
+    1.045,
+    0.705
+   ],
+   "min": [
+    -0.363,
+    0,
+    -0.353
+   ],
+   "max": [
+    0.363,
+    1.045,
+    0.353
+   ],
+   "skinned": false,
+   "bytes": 28848,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Barrel_PlasticLid_01": {
+   "tris": 106,
+   "size": [
+    0.701,
+    0.064,
+    0.725
+   ],
+   "min": [
+    -0.351,
+    -0.032,
+    -0.363
+   ],
+   "max": [
+    0.351,
+    0.032,
+    0.363
+   ],
+   "skinned": false,
+   "bytes": 10252,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Barrel_Plastic_02": {
+   "tris": 262,
+   "size": [
+    0.759,
+    1.05,
+    0.786
+   ],
+   "min": [
+    -0.386,
+    0,
+    -0.391
+   ],
+   "max": [
+    0.373,
+    1.05,
+    0.394
+   ],
+   "skinned": false,
+   "bytes": 23620,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Barrel_Plastic_03": {
+   "tris": 555,
+   "size": [
+    0.905,
+    1.301,
+    1.226
+   ],
+   "min": [
+    -0.452,
+    -0.65,
+    -0.613
+   ],
+   "max": [
+    0.452,
+    0.65,
+    0.613
+   ],
+   "skinned": false,
+   "bytes": 50004,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_BearRug_01": {
+   "tris": 775,
+   "size": [
+    2.288,
+    0.272,
+    2.829
+   ],
+   "min": [
+    -1.183,
+    0,
+    -1.277
+   ],
+   "max": [
+    1.105,
+    0.272,
+    1.552
+   ],
+   "skinned": false,
+   "bytes": 73456,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Book_Group_01": {
+   "tris": 128,
+   "size": [
+    0.906,
+    0.287,
+    0.258
+   ],
+   "min": [
+    -0.453,
+    -0.003,
+    -0.129
+   ],
+   "max": [
+    0.453,
+    0.285,
+    0.129
+   ],
+   "skinned": false,
+   "bytes": 11824,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Book_Group_02": {
+   "tris": 228,
+   "size": [
+    0.982,
+    0.306,
+    0.272
+   ],
+   "min": [
+    -0.491,
+    -0.005,
+    -0.136
+   ],
+   "max": [
+    0.491,
+    0.3,
+    0.136
+   ],
+   "skinned": false,
+   "bytes": 20028,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Book_Group_03": {
+   "tris": 236,
+   "size": [
+    0.968,
+    0.303,
+    0.272
+   ],
+   "min": [
+    -0.484,
+    -0.003,
+    -0.136
+   ],
+   "max": [
+    0.484,
+    0.3,
+    0.136
+   ],
+   "skinned": false,
+   "bytes": 20556,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Bottle_01": {
+   "tris": 144,
+   "size": [
+    0.202,
+    0.289,
+    0.202
+   ],
+   "min": [
+    -0.101,
+    0,
+    -0.101
+   ],
+   "max": [
+    0.101,
+    0.289,
+    0.101
+   ],
+   "skinned": false,
+   "bytes": 12644,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Bottle_02": {
+   "tris": 176,
+   "size": [
+    0.233,
+    0.425,
+    0.233
+   ],
+   "min": [
+    -0.116,
+    0,
+    -0.116
+   ],
+   "max": [
+    0.116,
+    0.425,
+    0.116
+   ],
+   "skinned": false,
+   "bytes": 15396,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Bottle_03": {
+   "tris": 264,
+   "size": [
+    0.38,
+    0.526,
+    0.38
+   ],
+   "min": [
+    -0.19,
+    0.004,
+    -0.19
+   ],
+   "max": [
+    0.19,
+    0.53,
+    0.19
+   ],
+   "skinned": false,
+   "bytes": 24152,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Glass",
+     "map": null,
+     "image": "Polygon_Texture_01.psd"
+    }
+   ]
+  },
+  "SM_Prop_Bucket_01": {
+   "tris": 320,
+   "size": [
+    0.457,
+    0.513,
+    0.445
+   ],
+   "min": [
+    -0.229,
+    0.007,
+    -0.222
+   ],
+   "max": [
+    0.229,
+    0.519,
+    0.222
+   ],
+   "skinned": false,
+   "bytes": 27456,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Bucket_Tin_01": {
+   "tris": 140,
+   "size": [
+    0.372,
+    0.298,
+    0.368
+   ],
+   "min": [
+    -0.205,
+    0,
+    -0.184
+   ],
+   "max": [
+    0.167,
+    0.298,
+    0.184
+   ],
+   "skinned": false,
+   "bytes": 12292,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_CardboardBox_01": {
+   "tris": 24,
+   "size": [
+    0.574,
+    0.574,
+    0.574
+   ],
+   "min": [
+    -0.287,
+    0,
+    -0.287
+   ],
+   "max": [
+    0.287,
+    0.574,
+    0.287
+   ],
+   "skinned": false,
+   "bytes": 3180,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_CardboardBox_02": {
+   "tris": 36,
+   "size": [
+    0.574,
+    0.574,
+    0.574
+   ],
+   "min": [
+    -0.287,
+    0,
+    -0.287
+   ],
+   "max": [
+    0.287,
+    0.574,
+    0.287
+   ],
+   "skinned": false,
+   "bytes": 3896,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_CardboardBox_03": {
+   "tris": 20,
+   "size": [
+    0.574,
+    0.574,
+    0.574
+   ],
+   "min": [
+    -0.287,
+    0,
+    -0.287
+   ],
+   "max": [
+    0.287,
+    0.574,
+    0.287
+   ],
+   "skinned": false,
+   "bytes": 2836,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_CardboardBox_Open_02": {
+   "tris": 92,
+   "size": [
+    1.037,
+    0.754,
+    0.98
+   ],
+   "min": [
+    -0.532,
+    0,
+    -0.504
+   ],
+   "max": [
+    0.505,
+    0.754,
+    0.476
+   ],
+   "skinned": false,
+   "bytes": 9376,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_CardboardBox_Open_03": {
+   "tris": 1950,
+   "size": [
+    1.024,
+    0.795,
+    0.961
+   ],
+   "min": [
+    -0.513,
+    0,
+    -0.481
+   ],
+   "max": [
+    0.511,
+    0.795,
+    0.48
+   ],
+   "skinned": false,
+   "bytes": 175532,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_CardboardBox_Open_04": {
+   "tris": 446,
+   "size": [
+    1.024,
+    0.795,
+    0.961
+   ],
+   "min": [
+    -0.513,
+    0,
+    -0.481
+   ],
+   "max": [
+    0.511,
+    0.795,
+    0.48
+   ],
+   "skinned": false,
+   "bytes": 39484,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_CardboardBox_Open_05": {
+   "tris": 422,
+   "size": [
+    1.145,
+    0.796,
+    0.961
+   ],
+   "min": [
+    -0.786,
+    0,
+    -0.481
+   ],
+   "max": [
+    0.36,
+    0.795,
+    0.48
+   ],
+   "skinned": false,
+   "bytes": 37912,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_CardboardBox_Stack_01": {
+   "tris": 144,
+   "size": [
+    1.526,
+    1.145,
+    1.55
+   ],
+   "min": [
+    -0.763,
+    0,
+    -0.775
+   ],
+   "max": [
+    0.763,
+    1.145,
+    0.775
+   ],
+   "skinned": false,
+   "bytes": 11268,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_CardboardBox_Stack_02": {
+   "tris": 288,
+   "size": [
+    1.394,
+    1.179,
+    1.353
+   ],
+   "min": [
+    -0.697,
+    0,
+    -0.677
+   ],
+   "max": [
+    0.697,
+    1.179,
+    0.677
+   ],
+   "skinned": false,
+   "bytes": 21092,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Chair_01": {
+   "tris": 248,
+   "size": [
+    0.532,
+    0.992,
+    0.58
+   ],
+   "min": [
+    -0.274,
+    0,
+    -0.346
+   ],
+   "max": [
+    0.258,
+    0.992,
+    0.233
+   ],
+   "skinned": false,
+   "bytes": 21324,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Chair_02": {
+   "tris": 436,
+   "size": [
+    0.527,
+    0.956,
+    0.626
+   ],
+   "min": [
+    -0.263,
+    0,
+    -0.327
+   ],
+   "max": [
+    0.263,
+    0.956,
+    0.298
+   ],
+   "skinned": false,
+   "bytes": 35972,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Chair_Guy_01": {
+   "tris": 1632,
+   "size": [
+    0.677,
+    1.35,
+    0.863
+   ],
+   "min": [
+    -0.339,
+    0,
+    -0.431
+   ],
+   "max": [
+    0.339,
+    1.35,
+    0.431
+   ],
+   "skinned": false,
+   "bytes": 151244,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_CoffeeFilter_01": {
+   "tris": 44,
+   "size": [
+    0.18,
+    0.023,
+    0.192
+   ],
+   "min": [
+    -0.096,
+    0.019,
+    -0.096
+   ],
+   "max": [
+    0.084,
+    0.042,
+    0.096
+   ],
+   "skinned": false,
+   "bytes": 6036,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Cone_01": {
+   "tris": 46,
+   "size": [
+    0.29,
+    0.376,
+    0.29
+   ],
+   "min": [
+    -0.145,
+    -0.188,
+    -0.145
+   ],
+   "max": [
+    0.145,
+    0.188,
+    0.145
+   ],
+   "skinned": false,
+   "bytes": 4876,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Dumpster_01": {
+   "tris": 1368,
+   "size": [
+    2.215,
+    1.685,
+    1.262
+   ],
+   "min": [
+    -1.107,
+    0,
+    -0.598
+   ],
+   "max": [
+    1.108,
+    1.685,
+    0.664
+   ],
+   "skinned": false,
+   "bytes": 102656,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Fire_Extinguisher_01": {
+   "tris": 328,
+   "size": [
+    0.512,
+    0.906,
+    0.28
+   ],
+   "min": [
+    -0.256,
+    -0.453,
+    -0.14
+   ],
+   "max": [
+    0.256,
+    0.453,
+    0.14
+   ],
+   "skinned": false,
+   "bytes": 27312,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_FlatPackCardboardBoxes_01": {
+   "tris": 20,
+   "size": [
+    0.043,
+    0.581,
+    0.581
+   ],
+   "min": [
+    0,
+    -0.004,
+    -0.291
+   ],
+   "max": [
+    0.043,
+    0.578,
+    0.291
+   ],
+   "skinned": false,
+   "bytes": 3176,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_FlatPackCardboardBoxes_02": {
+   "tris": 80,
+   "size": [
+    0.25,
+    0.581,
+    0.732
+   ],
+   "min": [
+    -0.125,
+    -0.003,
+    -0.366
+   ],
+   "max": [
+    0.125,
+    0.578,
+    0.366
+   ],
+   "skinned": false,
+   "bytes": 8348,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_FlatPackCardboardBoxes_03": {
+   "tris": 60,
+   "size": [
+    0.65,
+    0.126,
+    0.65
+   ],
+   "min": [
+    -0.325,
+    -0.063,
+    -0.325
+   ],
+   "max": [
+    0.325,
+    0.063,
+    0.325
+   ],
+   "skinned": false,
+   "bytes": 6620,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_FlatPackCardboardBoxes_04": {
+   "tris": 368,
+   "size": [
+    0.592,
+    0.473,
+    0.585
+   ],
+   "min": [
+    -0.296,
+    0,
+    -0.291
+   ],
+   "max": [
+    0.296,
+    0.473,
+    0.294
+   ],
+   "skinned": false,
+   "bytes": 33284,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_GasCan_01": {
+   "tris": 342,
+   "size": [
+    0.403,
+    0.505,
+    0.134
+   ],
+   "min": [
+    -0.202,
+    0,
+    -0.067
+   ],
+   "max": [
+    0.202,
+    0.505,
+    0.067
+   ],
+   "skinned": false,
+   "bytes": 25368,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Hazmat_Mask_01": {
+   "tris": 746,
+   "size": [
+    0.318,
+    0.351,
+    0.364
+   ],
+   "min": [
+    -0.159,
+    -0.125,
+    -0.126
+   ],
+   "max": [
+    0.159,
+    0.226,
+    0.238
+   ],
+   "skinned": false,
+   "bytes": 62048,
+   "materials": [
+    {
+     "name": "lambert",
+     "map": null,
+     "image": "PolygonGangWars_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Lab_Beakers_01": {
+   "tris": 336,
+   "size": [
+    0.404,
+    0.251,
+    0.127
+   ],
+   "min": [
+    -0.202,
+    0,
+    -0.064
+   ],
+   "max": [
+    0.202,
+    0.251,
+    0.064
+   ],
+   "skinned": false,
+   "bytes": 29380,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Glass",
+     "map": null,
+     "image": "Polygon_Texture_01.psd"
+    },
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Lab_Tank_03": {
+   "tris": 752,
+   "size": [
+    1.632,
+    1.444,
+    1.726
+   ],
+   "min": [
+    -0.816,
+    0,
+    -0.895
+   ],
+   "max": [
+    0.816,
+    1.444,
+    0.831
+   ],
+   "skinned": false,
+   "bytes": 61680,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Lab_Tube_01": {
+   "tris": 152,
+   "size": [
+    0.07,
+    0.66,
+    0.07
+   ],
+   "min": [
+    -0.035,
+    0.007,
+    -0.035
+   ],
+   "max": [
+    0.035,
+    0.667,
+    0.035
+   ],
+   "skinned": false,
+   "bytes": 14524,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Glass",
+     "map": null,
+     "image": "Polygon_Texture_01.psd"
+    }
+   ]
+  },
+  "SM_Prop_Lab_Twist_01": {
+   "tris": 242,
+   "size": [
+    0.223,
+    0.621,
+    0.223
+   ],
+   "min": [
+    -0.111,
+    0,
+    -0.112
+   ],
+   "max": [
+    0.111,
+    0.621,
+    0.112
+   ],
+   "skinned": false,
+   "bytes": 22528,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Glass",
+     "map": null,
+     "image": "Polygon_Texture_01.psd"
+    }
+   ]
+  },
+  "SM_Prop_Ladder_01": {
+   "tris": 232,
+   "size": [
+    0.532,
+    3,
+    0.342
+   ],
+   "min": [
+    -0.266,
+    0,
+    0.056
+   ],
+   "max": [
+    0.266,
+    3,
+    0.398
+   ],
+   "skinned": false,
+   "bytes": 21056,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Ladder_02": {
+   "tris": 576,
+   "size": [
+    0.747,
+    3.031,
+    0.969
+   ],
+   "min": [
+    -0.373,
+    -0.017,
+    0.056
+   ],
+   "max": [
+    0.373,
+    3.015,
+    1.025
+   ],
+   "skinned": false,
+   "bytes": 47960,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Ladder_03": {
+   "tris": 160,
+   "size": [
+    0.501,
+    3,
+    0.075
+   ],
+   "min": [
+    -0.25,
+    0,
+    0
+   ],
+   "max": [
+    0.25,
+    3,
+    0.075
+   ],
+   "skinned": false,
+   "bytes": 14840,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Light_01": {
+   "tris": 88,
+   "size": [
+    2.099,
+    0.36,
+    0.192
+   ],
+   "min": [
+    -1.05,
+    -0.18,
+    -0.096
+   ],
+   "max": [
+    1.05,
+    0.18,
+    0.096
+   ],
+   "skinned": false,
+   "bytes": 8380,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Light_Generic_01": {
+   "tris": 60,
+   "size": [
+    0.343,
+    0.242,
+    0.117
+   ],
+   "min": [
+    -0.172,
+    -0.121,
+    -0.058
+   ],
+   "max": [
+    0.172,
+    0.121,
+    0.058
+   ],
+   "skinned": false,
+   "bytes": 5652,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Light_Portable_01": {
+   "tris": 262,
+   "size": [
+    0.998,
+    1.191,
+    0.868
+   ],
+   "min": [
+    -0.499,
+    0,
+    -0.299
+   ],
+   "max": [
+    0.499,
+    1.191,
+    0.569
+   ],
+   "skinned": false,
+   "bytes": 21696,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Light_Wall_01": {
+   "tris": 218,
+   "size": [
+    0.558,
+    0.627,
+    1.119
+   ],
+   "min": [
+    -0.279,
+    -0.45,
+    -0.007
+   ],
+   "max": [
+    0.279,
+    0.176,
+    1.112
+   ],
+   "skinned": false,
+   "bytes": 17644,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Mask_01": {
+   "tris": 236,
+   "size": [
+    0.234,
+    0.251,
+    0.272
+   ],
+   "min": [
+    -0.117,
+    -0.066,
+    -0.094
+   ],
+   "max": [
+    0.117,
+    0.185,
+    0.178
+   ],
+   "skinned": false,
+   "bytes": 21272,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Money_Stack_01": {
+   "tris": 224,
+   "size": [
+    0.232,
+    0.194,
+    0.425
+   ],
+   "min": [
+    -0.116,
+    0,
+    -0.212
+   ],
+   "max": [
+    0.116,
+    0.194,
+    0.212
+   ],
+   "skinned": false,
+   "bytes": 19508,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Money_Stack_02": {
+   "tris": 312,
+   "size": [
+    0.333,
+    0.117,
+    0.565
+   ],
+   "min": [
+    -0.166,
+    -0.009,
+    -0.283
+   ],
+   "max": [
+    0.166,
+    0.108,
+    0.283
+   ],
+   "skinned": false,
+   "bytes": 27812,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Money_Stack_03": {
+   "tris": 516,
+   "size": [
+    0.445,
+    0.127,
+    0.589
+   ],
+   "min": [
+    -0.222,
+    0,
+    -0.295
+   ],
+   "max": [
+    0.222,
+    0.127,
+    0.295
+   ],
+   "skinned": false,
+   "bytes": 44148,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Money_Stack_04": {
+   "tris": 374,
+   "size": [
+    0.578,
+    0.125,
+    0.59
+   ],
+   "min": [
+    -0.289,
+    0,
+    -0.295
+   ],
+   "max": [
+    0.289,
+    0.125,
+    0.295
+   ],
+   "skinned": false,
+   "bytes": 32008,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Money_Strapped_01": {
+   "tris": 32,
+   "size": [
+    0.274,
+    0.057,
+    0.122
+   ],
+   "min": [
+    -0.137,
+    0,
+    -0.061
+   ],
+   "max": [
+    0.137,
+    0.057,
+    0.061
+   ],
+   "skinned": false,
+   "bytes": 4024,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Money_Strapped_02": {
+   "tris": 72,
+   "size": [
+    0.311,
+    0.076,
+    0.142
+   ],
+   "min": [
+    -0.156,
+    0,
+    -0.071
+   ],
+   "max": [
+    0.156,
+    0.076,
+    0.071
+   ],
+   "skinned": false,
+   "bytes": 7472,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Money_Strapped_03": {
+   "tris": 112,
+   "size": [
+    0.32,
+    0.097,
+    0.164
+   ],
+   "min": [
+    -0.16,
+    0,
+    -0.082
+   ],
+   "max": [
+    0.16,
+    0.097,
+    0.082
+   ],
+   "skinned": false,
+   "bytes": 10832,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_OfficeChair_01": {
+   "tris": 992,
+   "size": [
+    0.928,
+    1.451,
+    0.932
+   ],
+   "min": [
+    -0.464,
+    0,
+    -0.466
+   ],
+   "max": [
+    0.464,
+    1.451,
+    0.466
+   ],
+   "skinned": false,
+   "bytes": 89004,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Office_Shelf_01": {
+   "tris": 228,
+   "size": [
+    1.151,
+    1.78,
+    0.448
+   ],
+   "min": [
+    -0.575,
+    0,
+    -0.224
+   ],
+   "max": [
+    0.575,
+    1.78,
+    0.224
+   ],
+   "skinned": false,
+   "bytes": 18252,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Office_Shelf_02": {
+   "tris": 88,
+   "size": [
+    1.075,
+    1.116,
+    0.382
+   ],
+   "min": [
+    -0.537,
+    0,
+    -0.191
+   ],
+   "max": [
+    0.537,
+    1.116,
+    0.191
+   ],
+   "skinned": false,
+   "bytes": 7720,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Packet_Stack_01": {
+   "tris": 204,
+   "size": [
+    0.827,
+    0.316,
+    0.767
+   ],
+   "min": [
+    -0.413,
+    -0.006,
+    -0.383
+   ],
+   "max": [
+    0.413,
+    0.31,
+    0.383
+   ],
+   "skinned": false,
+   "bytes": 20924,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Packet_Stack_02": {
+   "tris": 408,
+   "size": [
+    0.931,
+    0.625,
+    0.863
+   ],
+   "min": [
+    -0.466,
+    -0.029,
+    -0.432
+   ],
+   "max": [
+    0.466,
+    0.596,
+    0.432
+   ],
+   "skinned": false,
+   "bytes": 40388,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Packet_Stack_03": {
+   "tris": 340,
+   "size": [
+    0.578,
+    0.728,
+    0.426
+   ],
+   "min": [
+    -0.289,
+    0,
+    -0.213
+   ],
+   "max": [
+    0.289,
+    0.728,
+    0.213
+   ],
+   "skinned": false,
+   "bytes": 33768,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Packet_Stack_Large_01": {
+   "tris": 1895,
+   "size": [
+    1.703,
+    0.832,
+    1.19
+   ],
+   "min": [
+    -0.851,
+    0,
+    -0.595
+   ],
+   "max": [
+    0.851,
+    0.832,
+    0.595
+   ],
+   "skinned": false,
+   "bytes": 181796,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_PaintCan_01": {
+   "tris": 504,
+   "size": [
+    0.429,
+    0.295,
+    0.348
+   ],
+   "min": [
+    -0.174,
+    0,
+    -0.173
+   ],
+   "max": [
+    0.255,
+    0.295,
+    0.175
+   ],
+   "skinned": false,
+   "bytes": 41088,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_PaintCan_02": {
+   "tris": 336,
+   "size": [
+    0.348,
+    0.298,
+    0.326
+   ],
+   "min": [
+    -0.175,
+    0,
+    -0.174
+   ],
+   "max": [
+    0.173,
+    0.298,
+    0.151
+   ],
+   "skinned": false,
+   "bytes": 26700,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_PaintCan_03": {
+   "tris": 394,
+   "size": [
+    0.348,
+    0.325,
+    0.501
+   ],
+   "min": [
+    -0.186,
+    -0.004,
+    0
+   ],
+   "max": [
+    0.162,
+    0.321,
+    0.501
+   ],
+   "skinned": false,
+   "bytes": 33384,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Pallet_01": {
+   "tris": 294,
+   "size": [
+    1.441,
+    0.235,
+    1.418
+   ],
+   "min": [
+    -0.72,
+    0,
+    -0.709
+   ],
+   "max": [
+    0.72,
+    0.235,
+    0.709
+   ],
+   "skinned": false,
+   "bytes": 25680,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Pan_01": {
+   "tris": 138,
+   "size": [
+    0.595,
+    0.084,
+    0.332
+   ],
+   "min": [
+    -0.429,
+    0,
+    -0.166
+   ],
+   "max": [
+    0.166,
+    0.084,
+    0.166
+   ],
+   "skinned": false,
+   "bytes": 12580,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Papers_01": {
+   "tris": 24,
+   "size": [
+    1.704,
+    0.022,
+    0.949
+   ],
+   "min": [
+    -0.852,
+    0.004,
+    -0.475
+   ],
+   "max": [
+    0.852,
+    0.027,
+    0.475
+   ],
+   "skinned": false,
+   "bytes": 3344,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Papers_02": {
+   "tris": 10,
+   "size": [
+    1.053,
+    0.022,
+    0.558
+   ],
+   "min": [
+    -0.527,
+    0.005,
+    -0.279
+   ],
+   "max": [
+    0.527,
+    0.027,
+    0.279
+   ],
+   "skinned": false,
+   "bytes": 2296,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Papers_03": {
+   "tris": 14,
+   "size": [
+    0.526,
+    0.017,
+    0.55
+   ],
+   "min": [
+    -0.263,
+    0.005,
+    -0.275
+   ],
+   "max": [
+    0.263,
+    0.022,
+    0.275
+   ],
+   "skinned": false,
+   "bytes": 2568,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_PipeStack_01": {
+   "tris": 1980,
+   "size": [
+    1.14,
+    0.6,
+    4.63
+   ],
+   "min": [
+    -0.572,
+    0.004,
+    -2.306
+   ],
+   "max": [
+    0.568,
+    0.604,
+    2.324
+   ],
+   "skinned": false,
+   "bytes": 164076,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Plant_01": {
+   "tris": 673,
+   "size": [
+    0.804,
+    1.243,
+    0.796
+   ],
+   "min": [
+    -0.396,
+    0,
+    -0.36
+   ],
+   "max": [
+    0.408,
+    1.243,
+    0.436
+   ],
+   "skinned": false,
+   "bytes": 69468,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Leaf",
+     "map": null,
+     "image": null
+    },
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Plant_02": {
+   "tris": 2224,
+   "size": [
+    0.879,
+    1.243,
+    0.957
+   ],
+   "min": [
+    -0.395,
+    0,
+    -0.412
+   ],
+   "max": [
+    0.485,
+    1.243,
+    0.545
+   ],
+   "skinned": false,
+   "bytes": 224020,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Leaf",
+     "map": null,
+     "image": null
+    },
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Plant_Bucket_01": {
+   "tris": 432,
+   "size": [
+    0.48,
+    0.513,
+    0.469
+   ],
+   "min": [
+    -0.252,
+    0.007,
+    -0.235
+   ],
+   "max": [
+    0.229,
+    0.519,
+    0.235
+   ],
+   "skinned": false,
+   "bytes": 37856,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Plant_Light_01": {
+   "tris": 556,
+   "size": [
+    0.648,
+    1.003,
+    1.275
+   ],
+   "min": [
+    -0.324,
+    -0.501,
+    -0.637
+   ],
+   "max": [
+    0.324,
+    0.501,
+    0.637
+   ],
+   "skinned": false,
+   "bytes": 48844,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Plant_Palm_01": {
+   "tris": 859,
+   "size": [
+    1.377,
+    1.395,
+    1.429
+   ],
+   "min": [
+    -0.695,
+    0,
+    -0.64
+   ],
+   "max": [
+    0.682,
+    1.395,
+    0.789
+   ],
+   "skinned": false,
+   "bytes": 100688,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Propane_Tall_01": {
+   "tris": 442,
+   "size": [
+    0.457,
+    1.502,
+    0.464
+   ],
+   "min": [
+    -0.229,
+    0,
+    -0.232
+   ],
+   "max": [
+    0.229,
+    1.502,
+    0.232
+   ],
+   "skinned": false,
+   "bytes": 37096,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Propane_Tall_02": {
+   "tris": 442,
+   "size": [
+    0.457,
+    1.502,
+    0.464
+   ],
+   "min": [
+    -0.229,
+    0,
+    -0.232
+   ],
+   "max": [
+    0.229,
+    1.502,
+    0.232
+   ],
+   "skinned": false,
+   "bytes": 37096,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Puddle_01": {
+   "tris": 14,
+   "size": [
+    4.696,
+    0,
+    4.681
+   ],
+   "min": [
+    -2.348,
+    0.005,
+    -2.341
+   ],
+   "max": [
+    2.348,
+    0.005,
+    2.341
+   ],
+   "skinned": false,
+   "bytes": 2132,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Puddle_02": {
+   "tris": 14,
+   "size": [
+    3.785,
+    0,
+    3.544
+   ],
+   "min": [
+    -1.893,
+    0.005,
+    -1.772
+   ],
+   "max": [
+    1.893,
+    0.005,
+    1.772
+   ],
+   "skinned": false,
+   "bytes": 2132,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Puddle_03": {
+   "tris": 8,
+   "size": [
+    2.027,
+    0,
+    1.85
+   ],
+   "min": [
+    -1.014,
+    0.005,
+    -0.925
+   ],
+   "max": [
+    1.014,
+    0.005,
+    0.925
+   ],
+   "skinned": false,
+   "bytes": 1848,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Puddle_04": {
+   "tris": 6,
+   "size": [
+    1.078,
+    0,
+    0.847
+   ],
+   "min": [
+    -0.539,
+    0.005,
+    -0.423
+   ],
+   "max": [
+    0.539,
+    0.005,
+    0.423
+   ],
+   "skinned": false,
+   "bytes": 1756,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Puddle_05": {
+   "tris": 5,
+   "size": [
+    0.469,
+    0,
+    0.366
+   ],
+   "min": [
+    -0.235,
+    0.005,
+    -0.183
+   ],
+   "max": [
+    0.235,
+    0.005,
+    0.183
+   ],
+   "skinned": false,
+   "bytes": 1712,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_RubberMat_01": {
+   "tris": 386,
+   "size": [
+    0.638,
+    0.027,
+    1.64
+   ],
+   "min": [
+    -0.319,
+    0,
+    -0.82
+   ],
+   "max": [
+    0.319,
+    0.027,
+    0.82
+   ],
+   "skinned": false,
+   "bytes": 26580,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Safe_01": {
+   "tris": 116,
+   "size": [
+    0.508,
+    0.611,
+    0.549
+   ],
+   "min": [
+    -0.254,
+    0,
+    -0.234
+   ],
+   "max": [
+    0.254,
+    0.611,
+    0.315
+   ],
+   "skinned": false,
+   "bytes": 9880,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Security_Camera_01": {
+   "tris": 172,
+   "size": [
+    0.181,
+    0.3,
+    0.27
+   ],
+   "min": [
+    -0.09,
+    -0.081,
+    -0.016
+   ],
+   "max": [
+    0.09,
+    0.219,
+    0.254
+   ],
+   "skinned": false,
+   "bytes": 13612,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Security_Camera_02": {
+   "tris": 112,
+   "size": [
+    0.297,
+    0.301,
+    0.581
+   ],
+   "min": [
+    -0.149,
+    -0.261,
+    -0.031
+   ],
+   "max": [
+    0.149,
+    0.04,
+    0.55
+   ],
+   "skinned": false,
+   "bytes": 10572,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Security_Monitors_01": {
+   "tris": 840,
+   "size": [
+    1.35,
+    1.582,
+    0.546
+   ],
+   "min": [
+    -0.675,
+    0,
+    -0.271
+   ],
+   "max": [
+    0.675,
+    1.582,
+    0.276
+   ],
+   "skinned": false,
+   "bytes": 64420,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Setup_Dirty_01": {
+   "tris": 1298,
+   "size": [
+    0.778,
+    0.572,
+    0.717
+   ],
+   "min": [
+    -0.389,
+    0,
+    -0.359
+   ],
+   "max": [
+    0.389,
+    0.572,
+    0.359
+   ],
+   "skinned": false,
+   "bytes": 110500,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Glass",
+     "map": null,
+     "image": "Polygon_Texture_01.psd"
+    },
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Shelf_Preset_01": {
+   "tris": 1878,
+   "size": [
+    1.207,
+    1.929,
+    0.508
+   ],
+   "min": [
+    -0.604,
+    0,
+    -0.254
+   ],
+   "max": [
+    0.604,
+    1.929,
+    0.254
+   ],
+   "skinned": false,
+   "bytes": 147088,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Caution_01": {
+   "tris": 12,
+   "size": [
+    0.445,
+    0.267,
+    0.03
+   ],
+   "min": [
+    -0.222,
+    0,
+    -0.015
+   ],
+   "max": [
+    0.222,
+    0.267,
+    0.015
+   ],
+   "skinned": false,
+   "bytes": 2476,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Danger_01": {
+   "tris": 12,
+   "size": [
+    0.445,
+    0.144,
+    0.03
+   ],
+   "min": [
+    -0.222,
+    0,
+    -0.015
+   ],
+   "max": [
+    0.222,
+    0.144,
+    0.015
+   ],
+   "skinned": false,
+   "bytes": 2480,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Exit_01": {
+   "tris": 52,
+   "size": [
+    0.432,
+    0.212,
+    0.054
+   ],
+   "min": [
+    -0.216,
+    -0.092,
+    -0.009
+   ],
+   "max": [
+    0.216,
+    0.12,
+    0.045
+   ],
+   "skinned": false,
+   "bytes": 5276,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Sign_KeepOut_01": {
+   "tris": 12,
+   "size": [
+    0.556,
+    0.313,
+    0.029
+   ],
+   "min": [
+    -0.278,
+    -0.156,
+    0
+   ],
+   "max": [
+    0.278,
+    0.156,
+    0.029
+   ],
+   "skinned": false,
+   "bytes": 2460,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Sink_01": {
+   "tris": 646,
+   "size": [
+    2.369,
+    1.069,
+    0.79
+   ],
+   "min": [
+    -1.184,
+    0,
+    -0.395
+   ],
+   "max": [
+    1.184,
+    1.069,
+    0.395
+   ],
+   "skinned": false,
+   "bytes": 50504,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_SmokePipe_01": {
+   "tris": 208,
+   "size": [
+    0.262,
+    0.07,
+    0.066
+   ],
+   "min": [
+    -0.233,
+    -0.033,
+    -0.033
+   ],
+   "max": [
+    0.028,
+    0.038,
+    0.033
+   ],
+   "skinned": false,
+   "bytes": 18784,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_SprayCan_01": {
+   "tris": 352,
+   "size": [
+    0.132,
+    0.378,
+    0.132
+   ],
+   "min": [
+    -0.066,
+    0,
+    -0.066
+   ],
+   "max": [
+    0.066,
+    0.378,
+    0.066
+   ],
+   "skinned": false,
+   "bytes": 28272,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_SprayCan_02": {
+   "tris": 352,
+   "size": [
+    0.122,
+    0.356,
+    0.122
+   ],
+   "min": [
+    -0.061,
+    0,
+    -0.061
+   ],
+   "max": [
+    0.061,
+    0.356,
+    0.061
+   ],
+   "skinned": false,
+   "bytes": 28288,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Table_Metal_Preset_01": {
+   "tris": 8811,
+   "size": [
+    2.282,
+    1.492,
+    0.908
+   ],
+   "min": [
+    -1.141,
+    0,
+    -0.454
+   ],
+   "max": [
+    1.141,
+    1.492,
+    0.454
+   ],
+   "skinned": false,
+   "bytes": 721320,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    },
+    {
+     "name": "PolygonGangWarfare_Glass",
+     "map": null,
+     "image": "Polygon_Texture_01.psd"
+    }
+   ]
+  },
+  "SM_Prop_Table_Metal_Preset_02": {
+   "tris": 5164,
+   "size": [
+    2.253,
+    1.492,
+    0.876
+   ],
+   "min": [
+    -1.127,
+    0,
+    -0.438
+   ],
+   "max": [
+    1.127,
+    1.492,
+    0.438
+   ],
+   "skinned": false,
+   "bytes": 416268,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    },
+    {
+     "name": "PolygonGangWarfare_Glass",
+     "map": null,
+     "image": "Polygon_Texture_01.psd"
+    }
+   ]
+  },
+  "SM_Prop_Table_Metal_Preset_03": {
+   "tris": 7040,
+   "size": [
+    2.253,
+    1.895,
+    0.877
+   ],
+   "min": [
+    -1.127,
+    0,
+    -0.438
+   ],
+   "max": [
+    1.127,
+    1.895,
+    0.438
+   ],
+   "skinned": false,
+   "bytes": 564096,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    },
+    {
+     "name": "PolygonGangWarfare_Glass",
+     "map": null,
+     "image": "Polygon_Texture_01.psd"
+    }
+   ]
+  },
+  "SM_Prop_Table_Metal_Preset_04": {
+   "tris": 6386,
+   "size": [
+    2.253,
+    1.411,
+    0.912
+   ],
+   "min": [
+    -1.127,
+    0,
+    -0.456
+   ],
+   "max": [
+    1.127,
+    1.411,
+    0.456
+   ],
+   "skinned": false,
+   "bytes": 507052,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    },
+    {
+     "name": "PolygonGangWarfare_Glass",
+     "map": null,
+     "image": "Polygon_Texture_01.psd"
+    }
+   ]
+  },
+  "SM_Prop_Table_Metal_Preset_05": {
+   "tris": 5784,
+   "size": [
+    2.253,
+    1.452,
+    0.876
+   ],
+   "min": [
+    -1.127,
+    0,
+    -0.438
+   ],
+   "max": [
+    1.127,
+    1.452,
+    0.438
+   ],
+   "skinned": false,
+   "bytes": 458824,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    },
+    {
+     "name": "PolygonGangWarfare_Glass",
+     "map": null,
+     "image": "Polygon_Texture_01.psd"
+    }
+   ]
+  },
+  "SM_Prop_Table_Metal_Preset_06": {
+   "tris": 3102,
+   "size": [
+    2.253,
+    1.263,
+    0.876
+   ],
+   "min": [
+    -1.127,
+    0,
+    -0.438
+   ],
+   "max": [
+    1.127,
+    1.263,
+    0.438
+   ],
+   "skinned": false,
+   "bytes": 246788,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Vase_01": {
+   "tris": 322,
+   "size": [
+    0.257,
+    0.706,
+    0.357
+   ],
+   "min": [
+    -0.129,
+    0,
+    -0.189
+   ],
+   "max": [
+    0.129,
+    0.706,
+    0.168
+   ],
+   "skinned": false,
+   "bytes": 28188,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_WallFan_01": {
+   "tris": 90,
+   "size": [
+    0.245,
+    0.442,
+    0.187
+   ],
+   "min": [
+    -0.122,
+    -0.207,
+    -0.013
+   ],
+   "max": [
+    0.122,
+    0.235,
+    0.174
+   ],
+   "skinned": false,
+   "bytes": 8272,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_WallFan_Blades_01": {
+   "tris": 78,
+   "size": [
+    0.546,
+    0.473,
+    0.108
+   ],
+   "min": [
+    -0.273,
+    -0.261,
+    -0.059
+   ],
+   "max": [
+    0.273,
+    0.212,
+    0.049
+   ],
+   "skinned": false,
+   "bytes": 8008,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_WallFan_Top_01": {
+   "tris": 432,
+   "size": [
+    0.671,
+    0.638,
+    0.402
+   ],
+   "min": [
+    -0.336,
+    -0.206,
+    -0.142
+   ],
+   "max": [
+    0.336,
+    0.432,
+    0.26
+   ],
+   "skinned": false,
+   "bytes": 31852,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Fan_01": {
+   "tris": 252,
+   "size": [
+    0.745,
+    0.754,
+    0.745
+   ],
+   "min": [
+    -0.373,
+    0,
+    -0.373
+   ],
+   "max": [
+    0.373,
+    0.754,
+    0.373
+   ],
+   "skinned": false,
+   "bytes": 20612,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Fan_02": {
+   "tris": 228,
+   "size": [
+    0.745,
+    0.754,
+    0.745
+   ],
+   "min": [
+    -0.373,
+    0.074,
+    -0.373
+   ],
+   "max": [
+    0.373,
+    0.828,
+    0.373
+   ],
+   "skinned": false,
+   "bytes": 19428,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Firehose_01": {
+   "tris": 172,
+   "size": [
+    0.822,
+    1.851,
+    0.398
+   ],
+   "min": [
+    -0.411,
+    0,
+    -0.103
+   ],
+   "max": [
+    0.411,
+    1.851,
+    0.295
+   ],
+   "skinned": false,
+   "bytes": 15164,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Grate_01": {
+   "tris": 114,
+   "size": [
+    0.543,
+    0.123,
+    2.678
+   ],
+   "min": [
+    -0.272,
+    -0.094,
+    -1.339
+   ],
+   "max": [
+    0.272,
+    0.029,
+    1.339
+   ],
+   "skinned": false,
+   "bytes": 8944,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Grate_02": {
+   "tris": 54,
+   "size": [
+    0.543,
+    0.123,
+    2.678
+   ],
+   "min": [
+    -0.272,
+    -0.094,
+    -1.339
+   ],
+   "max": [
+    0.272,
+    0.029,
+    1.339
+   ],
+   "skinned": false,
+   "bytes": 5216,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Grate_03": {
+   "tris": 26,
+   "size": [
+    0.543,
+    0.123,
+    0.543
+   ],
+   "min": [
+    -0.272,
+    -0.094,
+    -0.272
+   ],
+   "max": [
+    0.272,
+    0.029,
+    0.272
+   ],
+   "skinned": false,
+   "bytes": 3368,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Grate_04": {
+   "tris": 56,
+   "size": [
+    0.485,
+    0.113,
+    0.485
+   ],
+   "min": [
+    -0.243,
+    -0.094,
+    -0.243
+   ],
+   "max": [
+    0.243,
+    0.019,
+    0.243
+   ],
+   "skinned": false,
+   "bytes": 5352,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Light_01": {
+   "tris": 374,
+   "size": [
+    0.727,
+    1.632,
+    0.727
+   ],
+   "min": [
+    -0.364,
+    -0.816,
+    -0.364
+   ],
+   "max": [
+    0.364,
+    0.816,
+    0.364
+   ],
+   "skinned": false,
+   "bytes": 32348,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Light_02": {
+   "tris": 344,
+   "size": [
+    0.558,
+    1.033,
+    2.584
+   ],
+   "min": [
+    -0.279,
+    -0.992,
+    -1.292
+   ],
+   "max": [
+    0.279,
+    0.041,
+    1.292
+   ],
+   "skinned": false,
+   "bytes": 29932,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Light_03": {
+   "tris": 82,
+   "size": [
+    0.436,
+    0.19,
+    0.115
+   ],
+   "min": [
+    -0.218,
+    -0.095,
+    -0.065
+   ],
+   "max": [
+    0.218,
+    0.095,
+    0.051
+   ],
+   "skinned": false,
+   "bytes": 7668,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Light_04": {
+   "tris": 130,
+   "size": [
+    0.436,
+    0.19,
+    0.129
+   ],
+   "min": [
+    -0.218,
+    -0.095,
+    -0.065
+   ],
+   "max": [
+    0.218,
+    0.095,
+    0.065
+   ],
+   "skinned": false,
+   "bytes": 11876,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Light_Chain_01": {
+   "tris": 96,
+   "size": [
+    0.087,
+    0.686,
+    0.088
+   ],
+   "min": [
+    -0.044,
+    -0.637,
+    -0.044
+   ],
+   "max": [
+    0.044,
+    0.048,
+    0.044
+   ],
+   "skinned": false,
+   "bytes": 9720,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_PowerBox_01": {
+   "tris": 48,
+   "size": [
+    0.42,
+    0.593,
+    0.1
+   ],
+   "min": [
+    -0.21,
+    0,
+    -0.05
+   ],
+   "max": [
+    0.21,
+    0.593,
+    0.05
+   ],
+   "skinned": false,
+   "bytes": 5248,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Rack_01": {
+   "tris": 240,
+   "size": [
+    1.471,
+    2.149,
+    3.122
+   ],
+   "min": [
+    -0.735,
+    0,
+    -0.061
+   ],
+   "max": [
+    0.735,
+    2.149,
+    3.061
+   ],
+   "skinned": false,
+   "bytes": 22084,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Rack_02": {
+   "tris": 272,
+   "size": [
+    1.471,
+    2.149,
+    6.122
+   ],
+   "min": [
+    -0.735,
+    0,
+    -0.061
+   ],
+   "max": [
+    0.735,
+    2.149,
+    6.061
+   ],
+   "skinned": false,
+   "bytes": 23956,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Venting_01": {
+   "tris": 268,
+   "size": [
+    3.08,
+    1.303,
+    1.014
+   ],
+   "min": [
+    -3,
+    -0.651,
+    -0.672
+   ],
+   "max": [
+    0.08,
+    0.651,
+    0.342
+   ],
+   "skinned": false,
+   "bytes": 23136,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Venting_02": {
+   "tris": 92,
+   "size": [
+    1.08,
+    1.303,
+    1.014
+   ],
+   "min": [
+    -1,
+    -0.651,
+    -0.672
+   ],
+   "max": [
+    0.08,
+    0.651,
+    0.342
+   ],
+   "skinned": false,
+   "bytes": 9116,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Venting_Corner_01": {
+   "tris": 502,
+   "size": [
+    3.731,
+    3.651,
+    1.014
+   ],
+   "min": [
+    -3.651,
+    -0.651,
+    -0.672
+   ],
+   "max": [
+    0.08,
+    3,
+    0.342
+   ],
+   "skinned": false,
+   "bytes": 41352,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Venting_Corner_02": {
+   "tris": 150,
+   "size": [
+    1.446,
+    1.623,
+    0.984
+   ],
+   "min": [
+    -1.367,
+    -0.651,
+    -0.672
+   ],
+   "max": [
+    0.08,
+    0.972,
+    0.312
+   ],
+   "skinned": false,
+   "bytes": 12608,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Venting_End_01": {
+   "tris": 218,
+   "size": [
+    1.808,
+    1.303,
+    1.014
+   ],
+   "min": [
+    -1.728,
+    -0.651,
+    -0.672
+   ],
+   "max": [
+    0.08,
+    0.651,
+    0.342
+   ],
+   "skinned": false,
+   "bytes": 17972,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Venting_End_02": {
+   "tris": 146,
+   "size": [
+    1.728,
+    1.303,
+    1.014
+   ],
+   "min": [
+    -1.728,
+    -0.651,
+    -0.672
+   ],
+   "max": [
+    0,
+    0.651,
+    0.342
+   ],
+   "skinned": false,
+   "bytes": 12640,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Venting_End_03": {
+   "tris": 172,
+   "size": [
+    1.303,
+    1.946,
+    1.676
+   ],
+   "min": [
+    -0.651,
+    0,
+    -1.334
+   ],
+   "max": [
+    0.651,
+    1.946,
+    0.342
+   ],
+   "skinned": false,
+   "bytes": 14400,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Venting_Support_01": {
+   "tris": 72,
+   "size": [
+    0.16,
+    1.303,
+    0.984
+   ],
+   "min": [
+    -0.08,
+    -0.651,
+    -0.672
+   ],
+   "max": [
+    0.08,
+    0.651,
+    0.312
+   ],
+   "skinned": false,
+   "bytes": 6776,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_WallLight_01": {
+   "tris": 236,
+   "size": [
+    2.078,
+    0.528,
+    0.453
+   ],
+   "min": [
+    -1.039,
+    -0.264,
+    -0.057
+   ],
+   "max": [
+    1.039,
+    0.264,
+    0.396
+   ],
+   "skinned": false,
+   "bytes": 20324,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Wall_Socket_01": {
+   "tris": 120,
+   "size": [
+    0.365,
+    1.477,
+    0.191
+   ],
+   "min": [
+    -0.182,
+    -0.738,
+    -0.096
+   ],
+   "max": [
+    0.182,
+    0.738,
+    0.096
+   ],
+   "skinned": false,
+   "bytes": 10264,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Warehouse_Wall_Switch_01": {
+   "tris": 86,
+   "size": [
+    0.222,
+    1.695,
+    0.197
+   ],
+   "min": [
+    -0.111,
+    -0.848,
+    -0.098
+   ],
+   "max": [
+    0.111,
+    0.848,
+    0.098
+   ],
+   "skinned": false,
+   "bytes": 8536,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_WateringCan_01": {
+   "tris": 312,
+   "size": [
+    0.33,
+    0.467,
+    0.733
+   ],
+   "min": [
+    -0.165,
+    0,
+    -0.27
+   ],
+   "max": [
+    0.165,
+    0.467,
+    0.464
+   ],
+   "skinned": false,
+   "bytes": 25428,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Wirespool_01": {
+   "tris": 258,
+   "size": [
+    1.564,
+    1.023,
+    1.564
+   ],
+   "min": [
+    -0.782,
+    -0.019,
+    -0.782
+   ],
+   "max": [
+    0.782,
+    1.004,
+    0.782
+   ],
+   "skinned": false,
+   "bytes": 20284,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Wood_Panel_01": {
+   "tris": 234,
+   "size": [
+    0.198,
+    1.322,
+    2.243
+   ],
+   "min": [
+    -0.13,
+    -0.661,
+    -1.121
+   ],
+   "max": [
+    0.068,
+    0.661,
+    1.121
+   ],
+   "skinned": false,
+   "bytes": 18384,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Woodstack_01": {
+   "tris": 204,
+   "size": [
+    1.079,
+    0.316,
+    4.844
+   ],
+   "min": [
+    -0.547,
+    0.04,
+    -2.46
+   ],
+   "max": [
+    0.532,
+    0.356,
+    2.384
+   ],
+   "skinned": false,
+   "bytes": 17644,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Office_Desk_01": {
+   "tris": 478,
+   "size": [
+    2.18,
+    0.953,
+    0.925
+   ],
+   "min": [
+    -1.09,
+    0,
+    -0.462
+   ],
+   "max": [
+    1.09,
+    0.953,
+    0.462
+   ],
+   "skinned": false,
+   "bytes": 36652,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Office_Desk_Preset_01": {
+   "tris": 3074,
+   "size": [
+    1.907,
+    0.438,
+    0.786
+   ],
+   "min": [
+    -0.996,
+    0.943,
+    -0.435
+   ],
+   "max": [
+    0.911,
+    1.381,
+    0.351
+   ],
+   "skinned": false,
+   "bytes": 266288,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Ceiling_01": {
+   "tris": 186,
+   "size": [
+    3,
+    0.157,
+    3
+   ],
+   "min": [
+    0,
+    -0.016,
+    -3
+   ],
+   "max": [
+    3,
+    0.141,
+    0
+   ],
+   "skinned": false,
+   "bytes": 13084,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Ceiling_02": {
+   "tris": 120,
+   "size": [
+    3,
+    0.304,
+    3
+   ],
+   "min": [
+    0,
+    -0.03,
+    0
+   ],
+   "max": [
+    3,
+    0.275,
+    3
+   ],
+   "skinned": false,
+   "bytes": 9216,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Floor_01": {
+   "tris": 2,
+   "size": [
+    3,
+    0,
+    3
+   ],
+   "min": [
+    0,
+    0,
+    -3
+   ],
+   "max": [
+    3,
+    0,
+    0
+   ],
+   "skinned": false,
+   "bytes": 1568,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Floor_02": {
+   "tris": 24,
+   "size": [
+    3,
+    0.015,
+    3
+   ],
+   "min": [
+    0,
+    0,
+    -3
+   ],
+   "max": [
+    3,
+    0.015,
+    0
+   ],
+   "skinned": false,
+   "bytes": 2892,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Floor_03": {
+   "tris": 96,
+   "size": [
+    3,
+    0.019,
+    3
+   ],
+   "min": [
+    0,
+    0,
+    -3
+   ],
+   "max": [
+    3,
+    0.019,
+    0
+   ],
+   "skinned": false,
+   "bytes": 8492,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Floor_Ceiling_Wood_01": {
+   "tris": 492,
+   "size": [
+    3,
+    0.126,
+    3
+   ],
+   "min": [
+    0,
+    -0.063,
+    -3
+   ],
+   "max": [
+    3,
+    0.063,
+    0
+   ],
+   "skinned": false,
+   "bytes": 38292,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Floor_Drain_01": {
+   "tris": 80,
+   "size": [
+    3,
+    0.058,
+    3
+   ],
+   "min": [
+    0,
+    -0.058,
+    -3
+   ],
+   "max": [
+    3,
+    0,
+    0
+   ],
+   "skinned": false,
+   "bytes": 6280,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Floor_Lines_01": {
+   "tris": 56,
+   "size": [
+    3,
+    0,
+    3
+   ],
+   "min": [
+    0,
+    0,
+    -3
+   ],
+   "max": [
+    3,
+    0,
+    0
+   ],
+   "skinned": false,
+   "bytes": 4036,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Floor_Lines_02": {
+   "tris": 6,
+   "size": [
+    3,
+    0,
+    3
+   ],
+   "min": [
+    0,
+    0,
+    -3
+   ],
+   "max": [
+    3,
+    0,
+    0
+   ],
+   "skinned": false,
+   "bytes": 1904,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Floor_Lines_03": {
+   "tris": 12,
+   "size": [
+    3,
+    0,
+    3
+   ],
+   "min": [
+    0,
+    0,
+    -3
+   ],
+   "max": [
+    3,
+    0,
+    0
+   ],
+   "skinned": false,
+   "bytes": 2312,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Floor_Lines_04": {
+   "tris": 17,
+   "size": [
+    3,
+    0,
+    3
+   ],
+   "min": [
+    0,
+    0,
+    -3
+   ],
+   "max": [
+    3,
+    0,
+    0
+   ],
+   "skinned": false,
+   "bytes": 2352,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Floor_Riser_01": {
+   "tris": 40,
+   "size": [
+    3,
+    0.265,
+    3
+   ],
+   "min": [
+    0,
+    0,
+    -3
+   ],
+   "max": [
+    3,
+    0.265,
+    0
+   ],
+   "skinned": false,
+   "bytes": 4456,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Floor_Riser_02": {
+   "tris": 43,
+   "size": [
+    3,
+    0.283,
+    3
+   ],
+   "min": [
+    0,
+    0,
+    -3
+   ],
+   "max": [
+    3,
+    0.283,
+    0
+   ],
+   "skinned": false,
+   "bytes": 4476,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Interior_Wall_01": {
+   "tris": 24,
+   "size": [
+    3,
+    3,
+    0.386
+   ],
+   "min": [
+    0,
+    0,
+    -0.193
+   ],
+   "max": [
+    3,
+    3,
+    0.193
+   ],
+   "skinned": false,
+   "bytes": 3476,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Interior_Wall_CornerFlat_01": {
+   "tris": 24,
+   "size": [
+    0.513,
+    3,
+    0.388
+   ],
+   "min": [
+    -0.257,
+    0,
+    0
+   ],
+   "max": [
+    0.257,
+    3,
+    0.388
+   ],
+   "skinned": false,
+   "bytes": 3516,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Interior_Wall_Corner_01": {
+   "tris": 24,
+   "size": [
+    0.502,
+    3,
+    0.513
+   ],
+   "min": [
+    -0.251,
+    0,
+    -0.257
+   ],
+   "max": [
+    0.251,
+    3,
+    0.257
+   ],
+   "skinned": false,
+   "bytes": 3484,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Interior_Wall_Door_01": {
+   "tris": 212,
+   "size": [
+    3,
+    3,
+    0.386
+   ],
+   "min": [
+    0,
+    0,
+    -0.193
+   ],
+   "max": [
+    3,
+    3,
+    0.193
+   ],
+   "skinned": false,
+   "bytes": 16404,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Interior_Wall_Half_01": {
+   "tris": 24,
+   "size": [
+    1.5,
+    3,
+    0.386
+   ],
+   "min": [
+    0,
+    0,
+    -0.193
+   ],
+   "max": [
+    1.5,
+    3,
+    0.193
+   ],
+   "skinned": false,
+   "bytes": 3480,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Brick_01": {
+   "tris": 24,
+   "size": [
+    3,
+    3,
+    0.39
+   ],
+   "min": [
+    0,
+    0,
+    -0.193
+   ],
+   "max": [
+    3,
+    3,
+    0.197
+   ],
+   "skinned": false,
+   "bytes": 3444,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Brick_Half_01": {
+   "tris": 14,
+   "size": [
+    1.5,
+    3,
+    0.39
+   ],
+   "min": [
+    0,
+    0,
+    -0.193
+   ],
+   "max": [
+    1.5,
+    3,
+    0.197
+   ],
+   "skinned": false,
+   "bytes": 2584,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Brick_Door_01": {
+   "tris": 226,
+   "size": [
+    3,
+    3,
+    0.39
+   ],
+   "min": [
+    0,
+    0,
+    -0.193
+   ],
+   "max": [
+    3,
+    3,
+    0.197
+   ],
+   "skinned": false,
+   "bytes": 17416,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Brick_Door_02": {
+   "tris": 286,
+   "size": [
+    3,
+    3,
+    0.39
+   ],
+   "min": [
+    0,
+    0,
+    -0.193
+   ],
+   "max": [
+    3,
+    3,
+    0.197
+   ],
+   "skinned": false,
+   "bytes": 21536,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Brick_Exterior_Corner_01": {
+   "tris": 20,
+   "size": [
+    0.197,
+    3,
+    0.197
+   ],
+   "min": [
+    -0.197,
+    0,
+    0
+   ],
+   "max": [
+    0,
+    3,
+    0.197
+   ],
+   "skinned": false,
+   "bytes": 3136,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Door_01": {
+   "tris": 124,
+   "size": [
+    1.015,
+    2.213,
+    0.246
+   ],
+   "min": [
+    -1.015,
+    0,
+    -0.085
+   ],
+   "max": [
+    0,
+    2.213,
+    0.161
+   ],
+   "skinned": false,
+   "bytes": 11940,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Metal_01": {
+   "tris": 272,
+   "size": [
+    3,
+    3.129,
+    0.217
+   ],
+   "min": [
+    0,
+    -0.129,
+    -0.036
+   ],
+   "max": [
+    3,
+    3,
+    0.181
+   ],
+   "skinned": false,
+   "bytes": 23764,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Metal_Half_01": {
+   "tris": 132,
+   "size": [
+    1.5,
+    3.129,
+    0.217
+   ],
+   "min": [
+    0,
+    -0.129,
+    -0.036
+   ],
+   "max": [
+    1.5,
+    3,
+    0.181
+   ],
+   "skinned": false,
+   "bytes": 12124,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Metal_Door_01": {
+   "tris": 452,
+   "size": [
+    3,
+    3.129,
+    0.321
+   ],
+   "min": [
+    0,
+    -0.129,
+    -0.14
+   ],
+   "max": [
+    3,
+    3,
+    0.181
+   ],
+   "skinned": false,
+   "bytes": 34452,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Metal_Exterior_Corner_01": {
+   "tris": 24,
+   "size": [
+    0.181,
+    3.129,
+    0.181
+   ],
+   "min": [
+    0,
+    -0.129,
+    -0.181
+   ],
+   "max": [
+    0.181,
+    3,
+    0
+   ],
+   "skinned": false,
+   "bytes": 3496,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Metal_Exterior_Corner_02": {
+   "tris": 24,
+   "size": [
+    0.181,
+    3.129,
+    0.181
+   ],
+   "min": [
+    -0.181,
+    -0.129,
+    0
+   ],
+   "max": [
+    0,
+    3,
+    0.181
+   ],
+   "skinned": false,
+   "bytes": 3496,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Beam_02": {
+   "tris": 44,
+   "size": [
+    0.382,
+    3,
+    0.476
+   ],
+   "min": [
+    -0.191,
+    0,
+    -0.274
+   ],
+   "max": [
+    0.191,
+    3,
+    0.202
+   ],
+   "skinned": false,
+   "bytes": 5200,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Beam_03": {
+   "tris": 62,
+   "size": [
+    0.382,
+    3,
+    0.476
+   ],
+   "min": [
+    -0.191,
+    0,
+    -0.238
+   ],
+   "max": [
+    0.191,
+    3,
+    0.238
+   ],
+   "skinned": false,
+   "bytes": 6752,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Beam_04": {
+   "tris": 62,
+   "size": [
+    0.382,
+    6,
+    0.476
+   ],
+   "min": [
+    -0.191,
+    0,
+    -0.238
+   ],
+   "max": [
+    0.191,
+    6,
+    0.238
+   ],
+   "skinned": false,
+   "bytes": 6752,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Beam_Bare_01": {
+   "tris": 32,
+   "size": [
+    0.262,
+    3,
+    0.331
+   ],
+   "min": [
+    -0.131,
+    0,
+    -0.005
+   ],
+   "max": [
+    0.131,
+    3,
+    0.326
+   ],
+   "skinned": false,
+   "bytes": 4168,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Beam_Bare_02": {
+   "tris": 32,
+   "size": [
+    0.262,
+    3,
+    0.331
+   ],
+   "min": [
+    -0.131,
+    0,
+    -0.202
+   ],
+   "max": [
+    0.131,
+    3,
+    0.128
+   ],
+   "skinned": false,
+   "bytes": 4168,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Beam_Side_01": {
+   "tris": 32,
+   "size": [
+    2.957,
+    0.262,
+    0.178
+   ],
+   "min": [
+    0.021,
+    2.681,
+    0.071
+   ],
+   "max": [
+    2.979,
+    2.943,
+    0.249
+   ],
+   "skinned": false,
+   "bytes": 4196,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Roof_Flat_Closed_01": {
+   "tris": 111,
+   "size": [
+    3.387,
+    0.222,
+    3.387
+   ],
+   "min": [
+    -0.193,
+    0,
+    -3.193
+   ],
+   "max": [
+    3.193,
+    0.222,
+    0.193
+   ],
+   "skinned": false,
+   "bytes": 8912,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Manhole_01": {
+   "tris": 258,
+   "size": [
+    1.017,
+    0.058,
+    0.995
+   ],
+   "min": [
+    -0.508,
+    0,
+    -0.498
+   ],
+   "max": [
+    0.508,
+    0.058,
+    0.498
+   ],
+   "skinned": false,
+   "bytes": 21384,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Lab_Clamp_01": {
+   "tris": 56,
+   "size": [
+    0.161,
+    0.732,
+    0.161
+   ],
+   "min": [
+    -0.081,
+    0,
+    -0.081
+   ],
+   "max": [
+    0.081,
+    0.732,
+    0.081
+   ],
+   "skinned": false,
+   "bytes": 5848,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Lab_Funnel_01": {
+   "tris": 96,
+   "size": [
+    0.174,
+    0.139,
+    0.174
+   ],
+   "min": [
+    -0.087,
+    0,
+    -0.087
+   ],
+   "max": [
+    0.087,
+    0.139,
+    0.087
+   ],
+   "skinned": false,
+   "bytes": 9704,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_ZipBag_Green_S_01": {
+   "tris": 92,
+   "size": [
+    0.167,
+    0.075,
+    0.254
+   ],
+   "min": [
+    -0.083,
+    0,
+    -0.127
+   ],
+   "max": [
+    0.083,
+    0.075,
+    0.127
+   ],
+   "skinned": false,
+   "bytes": 9376,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_ZipBag_Green_L_01": {
+   "tris": 176,
+   "size": [
+    0.385,
+    0.311,
+    0.198
+   ],
+   "min": [
+    -0.192,
+    0,
+    -0.099
+   ],
+   "max": [
+    0.192,
+    0.311,
+    0.099
+   ],
+   "skinned": false,
+   "bytes": 17296,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Bag_Green_01": {
+   "tris": 230,
+   "size": [
+    0.393,
+    0.35,
+    0.282
+   ],
+   "min": [
+    -0.197,
+    0,
+    -0.141
+   ],
+   "max": [
+    0.197,
+    0.35,
+    0.141
+   ],
+   "skinned": false,
+   "bytes": 21564,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_ZipBag_White_S_01": {
+   "tris": 92,
+   "size": [
+    0.167,
+    0.075,
+    0.254
+   ],
+   "min": [
+    -0.083,
+    0,
+    -0.127
+   ],
+   "max": [
+    0.083,
+    0.075,
+    0.127
+   ],
+   "skinned": false,
+   "bytes": 9352,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Bag_White_01": {
+   "tris": 230,
+   "size": [
+    0.393,
+    0.35,
+    0.282
+   ],
+   "min": [
+    -0.197,
+    0,
+    -0.141
+   ],
+   "max": [
+    0.197,
+    0.35,
+    0.141
+   ],
+   "skinned": false,
+   "bytes": 21564,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Cigarette_Long_01": {
+   "tris": 72,
+   "size": [
+    0.027,
+    0.025,
+    0.215
+   ],
+   "min": [
+    -0.013,
+    -0.012,
+    -0.029
+   ],
+   "max": [
+    0.013,
+    0.012,
+    0.186
+   ],
+   "skinned": false,
+   "bytes": 7688,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Cigarette_01": {
+   "tris": 48,
+   "size": [
+    0.016,
+    0.014,
+    0.147
+   ],
+   "min": [
+    -0.008,
+    -0.007,
+    -0.02
+   ],
+   "max": [
+    0.008,
+    0.007,
+    0.127
+   ],
+   "skinned": false,
+   "bytes": 5176,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Cigarette_Pack_01": {
+   "tris": 76,
+   "size": [
+    0.095,
+    0.134,
+    0.04
+   ],
+   "min": [
+    -0.048,
+    -0.067,
+    -0.02
+   ],
+   "max": [
+    0.048,
+    0.067,
+    0.02
+   ],
+   "skinned": false,
+   "bytes": 6712,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Blender_Jug_01": {
+   "tris": 114,
+   "size": [
+    0.256,
+    0.262,
+    0.188
+   ],
+   "min": [
+    -0.128,
+    -0.131,
+    -0.094
+   ],
+   "max": [
+    0.128,
+    0.131,
+    0.094
+   ],
+   "skinned": false,
+   "bytes": 10620,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Blender_Lid_01": {
+   "tris": 80,
+   "size": [
+    0.202,
+    0.03,
+    0.202
+   ],
+   "min": [
+    -0.101,
+    0,
+    -0.101
+   ],
+   "max": [
+    0.101,
+    0.03,
+    0.101
+   ],
+   "skinned": false,
+   "bytes": 7760,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Safe_Door_01": {
+   "tris": 266,
+   "size": [
+    0.453,
+    0.475,
+    0.115
+   ],
+   "min": [
+    -0.438,
+    0,
+    -0.065
+   ],
+   "max": [
+    0.015,
+    0.475,
+    0.05
+   ],
+   "skinned": false,
+   "bytes": 21376,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Pills_01": {
+   "tris": 136,
+   "size": [
+    0.105,
+    0.168,
+    0.105
+   ],
+   "min": [
+    -0.052,
+    0,
+    -0.052
+   ],
+   "max": [
+    0.052,
+    0.168,
+    0.052
+   ],
+   "skinned": false,
+   "bytes": 12588,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Pills_03": {
+   "tris": 136,
+   "size": [
+    0.105,
+    0.168,
+    0.105
+   ],
+   "min": [
+    -0.052,
+    0,
+    -0.052
+   ],
+   "max": [
+    0.052,
+    0.168,
+    0.052
+   ],
+   "skinned": false,
+   "bytes": 12588,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Money_Roll_01": {
+   "tris": 240,
+   "size": [
+    0.082,
+    0.127,
+    0.078
+   ],
+   "min": [
+    -0.041,
+    0,
+    -0.039
+   ],
+   "max": [
+    0.041,
+    0.127,
+    0.039
+   ],
+   "skinned": false,
+   "bytes": 21364,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Powder_Pile_01": {
+   "tris": 161,
+   "size": [
+    0.278,
+    0.113,
+    0.336
+   ],
+   "min": [
+    -0.139,
+    0,
+    -0.168
+   ],
+   "max": [
+    0.139,
+    0.113,
+    0.168
+   ],
+   "skinned": false,
+   "bytes": 17572,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Bottle_Small_01": {
+   "tris": 160,
+   "size": [
+    0.072,
+    0.131,
+    0.072
+   ],
+   "min": [
+    -0.036,
+    0,
+    -0.036
+   ],
+   "max": [
+    0.036,
+    0.131,
+    0.036
+   ],
+   "skinned": false,
+   "bytes": 14500,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Bottle_Small_02": {
+   "tris": 144,
+   "size": [
+    0.072,
+    0.131,
+    0.072
+   ],
+   "min": [
+    -0.036,
+    0,
+    -0.036
+   ],
+   "max": [
+    0.036,
+    0.131,
+    0.036
+   ],
+   "skinned": false,
+   "bytes": 12644,
+   "materials": [
+    {
+     "name": "PolygonGangWarfare_Base_Mat",
+     "map": null,
+     "image": "PolygonDrugs_Texture_01_A.psd"
+    }
+   ]
+  }
+ }
+}

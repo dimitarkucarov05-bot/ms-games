@@ -1,0 +1,14 @@
+[
+ {
+  "pack": "POLYGON/Apocalypse Pack",
+  "models": [
+   "SM_Wep_Hammer_01", "SM_Wep_Plank_01", "SM_Wep_Plank_Nails_01", "SM_Wep_Nailgun_01", "SM_Wep_Crowbar_01",
+   "SM_Prop_Plank_02", "SM_Prop_Plank_Block_01", "SM_Prop_Plank_Bench_01",
+   "SM_Prop_Propane_01", "SM_Wep_Bomb_Propane_01", "SM_Wep_Bomb_GasCan_01", "SM_Wep_Molotov_01",
+   "SM_Prop_Barricade_10", "SM_Prop_Barricade_12", "SM_Prop_Barricade_13", "SM_Prop_Barricade_Metal_01", "SM_Prop_Barricade_DiamondPlate_01", "SM_Prop_Barricade_Wired_02",
+   "SM_Bld_Door_Barricaded_01", "SM_Bld_Door_Barricaded_02", "SM_Bld_Door_Barricaded_03", "SM_Bld_Door_Barricaded_04", "SM_Bld_Door_Barricaded_05", "SM_Bld_Door_Barricaded_06", "SM_Bld_Door_Barricaded_08", "SM_Bld_Door_Barricaded_09",
+   "SM_Prop_Fence_Wood_Gate_01", "SM_Prop_Fence_Wood_01", "SM_Prop_Fence_Wood_Post_01", "SM_Prop_Wood_Pole_01", "SM_Prop_Wood_Pole_02", "SM_Prop_Scaffold_Wood_01",
+   "SM_Bld_Motel_01_Barricades_01"
+  ]
+ }
+]

@@ -1,0 +1,198 @@
+[
+ {
+  "pack": "POLYGON/Shops Pack",
+  "models": [
+   "SM_Prop_Food_Bun_Bottom_01",
+   "SM_Prop_Food_Bun_Top_01",
+   "SM_Prop_Food_Meat_Patty_Raw_01",
+   "SM_Prop_Food_Meat_Patty_Cooked_01",
+   "SM_Prop_Food_Meat_Patty_Burnt_01",
+   "SM_Prop_Food_Cheese_Slice_01",
+   "SM_Prop_Food_Lettuce_Leaves_01",
+   "SM_Prop_Food_Plate_01",
+   "SM_Prop_Food_Fries_01",
+   "SM_Prop_Food_Cup_01",
+   "SM_Prop_Cardboard_Box_02",
+   "SM_Prop_Kitchen_Grill_01",
+   "SM_Prop_Kitchen_Deep_Fryer_01",
+   "SM_Prop_Kitchen_Drinks_Machine_01",
+   "SM_Prop_Kitchen_Prep_Table_02",
+   "SM_Prop_Kitchen_Counter_Section_01",
+   "SM_Prop_Rubbish_Bin_03",
+   "SM_Prop_Market_Drinks_Fridge_01",
+   "SM_Prop_Market_Drinks_Fridge_02",
+   "SM_Prop_Notice_Board_01",
+   "SM_Prop_Wall_Vent_01",
+   "SM_Prop_Elevator_Buttons_01",
+   "SM_Prop_Elevator_Arrows_01",
+   "SM_Prop_Planter_Box_01",
+   "SM_Bld_Wall_Shutter_01",
+   "SM_Bld_Wall_Elevator_Insert_01",
+   "SM_Env_Plant_04"
+  ],
+  "textures": []
+ },
+ {
+  "pack": "POLYGON/Gang Warfare Pack",
+  "models": [
+   "SM_Prop_Lab_Beaker_05",
+   "SM_Prop_Tray_01",
+   "SM_Prop_Tray_Blue_01",
+   "SM_Prop_ZipBag_Blue_L_01",
+   "SM_Prop_Bottle_01",
+   "SM_Prop_Lab_Bulb_03",
+   "SM_Prop_Bucket_Tin_01",
+   "SM_Prop_Chemical_01",
+   "SM_Prop_Chemical_03",
+   "SM_Prop_Container_03",
+   "SM_Prop_Table_Metal_01",
+   "SM_Prop_Blender_01",
+   "SM_Prop_MiniStove_01",
+   "SM_Prop_Scales_01",
+   "SM_Prop_Lab_Burner_02",
+   "SM_Prop_CardboardBox_Open_01"
+  ],
+  "textures": [
+   "PolygonGangWarfare_Texture_01_A.png"
+  ]
+ },
+ {
+  "pack": "POLYGON/Kids Pack",
+  "models": [
+   "SM_Prop_Toy_Block_01",
+   "SM_Prop_Toy_Block_02",
+   "SM_Prop_Halloween_Bag_01",
+   "SM_Prop_Candy_04",
+   "SM_Prop_Candy_05"
+  ],
+  "textures": []
+ },
+ {
+  "characters": [
+   {
+    "pack": "City Characters Pack",
+    "name": "SK_Character_Biker",
+    "sex": "m"
+   },
+   {
+    "pack": "City Characters Pack",
+    "name": "SK_Character_PunkGirl",
+    "sex": "f"
+   },
+   {
+    "pack": "City Characters Pack",
+    "name": "SK_Character_HipsterGuy",
+    "sex": "m"
+   },
+   {
+    "pack": "City Characters Pack",
+    "name": "SK_Character_GamerGirl",
+    "sex": "f"
+   },
+   {
+    "pack": "City Characters Pack",
+    "name": "SK_Character_Jock",
+    "sex": "m"
+   },
+   {
+    "pack": "City Characters Pack",
+    "name": "SK_Character_Grandma",
+    "sex": "f"
+   },
+   {
+    "pack": "City Characters Pack",
+    "name": "SK_Character_Tourist",
+    "sex": "m"
+   },
+   {
+    "pack": "Town Pack",
+    "name": "SK_Character_Father_01",
+    "sex": "m"
+   },
+   {
+    "pack": "Town Pack",
+    "name": "SK_Character_Mother_01",
+    "sex": "f"
+   },
+   {
+    "pack": "Town Pack",
+    "name": "SK_Character_Son_01",
+    "sex": "m"
+   },
+   {
+    "pack": "Town Pack",
+    "name": "SK_Character_Daughter_01",
+    "sex": "f"
+   },
+   {
+    "pack": "Town Pack",
+    "name": "SK_Character_SchoolBoy_01",
+    "sex": "m"
+   },
+   {
+    "pack": "Town Pack",
+    "name": "SK_Character_SchoolGirl_01",
+    "sex": "f"
+   }
+  ],
+  "special": {
+   "night": "SK_Character_Tourist",
+   "kids": "SK_Character_Tourist"
+  },
+  "looks": {
+   "kids": [
+    "SK_Character_Father_01",
+    "SK_Character_Mother_01",
+    "SK_Character_Son_01",
+    "SK_Character_Daughter_01",
+    "SK_Character_SchoolBoy_01",
+    "SK_Character_SchoolGirl_01"
+   ],
+   "night": [
+    "SK_Character_Biker",
+    "SK_Character_PunkGirl",
+    "SK_Character_HipsterGuy",
+    "SK_Character_GamerGirl",
+    "SK_Character_Jock",
+    "SK_Character_Grandma"
+   ]
+  },
+  "clips": {
+   "idle_m": {
+    "file": "A_Idle_Standing_Masc"
+   },
+   "idle_f": {
+    "file": "A_Idle_Standing_Femn"
+   },
+   "walk_m": {
+    "file": "A_Walk_F_Masc"
+   },
+   "walk_f": {
+    "file": "A_Walk_F_Femn"
+   },
+   "happy_m": {
+    "file": "A_POLY_EMOT_Happy_ArmsRaised_Masc"
+   },
+   "happy_f": {
+    "file": "A_POLY_EMOT_Happy_ArmsRaised_Femn"
+   },
+   "angry_m": {
+    "file": "A_POLY_EMOT_Angry_ShakeFist_Masc"
+   },
+   "angry_f": {
+    "file": "A_POLY_EMOT_Angry_ShakeFist_Femn"
+   },
+   "bored_m": {
+    "file": "A_POLY_IDL_Bored_FootTap_Masc"
+   },
+   "bored_f": {
+    "file": "A_POLY_IDL_Bored_FootTap_Femn"
+   }
+  },
+  "hands": {
+   "l": "Sidekick/Parts/HNDL/SK_HUMN_BASE_01_15HNDL_HU01.glb",
+   "r": "Sidekick/Parts/HNDR/SK_HUMN_BASE_01_16HNDR_HU01.glb",
+   "length": 0.19
+  }
+ }
+]

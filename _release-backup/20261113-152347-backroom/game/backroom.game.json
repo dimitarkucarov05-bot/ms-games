@@ -1,0 +1,32 @@
+{
+  "id": "backroom",
+  "name": "The Back Room",
+  "tagline": "Pizzeria by day, something else by night",
+  "description": "Your team runs a pizzeria in the mall: dough, three sauces, toppings from shrimp to pineapple, the oven, drinks from the tap, customers at the counter. The lift at the back goes down to the cellar: a blue cabinet with supplies ordered from the shop, plants under a lamp, a shredder and a mixer. Some customers come for what is made down there. In the evening the rude ones stand under the red lamp, and there is a button under the counter. The patrol comes by when you least expect it.",
+  "version": "1.1.0",
+  "status": "ready",
+  "rules": "backroom.js",
+  "client": "backroom",
+  "cover": "/play/games/backroom/cover.jpg",
+  "color": "#c8f03c",
+  "minPlayers": 1,
+  "maxPlayers": 6,
+  "minutes": 12,
+  "themes": [
+    {
+      "id": "night",
+      "name": "Standard"
+    },
+    {
+      "id": "kids",
+      "name": "Kids"
+    }
+  ],
+  "tags": [
+    "cooking",
+    "co-op",
+    "two levels",
+    "secret lab",
+    "dark humour"
+  ]
+}

@@ -1,0 +1,4 @@
+"C:/Users/Martiness/Downloads/vr-arena/lobby/tools/apk-vr/src/bg/arena/vr/BootReceiver.java"
+"C:/Users/Martiness/Downloads/vr-arena/lobby/tools/apk-vr/src/bg/arena/vr/KeepService.java"
+"C:/Users/Martiness/Downloads/vr-arena/lobby/tools/apk-vr/src/bg/arena/vr/LauncherActivity.java"
+"C:/Users/Martiness/Downloads/vr-arena/lobby/tools/apk-vr/build/gen/bg/arena/vr/R.java"

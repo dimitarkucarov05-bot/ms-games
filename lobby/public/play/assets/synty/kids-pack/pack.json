@@ -1,0 +1,4111 @@
+{
+ "pack": "POLYGON/Kids Pack",
+ "models": {
+  "SM_Prop_Toy_Block_01": {
+   "tris": 188,
+   "size": [
+    0.1,
+    0.1,
+    0.1
+   ],
+   "min": [
+    -0.05,
+    0,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0.1,
+    0.05
+   ],
+   "skinned": false,
+   "bytes": 14948,
+   "materials": [
+    {
+     "name": "KidsSHD222",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Toy_Block_02": {
+   "tris": 300,
+   "size": [
+    0.1,
+    0.101,
+    0.1
+   ],
+   "min": [
+    -0.05,
+    -0.001,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0.1,
+    0.05
+   ],
+   "skinned": false,
+   "bytes": 23128,
+   "materials": [
+    {
+     "name": "KidsSHD223",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Toy_Block_03": {
+   "tris": 44,
+   "size": [
+    0.05,
+    0.033,
+    0.1
+   ],
+   "min": [
+    -0.025,
+    0,
+    -0.05
+   ],
+   "max": [
+    0.025,
+    0.033,
+    0.05
+   ],
+   "skinned": false,
+   "bytes": 4976,
+   "materials": [
+    {
+     "name": "KidsSHD224",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Toy_Block_04": {
+   "tris": 28,
+   "size": [
+    0.05,
+    0.033,
+    0.05
+   ],
+   "min": [
+    -0.025,
+    0,
+    -0.025
+   ],
+   "max": [
+    0.025,
+    0.033,
+    0.025
+   ],
+   "skinned": false,
+   "bytes": 3680,
+   "materials": [
+    {
+     "name": "KidsSHD225",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Candy_01": {
+   "tris": 16,
+   "size": [
+    0.015,
+    0.03,
+    0.01
+   ],
+   "min": [
+    -0.008,
+    -0.015,
+    -0.005
+   ],
+   "max": [
+    0.008,
+    0.015,
+    0.005
+   ],
+   "skinned": false,
+   "bytes": 3116,
+   "materials": [
+    {
+     "name": "KidsSHD36",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Candy_02": {
+   "tris": 106,
+   "size": [
+    0.026,
+    0.027,
+    0.104
+   ],
+   "min": [
+    -0.013,
+    -0.014,
+    -0.052
+   ],
+   "max": [
+    0.013,
+    0.014,
+    0.052
+   ],
+   "skinned": false,
+   "bytes": 11264,
+   "materials": [
+    {
+     "name": "KidsSHD37",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Candy_03": {
+   "tris": 106,
+   "size": [
+    0.026,
+    0.027,
+    0.104
+   ],
+   "min": [
+    -0.013,
+    -0.014,
+    -0.052
+   ],
+   "max": [
+    0.013,
+    0.014,
+    0.052
+   ],
+   "skinned": false,
+   "bytes": 11268,
+   "materials": [
+    {
+     "name": "KidsSHD38",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Candy_04": {
+   "tris": 108,
+   "size": [
+    0.065,
+    0.021,
+    0.098
+   ],
+   "min": [
+    -0.033,
+    -0.01,
+    -0.049
+   ],
+   "max": [
+    0.033,
+    0.011,
+    0.049
+   ],
+   "skinned": false,
+   "bytes": 11196,
+   "materials": [
+    {
+     "name": "KidsSHD39",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Candy_05": {
+   "tris": 108,
+   "size": [
+    0.037,
+    0.021,
+    0.098
+   ],
+   "min": [
+    -0.019,
+    -0.01,
+    -0.049
+   ],
+   "max": [
+    0.019,
+    0.011,
+    0.049
+   ],
+   "skinned": false,
+   "bytes": 11196,
+   "materials": [
+    {
+     "name": "KidsSHD40",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cauldron_01": {
+   "tris": 376,
+   "size": [
+    0.345,
+    0.283,
+    0.358
+   ],
+   "min": [
+    -0.191,
+    -0.001,
+    -0.179
+   ],
+   "max": [
+    0.154,
+    0.282,
+    0.179
+   ],
+   "skinned": false,
+   "bytes": 31260,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Pot_01": {
+   "tris": 146,
+   "size": [
+    0.136,
+    0.092,
+    0.275
+   ],
+   "min": [
+    -0.068,
+    0,
+    -0.207
+   ],
+   "max": [
+    0.068,
+    0.092,
+    0.068
+   ],
+   "skinned": false,
+   "bytes": 12408,
+   "materials": [
+    {
+     "name": "KidsSHD189",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Pot_02": {
+   "tris": 160,
+   "size": [
+    0.16,
+    0.098,
+    0.213
+   ],
+   "min": [
+    -0.078,
+    -0.001,
+    -0.105
+   ],
+   "max": [
+    0.082,
+    0.098,
+    0.108
+   ],
+   "skinned": false,
+   "bytes": 13992,
+   "materials": [
+    {
+     "name": "KidsSHD190",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Halloween_Bag_01": {
+   "tris": 236,
+   "size": [
+    0.238,
+    0.369,
+    0.179
+   ],
+   "min": [
+    -0.119,
+    0,
+    -0.089
+   ],
+   "max": [
+    0.119,
+    0.369,
+    0.089
+   ],
+   "skinned": false,
+   "bytes": 21240,
+   "materials": [
+    {
+     "name": "KidsSHD105",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Xmas_Present_01": {
+   "tris": 156,
+   "size": [
+    0.33,
+    0.275,
+    0.33
+   ],
+   "min": [
+    -0.165,
+    0,
+    -0.165
+   ],
+   "max": [
+    0.165,
+    0.275,
+    0.165
+   ],
+   "skinned": false,
+   "bytes": 11720,
+   "materials": [
+    {
+     "name": "KidsSHD251",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Xmas_Present_02": {
+   "tris": 178,
+   "size": [
+    0.34,
+    0.287,
+    0.314
+   ],
+   "min": [
+    -0.17,
+    0,
+    -0.156
+   ],
+   "max": [
+    0.17,
+    0.287,
+    0.158
+   ],
+   "skinned": false,
+   "bytes": 14932,
+   "materials": [
+    {
+     "name": "KidsSHD252",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Oven_01": {
+   "tris": 604,
+   "size": [
+    0.732,
+    0.77,
+    0.436
+   ],
+   "min": [
+    -0.366,
+    0,
+    -0.21
+   ],
+   "max": [
+    0.366,
+    0.77,
+    0.226
+   ],
+   "skinned": false,
+   "bytes": 43696,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Table_01": {
+   "tris": 210,
+   "size": [
+    1.101,
+    0.496,
+    0.916
+   ],
+   "min": [
+    -0.55,
+    0,
+    -0.458
+   ],
+   "max": [
+    0.55,
+    0.496,
+    0.458
+   ],
+   "skinned": false,
+   "bytes": 18520,
+   "materials": [
+    {
+     "name": "KidsSHD211",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Desk_01": {
+   "tris": 324,
+   "size": [
+    0.621,
+    0.564,
+    0.425
+   ],
+   "min": [
+    -0.311,
+    -0.002,
+    -0.212
+   ],
+   "max": [
+    0.311,
+    0.562,
+    0.212
+   ],
+   "skinned": false,
+   "bytes": 26220,
+   "materials": [
+    {
+     "name": "KidsSHD87",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Locker_01": {
+   "tris": 92,
+   "size": [
+    0.414,
+    1.46,
+    0.414
+   ],
+   "min": [
+    -0.207,
+    0,
+    -0.215
+   ],
+   "max": [
+    0.207,
+    1.46,
+    0.199
+   ],
+   "skinned": false,
+   "bytes": 8052,
+   "materials": [
+    {
+     "name": "KidsSHD126",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cash_Register_01": {
+   "tris": 456,
+   "size": [
+    0.296,
+    0.368,
+    0.287
+   ],
+   "min": [
+    -0.148,
+    0,
+    -0.143
+   ],
+   "max": [
+    0.148,
+    0.368,
+    0.143
+   ],
+   "skinned": false,
+   "bytes": 38092,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Box_01": {
+   "tris": 180,
+   "size": [
+    0.697,
+    0.513,
+    0.5
+   ],
+   "min": [
+    -0.32,
+    0,
+    -0.25
+   ],
+   "max": [
+    0.377,
+    0.513,
+    0.25
+   ],
+   "skinned": false,
+   "bytes": 12432,
+   "materials": [
+    {
+     "name": "KidsSHD42",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Blackboard_01": {
+   "tris": 116,
+   "size": [
+    2,
+    1.176,
+    0.147
+   ],
+   "min": [
+    -1,
+    0,
+    -0.023
+   ],
+   "max": [
+    1,
+    1.176,
+    0.125
+   ],
+   "skinned": false,
+   "bytes": 9288,
+   "materials": [
+    {
+     "name": "KidsSHD23",
+     "map": "tex/PolygonKids_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_Bush_01": {
+   "tris": 132,
+   "size": [
+    2.446,
+    1.283,
+    1.853
+   ],
+   "min": [
+    -1.261,
+    -0.339,
+    -0.902
+   ],
+   "max": [
+    1.184,
+    0.944,
+    0.951
+   ],
+   "skinned": false,
+   "bytes": 17644,
+   "materials": [
+    {
+     "name": "lambert13",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Env_Park_Flower_01": {
+   "tris": 135,
+   "size": [
+    0.571,
+    0.308,
+    0.578
+   ],
+   "min": [
+    -0.29,
+    -0.08,
+    -0.306
+   ],
+   "max": [
+    0.282,
+    0.228,
+    0.272
+   ],
+   "skinned": false,
+   "bytes": 15724,
+   "materials": [
+    {
+     "name": "lambert1553",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A_Mike.psd"
+    }
+   ]
+  },
+  "SM_Env_Park_Flower_02": {
+   "tris": 94,
+   "size": [
+    0.533,
+    0.745,
+    0.409
+   ],
+   "min": [
+    -0.284,
+    -0.377,
+    -0.262
+   ],
+   "max": [
+    0.249,
+    0.369,
+    0.147
+   ],
+   "skinned": false,
+   "bytes": 10000,
+   "materials": [
+    {
+     "name": "lambert1554",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A_Mike.psd"
+    }
+   ]
+  },
+  "SM_Env_Park_Lamp_01": {
+   "tris": 738,
+   "size": [
+    0.454,
+    4.274,
+    0.392
+   ],
+   "min": [
+    -0.227,
+    -0.294,
+    -0.196
+   ],
+   "max": [
+    0.227,
+    3.98,
+    0.196
+   ],
+   "skinned": false,
+   "bytes": 57636,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    },
+    {
+     "name": "GlassSHD",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Env_Park_Rubbish_Bin_01": {
+   "tris": 304,
+   "size": [
+    0.584,
+    1.121,
+    0.555
+   ],
+   "min": [
+    -0.292,
+    -0.127,
+    -0.278
+   ],
+   "max": [
+    0.292,
+    0.993,
+    0.278
+   ],
+   "skinned": false,
+   "bytes": 25664,
+   "materials": [
+    {
+     "name": "lambert1561",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A_Mike.psd"
+    }
+   ]
+  },
+  "SM_Env_Park_Seat_01": {
+   "tris": 284,
+   "size": [
+    1.767,
+    0.957,
+    0.63
+   ],
+   "min": [
+    -0.883,
+    -0.067,
+    -0.315
+   ],
+   "max": [
+    0.883,
+    0.89,
+    0.315
+   ],
+   "skinned": false,
+   "bytes": 25212,
+   "materials": [
+    {
+     "name": "lambert1562",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A_Mike.psd"
+    }
+   ]
+  },
+  "SM_Env_Tree_01": {
+   "tris": 484,
+   "size": [
+    3.291,
+    4.344,
+    3.074
+   ],
+   "min": [
+    -1.504,
+    -0.193,
+    -1.314
+   ],
+   "max": [
+    1.787,
+    4.151,
+    1.76
+   ],
+   "skinned": false,
+   "bytes": 55060,
+   "materials": [
+    {
+     "name": "_lambert2",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A_Mike.psd"
+    }
+   ]
+  },
+  "SM_Prop_3D_Viewer_01": {
+   "tris": 676,
+   "size": [
+    0.141,
+    0.115,
+    0.064
+   ],
+   "min": [
+    -0.08,
+    -0.007,
+    -0.032
+   ],
+   "max": [
+    0.061,
+    0.107,
+    0.032
+   ],
+   "skinned": false,
+   "bytes": 46308,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Adornment_01": {
+   "tris": 264,
+   "size": [
+    0.265,
+    0.687,
+    0.228
+   ],
+   "min": [
+    -0.133,
+    -0.16,
+    -0.116
+   ],
+   "max": [
+    0.132,
+    0.527,
+    0.113
+   ],
+   "skinned": false,
+   "bytes": 24304,
+   "materials": [
+    {
+     "name": "KidsSHD7",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Adornment_02": {
+   "tris": 188,
+   "size": [
+    0.173,
+    0.398,
+    0.083
+   ],
+   "min": [
+    -0.088,
+    -0.109,
+    -0.018
+   ],
+   "max": [
+    0.085,
+    0.289,
+    0.065
+   ],
+   "skinned": false,
+   "bytes": 17368,
+   "materials": [
+    {
+     "name": "KidsSHD8",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Adornment_03": {
+   "tris": 204,
+   "size": [
+    0.168,
+    0.492,
+    0.04
+   ],
+   "min": [
+    -0.096,
+    -0.11,
+    -0.017
+   ],
+   "max": [
+    0.072,
+    0.382,
+    0.024
+   ],
+   "skinned": false,
+   "bytes": 19304,
+   "materials": [
+    {
+     "name": "KidsSHD9",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Adornment_04": {
+   "tris": 272,
+   "size": [
+    0.225,
+    0.176,
+    0.218
+   ],
+   "min": [
+    -0.112,
+    -0.002,
+    -0.117
+   ],
+   "max": [
+    0.112,
+    0.174,
+    0.101
+   ],
+   "skinned": false,
+   "bytes": 23316,
+   "materials": [
+    {
+     "name": "KidsSHD10",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Adornment_05": {
+   "tris": 260,
+   "size": [
+    0.392,
+    0.226,
+    0.134
+   ],
+   "min": [
+    -0.183,
+    -0.108,
+    -0.007
+   ],
+   "max": [
+    0.209,
+    0.118,
+    0.127
+   ],
+   "skinned": false,
+   "bytes": 24996,
+   "materials": [
+    {
+     "name": "KidsSHD11",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    },
+    {
+     "name": "GlassSHD",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Adornment_06": {
+   "tris": 240,
+   "size": [
+    0.182,
+    0.176,
+    0.175
+   ],
+   "min": [
+    -0.091,
+    -0.002,
+    -0.096
+   ],
+   "max": [
+    0.091,
+    0.174,
+    0.08
+   ],
+   "skinned": false,
+   "bytes": 20720,
+   "materials": [
+    {
+     "name": "KidsSHD12",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Ball_01": {
+   "tris": 116,
+   "size": [
+    0.277,
+    0.281,
+    0.273
+   ],
+   "min": [
+    -0.138,
+    -0.14,
+    -0.137
+   ],
+   "max": [
+    0.138,
+    0.14,
+    0.137
+   ],
+   "skinned": false,
+   "bytes": 9328,
+   "materials": [
+    {
+     "name": "KidsSHD13",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Ball_02": {
+   "tris": 140,
+   "size": [
+    0.293,
+    0.271,
+    0.278
+   ],
+   "min": [
+    -0.146,
+    -0.135,
+    -0.139
+   ],
+   "max": [
+    0.146,
+    0.135,
+    0.139
+   ],
+   "skinned": false,
+   "bytes": 14276,
+   "materials": [
+    {
+     "name": "KidsSHD14",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Ball_03": {
+   "tris": 220,
+   "size": [
+    0.237,
+    0.245,
+    0.237
+   ],
+   "min": [
+    -0.119,
+    -0.123,
+    -0.119
+   ],
+   "max": [
+    0.119,
+    0.123,
+    0.119
+   ],
+   "skinned": false,
+   "bytes": 21640,
+   "materials": [
+    {
+     "name": "KidsSHD15",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Ball_04": {
+   "tris": 132,
+   "size": [
+    0.346,
+    0.228,
+    0.228
+   ],
+   "min": [
+    -0.173,
+    -0.114,
+    -0.114
+   ],
+   "max": [
+    0.173,
+    0.114,
+    0.114
+   ],
+   "skinned": false,
+   "bytes": 13908,
+   "materials": [
+    {
+     "name": "KidsSHD16",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Ball_05": {
+   "tris": 96,
+   "size": [
+    0.317,
+    0.171,
+    0.171
+   ],
+   "min": [
+    -0.158,
+    -0.086,
+    -0.086
+   ],
+   "max": [
+    0.158,
+    0.086,
+    0.086
+   ],
+   "skinned": false,
+   "bytes": 10324,
+   "materials": [
+    {
+     "name": "KidsSHD17",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Ball_06": {
+   "tris": 92,
+   "size": [
+    0.104,
+    0.104,
+    0.104
+   ],
+   "min": [
+    -0.052,
+    -0.052,
+    -0.052
+   ],
+   "max": [
+    0.052,
+    0.052,
+    0.052
+   ],
+   "skinned": false,
+   "bytes": 11736,
+   "materials": [
+    {
+     "name": "KidsSHD18",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Ball_07": {
+   "tris": 92,
+   "size": [
+    0.104,
+    0.104,
+    0.104
+   ],
+   "min": [
+    -0.052,
+    -0.052,
+    -0.052
+   ],
+   "max": [
+    0.052,
+    0.052,
+    0.052
+   ],
+   "skinned": false,
+   "bytes": 11736,
+   "materials": [
+    {
+     "name": "KidsSHD19",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Ball_08": {
+   "tris": 128,
+   "size": [
+    0.101,
+    0.097,
+    0.101
+   ],
+   "min": [
+    -0.05,
+    -0.049,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0.049,
+    0.05
+   ],
+   "skinned": false,
+   "bytes": 13076,
+   "materials": [
+    {
+     "name": "KidsSHD20",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Blanket_Fort_01": {
+   "tris": 3194,
+   "size": [
+    1.965,
+    1.611,
+    2.546
+   ],
+   "min": [
+    -0.972,
+    -0.015,
+    -1.259
+   ],
+   "max": [
+    0.994,
+    1.596,
+    1.287
+   ],
+   "skinned": false,
+   "bytes": 286624,
+   "materials": [
+    {
+     "name": "KidsSHD25",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Blanket_Fort_02": {
+   "tris": 2122,
+   "size": [
+    2.158,
+    1.121,
+    2.626
+   ],
+   "min": [
+    -1.325,
+    0,
+    -1.395
+   ],
+   "max": [
+    0.834,
+    1.121,
+    1.231
+   ],
+   "skinned": false,
+   "bytes": 163868,
+   "materials": [
+    {
+     "name": "KidsSHD26",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Bucket_01": {
+   "tris": 276,
+   "size": [
+    0.194,
+    0.192,
+    0.208
+   ],
+   "min": [
+    -0.097,
+    0,
+    -0.104
+   ],
+   "max": [
+    0.097,
+    0.192,
+    0.104
+   ],
+   "skinned": false,
+   "bytes": 22200,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Cake_01": {
+   "tris": 1012,
+   "size": [
+    0.388,
+    0.281,
+    0.37
+   ],
+   "min": [
+    -0.194,
+    0,
+    -0.185
+   ],
+   "max": [
+    0.194,
+    0.281,
+    0.185
+   ],
+   "skinned": false,
+   "bytes": 95304,
+   "materials": [
+    {
+     "name": "KidsSHD31",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cake_02": {
+   "tris": 1214,
+   "size": [
+    0.387,
+    0.281,
+    0.371
+   ],
+   "min": [
+    -0.193,
+    0,
+    -0.186
+   ],
+   "max": [
+    0.194,
+    0.281,
+    0.185
+   ],
+   "skinned": false,
+   "bytes": 113956,
+   "materials": [
+    {
+     "name": "KidsSHD32",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Calculator_01": {
+   "tris": 48,
+   "size": [
+    0.123,
+    0.027,
+    0.185
+   ],
+   "min": [
+    -0.061,
+    0,
+    -0.093
+   ],
+   "max": [
+    0.061,
+    0.027,
+    0.093
+   ],
+   "skinned": false,
+   "bytes": 4820,
+   "materials": [
+    {
+     "name": "KidsSHD33",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Camera_01": {
+   "tris": 240,
+   "size": [
+    0.156,
+    0.152,
+    0.083
+   ],
+   "min": [
+    -0.081,
+    -0.068,
+    -0.035
+   ],
+   "max": [
+    0.075,
+    0.084,
+    0.048
+   ],
+   "skinned": false,
+   "bytes": 19636,
+   "materials": [
+    {
+     "name": "KidsSHD34",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Boat_01": {
+   "tris": 1030,
+   "size": [
+    1.043,
+    1.398,
+    1.298
+   ],
+   "min": [
+    -0.421,
+    0,
+    -0.649
+   ],
+   "max": [
+    0.621,
+    1.398,
+    0.649
+   ],
+   "skinned": false,
+   "bytes": 85856,
+   "materials": [
+    {
+     "name": "KidsSHD41",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Box_02": {
+   "tris": 158,
+   "size": [
+    0.661,
+    0.736,
+    0.216
+   ],
+   "min": [
+    -0.321,
+    0,
+    -0.109
+   ],
+   "max": [
+    0.34,
+    0.736,
+    0.107
+   ],
+   "skinned": false,
+   "bytes": 13728,
+   "materials": [
+    {
+     "name": "KidsSHD43",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Building_01": {
+   "tris": 212,
+   "size": [
+    1.493,
+    1.544,
+    0.453
+   ],
+   "min": [
+    -0.779,
+    0,
+    -0.228
+   ],
+   "max": [
+    0.714,
+    1.544,
+    0.225
+   ],
+   "skinned": false,
+   "bytes": 17704,
+   "materials": [
+    {
+     "name": "KidsSHD44",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Building_02": {
+   "tris": 262,
+   "size": [
+    1.467,
+    1.534,
+    1.161
+   ],
+   "min": [
+    -0.734,
+    0,
+    -0.546
+   ],
+   "max": [
+    0.734,
+    1.534,
+    0.615
+   ],
+   "skinned": false,
+   "bytes": 23560,
+   "materials": [
+    {
+     "name": "KidsSHD45",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Building_03": {
+   "tris": 1669,
+   "size": [
+    1.705,
+    2.04,
+    1.299
+   ],
+   "min": [
+    -0.789,
+    0,
+    -0.616
+   ],
+   "max": [
+    0.917,
+    2.04,
+    0.683
+   ],
+   "skinned": false,
+   "bytes": 139104,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Castle_Piece_01": {
+   "tris": 502,
+   "size": [
+    0.567,
+    1.094,
+    0.569
+   ],
+   "min": [
+    -0.283,
+    0,
+    -0.284
+   ],
+   "max": [
+    0.283,
+    1.094,
+    0.284
+   ],
+   "skinned": false,
+   "bytes": 38688,
+   "materials": [
+    {
+     "name": "KidsSHD47",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Castle_Piece_02": {
+   "tris": 494,
+   "size": [
+    0.567,
+    1.094,
+    0.569
+   ],
+   "min": [
+    -0.283,
+    0,
+    -0.284
+   ],
+   "max": [
+    0.283,
+    1.094,
+    0.284
+   ],
+   "skinned": false,
+   "bytes": 38760,
+   "materials": [
+    {
+     "name": "KidsSHD48",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Castle_Piece_03": {
+   "tris": 522,
+   "size": [
+    0.567,
+    1.094,
+    0.567
+   ],
+   "min": [
+    -0.283,
+    0,
+    -0.283
+   ],
+   "max": [
+    0.283,
+    1.094,
+    0.283
+   ],
+   "skinned": false,
+   "bytes": 41128,
+   "materials": [
+    {
+     "name": "KidsSHD49",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Castle_Piece_04": {
+   "tris": 262,
+   "size": [
+    0.078,
+    0.779,
+    0.993
+   ],
+   "min": [
+    -0.039,
+    0,
+    -0.497
+   ],
+   "max": [
+    0.039,
+    0.779,
+    0.497
+   ],
+   "skinned": false,
+   "bytes": 23080,
+   "materials": [
+    {
+     "name": "KidsSHD50",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Castle_Piece_05": {
+   "tris": 400,
+   "size": [
+    1.273,
+    0.864,
+    0.052
+   ],
+   "min": [
+    -0.636,
+    0,
+    -0.039
+   ],
+   "max": [
+    0.636,
+    0.864,
+    0.013
+   ],
+   "skinned": false,
+   "bytes": 34788,
+   "materials": [
+    {
+     "name": "KidsSHD51",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Castle_Piece_06": {
+   "tris": 212,
+   "size": [
+    0.429,
+    0.618,
+    0.03
+   ],
+   "min": [
+    -0.214,
+    0,
+    -0.015
+   ],
+   "max": [
+    0.214,
+    0.618,
+    0.015
+   ],
+   "skinned": false,
+   "bytes": 17588,
+   "materials": [
+    {
+     "name": "KidsSHD52",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Plane_01": {
+   "tris": 1202,
+   "size": [
+    1.226,
+    0.453,
+    1.122
+   ],
+   "min": [
+    -0.613,
+    0,
+    -0.709
+   ],
+   "max": [
+    0.613,
+    0.453,
+    0.413
+   ],
+   "skinned": false,
+   "bytes": 91132,
+   "materials": [
+    {
+     "name": "KidsSHD53",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Rocket_01": {
+   "tris": 730,
+   "size": [
+    0.88,
+    1.58,
+    0.547
+   ],
+   "min": [
+    -0.44,
+    0,
+    -0.273
+   ],
+   "max": [
+    0.44,
+    1.58,
+    0.273
+   ],
+   "skinned": false,
+   "bytes": 58940,
+   "materials": [
+    {
+     "name": "KidsSHD54",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Roll_01": {
+   "tris": 136,
+   "size": [
+    0.083,
+    0.083,
+    0.578
+   ],
+   "min": [
+    -0.042,
+    -0.042,
+    -0.289
+   ],
+   "max": [
+    0.042,
+    0.042,
+    0.289
+   ],
+   "skinned": false,
+   "bytes": 12176,
+   "materials": [
+    {
+     "name": "KidsSHD55",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Sign_01": {
+   "tris": 140,
+   "size": [
+    0.94,
+    0.487,
+    0.086
+   ],
+   "min": [
+    -0.47,
+    -0.464,
+    -0.041
+   ],
+   "max": [
+    0.469,
+    0.023,
+    0.044
+   ],
+   "skinned": false,
+   "bytes": 12352,
+   "materials": [
+    {
+     "name": "KidsSHD56",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Sign_02": {
+   "tris": 140,
+   "size": [
+    0.94,
+    0.487,
+    0.086
+   ],
+   "min": [
+    -0.47,
+    -0.464,
+    -0.041
+   ],
+   "max": [
+    0.469,
+    0.023,
+    0.044
+   ],
+   "skinned": false,
+   "bytes": 12352,
+   "materials": [
+    {
+     "name": "KidsSHD57",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Sign_03": {
+   "tris": 76,
+   "size": [
+    0.266,
+    0.382,
+    0.089
+   ],
+   "min": [
+    -0.133,
+    -0.364,
+    -0.029
+   ],
+   "max": [
+    0.133,
+    0.018,
+    0.06
+   ],
+   "skinned": false,
+   "bytes": 8128,
+   "materials": [
+    {
+     "name": "KidsSHD58",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Sign_04": {
+   "tris": 76,
+   "size": [
+    0.266,
+    0.382,
+    0.089
+   ],
+   "min": [
+    -0.133,
+    -0.364,
+    -0.029
+   ],
+   "max": [
+    0.133,
+    0.018,
+    0.06
+   ],
+   "skinned": false,
+   "bytes": 8128,
+   "materials": [
+    {
+     "name": "KidsSHD59",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Sign_05": {
+   "tris": 76,
+   "size": [
+    0.266,
+    0.382,
+    0.089
+   ],
+   "min": [
+    -0.133,
+    -0.364,
+    -0.029
+   ],
+   "max": [
+    0.133,
+    0.018,
+    0.06
+   ],
+   "skinned": false,
+   "bytes": 8128,
+   "materials": [
+    {
+     "name": "KidsSHD60",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Sign_06": {
+   "tris": 76,
+   "size": [
+    0.266,
+    0.382,
+    0.089
+   ],
+   "min": [
+    -0.133,
+    -0.364,
+    -0.029
+   ],
+   "max": [
+    0.133,
+    0.018,
+    0.06
+   ],
+   "skinned": false,
+   "bytes": 8128,
+   "materials": [
+    {
+     "name": "KidsSHD61",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Sign_07": {
+   "tris": 76,
+   "size": [
+    0.266,
+    0.382,
+    0.089
+   ],
+   "min": [
+    -0.133,
+    -0.364,
+    -0.029
+   ],
+   "max": [
+    0.133,
+    0.018,
+    0.06
+   ],
+   "skinned": false,
+   "bytes": 8128,
+   "materials": [
+    {
+     "name": "KidsSHD62",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Sign_08": {
+   "tris": 76,
+   "size": [
+    0.266,
+    0.382,
+    0.089
+   ],
+   "min": [
+    -0.133,
+    -0.364,
+    -0.029
+   ],
+   "max": [
+    0.133,
+    0.018,
+    0.06
+   ],
+   "skinned": false,
+   "bytes": 8128,
+   "materials": [
+    {
+     "name": "KidsSHD63",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Sign_09": {
+   "tris": 76,
+   "size": [
+    0.266,
+    0.382,
+    0.089
+   ],
+   "min": [
+    -0.133,
+    -0.364,
+    -0.029
+   ],
+   "max": [
+    0.133,
+    0.018,
+    0.06
+   ],
+   "skinned": false,
+   "bytes": 8128,
+   "materials": [
+    {
+     "name": "KidsSHD64",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Submarine_01": {
+   "tris": 1786,
+   "size": [
+    0.78,
+    1.114,
+    3.014
+   ],
+   "min": [
+    -0.39,
+    0,
+    -1.507
+   ],
+   "max": [
+    0.39,
+    1.114,
+    1.507
+   ],
+   "skinned": false,
+   "bytes": 145484,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Tank_01": {
+   "tris": 1250,
+   "size": [
+    0.653,
+    0.674,
+    0.872
+   ],
+   "min": [
+    -0.326,
+    0,
+    -0.411
+   ],
+   "max": [
+    0.326,
+    0.674,
+    0.461
+   ],
+   "skinned": false,
+   "bytes": 94580,
+   "materials": [
+    {
+     "name": "KidsSHD66",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Tree_01": {
+   "tris": 188,
+   "size": [
+    0.646,
+    0.921,
+    0.158
+   ],
+   "min": [
+    -0.341,
+    0,
+    -0.079
+   ],
+   "max": [
+    0.305,
+    0.921,
+    0.079
+   ],
+   "skinned": false,
+   "bytes": 15952,
+   "materials": [
+    {
+     "name": "KidsSHD67",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cardboard_Tree_02": {
+   "tris": 170,
+   "size": [
+    0.589,
+    1.028,
+    0.158
+   ],
+   "min": [
+    -0.295,
+    0,
+    -0.079
+   ],
+   "max": [
+    0.295,
+    1.028,
+    0.079
+   ],
+   "skinned": false,
+   "bytes": 14680,
+   "materials": [
+    {
+     "name": "KidsSHD68",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Chair_01": {
+   "tris": 416,
+   "size": [
+    0.383,
+    0.612,
+    0.447
+   ],
+   "min": [
+    -0.191,
+    -0.002,
+    -0.234
+   ],
+   "max": [
+    0.191,
+    0.611,
+    0.212
+   ],
+   "skinned": false,
+   "bytes": 34496,
+   "materials": [
+    {
+     "name": "KidsSHD73",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Chair_02": {
+   "tris": 240,
+   "size": [
+    0.381,
+    0.611,
+    0.412
+   ],
+   "min": [
+    -0.191,
+    0,
+    -0.234
+   ],
+   "max": [
+    0.191,
+    0.611,
+    0.178
+   ],
+   "skinned": false,
+   "bytes": 22080,
+   "materials": [
+    {
+     "name": "KidsSHD74",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Chair_03": {
+   "tris": 204,
+   "size": [
+    0.324,
+    0.295,
+    0.325
+   ],
+   "min": [
+    -0.162,
+    0,
+    -0.163
+   ],
+   "max": [
+    0.162,
+    0.295,
+    0.162
+   ],
+   "skinned": false,
+   "bytes": 16164,
+   "materials": [
+    {
+     "name": "KidsSHD75",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Chair_04": {
+   "tris": 276,
+   "size": [
+    0.325,
+    0.516,
+    0.388
+   ],
+   "min": [
+    -0.162,
+    0,
+    -0.226
+   ],
+   "max": [
+    0.162,
+    0.516,
+    0.162
+   ],
+   "skinned": false,
+   "bytes": 22036,
+   "materials": [
+    {
+     "name": "KidsSHD76",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Chair_Desk_01": {
+   "tris": 750,
+   "size": [
+    0.51,
+    0.625,
+    0.653
+   ],
+   "min": [
+    -0.303,
+    -0.003,
+    -0.24
+   ],
+   "max": [
+    0.207,
+    0.622,
+    0.413
+   ],
+   "skinned": false,
+   "bytes": 61552,
+   "materials": [
+    {
+     "name": "KidsSHD77",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Coin_Ride_Car": {
+   "tris": 398,
+   "size": [
+    1.135,
+    0.859,
+    1.304
+   ],
+   "min": [
+    -0.593,
+    0,
+    -0.652
+   ],
+   "max": [
+    0.542,
+    0.859,
+    0.652
+   ],
+   "skinned": false,
+   "bytes": 29972,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Coin_Ride_Car_Top": {
+   "tris": 4086,
+   "size": [
+    0.844,
+    0.662,
+    1.774
+   ],
+   "min": [
+    -0.422,
+    -0.033,
+    -0.811
+   ],
+   "max": [
+    0.422,
+    0.629,
+    0.963
+   ],
+   "skinned": false,
+   "bytes": 311696,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Coin_Ride_Dragon": {
+   "tris": 398,
+   "size": [
+    1.135,
+    0.859,
+    1.304
+   ],
+   "min": [
+    -0.593,
+    0,
+    -0.652
+   ],
+   "max": [
+    0.542,
+    0.859,
+    0.652
+   ],
+   "skinned": false,
+   "bytes": 29976,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Coin_Ride_Dragon_Top": {
+   "tris": 1358,
+   "size": [
+    0.566,
+    1.293,
+    1.788
+   ],
+   "min": [
+    -0.283,
+    0.019,
+    -0.939
+   ],
+   "max": [
+    0.283,
+    1.312,
+    0.849
+   ],
+   "skinned": false,
+   "bytes": 121292,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Coin_Ride_Rocket": {
+   "tris": 358,
+   "size": [
+    0.767,
+    0.802,
+    1.32
+   ],
+   "min": [
+    -0.438,
+    0,
+    -0.696
+   ],
+   "max": [
+    0.329,
+    0.802,
+    0.624
+   ],
+   "skinned": false,
+   "bytes": 27076,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Coin_Ride_Rocket_Top": {
+   "tris": 994,
+   "size": [
+    0.962,
+    0.986,
+    1.821
+   ],
+   "min": [
+    -0.481,
+    -0.102,
+    -0.921
+   ],
+   "max": [
+    0.481,
+    0.883,
+    0.901
+   ],
+   "skinned": false,
+   "bytes": 83260,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Doll_House_01": {
+   "tris": 5166,
+   "size": [
+    0.811,
+    0.49,
+    0.605
+   ],
+   "min": [
+    -0.46,
+    0,
+    -0.162
+   ],
+   "max": [
+    0.352,
+    0.49,
+    0.443
+   ],
+   "skinned": false,
+   "bytes": 371420,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Drum_01": {
+   "tris": 408,
+   "size": [
+    0.233,
+    0.136,
+    0.227
+   ],
+   "min": [
+    -0.117,
+    -0.067,
+    -0.114
+   ],
+   "max": [
+    0.117,
+    0.069,
+    0.114
+   ],
+   "skinned": false,
+   "bytes": 32604,
+   "materials": [
+    {
+     "name": "KidsSHD89",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Firework_01": {
+   "tris": 88,
+   "size": [
+    0.079,
+    0.412,
+    0.083
+   ],
+   "min": [
+    -0.052,
+    0,
+    -0.041
+   ],
+   "max": [
+    0.027,
+    0.412,
+    0.041
+   ],
+   "skinned": false,
+   "bytes": 8264,
+   "materials": [
+    {
+     "name": "KidsSHD91",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Firework_02": {
+   "tris": 44,
+   "size": [
+    0.015,
+    0.278,
+    0.015
+   ],
+   "min": [
+    -0.007,
+    0,
+    -0.007
+   ],
+   "max": [
+    0.007,
+    0.278,
+    0.007
+   ],
+   "skinned": false,
+   "bytes": 5276,
+   "materials": [
+    {
+     "name": "KidsSHD92",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Flag_01": {
+   "tris": 296,
+   "size": [
+    0.593,
+    1.835,
+    0.095
+   ],
+   "min": [
+    -0.094,
+    -0.12,
+    -0.03
+   ],
+   "max": [
+    0.499,
+    1.716,
+    0.065
+   ],
+   "skinned": false,
+   "bytes": 25932,
+   "materials": [
+    {
+     "name": "KidsSHD93",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Flag_02": {
+   "tris": 332,
+   "size": [
+    0.659,
+    1.738,
+    0.156
+   ],
+   "min": [
+    -0.055,
+    -0.115,
+    -0.088
+   ],
+   "max": [
+    0.604,
+    1.623,
+    0.068
+   ],
+   "skinned": false,
+   "bytes": 29988,
+   "materials": [
+    {
+     "name": "KidsSHD94",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Halloween_Pumpkin_01": {
+   "tris": 512,
+   "size": [
+    0.257,
+    0.294,
+    0.264
+   ],
+   "min": [
+    -0.129,
+    -0.001,
+    -0.135
+   ],
+   "max": [
+    0.128,
+    0.293,
+    0.13
+   ],
+   "skinned": false,
+   "bytes": 47572,
+   "materials": [
+    {
+     "name": "KidsSHD106",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Hula_Hoop_01": {
+   "tris": 240,
+   "size": [
+    0.904,
+    0.037,
+    0.899
+   ],
+   "min": [
+    -0.452,
+    -0.018,
+    -0.45
+   ],
+   "max": [
+    0.452,
+    0.018,
+    0.45
+   ],
+   "skinned": false,
+   "bytes": 22080,
+   "materials": [
+    {
+     "name": "KidsSHD111",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Hula_Hoop_02": {
+   "tris": 240,
+   "size": [
+    0.896,
+    0.029,
+    0.896
+   ],
+   "min": [
+    -0.448,
+    -0.015,
+    -0.448
+   ],
+   "max": [
+    0.448,
+    0.015,
+    0.448
+   ],
+   "skinned": false,
+   "bytes": 22080,
+   "materials": [
+    {
+     "name": "KidsSHD112",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Ice_Cream_01": {
+   "tris": 172,
+   "size": [
+    0.094,
+    0.162,
+    0.094
+   ],
+   "min": [
+    -0.047,
+    -0.081,
+    -0.047
+   ],
+   "max": [
+    0.047,
+    0.081,
+    0.047
+   ],
+   "skinned": false,
+   "bytes": 17108,
+   "materials": [
+    {
+     "name": "KidsSHD115",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Ice_Cream_02": {
+   "tris": 188,
+   "size": [
+    0.094,
+    0.245,
+    0.094
+   ],
+   "min": [
+    -0.047,
+    -0.123,
+    -0.047
+   ],
+   "max": [
+    0.047,
+    0.123,
+    0.047
+   ],
+   "skinned": false,
+   "bytes": 18408,
+   "materials": [
+    {
+     "name": "KidsSHD116",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Ice_Cream_03": {
+   "tris": 270,
+   "size": [
+    0.094,
+    0.245,
+    0.094
+   ],
+   "min": [
+    -0.047,
+    -0.123,
+    -0.047
+   ],
+   "max": [
+    0.047,
+    0.123,
+    0.047
+   ],
+   "skinned": false,
+   "bytes": 24816,
+   "materials": [
+    {
+     "name": "KidsSHD117",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Ice_Cream_04": {
+   "tris": 208,
+   "size": [
+    0.092,
+    0.295,
+    0.093
+   ],
+   "min": [
+    -0.046,
+    -0.123,
+    -0.047
+   ],
+   "max": [
+    0.046,
+    0.171,
+    0.047
+   ],
+   "skinned": false,
+   "bytes": 19808,
+   "materials": [
+    {
+     "name": "KidsSHD118",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Ice_Cream_05": {
+   "tris": 448,
+   "size": [
+    0.098,
+    0.357,
+    0.094
+   ],
+   "min": [
+    -0.049,
+    -0.124,
+    -0.047
+   ],
+   "max": [
+    0.049,
+    0.234,
+    0.047
+   ],
+   "skinned": false,
+   "bytes": 42532,
+   "materials": [
+    {
+     "name": "KidsSHD119",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Ice_Cream_06": {
+   "tris": 144,
+   "size": [
+    0.112,
+    0.187,
+    0.112
+   ],
+   "min": [
+    -0.056,
+    -0.094,
+    -0.056
+   ],
+   "max": [
+    0.056,
+    0.094,
+    0.056
+   ],
+   "skinned": false,
+   "bytes": 14460,
+   "materials": [
+    {
+     "name": "KidsSHD120",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Keyboard_01": {
+   "tris": 511,
+   "size": [
+    0.742,
+    0.083,
+    0.282
+   ],
+   "min": [
+    -0.371,
+    0,
+    -0.141
+   ],
+   "max": [
+    0.371,
+    0.083,
+    0.141
+   ],
+   "skinned": false,
+   "bytes": 46220,
+   "materials": [
+    {
+     "name": "KidsSHD122",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Kite_01": {
+   "tris": 124,
+   "size": [
+    0.432,
+    0.574,
+    0.055
+   ],
+   "min": [
+    -0.216,
+    -0.347,
+    -0.036
+   ],
+   "max": [
+    0.216,
+    0.227,
+    0.019
+   ],
+   "skinned": false,
+   "bytes": 12740,
+   "materials": [
+    {
+     "name": "KidsSHD123",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Kite_02": {
+   "tris": 124,
+   "size": [
+    0.432,
+    0.574,
+    0.055
+   ],
+   "min": [
+    -0.216,
+    -0.347,
+    -0.036
+   ],
+   "max": [
+    0.216,
+    0.227,
+    0.019
+   ],
+   "skinned": false,
+   "bytes": 12740,
+   "materials": [
+    {
+     "name": "KidsSHD124",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Locker_02": {
+   "tris": 162,
+   "size": [
+    1.242,
+    1.46,
+    0.414
+   ],
+   "min": [
+    -0.621,
+    0,
+    -0.215
+   ],
+   "max": [
+    0.621,
+    1.46,
+    0.199
+   ],
+   "skinned": false,
+   "bytes": 13672,
+   "materials": [
+    {
+     "name": "KidsSHD127",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Paint_01": {
+   "tris": 106,
+   "size": [
+    0.066,
+    0.049,
+    0.199
+   ],
+   "min": [
+    -0.033,
+    -0.025,
+    -0.11
+   ],
+   "max": [
+    0.033,
+    0.025,
+    0.09
+   ],
+   "skinned": false,
+   "bytes": 10788,
+   "materials": [
+    {
+     "name": "KidsSHD132",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Paint_Palette_01": {
+   "tris": 148,
+   "size": [
+    0.354,
+    0.013,
+    0.277
+   ],
+   "min": [
+    -0.168,
+    0,
+    -0.139
+   ],
+   "max": [
+    0.186,
+    0.013,
+    0.139
+   ],
+   "skinned": false,
+   "bytes": 13356,
+   "materials": [
+    {
+     "name": "KidsSHD135",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Park_Lamp_01": {
+   "tris": 738,
+   "size": [
+    0.454,
+    4.274,
+    0.392
+   ],
+   "min": [
+    -0.227,
+    -0.294,
+    -0.196
+   ],
+   "max": [
+    0.227,
+    3.98,
+    0.196
+   ],
+   "skinned": false,
+   "bytes": 57636,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    },
+    {
+     "name": "GlassSHD",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Play_House_01": {
+   "tris": 1276,
+   "size": [
+    1.563,
+    1.399,
+    1.358
+   ],
+   "min": [
+    -0.778,
+    0,
+    -0.679
+   ],
+   "max": [
+    0.785,
+    1.399,
+    0.679
+   ],
+   "skinned": false,
+   "bytes": 103072,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Plush_Bear_01": {
+   "tris": 506,
+   "size": [
+    0.281,
+    0.376,
+    0.216
+   ],
+   "min": [
+    -0.141,
+    -0.009,
+    -0.106
+   ],
+   "max": [
+    0.14,
+    0.366,
+    0.11
+   ],
+   "skinned": false,
+   "bytes": 50488,
+   "materials": [
+    {
+     "name": "KidsSHD175",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Plush_Dino_01": {
+   "tris": 620,
+   "size": [
+    0.19,
+    0.364,
+    0.412
+   ],
+   "min": [
+    -0.095,
+    -0.011,
+    -0.206
+   ],
+   "max": [
+    0.095,
+    0.353,
+    0.206
+   ],
+   "skinned": false,
+   "bytes": 56768,
+   "materials": [
+    {
+     "name": "KidsSHD176",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Plush_Dino_02": {
+   "tris": 596,
+   "size": [
+    0.19,
+    0.35,
+    0.526
+   ],
+   "min": [
+    -0.095,
+    -0.013,
+    -0.263
+   ],
+   "max": [
+    0.095,
+    0.338,
+    0.263
+   ],
+   "skinned": false,
+   "bytes": 55944,
+   "materials": [
+    {
+     "name": "KidsSHD177",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Plush_Elephant_01": {
+   "tris": 716,
+   "size": [
+    0.342,
+    0.355,
+    0.397
+   ],
+   "min": [
+    -0.171,
+    -0.022,
+    -0.198
+   ],
+   "max": [
+    0.171,
+    0.333,
+    0.198
+   ],
+   "skinned": false,
+   "bytes": 68592,
+   "materials": [
+    {
+     "name": "KidsSHD178",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Plush_Lion_01": {
+   "tris": 664,
+   "size": [
+    0.26,
+    0.329,
+    0.474
+   ],
+   "min": [
+    -0.13,
+    -0.02,
+    -0.237
+   ],
+   "max": [
+    0.13,
+    0.308,
+    0.237
+   ],
+   "skinned": false,
+   "bytes": 62320,
+   "materials": [
+    {
+     "name": "KidsSHD180",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Plush_Lioness_01": {
+   "tris": 610,
+   "size": [
+    0.26,
+    0.312,
+    0.474
+   ],
+   "min": [
+    -0.13,
+    0.001,
+    -0.237
+   ],
+   "max": [
+    0.13,
+    0.313,
+    0.237
+   ],
+   "skinned": false,
+   "bytes": 57360,
+   "materials": [
+    {
+     "name": "KidsSHD179",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Plush_Monster_01": {
+   "tris": 340,
+   "size": [
+    0.298,
+    0.455,
+    0.109
+   ],
+   "min": [
+    -0.151,
+    -0.004,
+    -0.054
+   ],
+   "max": [
+    0.147,
+    0.451,
+    0.054
+   ],
+   "skinned": false,
+   "bytes": 28168,
+   "materials": [
+    {
+     "name": "KidsSHD181",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Plush_Pig_01": {
+   "tris": 586,
+   "size": [
+    0.257,
+    0.36,
+    0.267
+   ],
+   "min": [
+    -0.131,
+    -0.004,
+    -0.134
+   ],
+   "max": [
+    0.126,
+    0.356,
+    0.134
+   ],
+   "skinned": false,
+   "bytes": 56972,
+   "materials": [
+    {
+     "name": "KidsSHD182",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Plush_Rabbit_01": {
+   "tris": 614,
+   "size": [
+    0.321,
+    0.372,
+    0.266
+   ],
+   "min": [
+    -0.16,
+    -0.013,
+    -0.133
+   ],
+   "max": [
+    0.16,
+    0.36,
+    0.133
+   ],
+   "skinned": false,
+   "bytes": 59256,
+   "materials": [
+    {
+     "name": "KidsSHD183",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Plush_Unicorn_01": {
+   "tris": 608,
+   "size": [
+    0.321,
+    0.343,
+    0.338
+   ],
+   "min": [
+    -0.16,
+    -0.01,
+    -0.169
+   ],
+   "max": [
+    0.16,
+    0.333,
+    0.169
+   ],
+   "skinned": false,
+   "bytes": 57224,
+   "materials": [
+    {
+     "name": "KidsSHD184",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Pool_Float_01": {
+   "tris": 690,
+   "size": [
+    1.003,
+    0.848,
+    1.952
+   ],
+   "min": [
+    -0.502,
+    -0.031,
+    -1.037
+   ],
+   "max": [
+    0.501,
+    0.816,
+    0.915
+   ],
+   "skinned": false,
+   "bytes": 63912,
+   "materials": [
+    {
+     "name": "KidsSHD186",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Pool_Float_02": {
+   "tris": 616,
+   "size": [
+    1.003,
+    0.424,
+    1.437
+   ],
+   "min": [
+    -0.501,
+    -0.01,
+    -0.92
+   ],
+   "max": [
+    0.501,
+    0.414,
+    0.517
+   ],
+   "skinned": false,
+   "bytes": 55148,
+   "materials": [
+    {
+     "name": "KidsSHD187",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Red_Wagon_01_Combined": {
+   "tris": 1370,
+   "size": [
+    0.478,
+    0.832,
+    0.721
+   ],
+   "min": [
+    -0.239,
+    0,
+    -0.327
+   ],
+   "max": [
+    0.239,
+    0.832,
+    0.394
+   ],
+   "skinned": false,
+   "bytes": 105444,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Rocker_01": {
+   "tris": 204,
+   "size": [
+    0.605,
+    2.35,
+    0.605
+   ],
+   "min": [
+    -0.303,
+    0,
+    -0.303
+   ],
+   "max": [
+    0.303,
+    2.35,
+    0.303
+   ],
+   "skinned": false,
+   "bytes": 18088,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Sand_Castle_01": {
+   "tris": 224,
+   "size": [
+    0.249,
+    0.234,
+    0.25
+   ],
+   "min": [
+    -0.125,
+    -0.059,
+    -0.126
+   ],
+   "max": [
+    0.124,
+    0.175,
+    0.124
+   ],
+   "skinned": false,
+   "bytes": 28548,
+   "materials": [
+    {
+     "name": "KidsSHD200",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Sled_01": {
+   "tris": 320,
+   "size": [
+    0.45,
+    0.108,
+    1.357
+   ],
+   "min": [
+    -0.225,
+    0,
+    -0.681
+   ],
+   "max": [
+    0.225,
+    0.108,
+    0.676
+   ],
+   "skinned": false,
+   "bytes": 25096,
+   "materials": [
+    {
+     "name": "KidsSHD205",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Stereo_01": {
+   "tris": 424,
+   "size": [
+    0.327,
+    0.14,
+    0.311
+   ],
+   "min": [
+    -0.164,
+    -0.07,
+    -0.156
+   ],
+   "max": [
+    0.164,
+    0.07,
+    0.156
+   ],
+   "skinned": false,
+   "bytes": 36944,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Table_02": {
+   "tris": 220,
+   "size": [
+    0.587,
+    0.363,
+    0.587
+   ],
+   "min": [
+    -0.293,
+    0,
+    -0.293
+   ],
+   "max": [
+    0.293,
+    0.363,
+    0.293
+   ],
+   "skinned": false,
+   "bytes": 17860,
+   "materials": [
+    {
+     "name": "KidsSHD212",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Tea_Cup_01": {
+   "tris": 200,
+   "size": [
+    0.148,
+    0.075,
+    0.126
+   ],
+   "min": [
+    -0.085,
+    0,
+    -0.063
+   ],
+   "max": [
+    0.063,
+    0.075,
+    0.063
+   ],
+   "skinned": false,
+   "bytes": 16780,
+   "materials": [
+    {
+     "name": "KidsSHD214",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Tea_Pot_01": {
+   "tris": 462,
+   "size": [
+    0.233,
+    0.163,
+    0.153
+   ],
+   "min": [
+    -0.116,
+    0,
+    -0.076
+   ],
+   "max": [
+    0.116,
+    0.163,
+    0.076
+   ],
+   "skinned": false,
+   "bytes": 40040,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Telescope_01": {
+   "tris": 456,
+   "size": [
+    0.381,
+    0.8,
+    0.341
+   ],
+   "min": [
+    -0.191,
+    -0.002,
+    -0.22
+   ],
+   "max": [
+    0.191,
+    0.798,
+    0.121
+   ],
+   "skinned": false,
+   "bytes": 35700,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Telescope_02": {
+   "tris": 320,
+   "size": [
+    0.073,
+    0.073,
+    0.299
+   ],
+   "min": [
+    -0.037,
+    -0.037,
+    -0.15
+   ],
+   "max": [
+    0.037,
+    0.037,
+    0.15
+   ],
+   "skinned": false,
+   "bytes": 27680,
+   "materials": [
+    {
+     "name": "KidsSHD219",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Toy_Boat_01": {
+   "tris": 102,
+   "size": [
+    0.117,
+    0.339,
+    0.287
+   ],
+   "min": [
+    -0.058,
+    -0.013,
+    -0.161
+   ],
+   "max": [
+    0.058,
+    0.327,
+    0.126
+   ],
+   "skinned": false,
+   "bytes": 9888,
+   "materials": [
+    {
+     "name": "KidsSHD226",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Toy_Duck_01": {
+   "tris": 196,
+   "size": [
+    0.092,
+    0.113,
+    0.133
+   ],
+   "min": [
+    -0.046,
+    -0.001,
+    -0.068
+   ],
+   "max": [
+    0.046,
+    0.112,
+    0.065
+   ],
+   "skinned": false,
+   "bytes": 19176,
+   "materials": [
+    {
+     "name": "KidsSHD227",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Toy_Hammer_01": {
+   "tris": 44,
+   "size": [
+    0.055,
+    0.228,
+    0.107
+   ],
+   "min": [
+    -0.028,
+    -0.117,
+    -0.067
+   ],
+   "max": [
+    0.028,
+    0.11,
+    0.039
+   ],
+   "skinned": false,
+   "bytes": 5056,
+   "materials": [
+    {
+     "name": "KidsSHD228",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Toy_Parrot_01": {
+   "tris": 272,
+   "size": [
+    0.058,
+    0.142,
+    0.127
+   ],
+   "min": [
+    -0.029,
+    -0.003,
+    -0.072
+   ],
+   "max": [
+    0.029,
+    0.139,
+    0.055
+   ],
+   "skinned": false,
+   "bytes": 26916,
+   "materials": [
+    {
+     "name": "KidsSHD230",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Toy_Plane_01": {
+   "tris": 408,
+   "size": [
+    0.449,
+    0.103,
+    0.356
+   ],
+   "min": [
+    -0.224,
+    0,
+    -0.178
+   ],
+   "max": [
+    0.224,
+    0.103,
+    0.178
+   ],
+   "skinned": false,
+   "bytes": 34196,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Toy_Plane_02": {
+   "tris": 369,
+   "size": [
+    0.295,
+    0.132,
+    0.358
+   ],
+   "min": [
+    -0.148,
+    0,
+    -0.179
+   ],
+   "max": [
+    0.148,
+    0.132,
+    0.179
+   ],
+   "skinned": false,
+   "bytes": 29924,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Toy_Plane_03": {
+   "tris": 303,
+   "size": [
+    0.449,
+    0.134,
+    0.515
+   ],
+   "min": [
+    -0.224,
+    -0.041,
+    -0.329
+   ],
+   "max": [
+    0.224,
+    0.094,
+    0.186
+   ],
+   "skinned": false,
+   "bytes": 23224,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Toy_Rocket_01": {
+   "tris": 256,
+   "size": [
+    0.12,
+    0.346,
+    0.134
+   ],
+   "min": [
+    -0.044,
+    0,
+    -0.067
+   ],
+   "max": [
+    0.076,
+    0.346,
+    0.067
+   ],
+   "skinned": false,
+   "bytes": 22280,
+   "materials": [
+    {
+     "name": "KidsSHD234",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Toy_Toolbox_01": {
+   "tris": 372,
+   "size": [
+    0.319,
+    0.176,
+    0.187
+   ],
+   "min": [
+    -0.159,
+    0,
+    -0.076
+   ],
+   "max": [
+    0.159,
+    0.176,
+    0.11
+   ],
+   "skinned": false,
+   "bytes": 26704,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Toy_Train_01": {
+   "tris": 546,
+   "size": [
+    0.127,
+    0.19,
+    0.247
+   ],
+   "min": [
+    -0.063,
+    0,
+    -0.124
+   ],
+   "max": [
+    0.063,
+    0.19,
+    0.124
+   ],
+   "skinned": false,
+   "bytes": 44508,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Toy_Train_02": {
+   "tris": 486,
+   "size": [
+    0.127,
+    0.19,
+    0.228
+   ],
+   "min": [
+    -0.063,
+    0,
+    -0.114
+   ],
+   "max": [
+    0.063,
+    0.19,
+    0.114
+   ],
+   "skinned": false,
+   "bytes": 40028,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Toy_Train_03": {
+   "tris": 424,
+   "size": [
+    0.127,
+    0.139,
+    0.228
+   ],
+   "min": [
+    -0.063,
+    0,
+    -0.114
+   ],
+   "max": [
+    0.063,
+    0.139,
+    0.114
+   ],
+   "skinned": false,
+   "bytes": 36292,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Toy_Truck_01": {
+   "tris": 2570,
+   "size": [
+    0.189,
+    0.247,
+    0.516
+   ],
+   "min": [
+    -0.095,
+    0,
+    -0.258
+   ],
+   "max": [
+    0.095,
+    0.247,
+    0.258
+   ],
+   "skinned": false,
+   "bytes": 229456,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Prop_Ukelele": {
+   "tris": 498,
+   "size": [
+    0.177,
+    0.075,
+    0.586
+   ],
+   "min": [
+    -0.089,
+    -0.03,
+    -0.147
+   ],
+   "max": [
+    0.089,
+    0.044,
+    0.439
+   ],
+   "skinned": false,
+   "bytes": 41184,
+   "materials": [
+    {
+     "name": "KidsSHD244",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Umbrella_01_Open": {
+   "tris": 302,
+   "size": [
+    0.832,
+    0.698,
+    0.874
+   ],
+   "min": [
+    -0.416,
+    -0.051,
+    -0.437
+   ],
+   "max": [
+    0.416,
+    0.647,
+    0.437
+   ],
+   "skinned": false,
+   "bytes": 28052,
+   "materials": [
+    {
+     "name": "KidsSHD245",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Umbrella_02_Open": {
+   "tris": 302,
+   "size": [
+    0.832,
+    0.698,
+    0.874
+   ],
+   "min": [
+    -0.416,
+    -0.051,
+    -0.437
+   ],
+   "max": [
+    0.416,
+    0.647,
+    0.437
+   ],
+   "skinned": false,
+   "bytes": 28056,
+   "materials": [
+    {
+     "name": "KidsSHD246",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Watering_Can_01": {
+   "tris": 468,
+   "size": [
+    0.193,
+    0.311,
+    0.484
+   ],
+   "min": [
+    -0.097,
+    0,
+    -0.18
+   ],
+   "max": [
+    0.097,
+    0.311,
+    0.304
+   ],
+   "skinned": false,
+   "bytes": 35436,
+   "materials": [
+    {
+     "name": "KidsSHD249",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Xylophone_01": {
+   "tris": 848,
+   "size": [
+    0.475,
+    0.059,
+    0.276
+   ],
+   "min": [
+    -0.238,
+    -0.021,
+    -0.138
+   ],
+   "max": [
+    0.238,
+    0.039,
+    0.138
+   ],
+   "skinned": false,
+   "bytes": 68300,
+   "materials": [
+    {
+     "name": "KidsSHD253",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Veh_Bike_01_Combined": {
+   "tris": 3564,
+   "size": [
+    0.682,
+    0.652,
+    0.947
+   ],
+   "min": [
+    -0.342,
+    0,
+    -0.473
+   ],
+   "max": [
+    0.34,
+    0.652,
+    0.474
+   ],
+   "skinned": false,
+   "bytes": 289724,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Veh_Rocking_Horse_01": {
+   "tris": 360,
+   "size": [
+    0.344,
+    0.701,
+    0.821
+   ],
+   "min": [
+    -0.172,
+    -0.001,
+    -0.411
+   ],
+   "max": [
+    0.172,
+    0.699,
+    0.41
+   ],
+   "skinned": false,
+   "bytes": 28716,
+   "materials": [
+    {
+     "name": "KidsSHD259",
+     "map": "tex/Polygon_Kids_Texture_A.png"
+    }
+   ]
+  },
+  "SM_Veh_Scooter_01_Combined": {
+   "tris": 1134,
+   "size": [
+    0.316,
+    0.633,
+    0.603
+   ],
+   "min": [
+    -0.158,
+    -0.009,
+    -0.456
+   ],
+   "max": [
+    0.158,
+    0.623,
+    0.147
+   ],
+   "skinned": false,
+   "bytes": 83864,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  },
+  "SM_Veh_Trike_01_Combined": {
+   "tris": 1458,
+   "size": [
+    0.657,
+    0.602,
+    0.977
+   ],
+   "min": [
+    -0.329,
+    -0.01,
+    -0.351
+   ],
+   "max": [
+    0.329,
+    0.593,
+    0.626
+   ],
+   "skinned": false,
+   "bytes": 113884,
+   "materials": [
+    {
+     "name": "lambert1550",
+     "map": null,
+     "image": "Polygon_Kids_Texture_A _Justin.psd"
+    }
+   ]
+  }
+ }
+}

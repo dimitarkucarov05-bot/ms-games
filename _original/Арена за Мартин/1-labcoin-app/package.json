@@ -1,0 +1,15 @@
+{
+  "name": "labcoin-arena",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "LabCoin Арена — точки и лидерборд за последните 45 мин на рождения ден",
+  "scripts": {
+    "start": "node server.js",
+    "mock-lobby": "node tools/mock-lobby.js",
+    "test": "node --test tests/"
+  },
+  "dependencies": {
+    "qrcode": "1.5.4"
+  }
+}

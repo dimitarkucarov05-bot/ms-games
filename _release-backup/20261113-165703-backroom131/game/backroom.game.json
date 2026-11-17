@@ -1,0 +1,33 @@
+{
+  "id": "backroom",
+  "name": "The Back Room",
+  "tagline": "Cook at night, sell by day",
+  "description": "Night, 00:00 to 08:00 (ten minutes): the cellar works. Order supplies on the wall screen, grow and shred, pour five liquids into the mixer by the recipe book, roll joints by shaking both hands, pack the carry box. Day, 08:00 to 20:00 (twelve minutes): pull the lever to open the pizzeria for customers, or take the box in the lift to the street and walk three blocks of the town to the buyers. What you make can be taken yourself, for an effect that helps. One clear goal is always on the screens and marked in the room.",
+  "version": "1.3.0",
+  "status": "ready",
+  "rules": "backroom.js",
+  "client": "backroom",
+  "cover": "/play/games/backroom/cover.jpg",
+  "color": "#c8f03c",
+  "minPlayers": 1,
+  "maxPlayers": 6,
+  "minutes": 23,
+  "themes": [
+    {
+      "id": "night",
+      "name": "Standard"
+    },
+    {
+      "id": "kids",
+      "name": "Kids"
+    }
+  ],
+  "tags": [
+    "cooking",
+    "co-op",
+    "two levels",
+    "street",
+    "secret lab",
+    "dark humour"
+  ]
+}

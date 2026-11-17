@@ -1,0 +1,27 @@
+file	source under vr-arena/_sound-src	part (seconds)
+hover_01.ogg	sonniss-gdc/2019/InspectorJ - UI - Mechanical/UI_Mechanical_Move_40.wav	0-end
+hover_02.ogg	sonniss-gdc/2020/Bluezone - Switch And Button Sound Effects/Bluezone_BC0268_switch_button_click_small_005.wav	0-end
+pick_01.ogg	sonniss-gdc/2020/Bluezone - Switch And Button Sound Effects/Bluezone_BC0268_switch_button_click_high_tech_mechanical_007_01.wav	0-end
+pick_02.ogg	sonniss-gdc/2020/Bluezone - Switch And Button Sound Effects/Bluezone_BC0268_switch_button_click_ignition_002_03.wav	0-end
+vote_win.ogg	sonniss-gdc/2017/Bluezone Corporation - Cinematic Trailer Sound Effects/Bluezone-BC0226-whoosh-impact-012.wav	0-end
+tick_01.ogg	sonniss-gdc/2019/Federico Soler Fernandez - Effective Trailer Clocks/Clock 070.wav	0.0-0.55
+count_01.ogg	sonniss-gdc/2019/Federico Soler Fernandez - Effective Trailer Clocks/Clock 070.wav	4.0-4.55
+tick_02.ogg	sonniss-gdc/2019/Federico Soler Fernandez - Effective Trailer Clocks/Clock 070.wav	1.0-1.55
+count_02.ogg	sonniss-gdc/2019/Federico Soler Fernandez - Effective Trailer Clocks/Clock 070.wav	5.0-5.55
+tick_03.ogg	sonniss-gdc/2019/Federico Soler Fernandez - Effective Trailer Clocks/Clock 070.wav	2.0-2.55
+count_03.ogg	sonniss-gdc/2019/Federico Soler Fernandez - Effective Trailer Clocks/Clock 070.wav	6.0-6.55
+go.ogg	sonniss-gdc/2017/Bluezone Corporation - Cinematic Trailer Sound Effects/Bluezone-BC0226-hit-impact-004.wav [None-None at 0.0s] + sonniss-gdc/2019/Federico Soler Fernandez - Effective Trailer Booms/Boom 005.wav [None-None at 0.0s]
+results.ogg	sonniss-gdc/2015/Soundopolis - Percussion 01/Timpani_Hit_Fienup_001.wav [None-None at 0.0s] + sonniss-gdc/2016/Bottle Rocket Fx - Impact Collection/Impact_Drum Hit_03.wav [None-None at 0.0s]
+radio_01.ogg	sonniss-gdc/2016/Sergey Eybog - Handheld Tranceivers/Walkie Talkie,Cobra MicroTalk,Radio Communication,End,Noise Squelch,Beep,Series.wav	0.12-0.53
+radio_02.ogg	sonniss-gdc/2016/Sergey Eybog - Handheld Tranceivers/Walkie Talkie,Cobra MicroTalk,Radio Communication,End,Noise Squelch,Beep,Series.wav	2.92-3.33
+pause.ogg	sonniss-gdc/2020/Bart Kamski - Clicks & Switches/Wall_Light_Double_Switch_Off-004.wav	0-end
+click_01.ogg	sonniss-gdc/2020/Bart Kamski - Clicks & Switches/Button_Press-007.wav	0-end
+click_02.ogg	sonniss-gdc/2016/3maze -  Buttons and Switches/light_switch_019.wav	0-end
+point.ogg	sonniss-gdc/2019/3maze - Doors/door_lock_007.wav	0-end
+setup_done.ogg	sonniss-gdc/2019/InspectorJ - UI - Mechanical/UI_Mechanical_Turning-On_03_Raw.wav	0-end
+range_shot_01.ogg	sonniss-gdc/2016/Pole Position Production - Sig P229 9mm/SIG_P229_9mm_1m_left_on_ground_DPA4062_clean_Triple_shots_x_2.wav [0.1-1.5] + sonniss-gdc/2016/Pole Position Production - Sig P229 9mm/SIG_P229_9mm_50m_behind_Ehrlund_R1_clean_Triple_shots_x_2.wav [0.15-1.7]	hit #3, two microphones laid together
+range_shot_02.ogg	sonniss-gdc/2016/Pole Position Production - Sig P229 9mm/SIG_P229_9mm_1m_left_on_ground_DPA4062_clean_Triple_shots_x_2.wav [0.1-1.5] + sonniss-gdc/2016/Pole Position Production - Sig P229 9mm/SIG_P229_9mm_50m_behind_Ehrlund_R1_clean_Triple_shots_x_2.wav [0.15-1.7]	hit #1, two microphones laid together
+range_shot_03.ogg	sonniss-gdc/2016/Pole Position Production - Sig P229 9mm/SIG_P229_9mm_1m_left_on_ground_DPA4062_clean_Triple_shots_x_2.wav [3.0-4.5] + sonniss-gdc/2016/Pole Position Production - Sig P229 9mm/SIG_P229_9mm_50m_behind_Ehrlund_R1_clean_Triple_shots_x_2.wav [3.1-4.7]	hit #3, two microphones laid together
+range_hit_01.ogg	sonniss-gdc/2017/Gamemaster Audio -  Bullet Impact Sounds/bullet_impact_metal_heavy_08.wav	0-end
+range_hit_02.ogg	sonniss-gdc/2019/3maze - FINAL IMPACT/metal_hit_004.wav	0-end
+range_best.ogg	sonniss-gdc/2017/Bluezone Corporation - Titanium - Cinematic Trailer Samples/Bluezone-BC0224-impact-003.wav	0-end

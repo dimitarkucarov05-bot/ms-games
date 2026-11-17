@@ -1,0 +1,5 @@
+"C:/Users/Martiness/Downloads/vr-arena/lobby/tools/apk/src/bg/arena/play/Discovery.java"
+"C:/Users/Martiness/Downloads/vr-arena/lobby/tools/apk/src/bg/arena/play/Forwarder.java"
+"C:/Users/Martiness/Downloads/vr-arena/lobby/tools/apk/src/bg/arena/play/ForwardService.java"
+"C:/Users/Martiness/Downloads/vr-arena/lobby/tools/apk/src/bg/arena/play/MainActivity.java"
+"C:/Users/Martiness/Downloads/vr-arena/lobby/tools/apk/build/gen/bg/arena/play/R.java"

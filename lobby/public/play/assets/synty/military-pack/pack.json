@@ -1,0 +1,243 @@
+{
+ "pack": "POLYGON/Military Pack",
+ "models": {
+  "SM_Prop_Electronics_Tv_01": {
+   "tris": 132,
+   "size": [
+    0.672,
+    0.583,
+    0.506
+   ],
+   "min": [
+    -0.336,
+    0,
+    -0.253
+   ],
+   "max": [
+    0.336,
+    0.583,
+    0.253
+   ],
+   "skinned": false,
+   "bytes": 11120,
+   "materials": [
+    {
+     "name": "MilitarySHD76",
+     "map": null,
+     "image": "PolygonMilitary_Texture_01_A_Jason.png"
+    }
+   ]
+  },
+  "SM_Prop_Electronics_Screen_01": {
+   "tris": 188,
+   "size": [
+    0.73,
+    0.772,
+    0.79
+   ],
+   "min": [
+    -0.365,
+    0,
+    -0.395
+   ],
+   "max": [
+    0.365,
+    0.772,
+    0.395
+   ],
+   "skinned": false,
+   "bytes": 16160,
+   "materials": [
+    {
+     "name": "MilitarySHD67",
+     "map": null,
+     "image": "PolygonMilitary_Texture_01_A_Jason.png"
+    }
+   ]
+  },
+  "SM_Prop_TV_01": {
+   "tris": 172,
+   "size": [
+    0.672,
+    0.583,
+    0.51
+   ],
+   "min": [
+    -0.336,
+    0,
+    -0.255
+   ],
+   "max": [
+    0.336,
+    0.583,
+    0.255
+   ],
+   "skinned": false,
+   "bytes": 13804,
+   "materials": [
+    {
+     "name": "lambert2311",
+     "map": "tex/PolygonMilitary_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Crate_Ammo_01": {
+   "tris": 224,
+   "size": [
+    1.403,
+    0.334,
+    0.86
+   ],
+   "min": [
+    -0.702,
+    0,
+    -0.43
+   ],
+   "max": [
+    0.702,
+    0.334,
+    0.43
+   ],
+   "skinned": false,
+   "bytes": 19772,
+   "materials": [
+    {
+     "name": "MilitarySHD47",
+     "map": null,
+     "image": "PolygonMilitary_Texture_01_A_Jason.png"
+    }
+   ]
+  },
+  "SM_Prop_Crate_Ammo_Lid_01": {
+   "tris": 72,
+   "size": [
+    1.089,
+    0.096,
+    0.807
+   ],
+   "min": [
+    -0.545,
+    0,
+    -0.019
+   ],
+   "max": [
+    0.545,
+    0.096,
+    0.788
+   ],
+   "skinned": false,
+   "bytes": 7696,
+   "materials": [
+    {
+     "name": "MilitarySHD47",
+     "map": null,
+     "image": "PolygonMilitary_Texture_01_A_Jason.png"
+    }
+   ]
+  },
+  "SM_Prop_Light_Portable_01": {
+   "tris": 262,
+   "size": [
+    0.998,
+    1.191,
+    0.868
+   ],
+   "min": [
+    -0.499,
+    0,
+    -0.299
+   ],
+   "max": [
+    0.499,
+    1.191,
+    0.569
+   ],
+   "skinned": false,
+   "bytes": 21520,
+   "materials": [
+    {
+     "name": "lambert2164",
+     "map": "tex/PolygonMilitary_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Meat_Sausage_01": {
+   "tris": 104,
+   "size": [
+    0.124,
+    0.456,
+    0.114
+   ],
+   "min": [
+    -0.062,
+    -0.429,
+    -0.057
+   ],
+   "max": [
+    0.062,
+    0.027,
+    0.057
+   ],
+   "skinned": false,
+   "bytes": 9744,
+   "materials": [
+    {
+     "name": "PolygonMilitary66",
+     "map": "tex/PolygonMilitary_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Meat_Sausage_02": {
+   "tris": 116,
+   "size": [
+    0.125,
+    0.733,
+    0.11
+   ],
+   "min": [
+    -0.063,
+    -0.706,
+    -0.055
+   ],
+   "max": [
+    0.063,
+    0.027,
+    0.055
+   ],
+   "skinned": false,
+   "bytes": 10292,
+   "materials": [
+    {
+     "name": "PolygonMilitary67",
+     "map": "tex/PolygonMilitary_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Meat_Sausages_01": {
+   "tris": 1078,
+   "size": [
+    0.123,
+    1.337,
+    0.27
+   ],
+   "min": [
+    -0.093,
+    -1.328,
+    -0.107
+   ],
+   "max": [
+    0.03,
+    0.009,
+    0.163
+   ],
+   "skinned": false,
+   "bytes": 100332,
+   "materials": [
+    {
+     "name": "PolygonMilitary65",
+     "map": "tex/PolygonMilitary_Texture_01_A.png"
+    }
+   ]
+  }
+ }
+}

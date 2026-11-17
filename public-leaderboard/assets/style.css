@@ -1,0 +1,127 @@
+/* LabCoin Арена — в стила на сайта VR Varna („Arcade Brutalist").
+   Токени, шрифтове и примитиви са взети (само четене) от локалното копие:
+   ~/Downloads/vr varna web/DESIGN.md и src/styles/global.css.
+   Шрифтовете са локални (SIL OFL 1.1): Russo One, Press Start 2P, Manrope. */
+
+@font-face { font-family: 'Russo One'; font-display: swap; src: url(/brand/fonts/RussoOne-Z9XUDmZRWg6M1LvRYsHOy8mJvLuL9BLT.woff2) format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: 'Russo One'; font-display: swap; src: url(/brand/fonts/RussoOne-Z9XUDmZRWg6M1LvRYsHOwcmJvLuL9BLT.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F; }
+@font-face { font-family: 'Russo One'; font-display: swap; src: url(/brand/fonts/RussoOne-Z9XUDmZRWg6M1LvRYsHOz8mJvLuL9A.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+20AC, U+2122, U+2212; }
+@font-face { font-family: 'Press Start 2P'; font-display: swap; src: url(/brand/fonts/PressStart2P-e3t4euO8T-267oIAQAu6jDQyK3nRivNm4I81PZQ.woff2) format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: 'Press Start 2P'; font-display: swap; src: url(/brand/fonts/PressStart2P-e3t4euO8T-267oIAQAu6jDQyK3nYivNm4I81PZQ.woff2) format('woff2'); unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F; }
+@font-face { font-family: 'Press Start 2P'; font-display: swap; src: url(/brand/fonts/PressStart2P-e3t4euO8T-267oIAQAu6jDQyK3nVivNm4I81.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+20AC, U+2122, U+2212; }
+@font-face { font-family: 'Manrope'; font-weight: 200 800; font-display: swap; src: url(/brand/fonts/manrope-cyrillic-wght-normal.woff2) format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: 'Manrope'; font-weight: 200 800; font-display: swap; src: url(/brand/fonts/manrope-cyrillic-ext-wght-normal.woff2) format('woff2'); unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F; }
+@font-face { font-family: 'Manrope'; font-weight: 200 800; font-display: swap; src: url(/brand/fonts/manrope-latin-ext-wght-normal.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F; }
+@font-face { font-family: 'Manrope'; font-weight: 200 800; font-display: swap; src: url(/brand/fonts/manrope-latin-wght-normal.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+20AC, U+2122, U+2212; }
+
+:root {
+  /* палетът на сайта */
+  --void: #0b0e14; --night: #11151f; --night2: #161d2a; --stroke: #0b0b0f; --line: #232c3d;
+  --ink: #f3f6fc; --muted: #9fb0cc; --paper: #f4f1e8;
+  --lab: #27f08a; --punch: #ff2e88; --pass: #8a4dff; --blood: #ff1a3c; --volt: #19e3ff; --coin: #ffd23f;
+  --font-display: "Russo One", system-ui, sans-serif;
+  --font-body: "Manrope", system-ui, sans-serif;
+  --font-pixel: "Press Start 2P", monospace;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1); --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --shadow-hard: 4px 4px 0 0 var(--stroke);
+
+  /* стари имена, които страниците ползват */
+  --bg: var(--void); --panel: var(--night); --panel2: var(--night2); --text: var(--ink);
+  --gold: var(--coin); --hex: var(--pass); --red: var(--blood); --blue: var(--volt); --green: var(--lab);
+  --ok: var(--lab); --bad: var(--blood);
+  --opt0: var(--blood); --opt1: var(--volt); --opt2: var(--lab); --opt3: var(--coin);
+}
+* { box-sizing: border-box; }
+html { background: var(--void); color: var(--ink); color-scheme: dark; }
+html, body { margin: 0; font: 16px/1.5 var(--font-body); -webkit-font-smoothing: antialiased; }
+body { min-height: 100vh; background:
+  linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px) 0 0 / 40px 40px,
+  linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px) 0 0 / 40px 40px,
+  var(--void); background-attachment: fixed; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; line-height: 1.1; letter-spacing: .01em; margin: 0 0 10px; }
+h1 { font-size: 26px; } h2 { font-size: 20px; } h3 { font-size: 17px; }
+a { color: var(--volt); }
+::selection { background: var(--punch); color: #fff; }
+:focus-visible { outline: 3px solid var(--volt); outline-offset: 3px; }
+button, input, select { font: inherit; }
+
+/* бутони — „juicy" от сайта: черна рамка + 3D ръб */
+button {
+  --edge: #000; position: relative; font-family: var(--font-display); text-transform: uppercase; letter-spacing: .02em; line-height: 1;
+  background: linear-gradient(180deg, #2a3243, #1b2231 55%, #121722); color: var(--ink);
+  border: 3px solid var(--stroke); border-radius: 14px; padding: 12px 16px; min-height: 46px; cursor: pointer;
+  box-shadow: 0 4px 0 var(--edge); transition: transform .1s var(--ease-spring), box-shadow .1s var(--ease-spring);
+}
+@media (hover: hover) { button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 0 var(--edge); } }
+button:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--edge); }
+button.primary { background: linear-gradient(180deg,#6dffb8,#27f08a 55%,#11b866); --edge: #0c8a4c; color: var(--stroke); }
+button.gold { background: linear-gradient(180deg,#ffe27a,#ffd23f 55%,#e0ae18); --edge: #b3870f; color: var(--stroke); }
+button.danger { background: linear-gradient(180deg,#ff7ab3,#ff2e88 55%,#d11e6a); --edge: #a3144f; color: #fff; }
+button:disabled { opacity: .4; cursor: default; }
+
+input, select { background: var(--void); color: var(--ink); border: 2px solid var(--line); border-radius: 10px; padding: 8px 10px; min-height: 42px; }
+input:focus, select:focus { outline: none; border-color: var(--lab); box-shadow: 0 0 0 3px rgba(39,240,138,.2); }
+
+.wrap { max-width: 1100px; margin: 0 auto; padding: 16px; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.grow { flex: 1; }
+.card { background: var(--night); border: 3px solid var(--stroke); border-radius: 18px; padding: 18px; margin: 16px 0; box-shadow: 6px 6px 0 0 var(--stroke); }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.err { color: var(--blood); }
+
+/* хедър — „остров" + wordmark VR VARNA */
+.brand { display: flex; align-items: center; gap: 12px; }
+.island { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 14px 10px 16px; margin: 4px 0 8px;
+  background: var(--night); border: 3px solid var(--stroke); border-radius: 22px; box-shadow: 6px 6px 0 0 var(--stroke); }
+.mark { display: inline-flex; align-items: center; gap: 9px; font-family: var(--font-display); font-size: 22px; line-height: 1; text-transform: uppercase; white-space: nowrap; }
+.mark .vr { color: var(--ink); }
+.mark .city { color: var(--lab); animation: vr-hue 9s linear infinite; }
+.coin-pip { width: 13px; height: 13px; border-radius: 50%; background: linear-gradient(180deg,#ffe27a,#ffd23f 55%,#e0ae18); border: 2px solid var(--stroke); align-self: flex-start; animation: coin-spin 3.4s linear infinite; }
+.chip { font-family: var(--font-pixel); font-size: 10px; line-height: 1; letter-spacing: .08em; text-transform: uppercase;
+  display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border: 2px solid var(--stroke); border-radius: 8px; background: var(--coin); color: var(--stroke); }
+.logo { width: 40px; height: 40px; object-fit: contain; flex: none; }
+.hex { width: 28px; height: 32px; background: linear-gradient(180deg,#ffe27a,#ffd23f 55%,#e0ae18); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); flex: none; }
+@keyframes vr-hue { 0%,100% { color: var(--lab); } 25% { color: var(--volt); } 50% { color: var(--coin); } 75% { color: var(--punch); } }
+@keyframes coin-spin { 0%,100% { transform: scaleX(1); } 25% { transform: scaleX(.4); } 50% { transform: scaleX(1); } 75% { transform: scaleX(.4); } }
+
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: #10141d; border: 2px solid var(--stroke); font-size: 13px; font-weight: 700; }
+.pill.ok { color: var(--lab); border-color: color-mix(in srgb, var(--lab) 55%, var(--stroke)); }
+.pill.bad { color: var(--blood); border-color: color-mix(in srgb, var(--blood) 55%, var(--stroke)); }
+
+/* табове — като навигацията на сайта */
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0; padding: 6px; background: var(--night); border: 3px solid var(--stroke); border-radius: 18px; box-shadow: var(--shadow-hard); }
+.tabs button { background: transparent; border: 2px solid transparent; box-shadow: none; color: var(--muted); font-size: 13px; padding: 10px 14px; min-height: 42px; border-radius: 11px; }
+@media (hover: hover) { .tabs button:hover:not(:disabled) { color: var(--ink); background: rgba(255,255,255,.05); box-shadow: none; transform: translateY(-1px); } }
+.tabs button.on { color: var(--stroke); background: var(--lab); border-color: var(--stroke); }
+
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 9px 8px; border-bottom: 2px solid var(--line); }
+th { color: var(--muted); font-family: var(--font-pixel); font-size: 9px; letter-spacing: .06em; text-transform: uppercase; font-weight: 400; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.place-1 { color: var(--coin); font-weight: 800; }
+.place-1 td { background: rgba(255,210,63,.07); }
+
+.kids-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 8px; }
+.kid-input { display: flex; gap: 6px; align-items: center; }
+.kid-input input { min-width: 0; }
+.kid-input select { flex: none; width: 120px; }
+.seat { width: 36px; height: 36px; border-radius: 10px; background: var(--coin); color: var(--stroke); border: 2px solid var(--stroke); display: grid; place-items: center; font-family: var(--font-display); flex: none; }
+
+.teams { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.team { border-radius: 14px; padding: 12px 14px; background: var(--night2); border: 3px solid var(--stroke); border-left: 8px solid var(--c, var(--pass)); box-shadow: var(--shadow-hard); }
+.team b { font-family: var(--font-display); font-weight: 400; }
+.match { border: 3px solid var(--stroke); background: var(--night2); border-radius: 14px; padding: 14px; margin: 12px 0; box-shadow: var(--shadow-hard); }
+.match.live { border-color: var(--lab); box-shadow: 0 0 26px rgba(39,240,138,.25), 4px 4px 0 0 var(--stroke); }
+.match.done { opacity: .85; }
+
+.toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--paper); color: var(--stroke); border: 3px solid var(--stroke); box-shadow: var(--shadow-hard); padding: 10px 16px; border-radius: 14px; z-index: 9; font-weight: 700; }
+
+.opt-0 { --o: var(--opt0); } .opt-1 { --o: var(--opt1); } .opt-2 { --o: var(--opt2); } .opt-3 { --o: var(--opt3); }
+.pads { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+.pad { background: var(--night2); border: 2px solid var(--stroke); border-radius: 12px; padding: 8px; }
+.pad .btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 6px; }
+.pad .btns button { padding: 6px 0; min-height: 36px; background: var(--o); --edge: rgba(0,0,0,.55); color: var(--stroke); border-width: 2px; border-radius: 10px; }
+
+@media (prefers-reduced-motion: reduce) { .mark .city, .coin-pip { animation: none; } button { transition: none; } }
+@media (max-width: 600px) { .wrap { padding: 12px 16px; } .card { padding: 14px 12px; } th, td { padding: 8px 4px; } .logo { width: 32px; height: 32px; } h1 { font-size: 21px; } .mark { font-size: 18px; } .kids-grid { grid-template-columns: 1fr; } }

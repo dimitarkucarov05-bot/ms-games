@@ -1,0 +1,345 @@
+{
+ "source": "CREDITS.md",
+ "items": [
+  {
+   "material": "Kenney Holiday Kit 2.0 (99 модела FBX/GLB/OBJ + текстури)",
+   "link": "https://kenney.nl/assets/holiday-kit",
+   "author": "Kenney",
+   "authorLink": null,
+   "license": "CC0 1.0",
+   "credit": "не е задължителен („Kenney.nl“ е учтиво)",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "Poly Haven snow_02 (1K: diff, nor_gl, arm)",
+   "link": "https://polyhaven.com/a/snow_02",
+   "author": "Poly Haven",
+   "authorLink": null,
+   "license": "CC0 1.0",
+   "credit": "не е задължителен",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "Poly Haven wood_planks (1K: diff, nor_gl, arm)",
+   "link": "https://polyhaven.com/a/wood_planks",
+   "author": "Poly Haven",
+   "authorLink": null,
+   "license": "CC0 1.0",
+   "credit": "не е задължителен",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "Poly Haven red_brick_03 (1K: diff, nor_gl, arm)",
+   "link": "https://polyhaven.com/a/red_brick_03",
+   "author": "Poly Haven",
+   "authorLink": null,
+   "license": "CC0 1.0",
+   "credit": "не е задължителен",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "Poly Haven rough_wood (1K: diff, nor_gl, arm)",
+   "link": "https://polyhaven.com/a/rough_wood",
+   "author": "Poly Haven",
+   "authorLink": null,
+   "license": "CC0 1.0",
+   "credit": "не е задължителен",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "Poly Haven plank_flooring (1K: diff, nor_gl, arm)",
+   "link": "https://polyhaven.com/a/plank_flooring",
+   "author": "Poly Haven",
+   "authorLink": null,
+   "license": "CC0 1.0",
+   "credit": "не е задължителен",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "Kenney Furniture Pack 1.0 (120 модела FBX/OBJ)",
+   "link": "https://kenney.nl/assets/furniture-kit",
+   "author": "Kenney",
+   "authorLink": null,
+   "license": "CC0 1.0",
+   "credit": "не е задължителен",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "Poly Haven модел Sofa_01 (gltf 1K)",
+   "link": "https://polyhaven.com/a/Sofa_01",
+   "author": "Poly Haven",
+   "authorLink": null,
+   "license": "CC0 1.0",
+   "credit": "не е задължителен",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "Poly Haven модел ArmChair_01 (gltf 1K)",
+   "link": "https://polyhaven.com/a/ArmChair_01",
+   "author": "Poly Haven",
+   "authorLink": null,
+   "license": "CC0 1.0",
+   "credit": "не е задължителен",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "Poly Haven модел WoodenTable_02 (gltf 1K)",
+   "link": "https://polyhaven.com/a/WoodenTable_02",
+   "author": "Poly Haven",
+   "authorLink": null,
+   "license": "CC0 1.0",
+   "credit": "не е задължителен",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "Poly Haven модел Shelf_01 (gltf 1K)",
+   "link": "https://polyhaven.com/a/Shelf_01",
+   "author": "Poly Haven",
+   "authorLink": null,
+   "license": "CC0 1.0",
+   "credit": "не е задължителен",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "Poly Haven модел ClassicNightstand_01 (gltf 1K)",
+   "link": "https://polyhaven.com/a/ClassicNightstand_01",
+   "author": "Poly Haven",
+   "authorLink": null,
+   "license": "CC0 1.0",
+   "credit": "не е задължителен",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "Poly Haven модел Ottoman_01 (gltf 1K)",
+   "link": "https://polyhaven.com/a/Ottoman_01",
+   "author": "Poly Haven",
+   "authorLink": null,
+   "license": "CC0 1.0",
+   "credit": "не е задължителен",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "Poly Haven модел scandinavian_masonry_heater (gltf 1K)",
+   "link": "https://polyhaven.com/a/scandinavian_masonry_heater",
+   "author": "Poly Haven",
+   "authorLink": null,
+   "license": "CC0 1.0",
+   "credit": "не е задължителен",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "Poly Haven модел wall_clock (gltf 1K)",
+   "link": "https://polyhaven.com/a/wall_clock",
+   "author": "Poly Haven",
+   "authorLink": null,
+   "license": "CC0 1.0",
+   "credit": "не е задължителен",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "Poly Haven painted_plaster_wall (1K: diff, nor_gl, arm)",
+   "link": "https://polyhaven.com/a/painted_plaster_wall",
+   "author": "Poly Haven",
+   "authorLink": null,
+   "license": "CC0 1.0",
+   "credit": "не е задължителен",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "Poly Haven beam_wall_01 (1K: diff, nor_gl, arm)",
+   "link": "https://polyhaven.com/a/beam_wall_01",
+   "author": "Poly Haven",
+   "authorLink": null,
+   "license": "CC0 1.0",
+   "credit": "не е задължителен",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "Poly Haven clay_plaster (1K: diff, nor_gl, arm)",
+   "link": "https://polyhaven.com/a/clay_plaster",
+   "author": "Poly Haven",
+   "authorLink": null,
+   "license": "CC0 1.0",
+   "credit": "не е задължителен",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "SM_Kamina (low-poly камина, 96 tris)",
+   "link": null,
+   "author": "VR Varna (наша работа)",
+   "authorLink": null,
+   "license": "собствена; текстури CC0 Poly Haven red_brick_03 + rough_wood",
+   "credit": "не",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "Табели „Отбори“ и „Правила“ (PNG 1024×1024, наши; шрифт Russo One)",
+   "link": "https://fonts.google.com/specimen/Russo+One",
+   "author": "VR Varna; шрифт: Jovanny Lemonad",
+   "authorLink": null,
+   "license": "собствени; шрифт SIL OFL 1.1",
+   "credit": "OFL лиценз до файловете",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "Kenney Car Kit 3.1 (вкл. garbage-truck, 3124 триъгълника, FBX/GLB/OBJ)",
+   "link": "https://kenney.nl/assets/car-kit",
+   "author": "Kenney",
+   "authorLink": null,
+   "license": "CC0 1.0",
+   "credit": "не е задължителен",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "Garbage Truck (glTF, 2260 триъгълника)",
+   "link": "https://sketchfab.com/3d-models/garbage-truck-5d505fdbcc594cb3b3f1b30be8240ad7",
+   "author": "Lung_ong",
+   "authorLink": "https://sketchfab.com/cardboard",
+   "license": "CC-BY-4.0",
+   "credit": "ЗАДЪЛЖИТЕЛЕН: This work is based on \"Garbage Truck\" (https://sketchfab.com/3d-models/garbage-truck-5d505fdbcc594cb3b3f1b30be8240ad7) by Lung_ong (https://sketchfab.com/cardboard) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "required": true,
+   "notice": null
+  },
+  {
+   "material": "1987 Chevrolet Caprice [Low-poly] (кола в Grove)",
+   "link": "https://sketchfab.com/3d-models/1987-chevrolet-caprice-low-poly-c66381fd86df4b96a9f3ab752390c23a",
+   "author": "SplendorForever",
+   "authorLink": null,
+   "license": "CC-BY-4.0",
+   "credit": "ЗАДЪЛЖИТЕЛЕН: \"1987 Chevrolet Caprice [Low-poly]\" by SplendorForever, CC BY 4.0",
+   "required": true,
+   "notice": null
+  },
+  {
+   "material": "Police car (Crown Vic, кола в Grove)",
+   "link": "https://sketchfab.com/3d-models/police-car-9166b13b6ae341f4bfc093edb71d74f4",
+   "author": "Mateusz Woliński",
+   "authorLink": "https://sketchfab.com/jeandiz",
+   "license": "CC-BY-4.0",
+   "credit": "ЗАДЪЛЖИТЕЛЕН: \"Police car\" by Mateusz Woliński (https://sketchfab.com/jeandiz), CC BY 4.0",
+   "required": true,
+   "notice": null
+  },
+  {
+   "material": "GARBAGE TRUCK (старият камион, олекотен)",
+   "link": "https://sketchfab.com/3d-models/garbage-truck-9aee01b569f043b290cd7dc1abf38b71",
+   "author": "liebherr996litronic",
+   "authorLink": "https://sketchfab.com/liebherr996litronic",
+   "license": "CC-BY-4.0",
+   "credit": "ЗАДЪЛЖИТЕЛЕН: This work is based on \"GARBAGE TRUCK\" (https://sketchfab.com/3d-models/garbage-truck-9aee01b569f043b290cd7dc1abf38b71) by liebherr996litronic (https://sketchfab.com/liebherr996litronic) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "required": true,
+   "notice": null
+  },
+  {
+   "material": "1972 Bursley Defiance (лоурайдър в Grove, променен)",
+   "link": "https://poly.pizza/m/jxV8VZ9fYo",
+   "author": "Grzybek",
+   "authorLink": null,
+   "license": "CC-BY-3.0",
+   "credit": "ЗАДЪЛЖИТЕЛЕН: \"1972 Bursley Defiance\" by Grzybek, CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/), променен",
+   "required": true,
+   "notice": null
+  },
+  {
+   "material": "metal_barrel01 (бъчва, променен цвят)",
+   "link": "https://github.com/Kehom/GodotAddonPack",
+   "author": "Yuri Sarudiansky (Kehom)",
+   "authorLink": null,
+   "license": "MIT",
+   "credit": "MIT бележка: Copyright (c) 2019-2020 Yuri Sarudiansky",
+   "required": false,
+   "notice": "metal_barrel01 from Kehom/GodotAddonPack (https://github.com/Kehom/GodotAddonPack), shared/models/metal_barrel01.gltf\nMIT License, Copyright (c) 2019-2020 Yuri Sarudiansky\nChanges: colour set to rusty red, no texture."
+  },
+  {
+   "material": "Oak tree",
+   "link": "https://sketchfab.com/3d-models/oak-tree-3dc59560f2d24345bdbe65c44636453b",
+   "author": "massive-graphisme ; сега в Sketchfab: greg-l",
+   "authorLink": "https://sketchfab.com/massive-graphisme",
+   "license": "CC-BY-4.0",
+   "credit": "ЗАДЪЛЖИТЕЛЕН: This work is based on \"Oak tree\" (https://sketchfab.com/3d-models/oak-tree-3dc59560f2d24345bdbe65c44636453b) by massive-graphisme (https://sketchfab.com/massive-graphisme) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "required": true,
+   "notice": null
+  },
+  {
+   "material": "Realistic Palm Tree Free",
+   "link": "https://sketchfab.com/3d-models/realistic-palm-tree-free-39052ea764c945858449e699318efa53",
+   "author": "Next Spring",
+   "authorLink": "https://sketchfab.com/NextSpring",
+   "license": "CC-BY-4.0",
+   "credit": "ЗАДЪЛЖИТЕЛЕН: This work is based on \"Realistic Palm Tree Free\" (https://sketchfab.com/3d-models/realistic-palm-tree-free-39052ea764c945858449e699318efa53) by Next Spring (https://sketchfab.com/NextSpring) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "required": true,
+   "notice": null
+  },
+  {
+   "material": "Real Bush",
+   "link": "https://sketchfab.com/3d-models/real-bush-62618c3260b142cfb7ef499d75a8d21a",
+   "author": "Salman Ramezani ; сега в Sketchfab: marblesstudio",
+   "authorLink": "https://sketchfab.com/Salman_3d_artist",
+   "license": "CC-BY-4.0",
+   "credit": "ЗАДЪЛЖИТЕЛЕН: This work is based on \"Real Bush\" (https://sketchfab.com/3d-models/real-bush-62618c3260b142cfb7ef499d75a8d21a) by Salman Ramezani (https://sketchfab.com/Salman_3d_artist) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "required": true,
+   "notice": null
+  },
+  {
+   "material": "Washingtonia Robusta Palm_03",
+   "link": "https://sketchfab.com/3d-models/washingtonia-robusta-palm-03-d63d13e51e1d4925b9eb6b984431762b",
+   "author": "andre.arq.89",
+   "authorLink": "https://sketchfab.com/andre.arq.89",
+   "license": "CC-BY-4.0",
+   "credit": "ЗАДЪЛЖИТЕЛЕН: This work is based on \"Washingtonia Robusta Palm_03\" (https://sketchfab.com/3d-models/washingtonia-robusta-palm-03-d63d13e51e1d4925b9eb6b984431762b) by andre.arq.89 (https://sketchfab.com/andre.arq.89) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+   "required": true,
+   "notice": null
+  },
+  {
+   "material": "Quaternius traffic_cone, trashcan_small, trashcan",
+   "link": "https://poly.pizza/m/lAx8JytxGD",
+   "author": "Quaternius",
+   "authorLink": "https://quaternius.com",
+   "license": "CC0 1.0",
+   "credit": "не е задължителен",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "11 текстури ambientCG (Asphalt033, Concrete034/046, Facade001/005/006/009/017/018A, Grass004, PaintedPlaster017)",
+   "link": "https://ambientcg.com",
+   "author": "ambientCG",
+   "authorLink": null,
+   "license": "НЕПОТВЪРДЕНО (вероятно CC0 1.0: имената са на ambientCG, но няма лицензен файл)",
+   "credit": "не е задължителен, ако е CC0",
+   "required": false,
+   "notice": null
+  },
+  {
+   "material": "T_Space_Stars.png",
+   "link": null,
+   "author": "НЕПОТВЪРДЕНО",
+   "authorLink": null,
+   "license": "НЕПОТВЪРДЕНО",
+   "credit": "НЕПОТВЪРДЕНО",
+   "required": false,
+   "notice": null
+  }
+ ]
+}

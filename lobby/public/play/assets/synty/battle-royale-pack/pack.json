@@ -1,0 +1,626 @@
+{
+ "pack": "POLYGON/Battle Royale Pack",
+ "models": {
+  "SM_Wep_Pistol_Heavy_01": {
+   "tris": 1160,
+   "size": [
+    0.046,
+    0.21,
+    0.39
+   ],
+   "min": [
+    -0.023,
+    -0.109,
+    -0.094
+   ],
+   "max": [
+    0.023,
+    0.101,
+    0.296
+   ],
+   "skinned": false,
+   "bytes": 75744,
+   "materials": [
+    {
+     "name": "lambert53",
+     "map": "tex/Wep_Skin_01.png",
+     "image": "Weapon_Skins_Master_07.tif"
+    }
+   ]
+  },
+  "SM_Wep_Pistol_Revolver_01": {
+   "tris": 2252,
+   "size": [
+    0.055,
+    0.208,
+    0.467
+   ],
+   "min": [
+    -0.028,
+    -0.103,
+    -0.063
+   ],
+   "max": [
+    0.028,
+    0.104,
+    0.404
+   ],
+   "skinned": false,
+   "bytes": 143620,
+   "materials": [
+    {
+     "name": "lambert54",
+     "map": "tex/Wep_Skin_01.png",
+     "image": "Weapon_Skins_Master_07.tif"
+    }
+   ]
+  },
+  "SM_Wep_Revolver_Snub_01": {
+   "tris": 2166,
+   "size": [
+    0.055,
+    0.185,
+    0.258
+   ],
+   "min": [
+    -0.028,
+    -0.082,
+    -0.044
+   ],
+   "max": [
+    0.028,
+    0.103,
+    0.214
+   ],
+   "skinned": false,
+   "bytes": 139144,
+   "materials": [
+    {
+     "name": "lambert55",
+     "map": "tex/Wep_Skin_01.png",
+     "image": "Weapon_Skins_Master_07.tif"
+    }
+   ]
+  },
+  "SM_Wep_SubMGun_01": {
+   "tris": 1502,
+   "size": [
+    0.076,
+    0.237,
+    0.675
+   ],
+   "min": [
+    -0.038,
+    -0.118,
+    -0.338
+   ],
+   "max": [
+    0.038,
+    0.118,
+    0.338
+   ],
+   "skinned": false,
+   "bytes": 93004,
+   "materials": [
+    {
+     "name": "lambert68",
+     "map": "tex/Wep_Skin_01.png",
+     "image": "Weapon_Skins_Master_07.tif"
+    }
+   ]
+  },
+  "SM_Wep_SubMGun_Lite_01": {
+   "tris": 1904,
+   "size": [
+    0.072,
+    0.34,
+    0.501
+   ],
+   "min": [
+    -0.036,
+    -0.205,
+    -0.19
+   ],
+   "max": [
+    0.036,
+    0.135,
+    0.311
+   ],
+   "skinned": false,
+   "bytes": 114392,
+   "materials": [
+    {
+     "name": "lambert69",
+     "map": "tex/Wep_Skin_01.png",
+     "image": "Weapon_Skins_Master_07.tif"
+    }
+   ]
+  },
+  "SM_Wep_Shotgun_01": {
+   "tris": 1988,
+   "size": [
+    0.082,
+    0.225,
+    1.205
+   ],
+   "min": [
+    -0.041,
+    -0.09,
+    -0.343
+   ],
+   "max": [
+    0.041,
+    0.135,
+    0.862
+   ],
+   "skinned": false,
+   "bytes": 120908,
+   "materials": [
+    {
+     "name": "lambert63",
+     "map": "tex/Wep_Skin_01.png",
+     "image": "Weapon_Skins_Master_07.tif"
+    }
+   ]
+  },
+  "SM_Wep_Rifle_Assault_01": {
+   "tris": 2906,
+   "size": [
+    0.074,
+    0.335,
+    1.049
+   ],
+   "min": [
+    -0.041,
+    -0.138,
+    -0.384
+   ],
+   "max": [
+    0.033,
+    0.197,
+    0.665
+   ],
+   "skinned": false,
+   "bytes": 175324,
+   "materials": [
+    {
+     "name": "lambert56",
+     "map": "tex/Wep_Skin_01.png",
+     "image": "Weapon_Skins_Master_07.tif"
+    }
+   ]
+  },
+  "SM_Wep_Rifle_Assault_02": {
+   "tris": 1662,
+   "size": [
+    0.045,
+    0.292,
+    0.758
+   ],
+   "min": [
+    -0.023,
+    -0.146,
+    -0.379
+   ],
+   "max": [
+    0.023,
+    0.146,
+    0.379
+   ],
+   "skinned": false,
+   "bytes": 100852,
+   "materials": [
+    {
+     "name": "lambert57",
+     "map": "tex/Wep_Skin_01.png",
+     "image": "Weapon_Skins_Master_07.tif"
+    }
+   ]
+  },
+  "SM_Wep_Rifle_Assault_03": {
+   "tris": 2001,
+   "size": [
+    0.066,
+    0.29,
+    1.044
+   ],
+   "min": [
+    -0.043,
+    -0.151,
+    -0.296
+   ],
+   "max": [
+    0.023,
+    0.139,
+    0.748
+   ],
+   "skinned": false,
+   "bytes": 117400,
+   "materials": [
+    {
+     "name": "lambert58",
+     "map": "tex/Wep_Skin_01.png",
+     "image": "Weapon_Skins_Master_07.tif"
+    }
+   ]
+  },
+  "SM_Wep_Rifle_Assault_04": {
+   "tris": 1826,
+   "size": [
+    0.072,
+    0.289,
+    1.07
+   ],
+   "min": [
+    -0.043,
+    -0.146,
+    -0.321
+   ],
+   "max": [
+    0.029,
+    0.143,
+    0.749
+   ],
+   "skinned": false,
+   "bytes": 110380,
+   "materials": [
+    {
+     "name": "lambert59",
+     "map": "tex/Wep_Skin_01.png",
+     "image": "Weapon_Skins_Master_07.tif"
+    }
+   ]
+  },
+  "SM_Wep_Rifle_Assault_05": {
+   "tris": 1762,
+   "size": [
+    0.072,
+    0.296,
+    0.814
+   ],
+   "min": [
+    -0.043,
+    -0.153,
+    -0.321
+   ],
+   "max": [
+    0.029,
+    0.143,
+    0.494
+   ],
+   "skinned": false,
+   "bytes": 106932,
+   "materials": [
+    {
+     "name": "lambert60",
+     "map": "tex/Wep_Skin_01.png",
+     "image": "Weapon_Skins_Master_07.tif"
+    }
+   ]
+  },
+  "SM_Wep_MachineGun_01": {
+   "tris": 6664,
+   "size": [
+    0.174,
+    0.31,
+    1.015
+   ],
+   "min": [
+    -0.082,
+    -0.076,
+    -0.362
+   ],
+   "max": [
+    0.092,
+    0.234,
+    0.653
+   ],
+   "skinned": false,
+   "bytes": 418408,
+   "materials": [
+    {
+     "name": "lambert50",
+     "map": "tex/Wep_Skin_01.png",
+     "image": "Weapon_Skins_Master_07.tif"
+    }
+   ]
+  },
+  "SM_Wep_Bullet_Ammo_Box_01": {
+   "tris": 90,
+   "size": [
+    0.172,
+    0.062,
+    0.108
+   ],
+   "min": [
+    -0.086,
+    0,
+    -0.054
+   ],
+   "max": [
+    0.086,
+    0.062,
+    0.054
+   ],
+   "skinned": false,
+   "bytes": 6108,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": "tex/PolygonBattleRoyale_Texture_01_A.png",
+     "image": "PolygonMilitary_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Wep_Bullet_Ammo_Box_02": {
+   "tris": 90,
+   "size": [
+    0.172,
+    0.062,
+    0.108
+   ],
+   "min": [
+    -0.086,
+    0,
+    -0.054
+   ],
+   "max": [
+    0.086,
+    0.062,
+    0.054
+   ],
+   "skinned": false,
+   "bytes": 6108,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": "tex/PolygonBattleRoyale_Texture_01_A.png",
+     "image": "PolygonMilitary_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Wep_Pistol_Ammo_Box_01": {
+   "tris": 84,
+   "size": [
+    0.124,
+    0.041,
+    0.071
+   ],
+   "min": [
+    -0.062,
+    0,
+    -0.035
+   ],
+   "max": [
+    0.062,
+    0.041,
+    0.035
+   ],
+   "skinned": false,
+   "bytes": 5876,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": "tex/PolygonBattleRoyale_Texture_01_A.png",
+     "image": "PolygonMilitary_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Wep_Shotgun_Ammo_Box_01": {
+   "tris": 76,
+   "size": [
+    0.162,
+    0.057,
+    0.105
+   ],
+   "min": [
+    -0.081,
+    0,
+    -0.052
+   ],
+   "max": [
+    0.081,
+    0.057,
+    0.052
+   ],
+   "skinned": false,
+   "bytes": 5572,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": "tex/PolygonBattleRoyale_Texture_01_A.png",
+     "image": "PolygonMilitary_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Wep_Bullet_Ammo_Pile_01": {
+   "tris": 432,
+   "size": [
+    0.116,
+    0.066,
+    0.125
+   ],
+   "min": [
+    -0.058,
+    0,
+    -0.062
+   ],
+   "max": [
+    0.058,
+    0.066,
+    0.062
+   ],
+   "skinned": false,
+   "bytes": 30112,
+   "materials": [
+    {
+     "name": "lambert39",
+     "map": "tex/Wep_Skin_01.png",
+     "image": "Weapon_Skins_Master_07.tif"
+    }
+   ]
+  },
+  "SM_Prop_AmmoBox_01": {
+   "tris": 364,
+   "size": [
+    0.447,
+    0.3,
+    0.203
+   ],
+   "min": [
+    -0.224,
+    0,
+    -0.102
+   ],
+   "max": [
+    0.224,
+    0.3,
+    0.102
+   ],
+   "skinned": false,
+   "bytes": 23476,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": "tex/PolygonBattleRoyale_Texture_01_A.png",
+     "image": "PolygonMilitary_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_MedicalBox_01": {
+   "tris": 154,
+   "size": [
+    0.482,
+    0.133,
+    0.386
+   ],
+   "min": [
+    -0.241,
+    0,
+    -0.193
+   ],
+   "max": [
+    0.241,
+    0.133,
+    0.193
+   ],
+   "skinned": false,
+   "bytes": 10328,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": "tex/PolygonBattleRoyale_Texture_01_A.png",
+     "image": "PolygonMilitary_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_MedicalBox_02": {
+   "tris": 196,
+   "size": [
+    0.346,
+    0.125,
+    0.364
+   ],
+   "min": [
+    -0.173,
+    0,
+    -0.182
+   ],
+   "max": [
+    0.173,
+    0.125,
+    0.182
+   ],
+   "skinned": false,
+   "bytes": 13592,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": "tex/PolygonBattleRoyale_Texture_01_A.png",
+     "image": "PolygonMilitary_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Crate_Medical_01": {
+   "tris": 912,
+   "size": [
+    0.72,
+    0.441,
+    0.49
+   ],
+   "min": [
+    -0.36,
+    0,
+    -0.245
+   ],
+   "max": [
+    0.36,
+    0.441,
+    0.245
+   ],
+   "skinned": false,
+   "bytes": 62952,
+   "materials": [
+    {
+     "name": "lambert157",
+     "map": "tex/PolygonBattleRoyale_Texture_01_A.png",
+     "image": "PolygonMilitary_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Spotlight_01": {
+   "tris": 216,
+   "size": [
+    1.039,
+    6.416,
+    0.382
+   ],
+   "min": [
+    -0.52,
+    0,
+    -0.244
+   ],
+   "max": [
+    0.52,
+    6.416,
+    0.138
+   ],
+   "skinned": false,
+   "bytes": 15372,
+   "materials": [
+    {
+     "name": "lambert2",
+     "map": "tex/PolygonBattleRoyale_Texture_01_A.png",
+     "image": "PolygonMilitary_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_WeaponCase_01": {
+   "tris": 736,
+   "size": [
+    1.213,
+    0.136,
+    0.458
+   ],
+   "min": [
+    -0.606,
+    0,
+    -0.165
+   ],
+   "max": [
+    0.606,
+    0.136,
+    0.292
+   ],
+   "skinned": false,
+   "bytes": 40820,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": "tex/PolygonBattleRoyale_Texture_01_A.png",
+     "image": "PolygonMilitary_Texture_01_A.psd"
+    }
+   ]
+  }
+ }
+}

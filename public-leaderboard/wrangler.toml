@@ -1,0 +1,14 @@
+# LabCoin Арена — публичен лидерборд. ОТДЕЛЕН проект: не е сайтът и не е панелът на VR Varna.
+# Разрешение от Митко 12.11.2026: „za qr koda imash pozvolenie“.
+name = "labcoin-arena-lb"
+main = "worker.js"
+compatibility_date = "2024-12-01"
+workers_dev = true
+
+[[kv_namespaces]]
+binding = "LB"
+id = "<KV_NAMESPACE_ID>"
+
+# Шрифтовете, логото и стилът (в стила на сайта VR Varna) — статични файлове.
+[assets]
+directory = "./assets"

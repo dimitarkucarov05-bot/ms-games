@@ -1,0 +1,1208 @@
+{
+ "pack": "POLYGON/Woodland Apocalypse Map",
+ "models": {
+  "SM_Env_Grass_Alpine_01": {
+   "tris": 1026,
+   "size": [
+    7.448,
+    1.503,
+    7.05
+   ],
+   "min": [
+    -3.596,
+    -0.421,
+    -3.589
+   ],
+   "max": [
+    3.852,
+    1.083,
+    3.461
+   ],
+   "skinned": false,
+   "bytes": 74828,
+   "materials": [
+    {
+     "name": "grassSHD18",
+     "map": null,
+     "image": "Grass_01.tga"
+    }
+   ]
+  },
+  "SM_Env_Grass_Alpine_02": {
+   "tris": 378,
+   "size": [
+    4.285,
+    1.245,
+    4.682
+   ],
+   "min": [
+    -2.157,
+    -0.368,
+    -2.324
+   ],
+   "max": [
+    2.127,
+    0.877,
+    2.358
+   ],
+   "skinned": false,
+   "bytes": 29460,
+   "materials": [
+    {
+     "name": "grassSHD16",
+     "map": null,
+     "image": "Grass_01.tga"
+    }
+   ]
+  },
+  "SM_Env_Grass_Alpine_03": {
+   "tris": 18,
+   "size": [
+    1.785,
+    0.827,
+    1.461
+   ],
+   "min": [
+    -0.932,
+    -0.097,
+    -0.683
+   ],
+   "max": [
+    0.853,
+    0.73,
+    0.777
+   ],
+   "skinned": false,
+   "bytes": 3404,
+   "materials": [
+    {
+     "name": "grassSHD13",
+     "map": null,
+     "image": "Grass_01.tga"
+    }
+   ]
+  },
+  "SM_Env_Grass_Alpine_04": {
+   "tris": 54,
+   "size": [
+    1.914,
+    0.798,
+    1.926
+   ],
+   "min": [
+    -0.949,
+    -0.117,
+    -0.949
+   ],
+   "max": [
+    0.966,
+    0.681,
+    0.977
+   ],
+   "skinned": false,
+   "bytes": 6732,
+   "materials": [
+    {
+     "name": "grassSHD14",
+     "map": null,
+     "image": "Grass_01.tga"
+    }
+   ]
+  },
+  "SM_Env_Pine_Large_01": {
+   "tris": 7402,
+   "size": [
+    7.753,
+    15.663,
+    8.746
+   ],
+   "min": [
+    -3.738,
+    -0.722,
+    -4.123
+   ],
+   "max": [
+    4.015,
+    14.941,
+    4.623
+   ],
+   "skinned": false,
+   "bytes": 542572,
+   "materials": [
+    {
+     "name": "MAT_01A1",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_Pine_Large_02": {
+   "tris": 25239,
+   "size": [
+    10.01,
+    14.209,
+    10.2
+   ],
+   "min": [
+    -4.939,
+    -0.571,
+    -4.991
+   ],
+   "max": [
+    5.07,
+    13.638,
+    5.208
+   ],
+   "skinned": false,
+   "bytes": 1646296,
+   "materials": [
+    {
+     "name": "MAT_01A",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_Road_Arrow_Multidirectional_03": {
+   "tris": 94,
+   "size": [
+    5,
+    0,
+    5
+   ],
+   "min": [
+    0,
+    0,
+    -5
+   ],
+   "max": [
+    5,
+    0,
+    0
+   ],
+   "skinned": false,
+   "bytes": 4732,
+   "materials": [
+    {
+     "name": "Polygon_Road_01A",
+     "map": null,
+     "image": "Road_01.png"
+    }
+   ]
+  },
+  "SM_Env_Road_Arrow_TurnOff_01": {
+   "tris": 90,
+   "size": [
+    5,
+    0,
+    5
+   ],
+   "min": [
+    0,
+    0,
+    -5
+   ],
+   "max": [
+    5,
+    0,
+    0
+   ],
+   "skinned": false,
+   "bytes": 4796,
+   "materials": [
+    {
+     "name": "Polygon_Road_01A",
+     "map": null,
+     "image": "Road_01.png"
+    }
+   ]
+  },
+  "SM_Env_Road_Arrow_TurnOff_02": {
+   "tris": 90,
+   "size": [
+    5,
+    0,
+    5
+   ],
+   "min": [
+    0,
+    0,
+    -5
+   ],
+   "max": [
+    5,
+    0,
+    0
+   ],
+   "skinned": false,
+   "bytes": 4800,
+   "materials": [
+    {
+     "name": "Polygon_Road_01A",
+     "map": null,
+     "image": "Road_01.png"
+    }
+   ]
+  },
+  "SM_Prop_Bait_Sign_Alt_01": {
+   "tris": 3327,
+   "size": [
+    3.068,
+    3.198,
+    1.62
+   ],
+   "min": [
+    -1.534,
+    -0.118,
+    -0.559
+   ],
+   "max": [
+    1.534,
+    3.081,
+    1.062
+   ],
+   "skinned": false,
+   "bytes": 270904,
+   "materials": [
+    {
+     "name": "lambert2131",
+     "map": null,
+     "image": "PolygonApocalypse_Texture_01_Cleaned.psd"
+    }
+   ]
+  },
+  "SM_Prop_Brochure_Stand_01": {
+   "tris": 952,
+   "size": [
+    0.965,
+    1.866,
+    0.501
+   ],
+   "min": [
+    -0.482,
+    0,
+    -0.25
+   ],
+   "max": [
+    0.482,
+    1.866,
+    0.25
+   ],
+   "skinned": false,
+   "bytes": 72788,
+   "materials": [
+    {
+     "name": "lambert2",
+     "map": null,
+     "image": "PolygonApocalypse_Texture_01_Cleaned.psd"
+    }
+   ]
+  },
+  "SM_Prop_Chain_Fence_Broken_01": {
+   "tris": 854,
+   "size": [
+    3.944,
+    2.781,
+    0.217
+   ],
+   "min": [
+    -1.972,
+    0,
+    -0.094
+   ],
+   "max": [
+    1.972,
+    2.781,
+    0.122
+   ],
+   "skinned": false,
+   "bytes": 57648,
+   "materials": [
+    {
+     "name": "A_Wire",
+     "map": null,
+     "image": "Wire_Alpha.tga"
+    },
+    {
+     "name": "Polygon_Apocalypse_01A",
+     "map": null,
+     "image": "PolygonApocalypse_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Fence_Wood_Damaged_01": {
+   "tris": 410,
+   "size": [
+    2.541,
+    2.135,
+    0.533
+   ],
+   "min": [
+    -0.011,
+    -0.037,
+    -0.269
+   ],
+   "max": [
+    2.529,
+    2.098,
+    0.264
+   ],
+   "skinned": false,
+   "bytes": 29636,
+   "materials": [
+    {
+     "name": "Polygon_Apocalypse_01A",
+     "map": null,
+     "image": "PolygonApocalypse_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Fence_Wood_Damaged_02": {
+   "tris": 176,
+   "size": [
+    0.838,
+    2.108,
+    0.17
+   ],
+   "min": [
+    -0.011,
+    -0.009,
+    -0.07
+   ],
+   "max": [
+    0.827,
+    2.098,
+    0.101
+   ],
+   "skinned": false,
+   "bytes": 13764,
+   "materials": [
+    {
+     "name": "Polygon_Apocalypse_01A",
+     "map": null,
+     "image": "PolygonApocalypse_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Gas_Sign_01": {
+   "tris": 4180,
+   "size": [
+    4.407,
+    9.404,
+    0.841
+   ],
+   "min": [
+    -2.25,
+    0.005,
+    -0.421
+   ],
+   "max": [
+    2.157,
+    9.409,
+    0.421
+   ],
+   "skinned": false,
+   "bytes": 298776,
+   "materials": [
+    {
+     "name": "lambert2129",
+     "map": null,
+     "image": "PolygonApocalypse_Texture_01_Cleaned.psd"
+    }
+   ]
+  },
+  "SM_Prop_Log_Pile_02": {
+   "tris": 1360,
+   "size": [
+    7.89,
+    5.572,
+    10.176
+   ],
+   "min": [
+    -3.945,
+    0,
+    -19.95
+   ],
+   "max": [
+    3.945,
+    5.572,
+    -9.774
+   ],
+   "skinned": false,
+   "bytes": 77868,
+   "materials": [
+    {
+     "name": "Polygon_Apocalypse_01A",
+     "map": null,
+     "image": "PolygonApocalypse_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Mug_01": {
+   "tris": 198,
+   "size": [
+    0.214,
+    0.179,
+    0.127
+   ],
+   "min": [
+    -0.074,
+    0,
+    -0.064
+   ],
+   "max": [
+    0.141,
+    0.179,
+    0.064
+   ],
+   "skinned": false,
+   "bytes": 13936,
+   "materials": [
+    {
+     "name": "lambert2",
+     "map": null,
+     "image": "PolygonApocalypse_Texture_01_Cleaned.psd"
+    }
+   ]
+  },
+  "SM_Prop_Nature_Sign_01": {
+   "tris": 572,
+   "size": [
+    0.988,
+    1.075,
+    0.719
+   ],
+   "min": [
+    -0.494,
+    -0.021,
+    -0.36
+   ],
+   "max": [
+    0.494,
+    1.053,
+    0.36
+   ],
+   "skinned": false,
+   "bytes": 32864,
+   "materials": [
+    {
+     "name": "lambert2132",
+     "map": null,
+     "image": "PolygonApocalypse_Texture_01_Cleaned.psd"
+    }
+   ]
+  },
+  "SM_Prop_Plate_01": {
+   "tris": 136,
+   "size": [
+    0.473,
+    0.046,
+    0.473
+   ],
+   "min": [
+    -0.237,
+    0,
+    -0.237
+   ],
+   "max": [
+    0.237,
+    0.046,
+    0.237
+   ],
+   "skinned": false,
+   "bytes": 10152,
+   "materials": [
+    {
+     "name": "lambert2130",
+     "map": null,
+     "image": "PolygonApocalypse_Texture_01_Cleaned.psd"
+    }
+   ]
+  },
+  "SM_Prop_Shipping_Container_01": {
+   "tris": 60,
+   "size": [
+    2.477,
+    2.59,
+    6.081
+   ],
+   "min": [
+    -2.15,
+    0,
+    -3.052
+   ],
+   "max": [
+    0.327,
+    2.59,
+    3.029
+   ],
+   "skinned": false,
+   "bytes": 5292,
+   "materials": [
+    {
+     "name": "lambert152",
+     "map": null,
+     "image": "containers_07.png"
+    }
+   ]
+  },
+  "SM_Prop_Statue_Base_01": {
+   "tris": 262,
+   "size": [
+    2.206,
+    1.076,
+    1.614
+   ],
+   "min": [
+    -1.103,
+    -0.017,
+    -0.666
+   ],
+   "max": [
+    1.103,
+    1.059,
+    0.948
+   ],
+   "skinned": false,
+   "bytes": 16260,
+   "materials": [
+    {
+     "name": "Polygon_Apocalypse_01A",
+     "map": null,
+     "image": "PolygonApocalypse_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Statue_Lumberjack_01": {
+   "tris": 3032,
+   "size": [
+    2.051,
+    4.164,
+    1.75
+   ],
+   "min": [
+    -1.054,
+    -0.046,
+    -0.517
+   ],
+   "max": [
+    0.997,
+    4.118,
+    1.233
+   ],
+   "skinned": false,
+   "bytes": 419176,
+   "materials": [
+    {
+     "name": "Polygon_Apocalypse_01A1",
+     "map": null,
+     "image": "PolygonApocalypse_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Trailer_Log_Single_02": {
+   "tris": 240,
+   "size": [
+    0.862,
+    0.823,
+    8.804
+   ],
+   "min": [
+    -0.432,
+    -0.005,
+    -4.547
+   ],
+   "max": [
+    0.43,
+    0.818,
+    4.257
+   ],
+   "skinned": false,
+   "bytes": 18004,
+   "materials": [
+    {
+     "name": "lambert32",
+     "map": null,
+     "image": "Land_Vehicle_Master_01.psd"
+    }
+   ]
+  },
+  "SM_Prop_Trailer_Log_Single_03": {
+   "tris": 240,
+   "size": [
+    0.862,
+    0.823,
+    6.751
+   ],
+   "min": [
+    -0.432,
+    -0.005,
+    -3.385
+   ],
+   "max": [
+    0.43,
+    0.818,
+    3.367
+   ],
+   "skinned": false,
+   "bytes": 17996,
+   "materials": [
+    {
+     "name": "lambert32",
+     "map": null,
+     "image": "Land_Vehicle_Master_01.psd"
+    }
+   ]
+  },
+  "SM_Prop_Truck_Wrecked_01": {
+   "tris": 11788,
+   "size": [
+    3.161,
+    4.34,
+    9.515
+   ],
+   "min": [
+    -1.61,
+    -0.054,
+    -5.493
+   ],
+   "max": [
+    1.551,
+    4.286,
+    4.022
+   ],
+   "skinned": false,
+   "bytes": 759004,
+   "materials": [
+    {
+     "name": "MAT_01B",
+     "map": null,
+     "image": "PolygonFantasyVillage_Emissive_01_B.png"
+    },
+    {
+     "name": "lambert2",
+     "map": null,
+     "image": "PolygonApocalypse_Texture_01_Cleaned.psd"
+    }
+   ]
+  },
+  "SM_Prop_Truck_Wrecked_02": {
+   "tris": 7680,
+   "size": [
+    3.266,
+    3.632,
+    7.882
+   ],
+   "min": [
+    -1.736,
+    -0.092,
+    -3.615
+   ],
+   "max": [
+    1.53,
+    3.54,
+    4.268
+   ],
+   "skinned": false,
+   "bytes": 491276,
+   "materials": [
+    {
+     "name": "MAT_01B",
+     "map": null,
+     "image": "PolygonFantasyVillage_Emissive_01_B.png"
+    },
+    {
+     "name": "lambert2",
+     "map": null,
+     "image": "PolygonApocalypse_Texture_01_Cleaned.psd"
+    }
+   ]
+  },
+  "SM_Veh_Attchment_Antenna_01": {
+   "tris": 48,
+   "size": [
+    0.085,
+    0.73,
+    0.17
+   ],
+   "min": [
+    -0.034,
+    -0.008,
+    -0.123
+   ],
+   "max": [
+    0.051,
+    0.722,
+    0.047
+   ],
+   "skinned": false,
+   "bytes": 4668,
+   "materials": [
+    {
+     "name": "Polygon_Apocalypse_01A",
+     "map": null,
+     "image": "PolygonApocalypse_01_A.png"
+    }
+   ]
+  },
+  "SM_Veh_Attchment_Antenna_02": {
+   "tris": 48,
+   "size": [
+    0.15,
+    0.509,
+    0.214
+   ],
+   "min": [
+    -0.062,
+    -0.007,
+    -0.138
+   ],
+   "max": [
+    0.088,
+    0.502,
+    0.076
+   ],
+   "skinned": false,
+   "bytes": 4604,
+   "materials": [
+    {
+     "name": "Polygon_Apocalypse_01A",
+     "map": null,
+     "image": "PolygonApocalypse_01_A.png"
+    }
+   ]
+  },
+  "SM_Veh_Attchment_Siren_01": {
+   "tris": 136,
+   "size": [
+    1.289,
+    0.211,
+    0.213
+   ],
+   "min": [
+    -0.644,
+    -0.014,
+    -0.132
+   ],
+   "max": [
+    0.644,
+    0.197,
+    0.081
+   ],
+   "skinned": false,
+   "bytes": 10064,
+   "materials": [
+    {
+     "name": "Polygon_Apocalypse_01A",
+     "map": null,
+     "image": "PolygonApocalypse_01_A.png"
+    }
+   ]
+  },
+  "SM_Gen_Prop_Barrel_Metal_01": {
+   "tris": 324,
+   "size": [
+    0.695,
+    1.045,
+    0.726
+   ],
+   "min": [
+    -0.349,
+    0,
+    -0.362
+   ],
+   "max": [
+    0.346,
+    1.045,
+    0.364
+   ],
+   "skinned": false,
+   "bytes": 27784,
+   "materials": [
+    {
+     "name": "Polygon_Generic_01A",
+     "map": null,
+     "image": "PolygonGeneric_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Gen_Env_Dirt_Cliff_03": {
+   "tris": 1092,
+   "size": [
+    25.443,
+    10.072,
+    14.106
+   ],
+   "min": [
+    -12.342,
+    -1.149,
+    -7.381
+   ],
+   "max": [
+    13.101,
+    8.923,
+    6.726
+   ],
+   "skinned": false,
+   "bytes": 112712,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Texture_01A2",
+     "map": null,
+     "image": "PolygonNatureBiomesS2_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Gen_Env_Dirt_Cliff_02": {
+   "tris": 826,
+   "size": [
+    13.374,
+    10.218,
+    9.351
+   ],
+   "min": [
+    -6.698,
+    -1.302,
+    -5.015
+   ],
+   "max": [
+    6.676,
+    8.915,
+    4.337
+   ],
+   "skinned": false,
+   "bytes": 85520,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Texture_01A1",
+     "map": null,
+     "image": "PolygonNatureBiomesS2_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Gen_Env_Dirt_Cliff_04": {
+   "tris": 1712,
+   "size": [
+    25.542,
+    9.967,
+    14.102
+   ],
+   "min": [
+    -12.972,
+    -1.578,
+    -6.935
+   ],
+   "max": [
+    12.57,
+    8.389,
+    7.167
+   ],
+   "skinned": false,
+   "bytes": 175960,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Texture_01A3",
+     "map": null,
+     "image": "PolygonNatureBiomesS2_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Gen_Env_Vines_05": {
+   "tris": 716,
+   "size": [
+    1.117,
+    1.979,
+    0.574
+   ],
+   "min": [
+    -0.558,
+    -1.845,
+    -0.287
+   ],
+   "max": [
+    0.558,
+    0.134,
+    0.287
+   ],
+   "skinned": false,
+   "bytes": 52328,
+   "materials": [
+    {
+     "name": "Polygon_Generic_01A",
+     "map": null,
+     "image": "PolygonGeneric_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Gen_Prop_Mug_01": {
+   "tris": 140,
+   "size": [
+    0.196,
+    0.164,
+    0.117
+   ],
+   "min": [
+    -0.067,
+    0,
+    -0.058
+   ],
+   "max": [
+    0.129,
+    0.164,
+    0.058
+   ],
+   "skinned": false,
+   "bytes": 10592,
+   "materials": [
+    {
+     "name": "Polygon_Generic_01A",
+     "map": null,
+     "image": "PolygonGeneric_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Gen_Prop_Barrel_Metal_02": {
+   "tris": 290,
+   "size": [
+    0.726,
+    1.05,
+    0.705
+   ],
+   "min": [
+    -0.363,
+    0,
+    -0.353
+   ],
+   "max": [
+    0.363,
+    1.05,
+    0.353
+   ],
+   "skinned": false,
+   "bytes": 25056,
+   "materials": [
+    {
+     "name": "Polygon_Generic_01A",
+     "map": null,
+     "image": "PolygonGeneric_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Gen_Prop_Plate_01": {
+   "tris": 144,
+   "size": [
+    0.473,
+    0.046,
+    0.473
+   ],
+   "min": [
+    -0.237,
+    0,
+    -0.237
+   ],
+   "max": [
+    0.237,
+    0.046,
+    0.237
+   ],
+   "skinned": false,
+   "bytes": 10680,
+   "materials": [
+    {
+     "name": "Polygon_Generic_01A",
+     "map": null,
+     "image": "PolygonGeneric_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Veh_BigRig_Trailer_Logs_01": {
+   "tris": 2460,
+   "size": [
+    2.667,
+    1.936,
+    8.876
+   ],
+   "min": [
+    -1.334,
+    1.605,
+    -7.656
+   ],
+   "max": [
+    1.333,
+    3.542,
+    1.22
+   ],
+   "skinned": false,
+   "bytes": 179664,
+   "materials": [
+    {
+     "name": "lambert32",
+     "map": null,
+     "image": "Land_Vehicle_Master_01.psd"
+    }
+   ]
+  },
+  "SM_Veh_Motorbike_01": {
+   "tris": 5636,
+   "size": [
+    0.947,
+    1.347,
+    2.734
+   ],
+   "min": [
+    -0.474,
+    -0.002,
+    -1.252
+   ],
+   "max": [
+    0.474,
+    1.345,
+    1.482
+   ],
+   "skinned": false,
+   "bytes": 444400,
+   "materials": [
+    {
+     "name": "lambert32",
+     "map": null,
+     "image": "Land_Vehicle_Master_01.psd"
+    }
+   ]
+  },
+  "SM_Gen_Env_Dirt_Cliff_08": {
+   "tris": 300,
+   "size": [
+    12.778,
+    6.102,
+    12.595
+   ],
+   "min": [
+    -6.402,
+    -2.456,
+    -9.451
+   ],
+   "max": [
+    6.375,
+    3.646,
+    3.144
+   ],
+   "skinned": false,
+   "bytes": 31928,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Texture_01A11",
+     "map": null,
+     "image": "PolygonNatureBiomesS2_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Veh_BigRig_Trailer_Logs_Frame_01": {
+   "tris": 240,
+   "size": [
+    2.959,
+    2.216,
+    7.937
+   ],
+   "min": [
+    -1.48,
+    1.453,
+    -7.153
+   ],
+   "max": [
+    1.48,
+    3.67,
+    0.785
+   ],
+   "skinned": false,
+   "bytes": 16648,
+   "materials": [
+    {
+     "name": "_Apoc_Car",
+     "map": null,
+     "image": "Land_Vehicle_Master_01.psd"
+    }
+   ]
+  },
+  "SM_Veh_BigRig_Trailer_01": {
+   "tris": 3800,
+   "size": [
+    2.868,
+    1.5,
+    8.831
+   ],
+   "min": [
+    -1.434,
+    0,
+    -7.621
+   ],
+   "max": [
+    1.434,
+    1.5,
+    1.21
+   ],
+   "skinned": false,
+   "bytes": 282920,
+   "materials": [
+    {
+     "name": "lambert32",
+     "map": null,
+     "image": "Land_Vehicle_Master_01.psd"
+    }
+   ]
+  },
+  "SM_Veh_Ute_01": {
+   "tris": 19051,
+   "size": [
+    2.627,
+    3.596,
+    6.4
+   ],
+   "min": [
+    -1.319,
+    -0.019,
+    -3.302
+   ],
+   "max": [
+    1.309,
+    3.577,
+    3.099
+   ],
+   "skinned": false,
+   "bytes": 1517092,
+   "materials": [
+    {
+     "name": "lambert39",
+     "map": null,
+     "image": "Land_Vehicle_Master_01.psd"
+    }
+   ]
+  },
+  "SM_Gen_Env_Dirt_Cliff_07": {
+   "tris": 862,
+   "size": [
+    12.2,
+    8.139,
+    12.027
+   ],
+   "min": [
+    -5.924,
+    -1.174,
+    -5.748
+   ],
+   "max": [
+    6.276,
+    6.966,
+    6.278
+   ],
+   "skinned": false,
+   "bytes": 89256,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Texture_01A7",
+     "map": null,
+     "image": "PolygonNatureBiomesS2_Texture_01.png"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,3254 @@
+{
+ "_note": "Sound bank of The Motel (S8, 2026-11-16). Format as in games/motel/sfx-events.json: events[name] = {files (random pick), kids (softer set for kids mode), gain, pitch [min, max] playback rate, cooldown s, loop}. Paths are relative to this file. Extra fields are advice for the player code: space = where it should sound ('3d' = at the thing, through the panner; '2d' = in the head), note, added = an event that sfx-events.json does not have yet (S4 wires it when the feature exists), text/seconds for voice lines. All files are OGG Vorbis 44.1 kHz; one-shots mono, beds and stingers stereo (play stereo files 2D only). Every file is a cut of a downloaded recording (SOURCES.tsv); nothing is synthesized. Chosen by name and measurement, not by ear: each family needs one listening pass.",
+ "_levels": "One-shots peak at -1 to -6 dBFS; gun families are levelled to one RMS each (pistol -19 ... shotgun -15), so 'gain' is the mix: guns 0.85-1.0, impacts 0.7-0.85, zombies 0.8-1.0 (3D distance does the rest), music 0.3-0.45, ambience 0.5-0.6, voice 1.0 (duck music by 6 dB under a line).",
+ "_music": "music.calm/wave/intense/boss are beds cut from Sonniss trailer and horror libraries (no credit needed). music.wave and music.intense have the same length and pulse, so they crossfade without a bump. The *.ccby events are full music alternatives by Kevin MacLeod (CC BY 4.0): they may be used only together with the credit lines in vr-arena/_sound-src/LICENSES.md on a credits screen of the product.",
+ "_added": [
+  "gun.mag.out",
+  "gun.mag.in",
+  "shotgun.pump",
+  "shell.drop",
+  "shell.drop.shotgun",
+  "bullet.impact.metal",
+  "bullet.impact.wood",
+  "melee.swing",
+  "melee.saw.start",
+  "zombie.bodyfall",
+  "fence.rattle",
+  "boss.rage",
+  "boss.hurt",
+  "boss.windup",
+  "boss.slam",
+  "stinger.wave",
+  "stinger.blackout",
+  "stinger.boss",
+  "stinger.jump",
+  "riser.10s",
+  "score.tick",
+  "score.final",
+  "score.record",
+  "award.reveal",
+  "plank.drop",
+  "chest.fly",
+  "world.neon.hum",
+  "world.spark",
+  "world.heli.away",
+  "world.heli.in",
+  "radio.open",
+  "radio.close",
+  "ambience.rain",
+  "ambience.fire",
+  "voice.<id> (64 lines)"
+ ],
+ "_memory": "The player code decodes every file under 'events' at load: about 150 MB of decoded audio at 48 kHz. Beds (music.*, ambience.*, world.heli.*) are the big ones; decode them on first use or play them through an <audio> element if memory is tight on Quest 2. 'alternatives' is NOT loaded: copy an entry into 'events' to use it.",
+ "_missing": [],
+ "events": {
+  "shot.pistol": {
+   "files": [
+    "guns/pistol_01.ogg",
+    "guns/pistol_02.ogg",
+    "guns/pistol_03.ogg",
+    "guns/pistol_04.ogg",
+    "guns/pistol_05.ogg",
+    "guns/pistol_06.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    0.96,
+    1.04
+   ],
+   "space": "2d own / 3d others"
+  },
+  "shot.smg": {
+   "files": [
+    "guns/smg_01.ogg",
+    "guns/smg_02.ogg",
+    "guns/smg_03.ogg",
+    "guns/smg_04.ogg",
+    "guns/smg_05.ogg"
+   ],
+   "gain": 0.85,
+   "pitch": [
+    0.96,
+    1.05
+   ],
+   "space": "2d own / 3d others"
+  },
+  "shot.revolver": {
+   "files": [
+    "guns/revolver_01.ogg",
+    "guns/revolver_02.ogg",
+    "guns/revolver_03.ogg",
+    "guns/revolver_04.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    0.95,
+    1.03
+   ],
+   "space": "2d own / 3d others"
+  },
+  "shot.shotgun": {
+   "files": [
+    "guns/shotgun_01.ogg",
+    "guns/shotgun_02.ogg",
+    "guns/shotgun_03.ogg",
+    "guns/shotgun_04.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    0.95,
+    1.03
+   ],
+   "space": "2d own / 3d others",
+   "note": "blast only; play shotgun.pump 0.35 s later"
+  },
+  "shot.carbine": {
+   "files": [
+    "guns/carbine_01.ogg",
+    "guns/carbine_02.ogg",
+    "guns/carbine_03.ogg",
+    "guns/carbine_04.ogg"
+   ],
+   "gain": 0.9,
+   "pitch": [
+    0.96,
+    1.04
+   ],
+   "space": "2d own / 3d others"
+  },
+  "shot.rifle": {
+   "files": [
+    "guns/rifle_01.ogg",
+    "guns/rifle_02.ogg",
+    "guns/rifle_03.ogg",
+    "guns/rifle_04.ogg",
+    "guns/rifle_05.ogg"
+   ],
+   "gain": 0.95,
+   "pitch": [
+    0.96,
+    1.04
+   ],
+   "space": "2d own / 3d others"
+  },
+  "shot.hunting": {
+   "files": [
+    "guns/hunting_01.ogg",
+    "guns/hunting_02.ogg",
+    "guns/hunting_03.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    0.96,
+    1.02
+   ],
+   "space": "2d own / 3d others"
+  },
+  "shot.lmg": {
+   "files": [
+    "guns/lmg_01.ogg",
+    "guns/lmg_02.ogg",
+    "guns/lmg_03.ogg",
+    "guns/lmg_04.ogg"
+   ],
+   "gain": 0.9,
+   "pitch": [
+    0.95,
+    1.04
+   ],
+   "space": "2d own / 3d others"
+  },
+  "gun.dry": {
+   "files": [
+    "guns/dry_01.ogg",
+    "guns/dry_02.ogg",
+    "guns/dry_03.ogg"
+   ],
+   "gain": 0.6,
+   "pitch": [
+    0.97,
+    1.05
+   ],
+   "space": "2d"
+  },
+  "gun.reload": {
+   "files": [
+    "guns/reload_01.ogg",
+    "guns/reload_02.ogg",
+    "guns/reload_03.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "2d",
+   "note": "magazine out at 0 s, in at 0.9 s (about 1.4 s)"
+  },
+  "gun.mag.out": {
+   "files": [
+    "guns/mag_out_01.ogg",
+    "guns/mag_out_02.ogg",
+    "guns/mag_out_03.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "2d",
+   "added": "the two halves of gun.reload on their own, for reloads of another length"
+  },
+  "gun.mag.in": {
+   "files": [
+    "guns/mag_in_01.ogg",
+    "guns/mag_in_02.ogg",
+    "guns/mag_in_03.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "2d",
+   "added": "see gun.mag.out"
+  },
+  "gun.loaded": {
+   "files": [
+    "guns/loaded_01.ogg",
+    "guns/loaded_02.ogg",
+    "guns/loaded_03.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "2d"
+  },
+  "gun.pickup": {
+   "files": [
+    "guns/pickup_01.ogg",
+    "guns/pickup_02.ogg",
+    "guns/pickup_03.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "space": "2d"
+  },
+  "gun.take": {
+   "files": [
+    "guns/take_01.ogg",
+    "guns/take_02.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "space": "2d"
+  },
+  "shotgun.pump": {
+   "files": [
+    "guns/pump_01.ogg",
+    "guns/pump_02.ogg",
+    "guns/pump_03.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "2d",
+   "added": "pump after every shotgun blast (0.35 s later)"
+  },
+  "shell.drop": {
+   "files": [
+    "guns/shell_01.ogg",
+    "guns/shell_02.ogg",
+    "guns/shell_03.ogg",
+    "guns/shell_04.ogg",
+    "guns/shell_05.ogg"
+   ],
+   "gain": 0.35,
+   "pitch": [
+    1.1,
+    1.5
+   ],
+   "cooldown": 0.08,
+   "space": "3d at the floor",
+   "added": "a spent case landing, 0.35-0.5 s after a shot"
+  },
+  "shell.drop.shotgun": {
+   "files": [
+    "guns/shell_shotgun_01.ogg",
+    "guns/shell_shotgun_02.ogg"
+   ],
+   "gain": 0.45,
+   "pitch": [
+    0.95,
+    1.1
+   ],
+   "space": "3d at the floor",
+   "added": "shotgun shell landing"
+  },
+  "bullet.impact.metal": {
+   "files": [
+    "impact/bullet_metal_01.ogg",
+    "impact/bullet_metal_02.ogg"
+   ],
+   "gain": 0.5,
+   "pitch": [
+    0.9,
+    1.15
+   ],
+   "cooldown": 0.06,
+   "space": "3d at the hit point",
+   "added": "a missed bullet hitting a prop / the ground"
+  },
+  "bullet.impact.wood": {
+   "files": [
+    "impact/bullet_wood_01.ogg",
+    "impact/bullet_wood_02.ogg",
+    "impact/bullet_wood_03.ogg"
+   ],
+   "gain": 0.5,
+   "pitch": [
+    0.9,
+    1.15
+   ],
+   "cooldown": 0.06,
+   "space": "3d at the hit point",
+   "added": "a missed bullet hitting a prop / the ground"
+  },
+  "impact.body": {
+   "files": [
+    "impact/body_01.ogg",
+    "impact/body_02.ogg",
+    "impact/body_03.ogg",
+    "impact/body_04.ogg",
+    "impact/body_05.ogg",
+    "impact/body_06.ogg"
+   ],
+   "kids": [
+    "impact/body_kids_01.ogg",
+    "impact/body_kids_02.ogg",
+    "impact/body_kids_03.ogg",
+    "impact/body_kids_04.ogg"
+   ],
+   "gain": 0.7,
+   "pitch": [
+    0.93,
+    1.07
+   ],
+   "cooldown": 0.03,
+   "space": "2d"
+  },
+  "impact.head": {
+   "files": [
+    "impact/head_01.ogg",
+    "impact/head_02.ogg",
+    "impact/head_03.ogg",
+    "impact/head_04.ogg",
+    "impact/head_05.ogg"
+   ],
+   "kids": [
+    "impact/head_kids_01.ogg",
+    "impact/head_kids_02.ogg",
+    "impact/head_kids_03.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    0.95,
+    1.08
+   ],
+   "cooldown": 0.03,
+   "space": "2d"
+  },
+  "impact.headshot": {
+   "files": [
+    "impact/headshot_01.ogg",
+    "impact/headshot_02.ogg",
+    "impact/headshot_03.ogg",
+    "impact/headshot_04.ogg"
+   ],
+   "kids": [
+    "impact/headshot_kids_01.ogg",
+    "impact/headshot_kids_02.ogg",
+    "impact/headshot_kids_03.ogg"
+   ],
+   "gain": 0.85,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "space": "2d"
+  },
+  "impact.gore": {
+   "files": [
+    "impact/gore_01.ogg",
+    "impact/gore_02.ogg",
+    "impact/gore_03.ogg",
+    "impact/gore_04.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    0.92,
+    1.08
+   ],
+   "space": "3d at the zombie's head",
+   "note": "never in kids mode"
+  },
+  "melee.chop": {
+   "files": [
+    "melee/chop_01.ogg",
+    "melee/chop_02.ogg",
+    "melee/chop_03.ogg",
+    "melee/chop_04.ogg"
+   ],
+   "kids": [
+    "melee/chop_kids_01.ogg",
+    "melee/chop_kids_02.ogg",
+    "melee/chop_kids_03.ogg"
+   ],
+   "gain": 0.9,
+   "pitch": [
+    0.93,
+    1.07
+   ],
+   "space": "2d"
+  },
+  "melee.swing": {
+   "files": [
+    "melee/swing_01.ogg",
+    "melee/swing_02.ogg",
+    "melee/swing_03.ogg",
+    "melee/swing_04.ogg"
+   ],
+   "gain": 0.6,
+   "pitch": [
+    0.9,
+    1.15
+   ],
+   "cooldown": 0.15,
+   "space": "2d",
+   "added": "axe / machete swing through the air (tip speed over 2.2 m/s)"
+  },
+  "melee.saw.idle": {
+   "files": [
+    "melee/saw_idle.ogg"
+   ],
+   "gain": 0.6,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "cooldown": 1.6,
+   "space": "2d",
+   "note": "1.85 s seamless slice: play as a loop while held"
+  },
+  "melee.saw.cut": {
+   "files": [
+    "melee/saw_cut_01.ogg",
+    "melee/saw_cut_02.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    0.98,
+    1.02
+   ],
+   "cooldown": 1.3,
+   "space": "2d",
+   "note": "1.5 s seamless slices"
+  },
+  "melee.saw.start": {
+   "files": [
+    "melee/saw_start.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "2d",
+   "added": "the chainsaw is taken / the trigger is first pulled"
+  },
+  "zombie.idle": {
+   "files": [
+    "zombie/idle_01.ogg",
+    "zombie/idle_02.ogg",
+    "zombie/idle_03.ogg",
+    "zombie/idle_04.ogg",
+    "zombie/idle_05.ogg",
+    "zombie/idle_06.ogg",
+    "zombie/idle_07.ogg",
+    "zombie/idle_08.ogg",
+    "zombie/idle_09.ogg",
+    "zombie/idle_10.ogg",
+    "zombie/idle_11.ogg",
+    "zombie/idle_12.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    0.88,
+    1.08
+   ],
+   "cooldown": 0.4,
+   "space": "3d"
+  },
+  "zombie.idle.runner": {
+   "files": [
+    "zombie/runner_01.ogg",
+    "zombie/runner_02.ogg",
+    "zombie/runner_03.ogg",
+    "zombie/runner_04.ogg",
+    "zombie/runner_05.ogg",
+    "zombie/runner_06.ogg"
+   ],
+   "gain": 0.85,
+   "pitch": [
+    0.95,
+    1.12
+   ],
+   "cooldown": 0.35,
+   "space": "3d"
+  },
+  "zombie.idle.big": {
+   "files": [
+    "zombie/big_01.ogg",
+    "zombie/big_02.ogg",
+    "zombie/big_03.ogg",
+    "zombie/big_04.ogg",
+    "zombie/big_05.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    0.82,
+    0.96
+   ],
+   "cooldown": 0.8,
+   "space": "3d"
+  },
+  "zombie.step": {
+   "files": [
+    "zombie/step_01.ogg",
+    "zombie/step_02.ogg",
+    "zombie/step_03.ogg",
+    "zombie/step_04.ogg",
+    "zombie/step_05.ogg",
+    "zombie/step_06.ogg"
+   ],
+   "gain": 0.45,
+   "pitch": [
+    0.88,
+    1.1
+   ],
+   "cooldown": 0.09,
+   "space": "3d"
+  },
+  "zombie.step.heavy": {
+   "files": [
+    "zombie/step_heavy_01.ogg",
+    "zombie/step_heavy_02.ogg",
+    "zombie/step_heavy_03.ogg",
+    "zombie/step_heavy_04.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    0.7,
+    0.85
+   ],
+   "cooldown": 0.2,
+   "space": "3d",
+   "note": "pitched down on purpose: weight"
+  },
+  "zombie.attack": {
+   "files": [
+    "zombie/attack_01.ogg",
+    "zombie/attack_02.ogg",
+    "zombie/attack_03.ogg",
+    "zombie/attack_04.ogg",
+    "zombie/attack_05.ogg",
+    "zombie/attack_06.ogg"
+   ],
+   "gain": 0.9,
+   "pitch": [
+    0.9,
+    1.08
+   ],
+   "cooldown": 0.25,
+   "space": "3d"
+  },
+  "zombie.attack.big": {
+   "files": [
+    "zombie/attack_big_01.ogg",
+    "zombie/attack_big_02.ogg",
+    "zombie/attack_big_03.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    0.85,
+    1.0
+   ],
+   "cooldown": 0.5,
+   "space": "3d"
+  },
+  "zombie.death": {
+   "files": [
+    "zombie/death_01.ogg",
+    "zombie/death_02.ogg",
+    "zombie/death_03.ogg",
+    "zombie/death_04.ogg",
+    "zombie/death_05.ogg",
+    "zombie/death_06.ogg"
+   ],
+   "kids": [
+    "zombie/death_kids_01.ogg",
+    "zombie/death_kids_02.ogg",
+    "zombie/death_kids_03.ogg"
+   ],
+   "gain": 0.85,
+   "pitch": [
+    0.88,
+    1.06
+   ],
+   "cooldown": 0.08,
+   "space": "3d",
+   "note": "kids: only the soft body fall"
+  },
+  "zombie.bodyfall": {
+   "files": [
+    "zombie/bodyfall_01.ogg",
+    "zombie/bodyfall_02.ogg",
+    "zombie/bodyfall_03.ogg",
+    "zombie/bodyfall_04.ogg"
+   ],
+   "gain": 0.6,
+   "pitch": [
+    0.8,
+    1.0
+   ],
+   "cooldown": 0.08,
+   "space": "3d",
+   "added": "the body reaching the ground, 0.4-0.6 s after zombie.death"
+  },
+  "zombie.death.big": {
+   "files": [
+    "zombie/death_big_01.ogg",
+    "zombie/death_big_02.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    0.85,
+    0.95
+   ],
+   "space": "3d"
+  },
+  "screamer.scream": {
+   "files": [
+    "zombie/scream_01.ogg",
+    "zombie/scream_02.ogg",
+    "zombie/scream_03.ogg"
+   ],
+   "kids": [
+    "zombie/scream_kids_01.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "cooldown": 2.0,
+   "space": "3d"
+  },
+  "brute.roar": {
+   "files": [
+    "zombie/brute_roar_01.ogg",
+    "zombie/brute_roar_02.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    0.85,
+    0.95
+   ],
+   "cooldown": 3.0,
+   "space": "3d"
+  },
+  "leaper.leap": {
+   "files": [
+    "zombie/leap_01.ogg",
+    "zombie/leap_02.ogg",
+    "zombie/leap_03.ogg"
+   ],
+   "gain": 0.95,
+   "pitch": [
+    0.95,
+    1.1
+   ],
+   "space": "3d"
+  },
+  "leaper.land": {
+   "files": [
+    "zombie/land_01.ogg",
+    "zombie/land_02.ogg",
+    "zombie/land_03.ogg"
+   ],
+   "gain": 0.9,
+   "pitch": [
+    0.85,
+    1.0
+   ],
+   "space": "3d"
+  },
+  "digger.rise": {
+   "files": [
+    "zombie/dig_01.ogg",
+    "zombie/dig_02.ogg",
+    "zombie/dig_03.ogg"
+   ],
+   "gain": 0.9,
+   "pitch": [
+    0.9,
+    1.05
+   ],
+   "space": "3d"
+  },
+  "fence.rattle": {
+   "files": [
+    "world/fence_rattle_01.ogg",
+    "world/fence_rattle_02.ogg",
+    "world/fence_rattle_03.ogg"
+   ],
+   "gain": 0.9,
+   "pitch": [
+    0.9,
+    1.05
+   ],
+   "cooldown": 1.0,
+   "space": "3d at the fence side",
+   "added": "leapers shake the fence 2 s before the first one jumps"
+  },
+  "boss.siren": {
+   "files": [
+    "boss/siren.ogg"
+   ],
+   "gain": 0.75,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d"
+  },
+  "boss.roar": {
+   "files": [
+    "boss/roar_01.ogg",
+    "boss/roar_02.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    0.8,
+    0.9
+   ],
+   "cooldown": 2.0,
+   "space": "3d"
+  },
+  "boss.rage": {
+   "files": [
+    "boss/rage.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    0.82,
+    0.88
+   ],
+   "space": "3d",
+   "added": "the roar at 40 % health (once)"
+  },
+  "boss.hurt": {
+   "files": [
+    "boss/hurt_01.ogg",
+    "boss/hurt_02.ogg"
+   ],
+   "gain": 0.95,
+   "pitch": [
+    0.75,
+    0.85
+   ],
+   "cooldown": 1.5,
+   "space": "3d",
+   "added": "each stagger"
+  },
+  "boss.windup": {
+   "files": [
+    "boss/windup.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "3d",
+   "added": "rising whoosh while the thrown thing is in the air (about 1.2 s before boss.slam)"
+  },
+  "boss.slam": {
+   "files": [
+    "boss/slam_01.ogg",
+    "boss/slam_02.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    0.9,
+    1.0
+   ],
+   "space": "3d",
+   "added": "the thrown wreck / the ground smash landing"
+  },
+  "player.hurt": {
+   "files": [
+    "player/hurt_01.ogg",
+    "player/hurt_02.ogg",
+    "player/hurt_03.ogg",
+    "player/hurt_04.ogg"
+   ],
+   "kids": [
+    "player/hurt_kids_01.ogg",
+    "player/hurt_kids_02.ogg"
+   ],
+   "gain": 0.95,
+   "pitch": [
+    0.92,
+    1.06
+   ],
+   "space": "2d"
+  },
+  "player.down": {
+   "files": [
+    "player/down_01.ogg",
+    "player/down_02.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d"
+  },
+  "player.up": {
+   "files": [
+    "player/up_01.ogg",
+    "player/up_02.ogg"
+   ],
+   "gain": 0.7,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d"
+  },
+  "player.heart": {
+   "files": [
+    "player/heart_01.ogg",
+    "player/heart_02.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    0.98,
+    1.02
+   ],
+   "space": "2d"
+  },
+  "player.combo": {
+   "files": [
+    "player/combo_01.ogg",
+    "player/combo_02.ogg"
+   ],
+   "gain": 0.5,
+   "pitch": [
+    1.0,
+    1.12
+   ],
+   "space": "2d"
+  },
+  "player.combo.big": {
+   "files": [
+    "player/combo_big.ogg"
+   ],
+   "gain": 0.55,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d"
+  },
+  "wave.start": {
+   "files": [
+    "world/wave_siren.ogg"
+   ],
+   "gain": 0.7,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d (or 3d far outside the fence)"
+  },
+  "wave.clear": {
+   "files": [
+    "world/wave_clear.ogg"
+   ],
+   "gain": 0.6,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d"
+  },
+  "stinger.wave": {
+   "files": [
+    "stinger/wave_01.ogg",
+    "stinger/wave_02.ogg"
+   ],
+   "gain": 0.6,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "2d",
+   "added": "a hit under the WAVE n title"
+  },
+  "stinger.blackout": {
+   "files": [
+    "stinger/blackout.ogg"
+   ],
+   "gain": 0.7,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "2d",
+   "added": "right after world.power.off"
+  },
+  "stinger.boss": {
+   "files": [
+    "stinger/boss.ogg"
+   ],
+   "gain": 0.75,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "2d",
+   "added": "when the boss is first seen"
+  },
+  "stinger.jump": {
+   "files": [
+    "stinger/jump_01.ogg",
+    "stinger/jump_02.ogg",
+    "stinger/jump_03.ogg"
+   ],
+   "gain": 0.65,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "cooldown": 20,
+   "space": "2d",
+   "added": "first digger, a leaper landing behind a player; never in kids mode"
+  },
+  "riser.10s": {
+   "files": [
+    "stinger/riser_10s.ogg"
+   ],
+   "gain": 0.5,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "2d",
+   "added": "last 10 s of the prep and of each break; ends on the wave start"
+  },
+  "end.win": {
+   "files": [
+    "stinger/end_win.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d"
+  },
+  "end.lose": {
+   "files": [
+    "stinger/end_lose.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d"
+  },
+  "score.tick": {
+   "files": [
+    "ui/score_tick_01.ogg",
+    "ui/score_tick_02.ogg",
+    "ui/score_tick_03.ogg"
+   ],
+   "gain": 0.4,
+   "pitch": [
+    1.0,
+    1.25
+   ],
+   "cooldown": 0.05,
+   "space": "2d",
+   "added": "score counting up on the end screen (raise the pitch as it climbs)"
+  },
+  "score.final": {
+   "files": [
+    "ui/score_final.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "2d",
+   "added": "the final number lands"
+  },
+  "score.record": {
+   "files": [
+    "ui/score_record.ogg"
+   ],
+   "gain": 0.85,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "2d",
+   "added": "NEW RECORD"
+  },
+  "award.reveal": {
+   "files": [
+    "ui/award_01.ogg",
+    "ui/award_02.ogg"
+   ],
+   "gain": 0.6,
+   "pitch": [
+    0.96,
+    1.04
+   ],
+   "space": "2d",
+   "added": "each player's award appearing"
+  },
+  "gate.bang": {
+   "files": [
+    "gate/bang_01.ogg",
+    "gate/bang_02.ogg",
+    "gate/bang_03.ogg",
+    "gate/bang_04.ogg",
+    "gate/bang_05.ogg",
+    "gate/bang_06.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    0.8,
+    0.95
+   ],
+   "cooldown": 0.1,
+   "space": "3d"
+  },
+  "gate.crack": {
+   "files": [
+    "gate/crack_01.ogg",
+    "gate/crack_02.ogg",
+    "gate/crack_03.ogg",
+    "gate/crack_04.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    0.9,
+    1.08
+   ],
+   "space": "3d"
+  },
+  "gate.smash": {
+   "files": [
+    "gate/smash_01.ogg",
+    "gate/smash_02.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    0.88,
+    1.0
+   ],
+   "space": "3d"
+  },
+  "gate.hammer": {
+   "files": [
+    "gate/hammer_01.ogg",
+    "gate/hammer_02.ogg",
+    "gate/hammer_03.ogg",
+    "gate/hammer_04.ogg"
+   ],
+   "gain": 0.85,
+   "pitch": [
+    0.94,
+    1.08
+   ],
+   "cooldown": 0.1,
+   "space": "3d"
+  },
+  "gate.sealed": {
+   "files": [
+    "gate/sealed.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "3d"
+  },
+  "plank.drop": {
+   "files": [
+    "gate/plank_drop_01.ogg",
+    "gate/plank_drop_02.ogg",
+    "gate/plank_drop_03.ogg"
+   ],
+   "gain": 0.7,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "space": "3d",
+   "added": "a torn plank landing inside the zone"
+  },
+  "barrel.boom": {
+   "files": [
+    "world/boom_01.ogg",
+    "world/boom_02.ogg",
+    "world/boom_03.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    0.92,
+    1.04
+   ],
+   "space": "3d"
+  },
+  "chest.open": {
+   "files": [
+    "chest/open.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "3d",
+   "note": "latch, hinge creak, lid slam at 1.05 s"
+  },
+  "chest.drop": {
+   "files": [
+    "chest/drop_01.ogg",
+    "chest/drop_02.ogg",
+    "chest/drop_03.ogg",
+    "chest/drop_04.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    0.85,
+    1.05
+   ],
+   "space": "3d"
+  },
+  "chest.fly": {
+   "files": [
+    "chest/fly_01.ogg",
+    "chest/fly_02.ogg",
+    "chest/fly_03.ogg",
+    "chest/fly_04.ogg"
+   ],
+   "gain": 0.5,
+   "pitch": [
+    0.9,
+    1.2
+   ],
+   "space": "3d",
+   "added": "each weapon leaving the chest"
+  },
+  "world.thunder": {
+   "files": [
+    "world/thunder_01.ogg",
+    "world/thunder_02.ogg",
+    "world/thunder_03.ogg"
+   ],
+   "gain": 0.85,
+   "pitch": [
+    0.92,
+    1.04
+   ],
+   "space": "2d"
+  },
+  "world.power.off": {
+   "files": [
+    "world/power_off.ogg"
+   ],
+   "gain": 0.9,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d"
+  },
+  "world.power.on": {
+   "files": [
+    "world/power_on.ogg"
+   ],
+   "gain": 0.9,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d"
+  },
+  "world.neon.hum": {
+   "files": [
+    "world/neon_hum.ogg"
+   ],
+   "gain": 0.35,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "loop": true,
+   "space": "3d at the MOTEL sign",
+   "added": "loop: the sign buzzing; stop it in the blackout"
+  },
+  "world.spark": {
+   "files": [
+    "world/spark_01.ogg",
+    "world/spark_02.ogg"
+   ],
+   "gain": 0.7,
+   "pitch": [
+    0.95,
+    1.1
+   ],
+   "space": "3d at the sign",
+   "added": "the sign flickering (boss steps, power failing)"
+  },
+  "world.alarm": {
+   "files": [
+    "world/alarm.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "cooldown": 3.5,
+   "space": "3d far out on the path",
+   "note": "4 s seamless alarm figure: repeat it while the alarm lasts"
+  },
+  "world.heli.away": {
+   "files": [
+    "world/heli_away.ogg"
+   ],
+   "gain": 0.7,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "2d",
+   "added": "16 s: the helicopter leaving at the start of the prep (take-off part of the recording)"
+  },
+  "world.heli.in": {
+   "files": [
+    "world/heli_in.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "2d",
+   "added": "12 s: rotor growing for the pick-up at the win (rotor at speed, long fade-in)"
+  },
+  "radio.open": {
+   "files": [
+    "voice/radio_open.ogg"
+   ],
+   "gain": 0.5,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "2d",
+   "added": "walkie-talkie squelch around a voice.radio.* line"
+  },
+  "radio.close": {
+   "files": [
+    "voice/radio_close.ogg"
+   ],
+   "gain": 0.5,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "2d",
+   "added": "walkie-talkie squelch around a voice.radio.* line"
+  },
+  "ambience.night": {
+   "files": [
+    "amb/night.ogg"
+   ],
+   "gain": 0.55,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "loop": true,
+   "space": "2d",
+   "note": "crickets + wind in trees, 30 s seamless"
+  },
+  "ambience.rain": {
+   "files": [
+    "amb/rain.ogg"
+   ],
+   "gain": 0.5,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "loop": true,
+   "space": "2d",
+   "added": "loop for the storm of the last wave"
+  },
+  "ambience.fire": {
+   "files": [
+    "amb/fire.ogg"
+   ],
+   "gain": 0.6,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "loop": true,
+   "space": "3d at each fire barrel",
+   "added": "loop: barrel fire crackle"
+  },
+  "music.calm": {
+   "files": [
+    "music/calm.ogg"
+   ],
+   "gain": 0.3,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "loop": true,
+   "space": "2d"
+  },
+  "music.wave": {
+   "files": [
+    "music/wave.ogg"
+   ],
+   "gain": 0.36,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "loop": true,
+   "space": "2d",
+   "note": "the library's own seamless pulse loop"
+  },
+  "music.intense": {
+   "files": [
+    "music/intense.ogg"
+   ],
+   "gain": 0.42,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "loop": true,
+   "space": "2d",
+   "note": "music.wave with two more layers on top, same length: crossfades cleanly from music.wave"
+  },
+  "music.boss": {
+   "files": [
+    "music/boss.ogg"
+   ],
+   "gain": 0.45,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "loop": true,
+   "space": "2d",
+   "note": "the pulse of music.wave under a darker cinematic layer, same length"
+  },
+  "voice.tent_welcome": {
+   "files": [
+    "voice/raven/tent_welcome.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Listen up, survivors.",
+   "seconds": 1.36,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.tent_pick": {
+   "files": [
+    "voice/raven/tent_pick.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Pick who you want to be. Grab a figure off the table.",
+   "seconds": 2.87,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.tent_brief": {
+   "files": [
+    "voice/raven/tent_brief.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "The motel is overrun. Hold the car park until I get back.",
+   "seconds": 3.55,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.tent_go": {
+   "files": [
+    "voice/raven/tent_go.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Wheels up. Good luck down there.",
+   "seconds": 1.79,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.prep_weapons": {
+   "files": [
+    "voice/raven/prep_weapons.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Weapons are on the ground. Squeeze the grip to pick one up.",
+   "seconds": 3.18,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.prep_gates": {
+   "files": [
+    "voice/raven/prep_gates.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Grab a hammer and board up those gates.",
+   "seconds": 2.12,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.prep_10": {
+   "files": [
+    "voice/raven/prep_10.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Ten seconds.",
+   "seconds": 0.97,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.wave_1": {
+   "files": [
+    "voice/raven/wave_1.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Wave one. Here they come.",
+   "seconds": 1.48,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.wave_2": {
+   "files": [
+    "voice/raven/wave_2.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Wave two. They are getting faster.",
+   "seconds": 1.85,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.wave_3": {
+   "files": [
+    "voice/raven/wave_3.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Wave three. Watch the fences.",
+   "seconds": 1.79,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.wave_4": {
+   "files": [
+    "voice/raven/wave_4.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Wave four. Stay sharp.",
+   "seconds": 1.5,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.wave_5": {
+   "files": [
+    "voice/raven/wave_5.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Final wave. Give them everything.",
+   "seconds": 1.91,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.wave_clear_a": {
+   "files": [
+    "voice/raven/wave_clear_a.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Wave cleared. Nice shooting.",
+   "seconds": 1.54,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.wave_clear_b": {
+   "files": [
+    "voice/raven/wave_clear_b.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "That is all of them. Breathe.",
+   "seconds": 1.47,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.wave_clear_c": {
+   "files": [
+    "voice/raven/wave_clear_c.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Clear. Reload and patch the gates.",
+   "seconds": 1.88,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.supply_in": {
+   "files": [
+    "voice/raven/supply_in.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Supply drop coming in. Heads up!",
+   "seconds": 1.88,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.supply_down": {
+   "files": [
+    "voice/raven/supply_down.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Crate is down. Grab the new guns.",
+   "seconds": 1.99,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.behind": {
+   "files": [
+    "voice/raven/behind.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Right behind you!",
+   "seconds": 1.04,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.left": {
+   "files": [
+    "voice/raven/left.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "On your left!",
+   "seconds": 0.8,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.right": {
+   "files": [
+    "voice/raven/right.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "On your right!",
+   "seconds": 0.86,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.above": {
+   "files": [
+    "voice/raven/above.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Above you! Look up!",
+   "seconds": 1.08,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.inside": {
+   "files": [
+    "voice/raven/inside.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "They are inside the fence!",
+   "seconds": 1.32,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.gate_hit": {
+   "files": [
+    "voice/raven/gate_hit.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "They are on the gate!",
+   "seconds": 1.06,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.gate_down": {
+   "files": [
+    "voice/raven/gate_down.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Gate is down! Fix it!",
+   "seconds": 1.28,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.gate_fixed": {
+   "files": [
+    "voice/raven/gate_fixed.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Gate is holding. Good work.",
+   "seconds": 1.78,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.jumpers": {
+   "files": [
+    "voice/raven/jumpers.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Jumpers! They are coming over the fence!",
+   "seconds": 1.82,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.spitter": {
+   "files": [
+    "voice/raven/spitter.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Spitter! Stay out of the green!",
+   "seconds": 1.45,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.radiation": {
+   "files": [
+    "voice/raven/radiation.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Radiation! Get out of there!",
+   "seconds": 1.52,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.archer": {
+   "files": [
+    "voice/raven/archer.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Archer on the roof! Keep moving!",
+   "seconds": 1.64,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.crawlers": {
+   "files": [
+    "voice/raven/crawlers.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Crawlers. Check the ground.",
+   "seconds": 1.5,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.paratroopers": {
+   "files": [
+    "voice/raven/paratroopers.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Dead paratroopers! Shoot them out of the sky!",
+   "seconds": 2.19,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.bloater": {
+   "files": [
+    "voice/raven/bloater.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Do not let that one get close!",
+   "seconds": 1.59,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.dogs": {
+   "files": [
+    "voice/raven/dogs.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Dogs! Watch your legs!",
+   "seconds": 1.26,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.blackout": {
+   "files": [
+    "voice/raven/blackout.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Power is gone. Flashlights only.",
+   "seconds": 2.15,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.blackout_2": {
+   "files": [
+    "voice/raven/blackout_2.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Stay close. Watch each other's backs.",
+   "seconds": 2.18,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.power_back": {
+   "files": [
+    "voice/raven/power_back.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Power is back. Keep moving.",
+   "seconds": 1.65,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.boss_in": {
+   "files": [
+    "voice/raven/boss_in.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Something big is coming.",
+   "seconds": 1.45,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.boss_seen": {
+   "files": [
+    "voice/raven/boss_seen.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "That is the big one. Aim for the head!",
+   "seconds": 1.78,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.boss_rage": {
+   "files": [
+    "voice/raven/boss_rage.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "He is angry. Keep moving!",
+   "seconds": 1.47,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.boss_leap": {
+   "files": [
+    "voice/raven/boss_leap.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "He is jumping! Move!",
+   "seconds": 1.22,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.boss_half": {
+   "files": [
+    "voice/raven/boss_half.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Halfway. Keep hitting him!",
+   "seconds": 1.22,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.boss_dead": {
+   "files": [
+    "voice/raven/boss_dead.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "He is down! He is down!",
+   "seconds": 1.34,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.reload": {
+   "files": [
+    "voice/raven/reload.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Reload!",
+   "seconds": 0.65,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.low_ammo": {
+   "files": [
+    "voice/raven/low_ammo.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "You are running dry.",
+   "seconds": 1.16,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.hurt": {
+   "files": [
+    "voice/raven/hurt.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "You are hurt. Back off!",
+   "seconds": 1.22,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.down": {
+   "files": [
+    "voice/raven/down.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Man down! Get to your teammate!",
+   "seconds": 1.52,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.revived": {
+   "files": [
+    "voice/raven/revived.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Back on your feet.",
+   "seconds": 1.08,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.last": {
+   "files": [
+    "voice/raven/last.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "You are the last one standing!",
+   "seconds": 1.41,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.wipe": {
+   "files": [
+    "voice/raven/wipe.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Get up. We are not done.",
+   "seconds": 1.47,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.nice_shot": {
+   "files": [
+    "voice/raven/nice_shot.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Nice shot.",
+   "seconds": 0.91,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.headshot": {
+   "files": [
+    "voice/raven/headshot.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Headshot!",
+   "seconds": 0.61,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.keep_up": {
+   "files": [
+    "voice/raven/keep_up.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Keep it up.",
+   "seconds": 0.87,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.teamwork": {
+   "files": [
+    "voice/raven/teamwork.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Now that is teamwork.",
+   "seconds": 1.39,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.good_to_know": {
+   "files": [
+    "voice/raven/good_to_know.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Good to know!",
+   "seconds": 0.76,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.five_min": {
+   "files": [
+    "voice/raven/five_min.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Five minutes to evac.",
+   "seconds": 1.31,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.two_min": {
+   "files": [
+    "voice/raven/two_min.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Two minutes.",
+   "seconds": 0.75,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.one_min": {
+   "files": [
+    "voice/raven/one_min.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "One minute. Hold on!",
+   "seconds": 1.14,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.thirty_sec": {
+   "files": [
+    "voice/raven/thirty_sec.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Thirty seconds!",
+   "seconds": 0.88,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.win_1": {
+   "files": [
+    "voice/raven/win_1.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "I see you. Coming in.",
+   "seconds": 1.38,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.win_2": {
+   "files": [
+    "voice/raven/win_2.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Get to the chopper!",
+   "seconds": 0.98,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.win_3": {
+   "files": [
+    "voice/raven/win_3.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Mission complete. Drinks are on me.",
+   "seconds": 2.05,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.lose_1": {
+   "files": [
+    "voice/raven/lose_1.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "I have lost them. Returning to base.",
+   "seconds": 2.08,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.lose_2": {
+   "files": [
+    "voice/raven/lose_2.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "You held as long as you could.",
+   "seconds": 1.64,
+   "added": "announcer line (RAVEN)"
+  },
+  "voice.idle": {
+   "files": [
+    "voice/raven/idle.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Hey. Wake up down there.",
+   "seconds": 1.37,
+   "added": "announcer line (RAVEN)"
+  }
+ },
+ "alternatives": {
+  "music.calm.ccby": {
+   "files": [
+    "music/ccby_calm.ogg"
+   ],
+   "gain": 0.4,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "loop": true,
+   "space": "2d",
+   "added": "alternative bed: \"Gathering Darkness\" by Kevin MacLeod, CC BY 4.0, credit required; to use it, put this file first in music.calm"
+  },
+  "music.wave.ccby": {
+   "files": [
+    "music/ccby_wave.ogg"
+   ],
+   "gain": 0.4,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "loop": true,
+   "space": "2d",
+   "added": "alternative bed: \"Unseen Horrors\" by Kevin MacLeod, CC BY 4.0, credit required; to use it, put this file first in music.wave"
+  },
+  "music.intense.ccby": {
+   "files": [
+    "music/ccby_intense.ogg"
+   ],
+   "gain": 0.4,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "loop": true,
+   "space": "2d",
+   "added": "alternative bed: \"Volatile Reaction\" by Kevin MacLeod, CC BY 4.0, credit required; to use it, put this file first in music.intense"
+  },
+  "music.boss.ccby": {
+   "files": [
+    "music/ccby_boss.ogg"
+   ],
+   "gain": 0.4,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "loop": true,
+   "space": "2d",
+   "added": "alternative bed: \"Killers\" by Kevin MacLeod, CC BY 4.0, credit required; to use it, put this file first in music.boss"
+  },
+  "end.win.ccby": {
+   "files": [
+    "music/ccby_win.ogg"
+   ],
+   "gain": 0.6,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "2d",
+   "added": "alternative victory music: \"Heroic Age\" by Kevin MacLeod, CC BY 4.0, credit required"
+  },
+  "voice.radio.tent_welcome": {
+   "files": [
+    "voice/raven-radio/tent_welcome.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Listen up, survivors.",
+   "seconds": 1.36,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.tent_pick": {
+   "files": [
+    "voice/raven-radio/tent_pick.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Pick who you want to be. Grab a figure off the table.",
+   "seconds": 2.87,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.tent_brief": {
+   "files": [
+    "voice/raven-radio/tent_brief.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "The motel is overrun. Hold the car park until I get back.",
+   "seconds": 3.55,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.tent_go": {
+   "files": [
+    "voice/raven-radio/tent_go.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Wheels up. Good luck down there.",
+   "seconds": 1.79,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.prep_weapons": {
+   "files": [
+    "voice/raven-radio/prep_weapons.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Weapons are on the ground. Squeeze the grip to pick one up.",
+   "seconds": 3.18,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.prep_gates": {
+   "files": [
+    "voice/raven-radio/prep_gates.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Grab a hammer and board up those gates.",
+   "seconds": 2.12,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.prep_10": {
+   "files": [
+    "voice/raven-radio/prep_10.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Ten seconds.",
+   "seconds": 0.97,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.wave_1": {
+   "files": [
+    "voice/raven-radio/wave_1.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Wave one. Here they come.",
+   "seconds": 1.48,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.wave_2": {
+   "files": [
+    "voice/raven-radio/wave_2.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Wave two. They are getting faster.",
+   "seconds": 1.85,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.wave_3": {
+   "files": [
+    "voice/raven-radio/wave_3.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Wave three. Watch the fences.",
+   "seconds": 1.79,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.wave_4": {
+   "files": [
+    "voice/raven-radio/wave_4.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Wave four. Stay sharp.",
+   "seconds": 1.5,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.wave_5": {
+   "files": [
+    "voice/raven-radio/wave_5.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Final wave. Give them everything.",
+   "seconds": 1.91,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.wave_clear_a": {
+   "files": [
+    "voice/raven-radio/wave_clear_a.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Wave cleared. Nice shooting.",
+   "seconds": 1.54,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.wave_clear_b": {
+   "files": [
+    "voice/raven-radio/wave_clear_b.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "That is all of them. Breathe.",
+   "seconds": 1.47,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.wave_clear_c": {
+   "files": [
+    "voice/raven-radio/wave_clear_c.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Clear. Reload and patch the gates.",
+   "seconds": 1.88,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.supply_in": {
+   "files": [
+    "voice/raven-radio/supply_in.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Supply drop coming in. Heads up!",
+   "seconds": 1.88,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.supply_down": {
+   "files": [
+    "voice/raven-radio/supply_down.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Crate is down. Grab the new guns.",
+   "seconds": 1.99,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.behind": {
+   "files": [
+    "voice/raven-radio/behind.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Right behind you!",
+   "seconds": 1.04,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.left": {
+   "files": [
+    "voice/raven-radio/left.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "On your left!",
+   "seconds": 0.8,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.right": {
+   "files": [
+    "voice/raven-radio/right.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "On your right!",
+   "seconds": 0.86,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.above": {
+   "files": [
+    "voice/raven-radio/above.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Above you! Look up!",
+   "seconds": 1.08,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.inside": {
+   "files": [
+    "voice/raven-radio/inside.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "They are inside the fence!",
+   "seconds": 1.32,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.gate_hit": {
+   "files": [
+    "voice/raven-radio/gate_hit.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "They are on the gate!",
+   "seconds": 1.06,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.gate_down": {
+   "files": [
+    "voice/raven-radio/gate_down.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Gate is down! Fix it!",
+   "seconds": 1.28,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.gate_fixed": {
+   "files": [
+    "voice/raven-radio/gate_fixed.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Gate is holding. Good work.",
+   "seconds": 1.78,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.jumpers": {
+   "files": [
+    "voice/raven-radio/jumpers.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Jumpers! They are coming over the fence!",
+   "seconds": 1.82,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.spitter": {
+   "files": [
+    "voice/raven-radio/spitter.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Spitter! Stay out of the green!",
+   "seconds": 1.45,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.radiation": {
+   "files": [
+    "voice/raven-radio/radiation.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Radiation! Get out of there!",
+   "seconds": 1.52,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.archer": {
+   "files": [
+    "voice/raven-radio/archer.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Archer on the roof! Keep moving!",
+   "seconds": 1.64,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.crawlers": {
+   "files": [
+    "voice/raven-radio/crawlers.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Crawlers. Check the ground.",
+   "seconds": 1.5,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.paratroopers": {
+   "files": [
+    "voice/raven-radio/paratroopers.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Dead paratroopers! Shoot them out of the sky!",
+   "seconds": 2.19,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.bloater": {
+   "files": [
+    "voice/raven-radio/bloater.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Do not let that one get close!",
+   "seconds": 1.59,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.dogs": {
+   "files": [
+    "voice/raven-radio/dogs.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Dogs! Watch your legs!",
+   "seconds": 1.26,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.blackout": {
+   "files": [
+    "voice/raven-radio/blackout.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Power is gone. Flashlights only.",
+   "seconds": 2.15,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.blackout_2": {
+   "files": [
+    "voice/raven-radio/blackout_2.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Stay close. Watch each other's backs.",
+   "seconds": 2.18,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.power_back": {
+   "files": [
+    "voice/raven-radio/power_back.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Power is back. Keep moving.",
+   "seconds": 1.65,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.boss_in": {
+   "files": [
+    "voice/raven-radio/boss_in.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Something big is coming.",
+   "seconds": 1.45,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.boss_seen": {
+   "files": [
+    "voice/raven-radio/boss_seen.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "That is the big one. Aim for the head!",
+   "seconds": 1.78,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.boss_rage": {
+   "files": [
+    "voice/raven-radio/boss_rage.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "He is angry. Keep moving!",
+   "seconds": 1.47,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.boss_leap": {
+   "files": [
+    "voice/raven-radio/boss_leap.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "He is jumping! Move!",
+   "seconds": 1.22,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.boss_half": {
+   "files": [
+    "voice/raven-radio/boss_half.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Halfway. Keep hitting him!",
+   "seconds": 1.22,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.boss_dead": {
+   "files": [
+    "voice/raven-radio/boss_dead.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "He is down! He is down!",
+   "seconds": 1.34,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.reload": {
+   "files": [
+    "voice/raven-radio/reload.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Reload!",
+   "seconds": 0.65,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.low_ammo": {
+   "files": [
+    "voice/raven-radio/low_ammo.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "You are running dry.",
+   "seconds": 1.16,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.hurt": {
+   "files": [
+    "voice/raven-radio/hurt.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "You are hurt. Back off!",
+   "seconds": 1.22,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.down": {
+   "files": [
+    "voice/raven-radio/down.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Man down! Get to your teammate!",
+   "seconds": 1.52,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.revived": {
+   "files": [
+    "voice/raven-radio/revived.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Back on your feet.",
+   "seconds": 1.08,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.last": {
+   "files": [
+    "voice/raven-radio/last.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "You are the last one standing!",
+   "seconds": 1.41,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.wipe": {
+   "files": [
+    "voice/raven-radio/wipe.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Get up. We are not done.",
+   "seconds": 1.47,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.nice_shot": {
+   "files": [
+    "voice/raven-radio/nice_shot.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Nice shot.",
+   "seconds": 0.91,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.headshot": {
+   "files": [
+    "voice/raven-radio/headshot.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Headshot!",
+   "seconds": 0.61,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.keep_up": {
+   "files": [
+    "voice/raven-radio/keep_up.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Keep it up.",
+   "seconds": 0.87,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.teamwork": {
+   "files": [
+    "voice/raven-radio/teamwork.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Now that is teamwork.",
+   "seconds": 1.39,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.good_to_know": {
+   "files": [
+    "voice/raven-radio/good_to_know.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Good to know!",
+   "seconds": 0.76,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.five_min": {
+   "files": [
+    "voice/raven-radio/five_min.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Five minutes to evac.",
+   "seconds": 1.31,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.two_min": {
+   "files": [
+    "voice/raven-radio/two_min.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Two minutes.",
+   "seconds": 0.75,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.one_min": {
+   "files": [
+    "voice/raven-radio/one_min.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "One minute. Hold on!",
+   "seconds": 1.14,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.thirty_sec": {
+   "files": [
+    "voice/raven-radio/thirty_sec.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Thirty seconds!",
+   "seconds": 0.88,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.win_1": {
+   "files": [
+    "voice/raven-radio/win_1.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "I see you. Coming in.",
+   "seconds": 1.38,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.win_2": {
+   "files": [
+    "voice/raven-radio/win_2.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Get to the chopper!",
+   "seconds": 0.98,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.win_3": {
+   "files": [
+    "voice/raven-radio/win_3.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Mission complete. Drinks are on me.",
+   "seconds": 2.05,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.lose_1": {
+   "files": [
+    "voice/raven-radio/lose_1.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "I have lost them. Returning to base.",
+   "seconds": 2.08,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.lose_2": {
+   "files": [
+    "voice/raven-radio/lose_2.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "You held as long as you could.",
+   "seconds": 1.64,
+   "added": "the same take through a radio band"
+  },
+  "voice.radio.idle": {
+   "files": [
+    "voice/raven-radio/idle.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d",
+   "text": "Hey. Wake up down there.",
+   "seconds": 1.37,
+   "added": "the same take through a radio band"
+  }
+ }
+}

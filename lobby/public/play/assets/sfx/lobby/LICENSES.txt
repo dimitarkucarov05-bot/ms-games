@@ -1,0 +1,3 @@
+Sounds of the MS Games waiting room. Every file here is a cut of a recording from the Sonniss.com #GameAudioGDC
+bundles 2015-2020 (royalty-free, commercial use, no attribution). Nothing is synthesized.
+Which recording each file comes from: SOURCES.tsv. Full licence index: vr-arena/_sound-src/LICENSES.md.

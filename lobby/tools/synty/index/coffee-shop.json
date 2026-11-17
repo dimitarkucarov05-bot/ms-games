@@ -1,0 +1,22 @@
+{
+ "pack": "POLYGON/Coffee Shop",
+ "models": {
+  "SM_Bld_Cafe_01": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\Coffee Shop\\Source\\FBX\\SM_Bld_Cafe_01.fbx",
+  "SM_Prop_Chair_01": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\Coffee Shop\\Source\\FBX\\SM_Prop_Chair_01.fbx",
+  "SM_Prop_Table_01": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\Coffee Shop\\Source\\FBX\\SM_Prop_Table_01.fbx"
+ },
+ "textures": {
+  "polygon_texture_01_a.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\Coffee Shop\\Source\\Textures\\Polygon_Texture_01_A.png",
+  "polygon_texture_01_b.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\Coffee Shop\\Source\\Textures\\Polygon_Texture_01_B.png",
+  "polygon_texture_01_c.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\Coffee Shop\\Source\\Textures\\Polygon_Texture_01_C.png",
+  "polygon_texture_02_a.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\Coffee Shop\\Source\\Textures\\Polygon_Texture_02_A.png",
+  "polygon_texture_02_b.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\Coffee Shop\\Source\\Textures\\Polygon_Texture_02_B.png",
+  "polygon_texture_02_c.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\Coffee Shop\\Source\\Textures\\Polygon_Texture_02_C.png",
+  "polygon_texture_03_a.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\Coffee Shop\\Source\\Textures\\Polygon_Texture_03_A.png",
+  "polygon_texture_03_b.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\Coffee Shop\\Source\\Textures\\Polygon_Texture_03_B.png",
+  "polygon_texture_03_c.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\Coffee Shop\\Source\\Textures\\Polygon_Texture_03_C.png",
+  "polygon_texture_04_a.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\Coffee Shop\\Source\\Textures\\Polygon_Texture_04_A.png",
+  "polygon_texture_04_b.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\Coffee Shop\\Source\\Textures\\Polygon_Texture_04_B.png",
+  "polygon_texture_04_c.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\Coffee Shop\\Source\\Textures\\Polygon_Texture_04_C.png"
+ }
+}

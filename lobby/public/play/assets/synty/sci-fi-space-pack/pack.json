@@ -1,0 +1,3844 @@
+{
+ "pack": "POLYGON/Sci-Fi Space Pack",
+ "models": {
+  "SM_Bld_Bridge_Floor_01": {
+   "tris": 3388,
+   "size": [
+    17.697,
+    1.011,
+    14.528
+   ],
+   "min": [
+    -1.349,
+    -1.129,
+    -0.005
+   ],
+   "max": [
+    16.349,
+    -0.118,
+    14.522
+   ],
+   "skinned": false,
+   "bytes": 191836,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Ceiling_01": {
+   "tris": 670,
+   "size": [
+    5.002,
+    0.492,
+    5.002
+   ],
+   "min": [
+    -0.001,
+    3.999,
+    -0.001
+   ],
+   "max": [
+    5.001,
+    4.491,
+    5.001
+   ],
+   "skinned": false,
+   "bytes": 54096,
+   "materials": [
+    {
+     "name": "MAT_PolygonSciFiSpace_01_A",
+     "map": "tex/PolygonSciFiSpace_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Ceiling_02": {
+   "tris": 504,
+   "size": [
+    5,
+    0.999,
+    5
+   ],
+   "min": [
+    0,
+    3.49,
+    0
+   ],
+   "max": [
+    5,
+    4.489,
+    5
+   ],
+   "skinned": false,
+   "bytes": 28476,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Ceiling_03": {
+   "tris": 414,
+   "size": [
+    5,
+    0.549,
+    5
+   ],
+   "min": [
+    0,
+    3.94,
+    0
+   ],
+   "max": [
+    5,
+    4.489,
+    5
+   ],
+   "skinned": false,
+   "bytes": 23840,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_01": {
+   "tris": 984,
+   "size": [
+    4.998,
+    0.207,
+    5
+   ],
+   "min": [
+    0.002,
+    -0.207,
+    0
+   ],
+   "max": [
+    5,
+    0,
+    5
+   ],
+   "skinned": false,
+   "bytes": 54368,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_010": {
+   "tris": 656,
+   "size": [
+    5,
+    0.247,
+    5
+   ],
+   "min": [
+    0,
+    -0.207,
+    0
+   ],
+   "max": [
+    5,
+    0.04,
+    5
+   ],
+   "skinned": false,
+   "bytes": 32524,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_011": {
+   "tris": 452,
+   "size": [
+    5,
+    0.237,
+    5
+   ],
+   "min": [
+    0,
+    -0.183,
+    0
+   ],
+   "max": [
+    5,
+    0.054,
+    5
+   ],
+   "skinned": false,
+   "bytes": 27444,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_02": {
+   "tris": 1388,
+   "size": [
+    4.998,
+    0.207,
+    5
+   ],
+   "min": [
+    0.002,
+    -0.207,
+    0
+   ],
+   "max": [
+    5,
+    0,
+    5
+   ],
+   "skinned": false,
+   "bytes": 74404,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_03": {
+   "tris": 1232,
+   "size": [
+    4.998,
+    0.207,
+    5
+   ],
+   "min": [
+    0.002,
+    -0.207,
+    0
+   ],
+   "max": [
+    5,
+    0,
+    5
+   ],
+   "skinned": false,
+   "bytes": 65840,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_04": {
+   "tris": 942,
+   "size": [
+    5,
+    0.212,
+    5
+   ],
+   "min": [
+    0,
+    -0.183,
+    0
+   ],
+   "max": [
+    5,
+    0.029,
+    5
+   ],
+   "skinned": false,
+   "bytes": 59176,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_05": {
+   "tris": 1286,
+   "size": [
+    5.007,
+    0.212,
+    5
+   ],
+   "min": [
+    -0.007,
+    -0.183,
+    0
+   ],
+   "max": [
+    5,
+    0.029,
+    5
+   ],
+   "skinned": false,
+   "bytes": 79796,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_06": {
+   "tris": 1114,
+   "size": [
+    5,
+    0.212,
+    5
+   ],
+   "min": [
+    0,
+    -0.183,
+    0
+   ],
+   "max": [
+    5,
+    0.029,
+    5
+   ],
+   "skinned": false,
+   "bytes": 69408,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_07": {
+   "tris": 714,
+   "size": [
+    5,
+    0.237,
+    5
+   ],
+   "min": [
+    0,
+    -0.207,
+    0
+   ],
+   "max": [
+    5,
+    0.03,
+    5
+   ],
+   "skinned": false,
+   "bytes": 40796,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_08": {
+   "tris": 252,
+   "size": [
+    5,
+    0.212,
+    5
+   ],
+   "min": [
+    0,
+    -0.183,
+    0
+   ],
+   "max": [
+    5,
+    0.029,
+    5
+   ],
+   "skinned": false,
+   "bytes": 16132,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_09": {
+   "tris": 552,
+   "size": [
+    5,
+    0.214,
+    5
+   ],
+   "min": [
+    0,
+    -0.207,
+    0
+   ],
+   "max": [
+    5,
+    0.007,
+    5
+   ],
+   "skinned": false,
+   "bytes": 26216,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_Large_Walkway_02": {
+   "tris": 166,
+   "size": [
+    5.635,
+    0.999,
+    5
+   ],
+   "min": [
+    -0.318,
+    -0.999,
+    0
+   ],
+   "max": [
+    5.318,
+    0,
+    5
+   ],
+   "skinned": false,
+   "bytes": 9948,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_Small_01": {
+   "tris": 386,
+   "size": [
+    2.5,
+    0.242,
+    2.5
+   ],
+   "min": [
+    0,
+    -0.207,
+    0
+   ],
+   "max": [
+    2.5,
+    0.035,
+    2.5
+   ],
+   "skinned": false,
+   "bytes": 19996,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_Small_02": {
+   "tris": 276,
+   "size": [
+    2.5,
+    0.227,
+    2.5
+   ],
+   "min": [
+    0,
+    -0.207,
+    0
+   ],
+   "max": [
+    2.5,
+    0.02,
+    2.5
+   ],
+   "skinned": false,
+   "bytes": 16220,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_Small_03": {
+   "tris": 440,
+   "size": [
+    2.5,
+    0.23,
+    2.5
+   ],
+   "min": [
+    0,
+    -0.207,
+    0
+   ],
+   "max": [
+    2.5,
+    0.023,
+    2.5
+   ],
+   "skinned": false,
+   "bytes": 24608,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_Small_04": {
+   "tris": 86,
+   "size": [
+    2.5,
+    0.217,
+    2.5
+   ],
+   "min": [
+    0,
+    -0.207,
+    0
+   ],
+   "max": [
+    2.5,
+    0.01,
+    2.5
+   ],
+   "skinned": false,
+   "bytes": 6372,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_Small_05": {
+   "tris": 332,
+   "size": [
+    2.5,
+    0.21,
+    2.5
+   ],
+   "min": [
+    0,
+    -0.207,
+    0
+   ],
+   "max": [
+    2.5,
+    0.003,
+    2.5
+   ],
+   "skinned": false,
+   "bytes": 15508,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_Small_06": {
+   "tris": 186,
+   "size": [
+    2.5,
+    0.217,
+    2.5
+   ],
+   "min": [
+    0,
+    -0.207,
+    0
+   ],
+   "max": [
+    2.5,
+    0.011,
+    2.5
+   ],
+   "skinned": false,
+   "bytes": 9992,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_Small_07": {
+   "tris": 440,
+   "size": [
+    2.5,
+    0.23,
+    2.5
+   ],
+   "min": [
+    0,
+    -0.207,
+    0
+   ],
+   "max": [
+    2.5,
+    0.023,
+    2.5
+   ],
+   "skinned": false,
+   "bytes": 24608,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_Small_08": {
+   "tris": 132,
+   "size": [
+    2.5,
+    0.218,
+    2.5
+   ],
+   "min": [
+    0,
+    -0.207,
+    0
+   ],
+   "max": [
+    2.5,
+    0.011,
+    2.5
+   ],
+   "skinned": false,
+   "bytes": 8356,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_Small_Hand_Rail_01": {
+   "tris": 192,
+   "size": [
+    0.476,
+    1.265,
+    2.5
+   ],
+   "min": [
+    -0.532,
+    0,
+    -2.5
+   ],
+   "max": [
+    -0.057,
+    1.265,
+    0
+   ],
+   "skinned": false,
+   "bytes": 12196,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Floor_Small_Hand_Rail_End_01": {
+   "tris": 60,
+   "size": [
+    0.476,
+    1.265,
+    0.169
+   ],
+   "min": [
+    -0.532,
+    0,
+    -0.095
+   ],
+   "max": [
+    -0.057,
+    1.265,
+    0.075
+   ],
+   "skinned": false,
+   "bytes": 4712,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_HangarPlatform_01": {
+   "tris": 3956,
+   "size": [
+    14.001,
+    8.122,
+    17.16
+   ],
+   "min": [
+    -17.276,
+    -7.003,
+    -4.608
+   ],
+   "max": [
+    -3.276,
+    1.119,
+    12.551
+   ],
+   "skinned": false,
+   "bytes": 236276,
+   "materials": [
+    {
+     "name": "lambert2",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Landing_Platform_01": {
+   "tris": 1566,
+   "size": [
+    13.22,
+    3.112,
+    13.22
+   ],
+   "min": [
+    -6.61,
+    -2.666,
+    -6.61
+   ],
+   "max": [
+    6.61,
+    0.446,
+    6.61
+   ],
+   "skinned": false,
+   "bytes": 89484,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Lift_Wall_01": {
+   "tris": 443,
+   "size": [
+    5,
+    4.995,
+    0.915
+   ],
+   "min": [
+    0,
+    -0.995,
+    -0.165
+   ],
+   "max": [
+    5,
+    4,
+    0.75
+   ],
+   "skinned": false,
+   "bytes": 28120,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_01": {
+   "tris": 444,
+   "size": [
+    5,
+    4.995,
+    0.892
+   ],
+   "min": [
+    0,
+    -0.995,
+    0
+   ],
+   "max": [
+    5,
+    4,
+    0.892
+   ],
+   "skinned": false,
+   "bytes": 25212,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_01_Alt": {
+   "tris": 402,
+   "size": [
+    5,
+    4.995,
+    0.892
+   ],
+   "min": [
+    0,
+    -0.995,
+    0
+   ],
+   "max": [
+    5,
+    4,
+    0.892
+   ],
+   "skinned": false,
+   "bytes": 23236,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_02": {
+   "tris": 522,
+   "size": [
+    5,
+    4.996,
+    0.803
+   ],
+   "min": [
+    0,
+    -0.996,
+    0
+   ],
+   "max": [
+    5,
+    4,
+    0.803
+   ],
+   "skinned": false,
+   "bytes": 32932,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_03": {
+   "tris": 264,
+   "size": [
+    5,
+    4.995,
+    0.897
+   ],
+   "min": [
+    0,
+    -0.995,
+    0
+   ],
+   "max": [
+    5,
+    4,
+    0.897
+   ],
+   "skinned": false,
+   "bytes": 16724,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_04": {
+   "tris": 512,
+   "size": [
+    5,
+    4.995,
+    0.808
+   ],
+   "min": [
+    0,
+    -0.995,
+    0
+   ],
+   "max": [
+    5,
+    4,
+    0.808
+   ],
+   "skinned": false,
+   "bytes": 32032,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_04_Alt": {
+   "tris": 504,
+   "size": [
+    5,
+    4.995,
+    0.808
+   ],
+   "min": [
+    0,
+    -0.995,
+    0
+   ],
+   "max": [
+    5,
+    4,
+    0.808
+   ],
+   "skinned": false,
+   "bytes": 31156,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_05": {
+   "tris": 634,
+   "size": [
+    5,
+    4.995,
+    0.86
+   ],
+   "min": [
+    0,
+    -0.995,
+    0
+   ],
+   "max": [
+    5,
+    4,
+    0.86
+   ],
+   "skinned": false,
+   "bytes": 38024,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_06": {
+   "tris": 836,
+   "size": [
+    5,
+    4.995,
+    0.827
+   ],
+   "min": [
+    0,
+    -0.995,
+    0
+   ],
+   "max": [
+    5,
+    4,
+    0.827
+   ],
+   "skinned": false,
+   "bytes": 48400,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Corner_Pillar_01": {
+   "tris": 122,
+   "size": [
+    1.198,
+    5.091,
+    1.198
+   ],
+   "min": [
+    -0.202,
+    -1.037,
+    -0.202
+   ],
+   "max": [
+    0.996,
+    4.054,
+    0.996
+   ],
+   "skinned": false,
+   "bytes": 8940,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Corner_Pillar_02": {
+   "tris": 174,
+   "size": [
+    1.174,
+    5.091,
+    1.183
+   ],
+   "min": [
+    -0.236,
+    -1.037,
+    -0.245
+   ],
+   "max": [
+    0.938,
+    4.054,
+    0.938
+   ],
+   "skinned": false,
+   "bytes": 12360,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Corner_Pillar_03": {
+   "tris": 182,
+   "size": [
+    1.138,
+    5.091,
+    1.143
+   ],
+   "min": [
+    -0.209,
+    -1.037,
+    -0.209
+   ],
+   "max": [
+    0.929,
+    4.054,
+    0.934
+   ],
+   "skinned": false,
+   "bytes": 12760,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Corner_Pillar_04": {
+   "tris": 126,
+   "size": [
+    1.194,
+    5.091,
+    1.195
+   ],
+   "min": [
+    -0.202,
+    -1.037,
+    -0.202
+   ],
+   "max": [
+    0.992,
+    4.054,
+    0.993
+   ],
+   "skinned": false,
+   "bytes": 9220,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Corner_Pillar_05": {
+   "tris": 204,
+   "size": [
+    1.367,
+    5.091,
+    1.315
+   ],
+   "min": [
+    -0.236,
+    -1.037,
+    -0.245
+   ],
+   "max": [
+    1.131,
+    4.054,
+    1.07
+   ],
+   "skinned": false,
+   "bytes": 14720,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Corner_Pillar_Wide_01": {
+   "tris": 98,
+   "size": [
+    1.549,
+    5.091,
+    1.537
+   ],
+   "min": [
+    -0.049,
+    -1.037,
+    -0.037
+   ],
+   "max": [
+    1.5,
+    4.054,
+    1.5
+   ],
+   "skinned": false,
+   "bytes": 8036,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Corner_Pillar_Wide_02": {
+   "tris": 120,
+   "size": [
+    1.549,
+    5.091,
+    1.537
+   ],
+   "min": [
+    -0.049,
+    -1.037,
+    -0.037
+   ],
+   "max": [
+    1.5,
+    4.054,
+    1.5
+   ],
+   "skinned": false,
+   "bytes": 8652,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Corner_Pillar_Wide_03": {
+   "tris": 98,
+   "size": [
+    1.549,
+    5.091,
+    1.537
+   ],
+   "min": [
+    -0.049,
+    -1.037,
+    -0.037
+   ],
+   "max": [
+    1.5,
+    4.054,
+    1.5
+   ],
+   "skinned": false,
+   "bytes": 8036,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Corner_Pillar_Wide_04": {
+   "tris": 78,
+   "size": [
+    1.331,
+    5.091,
+    1.328
+   ],
+   "min": [
+    -0.049,
+    -1.037,
+    -0.037
+   ],
+   "max": [
+    1.282,
+    4.054,
+    1.291
+   ],
+   "skinned": false,
+   "bytes": 6316,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Corner_Pillar_Wide_05": {
+   "tris": 120,
+   "size": [
+    1.59,
+    5.091,
+    1.578
+   ],
+   "min": [
+    -0.069,
+    -1.037,
+    -0.058
+   ],
+   "max": [
+    1.521,
+    4.054,
+    1.521
+   ],
+   "skinned": false,
+   "bytes": 9192,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Doorframe_01": {
+   "tris": 2744,
+   "size": [
+    5,
+    5,
+    0.728
+   ],
+   "min": [
+    0,
+    -1,
+    -0.364
+   ],
+   "max": [
+    5,
+    4,
+    0.364
+   ],
+   "skinned": false,
+   "bytes": 170028,
+   "materials": [
+    {
+     "name": "SciFi",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Doorframe_02": {
+   "tris": 916,
+   "size": [
+    5,
+    5,
+    0.871
+   ],
+   "min": [
+    0,
+    -1,
+    -0.436
+   ],
+   "max": [
+    5,
+    4,
+    0.436
+   ],
+   "skinned": false,
+   "bytes": 55504,
+   "materials": [
+    {
+     "name": "SciFi",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Doorframe_03": {
+   "tris": 2214,
+   "size": [
+    9,
+    5,
+    0.938
+   ],
+   "min": [
+    -4.5,
+    -0.995,
+    -0.469
+   ],
+   "max": [
+    4.5,
+    4.005,
+    0.469
+   ],
+   "skinned": false,
+   "bytes": 132404,
+   "materials": [
+    {
+     "name": "SciFi",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Doorframe_04": {
+   "tris": 2895,
+   "size": [
+    5,
+    5,
+    3.599
+   ],
+   "min": [
+    0,
+    -1,
+    -0.576
+   ],
+   "max": [
+    5,
+    4,
+    3.023
+   ],
+   "skinned": false,
+   "bytes": 181396,
+   "materials": [
+    {
+     "name": "SciFi",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Doorframe_05": {
+   "tris": 1794,
+   "size": [
+    5,
+    5,
+    1.241
+   ],
+   "min": [
+    0,
+    -1,
+    -0.621
+   ],
+   "max": [
+    5,
+    4,
+    0.621
+   ],
+   "skinned": false,
+   "bytes": 114616,
+   "materials": [
+    {
+     "name": "SciFi",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Doorframe_06": {
+   "tris": 1188,
+   "size": [
+    5,
+    5,
+    0.45
+   ],
+   "min": [
+    0,
+    -1.005,
+    -0.225
+   ],
+   "max": [
+    5,
+    3.995,
+    0.225
+   ],
+   "skinned": false,
+   "bytes": 70496,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    },
+    {
+     "name": "SciFi3",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    },
+    {
+     "name": "SciFi1",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Doorframe_Outer_01": {
+   "tris": 466,
+   "size": [
+    5.405,
+    5.405,
+    1.425
+   ],
+   "min": [
+    -0.202,
+    -1.202,
+    -0.712
+   ],
+   "max": [
+    5.202,
+    4.202,
+    0.712
+   ],
+   "skinned": false,
+   "bytes": 25756,
+   "materials": [
+    {
+     "name": "SciFi",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Doorframe_Outer_02": {
+   "tris": 466,
+   "size": [
+    10.398,
+    5.405,
+    1.425
+   ],
+   "min": [
+    -5.199,
+    -1.202,
+    -0.712
+   ],
+   "max": [
+    5.199,
+    4.202,
+    0.712
+   ],
+   "skinned": false,
+   "bytes": 25760,
+   "materials": [
+    {
+     "name": "SciFi",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Exterior_01": {
+   "tris": 620,
+   "size": [
+    5,
+    5.037,
+    0.713
+   ],
+   "min": [
+    0,
+    -1.037,
+    0
+   ],
+   "max": [
+    5,
+    4,
+    0.713
+   ],
+   "skinned": false,
+   "bytes": 34088,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Exterior_02": {
+   "tris": 112,
+   "size": [
+    5,
+    4.995,
+    0.621
+   ],
+   "min": [
+    0,
+    -0.995,
+    0
+   ],
+   "max": [
+    5,
+    4,
+    0.621
+   ],
+   "skinned": false,
+   "bytes": 7280,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Exterior_03": {
+   "tris": 112,
+   "size": [
+    5,
+    4.995,
+    0.621
+   ],
+   "min": [
+    0,
+    -0.995,
+    0
+   ],
+   "max": [
+    5,
+    4,
+    0.621
+   ],
+   "skinned": false,
+   "bytes": 7276,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Exterior_04": {
+   "tris": 302,
+   "size": [
+    5,
+    4.995,
+    0.601
+   ],
+   "min": [
+    0,
+    -0.995,
+    0
+   ],
+   "max": [
+    5,
+    4,
+    0.601
+   ],
+   "skinned": false,
+   "bytes": 17632,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Exterior_Pillar_01": {
+   "tris": 80,
+   "size": [
+    0.802,
+    5.091,
+    0.428
+   ],
+   "min": [
+    -0.802,
+    -1.037,
+    -0.214
+   ],
+   "max": [
+    0,
+    4.054,
+    0.214
+   ],
+   "skinned": false,
+   "bytes": 6244,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Exterior_Window_01": {
+   "tris": 196,
+   "size": [
+    5,
+    4.995,
+    0.673
+   ],
+   "min": [
+    0,
+    -0.995,
+    -0.052
+   ],
+   "max": [
+    5,
+    4,
+    0.621
+   ],
+   "skinned": false,
+   "bytes": 12992,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Exterior_Window_02": {
+   "tris": 196,
+   "size": [
+    5,
+    4.995,
+    0.644
+   ],
+   "min": [
+    0,
+    -0.995,
+    -0.023
+   ],
+   "max": [
+    5,
+    4,
+    0.621
+   ],
+   "skinned": false,
+   "bytes": 12640,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Pillar_01": {
+   "tris": 208,
+   "size": [
+    0.616,
+    5.091,
+    1.076
+   ],
+   "min": [
+    -0.308,
+    -1.037,
+    0
+   ],
+   "max": [
+    0.308,
+    4.054,
+    1.076
+   ],
+   "skinned": false,
+   "bytes": 12024,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Pillar_02": {
+   "tris": 288,
+   "size": [
+    0.519,
+    5.091,
+    0.988
+   ],
+   "min": [
+    -0.259,
+    -1.037,
+    0
+   ],
+   "max": [
+    0.259,
+    4.054,
+    0.988
+   ],
+   "skinned": false,
+   "bytes": 17980,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Pillar_03": {
+   "tris": 202,
+   "size": [
+    0.914,
+    5.091,
+    1.028
+   ],
+   "min": [
+    -0.457,
+    -1.037,
+    0.012
+   ],
+   "max": [
+    0.457,
+    4.054,
+    1.04
+   ],
+   "skinned": false,
+   "bytes": 13704,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Pillar_04": {
+   "tris": 272,
+   "size": [
+    1.429,
+    5.092,
+    1.528
+   ],
+   "min": [
+    -0.707,
+    -1.037,
+    -0.19
+   ],
+   "max": [
+    0.722,
+    4.055,
+    1.338
+   ],
+   "skinned": false,
+   "bytes": 19052,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Pillar_05": {
+   "tris": 152,
+   "size": [
+    0.926,
+    5.091,
+    1.06
+   ],
+   "min": [
+    -0.463,
+    -1.037,
+    -0.031
+   ],
+   "max": [
+    0.463,
+    4.054,
+    1.029
+   ],
+   "skinned": false,
+   "bytes": 10516,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Pillar_06": {
+   "tris": 98,
+   "size": [
+    0.573,
+    5.091,
+    1.504
+   ],
+   "min": [
+    -0.287,
+    -1.037,
+    0
+   ],
+   "max": [
+    0.287,
+    4.054,
+    1.504
+   ],
+   "skinned": false,
+   "bytes": 7556,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Pillar_07": {
+   "tris": 472,
+   "size": [
+    0.925,
+    5.091,
+    1.061
+   ],
+   "min": [
+    -0.463,
+    -1.037,
+    0
+   ],
+   "max": [
+    0.463,
+    4.054,
+    1.061
+   ],
+   "skinned": false,
+   "bytes": 33168,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Wall_Tube_01": {
+   "tris": 2286,
+   "size": [
+    3.502,
+    3.502,
+    5
+   ],
+   "min": [
+    0.749,
+    -0.154,
+    0
+   ],
+   "max": [
+    4.251,
+    3.347,
+    5
+   ],
+   "skinned": false,
+   "bytes": 129104,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Env_PlanetRings_01": {
+   "tris": 480,
+   "size": [
+    0.207,
+    0.003,
+    0.207
+   ],
+   "min": [
+    -0.104,
+    -0.002,
+    -0.104
+   ],
+   "max": [
+    0.104,
+    0.001,
+    0.104
+   ],
+   "skinned": false,
+   "bytes": 25896,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Env_Planet_01": {
+   "tris": 3000,
+   "size": [
+    457.355,
+    463.626,
+    460.717
+   ],
+   "min": [
+    -228.677,
+    -231.813,
+    -230.359
+   ],
+   "max": [
+    228.677,
+    231.813,
+    230.359
+   ],
+   "skinned": false,
+   "bytes": 293288,
+   "materials": [
+    {
+     "name": "_lambert24",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Env_Planet_02": {
+   "tris": 3000,
+   "size": [
+    455.968,
+    454.342,
+    462.471
+   ],
+   "min": [
+    -227.984,
+    -227.171,
+    -231.235
+   ],
+   "max": [
+    227.984,
+    227.171,
+    231.235
+   ],
+   "skinned": false,
+   "bytes": 298152,
+   "materials": [
+    {
+     "name": "_lambert25",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Env_Planet_03": {
+   "tris": 1000,
+   "size": [
+    436.928,
+    439.814,
+    437.27
+   ],
+   "min": [
+    -218.464,
+    -219.907,
+    -218.635
+   ],
+   "max": [
+    218.464,
+    219.907,
+    218.635
+   ],
+   "skinned": false,
+   "bytes": 100288,
+   "materials": [
+    {
+     "name": "_lambert26",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Env_Planet_04": {
+   "tris": 1000,
+   "size": [
+    429.235,
+    429.164,
+    429.383
+   ],
+   "min": [
+    -214.617,
+    -214.581,
+    -214.691
+   ],
+   "max": [
+    214.617,
+    214.583,
+    214.691
+   ],
+   "skinned": false,
+   "bytes": 100036,
+   "materials": [
+    {
+     "name": "_lambert27",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Env_Planet_05": {
+   "tris": 3000,
+   "size": [
+    447.64,
+    446.825,
+    447.425
+   ],
+   "min": [
+    -223.82,
+    -223.412,
+    -223.713
+   ],
+   "max": [
+    223.82,
+    223.412,
+    223.713
+   ],
+   "skinned": false,
+   "bytes": 294624,
+   "materials": [
+    {
+     "name": "_lambert28",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Env_Planet_06": {
+   "tris": 3000,
+   "size": [
+    472.809,
+    473.555,
+    473.732
+   ],
+   "min": [
+    -236.404,
+    -236.778,
+    -236.866
+   ],
+   "max": [
+    236.404,
+    236.778,
+    236.866
+   ],
+   "skinned": false,
+   "bytes": 289576,
+   "materials": [
+    {
+     "name": "_lambert29",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Env_Planet_07": {
+   "tris": 3000,
+   "size": [
+    426.801,
+    422.838,
+    418.509
+   ],
+   "min": [
+    -213.401,
+    -211.419,
+    -209.254
+   ],
+   "max": [
+    213.401,
+    211.419,
+    209.254
+   ],
+   "skinned": false,
+   "bytes": 294440,
+   "materials": [
+    {
+     "name": "_lambert30",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Env_Planet_08": {
+   "tris": 3000,
+   "size": [
+    454.763,
+    455.532,
+    457.483
+   ],
+   "min": [
+    -227.382,
+    -227.766,
+    -228.742
+   ],
+   "max": [
+    227.382,
+    227.766,
+    228.742
+   ],
+   "skinned": false,
+   "bytes": 286628,
+   "materials": [
+    {
+     "name": "_lambert31",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Env_Planet_09": {
+   "tris": 3000,
+   "size": [
+    452.161,
+    448.892,
+    451.857
+   ],
+   "min": [
+    -226.081,
+    -224.446,
+    -225.929
+   ],
+   "max": [
+    226.08,
+    224.446,
+    225.929
+   ],
+   "skinned": false,
+   "bytes": 290468,
+   "materials": [
+    {
+     "name": "_lambert32",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Env_Planet_10": {
+   "tris": 5000,
+   "size": [
+    475.846,
+    476.761,
+    476.085
+   ],
+   "min": [
+    -237.923,
+    -238.381,
+    -238.042
+   ],
+   "max": [
+    237.923,
+    238.381,
+    238.042
+   ],
+   "skinned": false,
+   "bytes": 491376,
+   "materials": [
+    {
+     "name": "_lambert33",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Env_Planet_11": {
+   "tris": 3000,
+   "size": [
+    419.71,
+    420.432,
+    419.787
+   ],
+   "min": [
+    -209.855,
+    -210.216,
+    -209.894
+   ],
+   "max": [
+    209.855,
+    210.216,
+    209.894
+   ],
+   "skinned": false,
+   "bytes": 293612,
+   "materials": [
+    {
+     "name": "_lambert34",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Env_Planet_12": {
+   "tris": 760,
+   "size": [
+    493.164,
+    493.164,
+    493.164
+   ],
+   "min": [
+    -246.582,
+    -246.582,
+    -246.582
+   ],
+   "max": [
+    246.582,
+    246.582,
+    246.582
+   ],
+   "skinned": false,
+   "bytes": 19916,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Env_Planet_13": {
+   "tris": 570,
+   "size": [
+    485.631,
+    489.116,
+    485.631
+   ],
+   "min": [
+    -242.815,
+    -244.558,
+    -242.815
+   ],
+   "max": [
+    242.815,
+    244.558,
+    242.815
+   ],
+   "skinned": false,
+   "bytes": 14676,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Env_Planet_14": {
+   "tris": 2254,
+   "size": [
+    698.336,
+    708.457,
+    701.047
+   ],
+   "min": [
+    -350.536,
+    -355.006,
+    -329.815
+   ],
+   "max": [
+    347.799,
+    353.451,
+    371.232
+   ],
+   "skinned": false,
+   "bytes": 53648,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Prop_CornerSeat_01": {
+   "tris": 202,
+   "size": [
+    3.125,
+    1.062,
+    3.125
+   ],
+   "min": [
+    0,
+    -0.005,
+    0
+   ],
+   "max": [
+    3.125,
+    1.058,
+    3.125
+   ],
+   "skinned": false,
+   "bytes": 13116,
+   "materials": [
+    {
+     "name": "lambert2",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_CornerTable_01": {
+   "tris": 120,
+   "size": [
+    2.152,
+    0.949,
+    2.172
+   ],
+   "min": [
+    -0.8,
+    -0.005,
+    -0.784
+   ],
+   "max": [
+    1.352,
+    0.944,
+    1.388
+   ],
+   "skinned": false,
+   "bytes": 7836,
+   "materials": [
+    {
+     "name": "lambert3",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Crate_01": {
+   "tris": 1188,
+   "size": [
+    0.728,
+    0.613,
+    0.673
+   ],
+   "min": [
+    -0.364,
+    0,
+    -0.336
+   ],
+   "max": [
+    0.364,
+    0.613,
+    0.336
+   ],
+   "skinned": false,
+   "bytes": 80456,
+   "materials": [
+    {
+     "name": "SciFi",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Crate_02": {
+   "tris": 332,
+   "size": [
+    0.71,
+    0.389,
+    1.391
+   ],
+   "min": [
+    -0.355,
+    0,
+    -0.494
+   ],
+   "max": [
+    0.355,
+    0.389,
+    0.897
+   ],
+   "skinned": false,
+   "bytes": 22196,
+   "materials": [
+    {
+     "name": "SciFi",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Crate_Ammo_01": {
+   "tris": 352,
+   "size": [
+    0.522,
+    0.399,
+    0.319
+   ],
+   "min": [
+    -0.261,
+    -0.005,
+    -0.159
+   ],
+   "max": [
+    0.261,
+    0.394,
+    0.159
+   ],
+   "skinned": false,
+   "bytes": 21964,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Crate_Ammo_02": {
+   "tris": 376,
+   "size": [
+    1.329,
+    0.504,
+    0.563
+   ],
+   "min": [
+    -0.664,
+    0,
+    -0.281
+   ],
+   "max": [
+    0.664,
+    0.504,
+    0.281
+   ],
+   "skinned": false,
+   "bytes": 24208,
+   "materials": [
+    {
+     "name": "lambert11",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Crate_Wide_01": {
+   "tris": 1188,
+   "size": [
+    1.234,
+    0.613,
+    0.673
+   ],
+   "min": [
+    -0.617,
+    0,
+    -0.336
+   ],
+   "max": [
+    0.617,
+    0.613,
+    0.336
+   ],
+   "skinned": false,
+   "bytes": 80468,
+   "materials": [
+    {
+     "name": "SciFi",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Detail_Lights_01": {
+   "tris": 92,
+   "size": [
+    1.053,
+    0.1,
+    0.334
+   ],
+   "min": [
+    -0.526,
+    0,
+    -0.167
+   ],
+   "max": [
+    0.526,
+    0.1,
+    0.167
+   ],
+   "skinned": false,
+   "bytes": 7444,
+   "materials": [
+    {
+     "name": "SciFi",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Detail_Lights_02": {
+   "tris": 44,
+   "size": [
+    1.01,
+    0.1,
+    0.292
+   ],
+   "min": [
+    -0.505,
+    0,
+    -0.146
+   ],
+   "max": [
+    0.505,
+    0.1,
+    0.146
+   ],
+   "skinned": false,
+   "bytes": 4336,
+   "materials": [
+    {
+     "name": "SciFi",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Detail_Lights_03": {
+   "tris": 44,
+   "size": [
+    1.01,
+    0.1,
+    0.292
+   ],
+   "min": [
+    -0.505,
+    0,
+    -0.146
+   ],
+   "max": [
+    0.505,
+    0.1,
+    0.146
+   ],
+   "skinned": false,
+   "bytes": 4336,
+   "materials": [
+    {
+     "name": "SciFi",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Light_Panel_01": {
+   "tris": 188,
+   "size": [
+    0.513,
+    0.102,
+    1.206
+   ],
+   "min": [
+    -0.256,
+    0,
+    -0.603
+   ],
+   "max": [
+    0.256,
+    0.102,
+    0.603
+   ],
+   "skinned": false,
+   "bytes": 10596,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Light_Panel_02": {
+   "tris": 264,
+   "size": [
+    0.579,
+    0.143,
+    1.222
+   ],
+   "min": [
+    -0.29,
+    0,
+    -0.611
+   ],
+   "max": [
+    0.29,
+    0.143,
+    0.611
+   ],
+   "skinned": false,
+   "bytes": 16964,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Light_Panel_03": {
+   "tris": 162,
+   "size": [
+    0.407,
+    0.132,
+    1.237
+   ],
+   "min": [
+    -0.204,
+    0,
+    -0.619
+   ],
+   "max": [
+    0.204,
+    0.132,
+    0.619
+   ],
+   "skinned": false,
+   "bytes": 10824,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Light_Panel_04": {
+   "tris": 222,
+   "size": [
+    0.404,
+    0.144,
+    1.107
+   ],
+   "min": [
+    -0.202,
+    0,
+    -0.553
+   ],
+   "max": [
+    0.202,
+    0.144,
+    0.553
+   ],
+   "skinned": false,
+   "bytes": 14384,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Light_Panel_05": {
+   "tris": 370,
+   "size": [
+    0.513,
+    0.108,
+    1.206
+   ],
+   "min": [
+    -0.256,
+    0,
+    -0.603
+   ],
+   "max": [
+    0.256,
+    0.108,
+    0.603
+   ],
+   "skinned": false,
+   "bytes": 21288,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Light_Small_01": {
+   "tris": 44,
+   "size": [
+    0.128,
+    0.057,
+    0.342
+   ],
+   "min": [
+    -0.064,
+    -0.042,
+    -0.171
+   ],
+   "max": [
+    0.064,
+    0.015,
+    0.171
+   ],
+   "skinned": false,
+   "bytes": 3592,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Light_Small_02": {
+   "tris": 44,
+   "size": [
+    0.109,
+    0.092,
+    0.342
+   ],
+   "min": [
+    -0.045,
+    -0.042,
+    -0.171
+   ],
+   "max": [
+    0.064,
+    0.05,
+    0.171
+   ],
+   "skinned": false,
+   "bytes": 3848,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Light_Small_03": {
+   "tris": 84,
+   "size": [
+    0.143,
+    0.088,
+    0.491
+   ],
+   "min": [
+    -0.072,
+    -0.044,
+    -0.246
+   ],
+   "max": [
+    0.072,
+    0.044,
+    0.246
+   ],
+   "skinned": false,
+   "bytes": 6152,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Light_Small_04": {
+   "tris": 84,
+   "size": [
+    0.143,
+    0.088,
+    1.313
+   ],
+   "min": [
+    -0.072,
+    0,
+    -0.656
+   ],
+   "max": [
+    0.072,
+    0.088,
+    0.656
+   ],
+   "skinned": false,
+   "bytes": 6132,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Light_Small_05": {
+   "tris": 76,
+   "size": [
+    0.335,
+    0.058,
+    0.35
+   ],
+   "min": [
+    -0.167,
+    0,
+    -0.175
+   ],
+   "max": [
+    0.167,
+    0.058,
+    0.175
+   ],
+   "skinned": false,
+   "bytes": 5844,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Light_Small_06": {
+   "tris": 58,
+   "size": [
+    0.159,
+    0.069,
+    1.261
+   ],
+   "min": [
+    -0.079,
+    0,
+    -0.63
+   ],
+   "max": [
+    0.079,
+    0.069,
+    0.63
+   ],
+   "skinned": false,
+   "bytes": 4308,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Light_Small_07": {
+   "tris": 58,
+   "size": [
+    0.159,
+    0.069,
+    0.373
+   ],
+   "min": [
+    -0.079,
+    0,
+    -0.186
+   ],
+   "max": [
+    0.079,
+    0.069,
+    0.186
+   ],
+   "skinned": false,
+   "bytes": 4304,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Light_Small_08": {
+   "tris": 96,
+   "size": [
+    0.216,
+    0.262,
+    0.216
+   ],
+   "min": [
+    -0.108,
+    0,
+    -0.108
+   ],
+   "max": [
+    0.108,
+    0.262,
+    0.108
+   ],
+   "skinned": false,
+   "bytes": 7540,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_MapTable_01": {
+   "tris": 712,
+   "size": [
+    2.686,
+    0.901,
+    2.686
+   ],
+   "min": [
+    -1.343,
+    0,
+    -1.343
+   ],
+   "max": [
+    1.343,
+    0.901,
+    1.343
+   ],
+   "skinned": false,
+   "bytes": 38132,
+   "materials": [
+    {
+     "name": "SciFi5",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Pillar_Detail_01": {
+   "tris": 1076,
+   "size": [
+    1.196,
+    4.995,
+    1.216
+   ],
+   "min": [
+    -0.559,
+    -0.995,
+    -0.653
+   ],
+   "max": [
+    0.637,
+    4,
+    0.563
+   ],
+   "skinned": false,
+   "bytes": 64864,
+   "materials": [
+    {
+     "name": "SciFi",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Plant_Container_01": {
+   "tris": 728,
+   "size": [
+    0.797,
+    1.89,
+    1.79
+   ],
+   "min": [
+    -0.398,
+    0,
+    -0.895
+   ],
+   "max": [
+    0.398,
+    1.89,
+    0.895
+   ],
+   "skinned": false,
+   "bytes": 53832,
+   "materials": [
+    {
+     "name": "SciFi5",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Plant_Vase_01": {
+   "tris": 470,
+   "size": [
+    0.923,
+    1.151,
+    0.9
+   ],
+   "min": [
+    -0.48,
+    0,
+    -0.515
+   ],
+   "max": [
+    0.444,
+    1.151,
+    0.385
+   ],
+   "skinned": false,
+   "bytes": 38856,
+   "materials": [
+    {
+     "name": "SciFi",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Plant_Vase_02": {
+   "tris": 1228,
+   "size": [
+    0.931,
+    1.349,
+    2.225
+   ],
+   "min": [
+    -0.48,
+    0,
+    -1.112
+   ],
+   "max": [
+    0.451,
+    1.349,
+    1.112
+   ],
+   "skinned": false,
+   "bytes": 108620,
+   "materials": [
+    {
+     "name": "SciFi",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_SquareTable_01": {
+   "tris": 162,
+   "size": [
+    1.956,
+    0.878,
+    1.956
+   ],
+   "min": [
+    -0.978,
+    -0.005,
+    -0.978
+   ],
+   "max": [
+    0.978,
+    0.874,
+    0.978
+   ],
+   "skinned": false,
+   "bytes": 10064,
+   "materials": [
+    {
+     "name": "lambert16",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_StairsPlatform_01": {
+   "tris": 340,
+   "size": [
+    3.193,
+    5.002,
+    2.02
+   ],
+   "min": [
+    -3.115,
+    0,
+    -1.983
+   ],
+   "max": [
+    0.077,
+    5.002,
+    0.037
+   ],
+   "skinned": false,
+   "bytes": 22712,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_StairsPlatform_02": {
+   "tris": 340,
+   "size": [
+    2.268,
+    5.002,
+    2.02
+   ],
+   "min": [
+    -2.191,
+    0,
+    -1.978
+   ],
+   "max": [
+    0.077,
+    5.002,
+    0.041
+   ],
+   "skinned": false,
+   "bytes": 22712,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Stairs_01": {
+   "tris": 3354,
+   "size": [
+    2.268,
+    5.804,
+    8.042
+   ],
+   "min": [
+    -2.191,
+    -0.007,
+    -0.021
+   ],
+   "max": [
+    0.077,
+    5.798,
+    8.022
+   ],
+   "skinned": false,
+   "bytes": 200048,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Stairs_02": {
+   "tris": 3354,
+   "size": [
+    3.193,
+    5.804,
+    8.043
+   ],
+   "min": [
+    -3.115,
+    -0.007,
+    -0.021
+   ],
+   "max": [
+    0.077,
+    5.798,
+    8.022
+   ],
+   "skinned": false,
+   "bytes": 199988,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Stairs_03": {
+   "tris": 776,
+   "size": [
+    1.615,
+    2.033,
+    1.989
+   ],
+   "min": [
+    -1.522,
+    -0.008,
+    -0.043
+   ],
+   "max": [
+    0.093,
+    2.026,
+    1.947
+   ],
+   "skinned": false,
+   "bytes": 47492,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Stairs_04": {
+   "tris": 776,
+   "size": [
+    1.436,
+    1.808,
+    1.769
+   ],
+   "min": [
+    -1.353,
+    -0.007,
+    -0.038
+   ],
+   "max": [
+    0.083,
+    1.801,
+    1.731
+   ],
+   "skinned": false,
+   "bytes": 47492,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Table_01": {
+   "tris": 288,
+   "size": [
+    3.571,
+    0.848,
+    1.538
+   ],
+   "min": [
+    -1.785,
+    0,
+    -0.769
+   ],
+   "max": [
+    1.785,
+    0.848,
+    0.769
+   ],
+   "skinned": false,
+   "bytes": 17588,
+   "materials": [
+    {
+     "name": "SciFi",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Turret_Small_Floor_01": {
+   "tris": 1372,
+   "size": [
+    1.601,
+    1.179,
+    2.108
+   ],
+   "min": [
+    -0.801,
+    0,
+    -0.801
+   ],
+   "max": [
+    0.801,
+    1.179,
+    1.307
+   ],
+   "skinned": false,
+   "bytes": 85272,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Wall_Panel_Small_01": {
+   "tris": 84,
+   "size": [
+    0.5,
+    0.5,
+    0.21
+   ],
+   "min": [
+    -0.25,
+    -0.25,
+    0
+   ],
+   "max": [
+    0.25,
+    0.25,
+    0.21
+   ],
+   "skinned": false,
+   "bytes": 6472,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Wall_Panel_Small_02": {
+   "tris": 80,
+   "size": [
+    0.501,
+    0.501,
+    0.211
+   ],
+   "min": [
+    -0.25,
+    -0.25,
+    0
+   ],
+   "max": [
+    0.25,
+    0.25,
+    0.211
+   ],
+   "skinned": false,
+   "bytes": 6452,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Wall_Panel_Small_03": {
+   "tris": 58,
+   "size": [
+    0.501,
+    0.501,
+    0.211
+   ],
+   "min": [
+    -0.25,
+    -0.25,
+    0
+   ],
+   "max": [
+    0.25,
+    0.25,
+    0.211
+   ],
+   "skinned": false,
+   "bytes": 5136,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": "tex/PolygonSciFiSpace_Texture_03_A.png"
+    }
+   ]
+  },
+  "SM_Wep_Pistol_01": {
+   "tris": 573,
+   "size": [
+    0.068,
+    0.26,
+    0.415
+   ],
+   "min": [
+    -0.034,
+    -0.143,
+    -0.107
+   ],
+   "max": [
+    0.034,
+    0.118,
+    0.308
+   ],
+   "skinned": false,
+   "bytes": 38820,
+   "materials": [
+    {
+     "name": "SciFi",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Wep_Rifle_01": {
+   "tris": 1470,
+   "size": [
+    0.256,
+    0.379,
+    0.749
+   ],
+   "min": [
+    -0.198,
+    -0.138,
+    -0.343
+   ],
+   "max": [
+    0.058,
+    0.241,
+    0.406
+   ],
+   "skinned": false,
+   "bytes": 93360,
+   "materials": [
+    {
+     "name": "SciFi4",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Wep_Shotgun_01": {
+   "tris": 2164,
+   "size": [
+    0.103,
+    0.278,
+    0.777
+   ],
+   "min": [
+    -0.051,
+    -0.093,
+    -0.223
+   ],
+   "max": [
+    0.052,
+    0.185,
+    0.554
+   ],
+   "skinned": false,
+   "bytes": 133744,
+   "materials": [
+    {
+     "name": "SciFi4",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Screen_01": {
+   "tris": 85,
+   "size": [
+    0.414,
+    0.028,
+    0.396
+   ],
+   "min": [
+    -0.207,
+    0,
+    -0.198
+   ],
+   "max": [
+    0.207,
+    0.028,
+    0.198
+   ],
+   "skinned": false,
+   "bytes": 6072,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Screen_02": {
+   "tris": 86,
+   "size": [
+    0.283,
+    0.033,
+    0.251
+   ],
+   "min": [
+    -0.141,
+    0,
+    -0.125
+   ],
+   "max": [
+    0.141,
+    0.033,
+    0.125
+   ],
+   "skinned": false,
+   "bytes": 5628,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Screen_03": {
+   "tris": 136,
+   "size": [
+    0.397,
+    0.018,
+    0.231
+   ],
+   "min": [
+    -0.198,
+    0,
+    -0.115
+   ],
+   "max": [
+    0.198,
+    0.018,
+    0.115
+   ],
+   "skinned": false,
+   "bytes": 7784,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Screen_04": {
+   "tris": 74,
+   "size": [
+    0.293,
+    0.018,
+    0.211
+   ],
+   "min": [
+    -0.146,
+    0,
+    -0.106
+   ],
+   "max": [
+    0.146,
+    0.018,
+    0.106
+   ],
+   "skinned": false,
+   "bytes": 5168,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Screen_05": {
+   "tris": 90,
+   "size": [
+    0.268,
+    0.018,
+    0.231
+   ],
+   "min": [
+    -0.134,
+    0,
+    -0.115
+   ],
+   "max": [
+    0.134,
+    0.018,
+    0.115
+   ],
+   "skinned": false,
+   "bytes": 5520,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Screen_06": {
+   "tris": 265,
+   "size": [
+    0.523,
+    0.066,
+    0.358
+   ],
+   "min": [
+    -0.261,
+    0,
+    -0.179
+   ],
+   "max": [
+    0.261,
+    0.066,
+    0.179
+   ],
+   "skinned": false,
+   "bytes": 17264,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Screen_07": {
+   "tris": 74,
+   "size": [
+    0.283,
+    0.036,
+    0.251
+   ],
+   "min": [
+    -0.141,
+    0,
+    -0.125
+   ],
+   "max": [
+    0.141,
+    0.036,
+    0.125
+   ],
+   "skinned": false,
+   "bytes": 6064,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Screen_08": {
+   "tris": 167,
+   "size": [
+    0.586,
+    0.029,
+    0.4
+   ],
+   "min": [
+    -0.293,
+    0,
+    -0.2
+   ],
+   "max": [
+    0.293,
+    0.029,
+    0.2
+   ],
+   "skinned": false,
+   "bytes": 10496,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Screen_09": {
+   "tris": 265,
+   "size": [
+    0.418,
+    0.066,
+    0.358
+   ],
+   "min": [
+    -0.157,
+    0,
+    -0.179
+   ],
+   "max": [
+    0.261,
+    0.066,
+    0.179
+   ],
+   "skinned": false,
+   "bytes": 17268,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Screen_10": {
+   "tris": 136,
+   "size": [
+    0.397,
+    0.018,
+    0.231
+   ],
+   "min": [
+    -0.198,
+    0,
+    -0.115
+   ],
+   "max": [
+    0.198,
+    0.018,
+    0.115
+   ],
+   "skinned": false,
+   "bytes": 7784,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Screen_11": {
+   "tris": 86,
+   "size": [
+    0.283,
+    0.033,
+    0.268
+   ],
+   "min": [
+    -0.141,
+    0,
+    -0.143
+   ],
+   "max": [
+    0.141,
+    0.033,
+    0.125
+   ],
+   "skinned": false,
+   "bytes": 5628,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Screen_Small_01": {
+   "tris": 230,
+   "size": [
+    0.481,
+    0.574,
+    0.129
+   ],
+   "min": [
+    -0.24,
+    -0.287,
+    -0.065
+   ],
+   "max": [
+    0.24,
+    0.287,
+    0.065
+   ],
+   "skinned": false,
+   "bytes": 16016,
+   "materials": [
+    {
+     "name": "SciFi",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Screen_Small_02": {
+   "tris": 322,
+   "size": [
+    0.825,
+    0.588,
+    0.138
+   ],
+   "min": [
+    -0.413,
+    -0.292,
+    -0.069
+   ],
+   "max": [
+    0.413,
+    0.296,
+    0.069
+   ],
+   "skinned": false,
+   "bytes": 22004,
+   "materials": [
+    {
+     "name": "SciFi",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Hud_Screen_Backing_01": {
+   "tris": 28,
+   "size": [
+    1.2,
+    0.667,
+    0.011
+   ],
+   "min": [
+    -0.6,
+    -0.334,
+    -0.006
+   ],
+   "max": [
+    0.6,
+    0.334,
+    0.006
+   ],
+   "skinned": false,
+   "bytes": 2980,
+   "materials": [
+    {
+     "name": "SciFi1",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Bridge_Console_01": {
+   "tris": 12648,
+   "size": [
+    17.42,
+    1.294,
+    7.841
+   ],
+   "min": [
+    -1.213,
+    -0.166,
+    0.514
+   ],
+   "max": [
+    16.207,
+    1.129,
+    8.355
+   ],
+   "skinned": false,
+   "bytes": 779800,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Bld_Bridge_Console_02": {
+   "tris": 4730,
+   "size": [
+    8.176,
+    1.3,
+    4.871
+   ],
+   "min": [
+    3.381,
+    -0.186,
+    9.587
+   ],
+   "max": [
+    11.558,
+    1.114,
+    14.458
+   ],
+   "skinned": false,
+   "bytes": 290840,
+   "materials": [
+    {
+     "name": "SciFiSpace",
+     "map": null,
+     "image": "PolygonSciFiCity_Texture_01_A.psd"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="tile">#131411</color>
+    <color name="ink">#e9ece2</color>
+    <color name="dot">#c8f03c</color>
+
+    <style name="ArenaTheme" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/tile</item>
+        <item name="android:colorBackground">@color/tile</item>
+        <item name="android:statusBarColor">@color/tile</item>
+        <item name="android:navigationBarColor">@color/tile</item>
+        <item name="android:colorAccent">@color/dot</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+    </style>
+</resources>

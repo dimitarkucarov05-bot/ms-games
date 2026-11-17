@@ -1,0 +1,101 @@
+{
+ "pack": "POLYGON/Horror Movie Set",
+ "models": {
+  "SM_Prop_Conveyer_Belt_Straight_01": {
+   "tris": 424,
+   "size": [
+    1.25,
+    0.282,
+    2.5
+   ],
+   "min": [
+    -0.625,
+    -0.141,
+    0
+   ],
+   "max": [
+    0.625,
+    0.141,
+    2.5
+   ],
+   "skinned": false,
+   "bytes": 24024,
+   "materials": [
+    {
+     "name": "MAT_01A16",
+     "map": null,
+     "image": "PolygonHorrorMovieSet_Emissive_01_A.png"
+    },
+    {
+     "name": "Conveyer_MAT2",
+     "map": null,
+     "image": "Conveyer_Belt_MAT.psd"
+    }
+   ]
+  },
+  "SM_Prop_Conveyer_Belt_Straight_02": {
+   "tris": 272,
+   "size": [
+    1.25,
+    0.282,
+    2.5
+   ],
+   "min": [
+    -0.625,
+    -0.141,
+    0
+   ],
+   "max": [
+    0.625,
+    0.141,
+    2.5
+   ],
+   "skinned": false,
+   "bytes": 16152,
+   "materials": [
+    {
+     "name": "MAT_01A2",
+     "map": null,
+     "image": "PolygonHorrorMovieSet_Emissive_01_A.png"
+    },
+    {
+     "name": "Conveyer_MAT",
+     "map": null,
+     "image": "Conveyer_Belt_MAT.psd"
+    }
+   ]
+  },
+  "SM_Prop_Conveyer_Belt_End_01": {
+   "tris": 236,
+   "size": [
+    1.25,
+    0.282,
+    0.625
+   ],
+   "min": [
+    -0.625,
+    -0.141,
+    0
+   ],
+   "max": [
+    0.625,
+    0.141,
+    0.625
+   ],
+   "skinned": false,
+   "bytes": 15008,
+   "materials": [
+    {
+     "name": "MAT_01A2",
+     "map": null,
+     "image": "PolygonHorrorMovieSet_Emissive_01_A.png"
+    },
+    {
+     "name": "Conveyer_MAT",
+     "map": null,
+     "image": "Conveyer_Belt_MAT.psd"
+    }
+   ]
+  }
+ }
+}

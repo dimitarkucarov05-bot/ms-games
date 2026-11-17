@@ -1,0 +1,376 @@
+{
+ "made": "2026-11-12T19:27",
+ "characters": {
+  "SK_Character_Biker": {
+   "file": "SK_Character_Biker.glb",
+   "tex": "tex/Polygon_City_Characters_Texture_04_B.png",
+   "pack": "City Characters Pack",
+   "sex": "m",
+   "family": "adult",
+   "tris": 2048,
+   "joints": 47,
+   "height": 1.827,
+   "hip": 0.8763,
+   "ankle": 0.0557,
+   "head": 1.5691,
+   "notForKids": false,
+   "bytes": 290296
+  },
+  "SK_Character_PunkGirl": {
+   "file": "SK_Character_PunkGirl.glb",
+   "tex": "tex/Polygon_City_Characters_Texture_04_B.png",
+   "pack": "City Characters Pack",
+   "sex": "f",
+   "family": "adult",
+   "tris": 2402,
+   "joints": 47,
+   "height": 1.847,
+   "hip": 0.8763,
+   "ankle": 0.0557,
+   "head": 1.5691,
+   "notForKids": false,
+   "bytes": 331248
+  },
+  "SK_Character_HipsterGuy": {
+   "file": "SK_Character_HipsterGuy.glb",
+   "tex": "tex/Polygon_City_Characters_Texture_04_B.png",
+   "pack": "City Characters Pack",
+   "sex": "m",
+   "family": "adult",
+   "tris": 2636,
+   "joints": 47,
+   "height": 1.832,
+   "hip": 0.8763,
+   "ankle": 0.0557,
+   "head": 1.5691,
+   "notForKids": false,
+   "bytes": 356356
+  },
+  "SK_Character_GamerGirl": {
+   "file": "SK_Character_GamerGirl.glb",
+   "tex": "tex/Polygon_City_Characters_Texture_04_B.png",
+   "pack": "City Characters Pack",
+   "sex": "f",
+   "family": "adult",
+   "tris": 2479,
+   "joints": 47,
+   "height": 1.86,
+   "hip": 0.8763,
+   "ankle": 0.0557,
+   "head": 1.5691,
+   "notForKids": false,
+   "bytes": 392252
+  },
+  "SK_Character_Jock": {
+   "file": "SK_Character_Jock.glb",
+   "tex": "tex/Polygon_City_Characters_Texture_04_B.png",
+   "pack": "City Characters Pack",
+   "sex": "m",
+   "family": "adult",
+   "tris": 1814,
+   "joints": 47,
+   "height": 1.837,
+   "hip": 0.8763,
+   "ankle": 0.0557,
+   "head": 1.5691,
+   "notForKids": false,
+   "bytes": 226176
+  },
+  "SK_Character_Grandma": {
+   "file": "SK_Character_Grandma.glb",
+   "tex": "tex/Polygon_City_Characters_Texture_04_B.png",
+   "pack": "City Characters Pack",
+   "sex": "f",
+   "family": "adult",
+   "tris": 2164,
+   "joints": 47,
+   "height": 1.842,
+   "hip": 0.8763,
+   "ankle": 0.0557,
+   "head": 1.5691,
+   "notForKids": false,
+   "bytes": 305280
+  },
+  "SK_Character_Tourist": {
+   "file": "SK_Character_Tourist.glb",
+   "tex": "tex/Polygon_City_Characters_Texture_04_B.png",
+   "pack": "City Characters Pack",
+   "sex": "m",
+   "family": "adult",
+   "tris": 2142,
+   "joints": 47,
+   "height": 1.866,
+   "hip": 0.8763,
+   "ankle": 0.0557,
+   "head": 1.5691,
+   "notForKids": false,
+   "bytes": 294100
+  },
+  "SK_Character_Father_01": {
+   "file": "SK_Character_Father_01.glb",
+   "tex": "tex/PolygonTown_01_A.png",
+   "pack": "Town Pack",
+   "sex": "m",
+   "family": "adult",
+   "tris": 1897,
+   "joints": 47,
+   "height": 1.83,
+   "hip": 0.8763,
+   "ankle": 0.0557,
+   "head": 1.5691,
+   "notForKids": false,
+   "bytes": 271332
+  },
+  "SK_Character_Mother_01": {
+   "file": "SK_Character_Mother_01.glb",
+   "tex": "tex/PolygonTown_01_A.png",
+   "pack": "Town Pack",
+   "sex": "f",
+   "family": "adult",
+   "tris": 2329,
+   "joints": 47,
+   "height": 1.851,
+   "hip": 0.8763,
+   "ankle": 0.0557,
+   "head": 1.5691,
+   "notForKids": false,
+   "bytes": 362316
+  },
+  "SK_Character_Son_01": {
+   "file": "SK_Character_Son_01.glb",
+   "tex": "tex/PolygonTown_01_A.png",
+   "pack": "Town Pack",
+   "sex": "m",
+   "family": "adult",
+   "tris": 1838,
+   "joints": 47,
+   "height": 1.845,
+   "hip": 0.8763,
+   "ankle": 0.0557,
+   "head": 1.5691,
+   "notForKids": false,
+   "bytes": 354188
+  },
+  "SK_Character_Daughter_01": {
+   "file": "SK_Character_Daughter_01.glb",
+   "tex": "tex/PolygonTown_01_A.png",
+   "pack": "Town Pack",
+   "sex": "f",
+   "family": "adult",
+   "tris": 1932,
+   "joints": 47,
+   "height": 1.839,
+   "hip": 0.8763,
+   "ankle": 0.0557,
+   "head": 1.5691,
+   "notForKids": false,
+   "bytes": 310636
+  },
+  "SK_Character_SchoolBoy_01": {
+   "file": "SK_Character_SchoolBoy_01.glb",
+   "tex": "tex/PolygonTown_01_A.png",
+   "pack": "Town Pack",
+   "sex": "m",
+   "family": "adult",
+   "tris": 1839,
+   "joints": 47,
+   "height": 1.837,
+   "hip": 0.8763,
+   "ankle": 0.0557,
+   "head": 1.5691,
+   "notForKids": false,
+   "bytes": 311260
+  },
+  "SK_Character_SchoolGirl_01": {
+   "file": "SK_Character_SchoolGirl_01.glb",
+   "tex": "tex/PolygonTown_01_A.png",
+   "pack": "Town Pack",
+   "sex": "f",
+   "family": "adult",
+   "tris": 2001,
+   "joints": 47,
+   "height": 1.821,
+   "hip": 0.8763,
+   "ankle": 0.0557,
+   "head": 1.5691,
+   "notForKids": false,
+   "bytes": 328940
+  }
+ },
+ "clips": {
+  "file": "clips.bin",
+  "fps": 30,
+  "bones": [
+   "pelvis",
+   "spine_01",
+   "spine_02",
+   "spine_03",
+   "neck_01",
+   "head",
+   "clavicle_l",
+   "upperarm_l",
+   "lowerarm_l",
+   "hand_l",
+   "thumb_01_l",
+   "thumb_02_l",
+   "indexfinger_01_l",
+   "indexfinger_02_l",
+   "indexfinger_03_l",
+   "finger_01_l",
+   "finger_02_l",
+   "finger_03_l",
+   "clavicle_r",
+   "upperarm_r",
+   "lowerarm_r",
+   "hand_r",
+   "thumb_01_r",
+   "thumb_02_r",
+   "indexfinger_01_r",
+   "indexfinger_02_r",
+   "indexfinger_03_r",
+   "finger_01_r",
+   "finger_02_r",
+   "finger_03_r",
+   "thigh_r",
+   "calf_r",
+   "foot_r",
+   "ball_r",
+   "thigh_l",
+   "calf_l",
+   "foot_l",
+   "ball_l"
+  ],
+  "stride": 155,
+  "hipUnit": 0.0001,
+  "refHip": 0.8763,
+  "refAnkle": 0.0557,
+  "list": {
+   "idle_m": {
+    "file": "A_Idle_Standing_Masc",
+    "frames": 56,
+    "duration": 1.8333,
+    "offset": 0,
+    "loop": true
+   },
+   "idle_f": {
+    "file": "A_Idle_Standing_Femn",
+    "frames": 56,
+    "duration": 1.8333,
+    "offset": 8680,
+    "loop": true
+   },
+   "walk_m": {
+    "file": "A_Walk_F_Masc",
+    "frames": 34,
+    "duration": 1.1,
+    "offset": 17360,
+    "loop": true
+   },
+   "walk_f": {
+    "file": "A_Walk_F_Femn",
+    "frames": 34,
+    "duration": 1.1,
+    "offset": 22630,
+    "loop": true
+   },
+   "happy_m": {
+    "file": "A_POLY_EMOT_Happy_ArmsRaised_Masc",
+    "frames": 109,
+    "duration": 3.6,
+    "offset": 27900,
+    "loop": true
+   },
+   "happy_f": {
+    "file": "A_POLY_EMOT_Happy_ArmsRaised_Femn",
+    "frames": 109,
+    "duration": 3.6,
+    "offset": 44795,
+    "loop": true
+   },
+   "angry_m": {
+    "file": "A_POLY_EMOT_Angry_ShakeFist_Masc",
+    "frames": 83,
+    "duration": 2.7333,
+    "offset": 61690,
+    "loop": true
+   },
+   "angry_f": {
+    "file": "A_POLY_EMOT_Angry_ShakeFist_Femn",
+    "frames": 83,
+    "duration": 2.7333,
+    "offset": 74555,
+    "loop": true
+   },
+   "bored_m": {
+    "file": "A_POLY_IDL_Bored_FootTap_Masc",
+    "frames": 126,
+    "duration": 4.1667,
+    "offset": 87420,
+    "loop": true
+   },
+   "bored_f": {
+    "file": "A_POLY_IDL_Bored_FootTap_Femn",
+    "frames": 126,
+    "duration": 4.1667,
+    "offset": 106950,
+    "loop": true
+   }
+  }
+ },
+ "looks": {
+  "kids": [
+   "SK_Character_Father_01",
+   "SK_Character_Mother_01",
+   "SK_Character_Son_01",
+   "SK_Character_Daughter_01",
+   "SK_Character_SchoolBoy_01",
+   "SK_Character_SchoolGirl_01"
+  ],
+  "night": [
+   "SK_Character_Biker",
+   "SK_Character_PunkGirl",
+   "SK_Character_HipsterGuy",
+   "SK_Character_GamerGirl",
+   "SK_Character_Jock",
+   "SK_Character_Grandma"
+  ]
+ },
+ "special": {
+  "night": "SK_Character_Tourist",
+  "kids": "SK_Character_Tourist"
+ },
+ "hands": {
+  "l": {
+   "file": "hands/hand_l.glb",
+   "tex": "tex/T_ModernCivilian_01ColorMap.png",
+   "tris": 252,
+   "source": "SK_HUMN_BASE_01_15HNDL_HU01",
+   "min": [
+    -0.052,
+    -0.052,
+    -0.19
+   ],
+   "max": [
+    0.103,
+    0.019,
+    0.005
+   ]
+  },
+  "r": {
+   "file": "hands/hand_r.glb",
+   "tex": "tex/T_ModernCivilian_01ColorMap.png",
+   "tris": 252,
+   "source": "SK_HUMN_BASE_01_16HNDR_HU01",
+   "min": [
+    -0.103,
+    -0.052,
+    -0.19
+   ],
+   "max": [
+    0.052,
+    0.019,
+    0.005
+   ]
+  }
+ }
+}

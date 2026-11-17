@@ -1,0 +1,29 @@
+[
+ {
+  "pack": "POLYGON/Battle Royale Pack",
+  "models": [
+   "SM_Wep_Pistol_Heavy_01", "SM_Wep_Pistol_Revolver_01", "SM_Wep_Revolver_Snub_01", "SM_Wep_SubMGun_01", "SM_Wep_SubMGun_Lite_01", "SM_Wep_Shotgun_01",
+   "SM_Wep_Rifle_Assault_01", "SM_Wep_Rifle_Assault_02", "SM_Wep_Rifle_Assault_03", "SM_Wep_Rifle_Assault_04", "SM_Wep_Rifle_Assault_05", "SM_Wep_MachineGun_01",
+   "SM_Wep_Bullet_Ammo_Box_01", "SM_Wep_Bullet_Ammo_Box_02", "SM_Wep_Pistol_Ammo_Box_01", "SM_Wep_Shotgun_Ammo_Box_01", "SM_Wep_Bullet_Ammo_Pile_01",
+   "SM_Prop_AmmoBox_01", "SM_Prop_MedicalBox_01", "SM_Prop_MedicalBox_02", "SM_Prop_Crate_Medical_01", "SM_Prop_Spotlight_01", "SM_Prop_WeaponCase_01"
+  ]
+ },
+ {
+  "pack": "POLYGON/Apocalypse Pack",
+  "models": [
+   "SK_Wep_Pistol_01", "SK_Wep_SubMGun_01", "SK_Wep_Shotgun_01", "SK_Wep_AssaultRifle_01", "SK_Wep_Revolver_01",
+   "SM_Item_Ammo_Crate_01", "SM_Item_Ammo_Crate_Lid_01", "SM_Item_Ammo_Crate_02", "SM_Prop_Ammo_Box_Open_01", "SM_Prop_Ammo_Box_01",
+   "SM_Prop_Sandbag_01", "SM_Prop_Sandbag_Wall_01", "SM_Prop_Sandbag_Wall_02", "SM_Prop_Sandbag_Wall_03", "SM_Prop_Sandbag_Wall_End_01",
+   "SM_Prop_Barricade_01", "SM_Prop_Barricade_02", "SM_Prop_Barricade_03", "SM_Prop_Barricade_04", "SM_Prop_Barricade_05", "SM_Prop_Barricade_06",
+   "SM_Prop_Barricade_Wired_01", "SM_Prop_Barricade_Pallet_01", "SM_Prop_Barrier_Concrete_01",
+   "SM_Prop_Barrel_Open_01", "SM_Flame_FX", "SM_Prop_FirePit_01", "SM_Prop_BurnPile_01",
+   "SM_Prop_Floodlights_01", "SM_Prop_Floodlights_02", "SM_Prop_Floodlights_LightL_02", "SM_Prop_Floodlights_LightR_02", "SM_Prop_SearchLight_01", "SM_Prop_SearchLight_Top_01",
+   "SM_Prop_MedicalBox_02", "SM_Prop_Medical_Container_01", "SM_Prop_Television_Flat_01", "SM_Prop_Television_Broken_01", "SM_Prop_Radio_01",
+   "SM_Item_Laptop_01", "SM_Item_Laptop_Lid_01", "SM_Prop_Generator_01", "SM_Prop_Table_01", "SM_Prop_Crate_01"
+  ]
+ },
+ {
+  "pack": "POLYGON/Military Pack",
+  "models": [ "SM_Prop_Electronics_Tv_01", "SM_Prop_Electronics_Screen_01", "SM_Prop_TV_01", "SM_Prop_Crate_Ammo_01", "SM_Prop_Crate_Ammo_Lid_01", "SM_Prop_Light_Portable_01" ]
+ }
+]

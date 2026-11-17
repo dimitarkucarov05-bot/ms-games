@@ -1,0 +1,1081 @@
+// Екранът на лобото: 3D изглед на залата в целия екран; отгоре вдясно — каските
+// с батерия, FPS, звук и кой играе; отдолу — игри и калибриране.
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+const COLORS = ['#4f8cff', '#3ccf7a', '#f2b33d', '#ff7ab6', '#b67cff', '#38d6e0', '#ff8c4f', '#a3e05a'];
+const STATUS_COLOR = { play: '#b67cff', load: '#4f8cff', idle: '#3ccf7a', sleep: '#8a93a6', cal: '#f2b33d' };
+const FOV = 60 * Math.PI / 180;
+const CAM_HEIGHT = 2.5;
+const HALL = { w: 20, d: 10 };   // залата в играта по проекта, м (VRHallLayout 20 × 10) — дългата страна от ъгъл 1 към ъгъл 2
+
+let state = null;
+let view = { mode: 'overview' };   // overview | corner (idx) | top | grid | headset (id)
+let live = { ok: false, cams: [] }; // кадри на живо от Unreal (виж lobby_bridge.py)
+let userPickedView = false;         // докато операторът не избере изглед сам, показваме Unreal
+const CAM_NAMES = { cam_1: 'Камера 1', cam_2: 'Камера 2', cam_3: 'Камера 3', cam_4: 'Камера 4', cam_top: 'Отгоре' };
+const selected = new Set();
+const canvas = $('room');
+const ctx = canvas.getContext('2d');
+
+// ---------- връзка ----------
+
+// 07.11.2026: малка граница от „Нагласи залата по LBE" — питаме, преди да смени залата
+let askedBounds = '';
+function askPendingBounds() {
+  const p = state.pendingBounds;
+  if (!p) { askedBounds = ''; return; }
+  const key = `${p.id}:${p.width}:${p.depth}`;
+  if (askedBounds === key) return;
+  askedBounds = key;
+  setTimeout(() => {
+    const ok = confirm(`Новата LBE граница е ${p.width.toFixed(2)} × ${p.depth.toFixed(2)} м — много по-малка от залата ${Number(p.curWidth).toFixed(2)} × ${Number(p.curDepth).toFixed(2)} м.\n\nДа сменя ли залата? (Отказ — залата остава.)`);
+    call('/api/calibrate/lbe/pending', { apply: ok });
+  }, 0);
+}
+
+function connect() {
+  const ws = new WebSocket(`ws://${location.host}/ui`);
+  ws.onopen = () => { $('conn').textContent = 'Свързано'; $('conn').className = 'badge ok'; };
+  ws.onclose = () => { $('conn').textContent = 'Няма връзка'; $('conn').className = 'badge off'; setTimeout(connect, 1500); };
+  ws.onmessage = e => {
+    const msg = JSON.parse(e.data);
+    if (msg.type === 'state') { state = msg; renderHud(); askPendingBounds(); }
+    if (msg.type === 'toast') toast(msg.text, msg.level);
+  };
+}
+
+async function call(path, body = {}) {
+  const res = await fetch(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) { toast(data.error || 'Грешка', 'error'); throw new Error(data.error); }
+  return data;
+}
+
+function toast(text, level = 'info') {
+  const el = document.createElement('div');
+  el.className = `toast ${level}`;
+  el.textContent = text;
+  $('toasts').append(el);
+  setTimeout(() => el.remove(), 4500);
+}
+
+// ---------- статус на каска ----------
+
+function statusOf(h) {
+  if (!h.online) return { cls: 'off', label: 'Изключена' };
+  if (h.phase === 'calibrating') return { cls: 'cal', label: `Калибрира ${h.calibStep || 0}/4` };
+  if (h.phase === 'loading') return { cls: 'load', label: 'Зарежда' };
+  if (h.phase === 'playing') return { cls: 'play', label: 'Играе' };
+  if (h.sleeping) return { cls: 'sleep', label: 'Сън' };
+  return { cls: 'idle', label: 'Включена' };
+}
+
+// ---------- камери ----------
+
+function roomHalf() {
+  const c = state?.calibration;
+  return { hw: (c?.width || HALL.w) / 2, hd: (c?.depth || HALL.d) / 2 };
+}
+
+// Четирите камери са в ъглите на залата, на височина, и гледат към центъра.
+function cornerCams() {
+  const { hw, hd } = roomHalf();
+  const x = hw - 0.2, z = hd - 0.2;
+  return [[-x, CAM_HEIGHT, -z], [x, CAM_HEIGHT, -z], [x, CAM_HEIGHT, z], [-x, CAM_HEIGHT, z]];
+}
+
+function activeHeadset() {
+  if (view.mode !== 'headset') return null;
+  return state?.headsets.find(h => h.id === view.id && h.online && h.pos) || null;
+}
+
+function currentCam() {
+  if (view.mode === 'corner') return { pos: cornerCams()[view.idx], target: [0, 1.1, 0] };
+  const h = activeHeadset();
+  if (h) {
+    const pos = [h.pos.x, 1.6, h.pos.z];
+    const yaw = h.yaw || 0;
+    return { pos, target: [pos[0] + Math.sin(yaw) * 3, 1.5, pos[2] + Math.cos(yaw) * 3] };
+  }
+  return { pos: [0, 7.5, 8.5], target: [0, 0.6, 0] };
+}
+
+// откъде идват кадрите: общата игра на компютъра, игра в редактора или самият редактор
+function liveModeText(mode) {
+  return mode === 'server' ? 'обща игра' : mode === 'play' ? 'игра' : 'редактор';
+}
+
+function camText() {
+  const src = live.ok ? ` · на живо от Unreal (${liveModeText(live.mode)})` : '';
+  if (view.mode === 'grid') return live.ok ? `Всички камери${src}` : 'Решетката иска Unreal — пусни „VR Varna" от работния плот';
+  if (view.mode === 'top') return live.ok ? `Отгоре${src}` : 'Отгоре иска Unreal — показвам общия изглед';
+  if (view.mode === 'corner') return `Камера ${view.idx + 1}${src || ' · поглед от ъгъла'}`;
+  if (view.mode === 'headset') {
+    const h = state?.headsets.find(x => x.id === view.id);
+    if (!h) return 'Общ изглед';
+    if (!activeHeadset()) return `${h.name} не е онлайн — показвам общия изглед`;
+    return `През очите на: ${h.name}${h.user ? ' · ' + h.user : ''}${live.ok ? ' · на живо от Unreal' : ''}`;
+  }
+  return 'Общ изглед · цялата зала';
+}
+
+// ---------- проекция (3D → екран) ----------
+
+const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+const unit = a => { const l = Math.hypot(...a) || 1; return [a[0] / l, a[1] / l, a[2] / l]; };
+
+function project(p, cam, W, H) {
+  const f = unit(sub(cam.target, cam.pos));
+  const r = unit(cross(f, [0, 1, 0]));
+  const u = cross(r, f);
+  const d = sub(p, cam.pos);
+  const z = dot(d, f);
+  if (z < 0.2) return null;
+  const k = (H / 2) / Math.tan(FOV / 2) / z;
+  return { x: W / 2 + dot(d, r) * k, y: H / 2 - dot(d, u) * k, s: k, z };
+}
+
+function seg(a, b, cam, W, H) {
+  const p = project(a, cam, W, H), q = project(b, cam, W, H);
+  if (!p || !q) return;
+  ctx.moveTo(p.x, p.y);
+  ctx.lineTo(q.x, q.y);
+}
+
+// ---------- рисуване ----------
+
+function drawRoom(cam, W, H) {
+  const { hw, hd } = roomHalf();
+  const CEIL = 3;
+  const floor = [[-hw, 0, -hd], [hw, 0, -hd], [hw, 0, hd], [-hw, 0, hd]];
+  const top = floor.map(([x, , z]) => [x, CEIL, z]);
+
+  // пол — мрежа по 1 м
+  ctx.strokeStyle = 'rgba(79, 140, 255, .18)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let x = -Math.floor(hw); x <= hw; x++) seg([x, 0, -hd], [x, 0, hd], cam, W, H);
+  for (let z = -Math.floor(hd); z <= hd; z++) seg([-hw, 0, z], [hw, 0, z], cam, W, H);
+  ctx.stroke();
+
+  // стени и таван — тънки линии, за да личи, че стаята е затворена
+  ctx.strokeStyle = 'rgba(232, 235, 241, .6)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  for (let i = 0; i < 4; i++) {
+    const j = (i + 1) % 4;
+    seg(floor[i], floor[j], cam, W, H);
+    seg(top[i], top[j], cam, W, H);
+    seg(floor[i], top[i], cam, W, H);
+  }
+  ctx.stroke();
+}
+
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function drawLabel(p, h, col, st) {
+  const batt = h.battery == null ? '—' : Math.round(h.battery) + '%';
+  const lines = [
+    { text: h.name, font: '600 13px -apple-system, sans-serif', color: '#e8ebf1' },
+    { text: h.user || st.label, font: '12px -apple-system, sans-serif', color: h.user ? '#e8ebf1' : '#8a93a6' },
+    { text: `${batt}${h.charging ? ' ⚡' : ''} · ${h.fps ?? '—'} fps · 🔊 ${h.volume ?? '—'}`, font: '12px -apple-system, sans-serif', color: '#8a93a6' },
+  ];
+  let w = 0;
+  for (const l of lines) { ctx.font = l.font; w = Math.max(w, ctx.measureText(l.text).width); }
+  w += 18;
+  const hgt = 56;
+  const x = p.x - w / 2, y = p.y - hgt;
+  ctx.fillStyle = 'rgba(10, 12, 18, .85)';
+  ctx.strokeStyle = col;
+  ctx.lineWidth = 1;
+  roundRect(x, y, w, hgt, 8);
+  ctx.fill();
+  ctx.stroke();
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  lines.forEach((l, i) => { ctx.font = l.font; ctx.fillStyle = l.color; ctx.fillText(l.text, p.x, y + 13 + i * 16); });
+}
+
+function drawHeadset(h, cam, W, H) {
+  const st = statusOf(h);
+  if (st.cls === 'off' || !h.pos) return;
+  const col = STATUS_COLOR[st.cls];
+  const x = h.pos.x, z = h.pos.z, yaw = h.yaw || 0;
+  const fwd = [Math.sin(yaw), 0, Math.cos(yaw)];
+  const side = [Math.cos(yaw), 0, -Math.sin(yaw)];
+  const feet = project([x, 0, z], cam, W, H);
+  const head = project([x, 1.7, z], cam, W, H);
+  const chest = project([x, 1.25, z], cam, W, H);
+  if (!feet || !head || !chest) return;
+  const s = head.s;
+
+  ctx.save();
+  ctx.strokeStyle = col;
+  ctx.fillStyle = col;
+  ctx.lineCap = 'round';
+
+  // тяло — пунктир, когато е в сън
+  ctx.setLineDash(st.cls === 'sleep' ? [6, 6] : []);
+  ctx.lineWidth = Math.max(3, 0.4 * s);
+  ctx.beginPath();
+  ctx.moveTo(feet.x, feet.y);
+  ctx.lineTo(chest.x, chest.y);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // глава
+  ctx.beginPath();
+  ctx.arc(head.x, head.y, Math.max(4, 0.13 * s), 0, Math.PI * 2);
+  ctx.fill();
+
+  // каската (тъмна лента през очите)
+  const l = project([x - side[0] * 0.14, 1.7, z - side[2] * 0.14], cam, W, H);
+  const r = project([x + side[0] * 0.14, 1.7, z + side[2] * 0.14], cam, W, H);
+  if (l && r) {
+    ctx.strokeStyle = '#0d0f14';
+    ctx.lineWidth = Math.max(2, 0.05 * s);
+    ctx.beginPath();
+    ctx.moveTo(l.x, l.y);
+    ctx.lineTo(r.x, r.y);
+    ctx.stroke();
+  }
+
+  // посока на погледа
+  const g = project([x + fwd[0] * 0.8, 1.6, z + fwd[2] * 0.8], cam, W, H);
+  if (g) {
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(head.x, head.y);
+    ctx.lineTo(g.x, g.y);
+    ctx.stroke();
+  }
+
+  const top = project([x, 2.05, z], cam, W, H);
+  if (top) drawLabel(top, h, col, st);
+  ctx.restore();
+}
+
+function frame() {
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.clientWidth, H = canvas.clientHeight;
+  if (canvas.width !== Math.round(W * dpr) || canvas.height !== Math.round(H * dpr)) {
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+  }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const bg = ctx.createRadialGradient(W / 2, H / 2, 40, W / 2, H / 2, Math.max(W, H) * 0.75);
+  bg.addColorStop(0, '#1b2130');
+  bg.addColorStop(1, '#06070a');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  if (state) {
+    const cam = currentCam();
+    drawRoom(cam, W, H);
+    const own = view.mode === 'headset' ? view.id : null;
+    state.headsets
+      .map(h => ({ h, z: h.pos ? (project([h.pos.x, 1, h.pos.z], cam, W, H)?.z ?? -1) : -1 }))
+      .filter(o => o.h.id !== own && o.z > 0)
+      .sort((a, b) => b.z - a.z)            // по-далечните първо
+      .forEach(o => drawHeadset(o.h, cam, W, H));
+  }
+  requestAnimationFrame(frame);
+}
+
+// ---------- HUD ----------
+
+// 07.11.2026: има ли каската LBE карта — от това, което праща сега (LBE/Large space, границата),
+// а с новия APK и от lbeMap (дата и размер на картата)
+function lbeTag(h) {
+  const m = h.lbeMap;
+  const has = m ? !!m.has : !!(h.lbe?.largeSpace || h.lbe?.on);
+  if (!has) return '<span class="tag off" title="няма LBE карта">LBE: няма</span>';
+  const w = m?.width || h.lbe?.length || 0, d = m?.depth || h.lbe?.width || 0;
+  const size = w && d ? ` ${Number(w).toFixed(1)}×${Number(d).toFixed(1)} м` : '';
+  const when = m?.fileTime ? ` · ${new Date(m.fileTime).toLocaleString('bg-BG', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}` : '';
+  return `<span class="tag on" title="има LBE карта">LBE ✓${size}${when}</span>`;
+}
+
+function headRow(h) {
+  const st = statusOf(h);
+  const b = h.battery ?? 0;
+  const watching = view.mode === 'headset' && view.id === h.id;
+  const lbe = h.lbe?.largeSpace || h.lbe?.on;
+  return `
+  <tr class="${h.online ? '' : 'off'} ${watching ? 'watch' : ''}">
+    <td><input type="checkbox" data-sel="${esc(h.id)}" ${selected.has(h.id) ? 'checked' : ''} ${h.online ? '' : 'disabled'} title="Избери за игра"></td>
+    <td><span class="dot" style="background:${STATUS_COLOR[st.cls]}"></span></td>
+    <td class="dev-name" data-watch="${esc(h.id)}" data-rename="${esc(h.id)}" title="Клик — виж през тази каска · двоен клик — преименувай">
+      <div class="hname">${esc(hsLabel(h))}</div>
+      <div class="hsub">${h.user ? esc(h.user) : '<span class="muted">няма потребител</span>'}</div>
+    </td>
+    <td><span class="pill ${st.cls}">${esc(st.label)}</span></td>
+    <td>
+      <div class="hbatt">
+        <div class="bar"><i class="${b < 20 && !h.charging ? 'low' : ''}" style="width:${b}%"></i></div>
+        <span>${h.battery == null ? '—' : Math.round(b) + '%'}${h.charging ? ' ⚡' : ''}</span>
+      </div>
+    </td>
+    <td class="fps">${h.fps ?? '—'}</td>
+    <td>
+      <div class="vol">
+        <button class="btn" data-vol="${esc(h.id)}" data-d="-10" ${h.online ? '' : 'disabled'} title="По-тихо">−</button>
+        <span>🔊 ${h.volume ?? '—'}</span>
+        <button class="btn" data-vol="${esc(h.id)}" data-d="10" ${h.online ? '' : 'disabled'} title="По-силно">+</button>
+      </div>
+    </td>
+    <td class="cal-col">
+      ${h.hasCalibration ? '<span class="tag on">калибрирана</span>' : '<span class="tag off">без</span>'}
+      ${h.lbeMap ? '' : lbeTag(h)}
+    </td>
+    <td class="lbe-col">${lbeMapBadge(h, state.lbeRefUuid)}</td>
+    <td>
+      <div class="hact">
+        <button class="btn icon" data-lbeshare="${esc(h.id)}" ${h.online && h.lbeMap?.has && !lbeShareActive() ? '' : 'disabled'} title="Сподели LBE картата на тази каска с другите">⇪ LBE</button>
+        <button class="btn icon" data-act="identify" data-id="${esc(h.id)}" ${h.online ? '' : 'disabled'} title="Вибрирай">📳</button>
+        <button class="btn icon" data-act="reboot" data-id="${esc(h.id)}" ${h.online && st.cls === 'idle' ? '' : 'disabled'} title="Рестарт">⟳</button>
+      </div>
+    </td>
+  </tr>`;
+}
+
+function renderHud() {
+  const hs = state.headsets;
+  const cal = state.calibration;
+  // всяка каска се калибрира отделно; размерът на залата е от последната калибровка
+  const calibrated = hs.filter(h => h.hasCalibration).length;
+  $('calibBadge').textContent = calibrated
+    ? `Калибрирани ${calibrated} от ${hs.length} каски${cal ? ` · залата ${cal.width.toFixed(2)} × ${cal.depth.toFixed(2)} м` : ''}`
+    : 'Няма калибрирана каска';
+  $('calibBadge').className = `badge ${calibrated && calibrated === hs.length ? 'ok' : 'bad'}`;
+
+  for (const id of [...selected]) if (!hs.find(h => h.id === id && h.online)) selected.delete(id);
+  $('hsCount').textContent = `${hs.filter(h => h.online).length} от ${hs.length} онлайн`;
+  $('noHeadsets').hidden = hs.length > 0;
+  $('headsets').innerHTML = hs.map(headRow).join('');
+  renderLbeShareInfo();
+  renderOnline();
+
+  // падащото меню не се презарежда, докато е отворено
+  if (document.activeElement !== $('camHead')) {
+    $('camHead').innerHTML = '<option value="">От каска…</option>' + hs.map(h =>
+      `<option value="${esc(h.id)}"${view.mode === 'headset' && view.id === h.id ? ' selected' : ''}>${esc(h.name)}</option>`).join('');
+  }
+
+  const key = view.mode === 'corner' ? `corner:${view.idx}` : view.mode === 'headset' ? '' : view.mode;
+  document.querySelectorAll('.cam').forEach(b => b.classList.toggle('on', b.dataset.cam === key));
+  $('camLabel').textContent = camText();
+  renderLive();
+
+  renderGames();
+  renderSession();
+  renderCalibDialog();
+  renderCalibUndo();
+  renderLbeDialog();
+  renderMapShare();
+  renderSetup();
+  renderResults();
+}
+
+// ---------- Резултати (жива таблица на мача) ----------
+
+const PHASE_BG = { waiting: 'Чакане на играчи', countdown: 'Отброяване', playing: 'Мач', over: 'Край на рунда' };
+
+function fmtTime(sec) {
+  const s = Math.max(0, Math.round(sec));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
+
+// Отбори (07.11.2026): 1 = ЧЕРВЕН, 2 = СИН. Стар APK праща `orange` (без `red`) — там 1 беше син,
+// затова такава каска е „не се знае" (0). Работи и със стария server.js (без h.team / matchCfg).
+const TEAM_BG = { 1: 'червен', 2: 'син' };
+const isLegacyMatch = m => !!m && typeof m === 'object' && 'orange' in m && !('red' in m);
+function teamOf(h) {
+  if (typeof h.team === 'number') return h.team === 1 || h.team === 2 ? h.team : 0;
+  const m = h.match;
+  if (!m || typeof m !== 'object' || isLegacyMatch(m)) return 0;
+  return m.team === 1 || m.team === 2 ? m.team : 0;
+}
+/** Къде е каската за екрана: какво казва играта, или (докато играта не потвърди) къде я е сложил операторът. */
+function teamView(h) {
+  const now = teamOf(h);
+  const want = Number((state.teamWant || {})[h.id]) || 0;
+  return { team: want && want !== now ? want : now, pending: !!want && want !== now };
+}
+const nOr0 = v => (Number.isFinite(Number(v)) ? Number(v) : 0);
+let matchCfgShown = false;
+// Arena6x6: кръговете преди рунда. Без m.circle (стар APK, друга карта, старо лоби) блокът е скрит.
+function renderCircles(m) {
+  const c = m?.circle;
+  const show = !!c && (m.phase === 'waiting' || m.phase === 'countdown');
+  $('circleBox').hidden = !show;
+  if (!show) return;
+  $('circleRed').textContent = `${nOr0(c.inRed)}/${nOr0(c.neededRed)}`;
+  $('circleBlue').textContent = `${nOr0(c.inBlue)}/${nOr0(c.neededBlue)}`;
+  const sec = Math.ceil(nOr0(c.countdown));
+  $('circleTimer').textContent = sec > 0 ? `Старт след ${sec} с` : 'Чакаме всички в кръга';
+  const list = Array.isArray(c.missing) ? c.missing : [];
+  const names = team => list.filter(p => p.team === team).map(p => p.name).join(', ');
+  const shortR = Math.max(0, nOr0(c.neededRed) - nOr0(c.inRed)), shortB = Math.max(0, nOr0(c.neededBlue) - nOr0(c.inBlue));
+  let text = 'Всички са в кръговете.';
+  if (list.length) text = 'Липсват: ' + [names(1) && `червени — ${names(1)}`, names(2) && `сини — ${names(2)}`].filter(Boolean).join('; ');
+  else if (shortR || shortB) text = `Липсват: червени ${shortR}, сини ${shortB}.` + (c.missingKnown ? '' : ' Играта още не праща имената.');
+  $('circleMissing').textContent = text;
+}
+
+function matchRunningUi() {
+  if (typeof state.matchRunning === 'boolean') return state.matchRunning;
+  return ['countdown', 'playing'].includes(state.match?.phase);
+}
+
+function renderResults() {
+  const m = state.match;
+  // полетата за режима — веднъж от сървъра (иначе остават стойностите по подразбиране)
+  if (!matchCfgShown && state.matchCfg) {
+    const c = state.matchCfg;
+    $('matchTeams').checked = c.teams !== false;
+    if (c.targetKills) $('matchTarget').value = c.targetKills;
+    if (c.roundSeconds) $('matchMinutes').value = Math.round(c.roundSeconds / 60);
+    if (c.roundsToWin) $('matchRoundsToWin').value = c.roundsToWin;
+    $('matchFriendlyFire').checked = !!c.friendlyFire;
+    $('matchHeadshot').checked = c.headshotOneShot !== false;
+    matchCfgShown = true;
+  }
+  $('matchPhase').textContent = m ? (PHASE_BG[m.phase] || m.phase) : 'Няма мач';
+  $('matchTimer').textContent = m && m.remaining ? fmtTime(m.remaining) : (m && m.elapsed ? fmtTime(m.elapsed) : '');   // без лимит → изминалото
+  const legacy = !!m && (m.legacy || (!('red' in m) && 'orange' in m));
+  $('redScore').textContent = m && !legacy ? nOr0(m.red) : (legacy ? '?' : 0);
+  $('blueScore').textContent = m && !legacy ? nOr0(m.blue) : (legacy ? '?' : 0);
+  const rtw = nOr0(m?.roundsToWin) || nOr0(state.matchCfg?.roundsToWin) || Number($('matchRoundsToWin').value) || 3;
+  $('matchRounds').textContent = m && !legacy ? `(${nOr0(m.redRounds)}–${nOr0(m.blueRounds)} до ${rtw})` : `(до ${rtw})`;
+
+  // колоните „Червени / Сини" — свързаните каски
+  const online = (state.headsets || []).filter(h => h.online);
+  const chip = h => {
+    const v = teamView(h);
+    const hint = v.pending ? ' <span class="muted">(чака играта…)</span>' : '';
+    const old = isLegacyMatch(h.match) ? ' <span class="muted">(стар APK)</span>' : '';
+    return `<button type="button" class="team-chip${v.pending ? ' pending' : ''}" data-team-id="${esc(h.id)}" data-team-now="${v.team}"
+      title="Клик — премести в ${v.team === 1 ? 'СИНИ' : 'ЧЕРВЕНИ'}">${esc(h.name)}${hint}${old}</button>`;
+  };
+  const red = online.filter(h => teamView(h).team === 1), blue = online.filter(h => teamView(h).team === 2);
+  const none = online.filter(h => teamView(h).team === 0);
+  $('teamRed').innerHTML = red.map(chip).join('') || '<span class="muted small">няма</span>';
+  $('teamBlue').innerHTML = blue.map(chip).join('') || '<span class="muted small">няма</span>';
+  $('redCount').textContent = `(${red.length})`;
+  $('blueCount').textContent = `(${blue.length})`;
+  $('teamNone').innerHTML = none.length ? `Без отбор (клик — в по-малкия отбор): ${none.map(chip).join('')}` : '';
+
+  renderCircles(m);
+
+  const warns = [];
+  if (Math.abs(red.length - blue.length) > 1) warns.push(`Отборите не са равни: червени ${red.length}, сини ${blue.length}. Премести някого с клик (сами не се местят).`);
+  if (legacy) warns.push('Стар формат (orange): каските са със стар APK или лобито не е рестартирано — точките не се показват. Нужен е новият билд / рестарт на лобито.');
+  else if (m?.legacyCount) warns.push(`${m.legacyCount} каски са със стар APK — при тях отборът е „не се знае".`);
+  if (nOr0(state.matchPending) > 0) warns.push(`Командите чакат играта: още ${state.matchPending}.`);
+  $('matchWarn').hidden = !warns.length;
+  $('matchWarn').textContent = warns.join(' · ');
+
+  const board = (m && m.board) || [];
+  $('noMatch').hidden = board.length > 0;
+  $('scoreboard').innerHTML = board.map((p, i) => {
+    const t = p.legacy || isLegacyMatch(p) ? 0 : (p.team === 1 || p.team === 2 ? p.team : 0);
+    return `<tr>
+    <td class="mono">${i + 1}</td>
+    <td>${esc(p.name)}</td>
+    <td><span class="tag ${t === 1 ? 'red' : t === 2 ? 'blue' : 'off'}">${TEAM_BG[t] || '—'}</span></td>
+    <td class="mono">${nOr0(p.kills)}</td>
+    <td class="mono">${nOr0(p.deaths)}</td>
+    <td class="mono"><b>${nOr0(p.points)}</b></td>
+  </tr>`;
+  }).join('');
+
+  // LBE бутоните, които пипат нулата — спрени по време на мач (Тодор: могат да презапишат нулата)
+  const lock = matchRunningUi();
+  for (const id of LBE_RISKY) {
+    const b = $(id);
+    if (!b) continue;
+    b.disabled = lock;
+    b.classList.toggle('lbe-locked', lock);
+    if (lock) b.title = 'Тече мач — спри мача, после пипай LBE (може да презапише нулата на каските)';
+  }
+}
+
+// ---------- Карти / LBE (екран като Hero Zone Map Sharing) ----------
+
+function renderMapShare() {
+  const lbeOn = !!state.lbe?.enabled;
+  $('mapLbeToggle').setAttribute('aria-checked', lbeOn ? 'true' : 'false');
+  const hs = state.headsets;
+  $('msCount').textContent = `${hs.filter(h => h.online).length} от ${hs.length} онлайн`;
+  $('msEmpty').hidden = hs.length > 0;
+  $('mapHeadsets').innerHTML = hs.map((h, i) => {
+    const col = COLORS[i % COLORS.length];
+    const lbe = h.lbe?.largeSpace || h.lbe?.on;
+    const cal = state.calibrations?.[h.id];
+    const size = cal && cal.width != null ? `${cal.width.toFixed(1)}×${cal.depth.toFixed(1)} м` : '—';
+    return `<tr>
+      <td><span class="cdot" style="background:${col}"></span></td>
+      <td><span class="tag ${h.online ? 'on' : 'off'}">${h.online ? 'Свързана' : 'Изключена'}</span></td>
+      <td class="mono">${esc(h.id)}</td>
+      <td>${esc(h.name)}</td>
+      <td>${lbeTag(h)}</td>
+      <td class="mono">${size}</td>
+      <td><button class="btn icon" data-act="identify" data-id="${esc(h.id)}" ${h.online ? '' : 'disabled'} title="Вибрирай">📳</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ---------- LBE карта в каските и споделяне ----------
+
+const LBE_PHASE = { exporting: 'изнася картата…', uploading: 'качва картата към лобито…', importing: 'вкарва картата в каските…', done: 'готово', failed: 'спря' };
+const LBE_RES = { waiting: 'чака', sent: 'вкарва…', ok: '✓', error: '✗' };
+
+function lbeShareActive() {
+  const s = state?.lbeShare;
+  return !!s && !s.doneAt;
+}
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  if (!iso || isNaN(d)) return '';
+  const p = n => String(n).padStart(2, '0');
+  return `${p(d.getDate())}.${p(d.getMonth() + 1)} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+// значка: „LBE ✓" (зелено) / „няма" (сиво) / „друга карта" (оранжево — uuid различен от ref) + дата и размер
+function lbeMapBadge(h, ref) {
+  const m = h.lbeMap;
+  if (!m) return '<span class="tag off" title="Каската още не е казала (стар APK?)">—</span>';
+  if (!m.has) return '<span class="tag off">няма</span>';
+  const other = ref && m.uuid && m.uuid !== ref;
+  const tag = other
+    ? `<span class="tag lbe-other" title="${esc(`uuid ${m.uuid} ≠ ${ref}`)}">друга карта</span>`
+    : `<span class="tag lbe-ok" title="${esc(m.uuid ? `uuid ${m.uuid}` : '')}">LBE ✓</span>`;
+  const info = [fmtDate(m.fileTime), m.width > 0 && m.depth > 0 ? `${m.width.toFixed(1)} × ${m.depth.toFixed(1)} м` : ''].filter(Boolean).join(' · ');
+  return `${tag}${info ? `<div class="hsub">${esc(info)}</div>` : ''}`;
+}
+
+// лента над „Каски": докъде е споделянето и резултатът по каска (последното — до 2 мин след края)
+function renderLbeShareInfo() {
+  const el = $('lbeShareInfo');
+  const s = state.lbeShare;
+  if (!s || (s.doneAt && Date.now() - new Date(s.doneAt) > 120_000)) { el.hidden = true; return; }
+  el.hidden = false;
+  const res = Object.entries(s.results || {});
+  const ok = res.filter(([, r]) => r.state === 'ok').length;
+  const phase = s.phase === 'done' ? `готово ${ok} от ${res.length}` : s.phase === 'failed' ? `спря: ${s.error}` : LBE_PHASE[s.phase] || s.phase;
+  el.innerHTML = `<b>LBE от ${esc(s.fromName)}</b><span>${esc(phase)}${s.bytes ? ` · ${(s.bytes / 1048576).toFixed(1)} MB` : ''}</span>` +
+    res.map(([, r]) => `<span class="r-${esc(r.state)}" title="${esc(r.error || '')}">${esc(r.name)} ${s.doneAt && (r.state === 'waiting' || r.state === 'sent') ? 'не е пратено' : LBE_RES[r.state] || ''}${r.error ? ` (${esc(r.error)})` : ''}</span>`).join('') +
+    (s.doneAt ? '' : '<button class="btn ghost small" id="lbeShareStop">Спри</button>');
+}
+
+let lbeShareFromId = null;
+
+// модалът се рисува веднъж при отваряне — отметките не се губят при ново състояние
+function openLbeShare(fromId) {
+  const src = state.headsets.find(h => h.id === fromId);
+  if (!src?.lbeMap?.has) return toast('Тази каска няма LBE карта', 'error');
+  lbeShareFromId = fromId;
+  $('lbeShareFrom').textContent = hsLabel(src);
+  const others = state.headsets.filter(h => h.id !== fromId);
+  $('lbeShareTargets').innerHTML = others.length ? others.map(h => {
+    const same = !!(src.lbeMap.uuid && h.lbeMap?.uuid === src.lbeMap.uuid);
+    const on = h.online && !same;
+    return `<label class="btn"><input type="checkbox" data-lbeto="${esc(h.id)}" ${on ? 'checked' : ''} ${h.online ? '' : 'disabled'}>
+      <span style="flex:1">${esc(hsLabel(h))}</span><span>${h.online ? (same ? '<span class="tag lbe-ok">същата карта</span>' : lbeMapBadge(h, src.lbeMap.uuid)) : '<span class="tag off">изключена</span>'}</span></label>`;
+  }).join('') : '<div class="muted">Няма други каски.</div>';
+  $('lbeShareDialog').showModal();
+}
+
+// „Покажи каските“: само онлайн, по номер. Бутонът на реда е изборът на каска, от която се споделя.
+function hsLabel(h) { return h.number ? `№${h.number} · ${h.name}` : h.name; }
+
+function onlineShareBlock(h) {
+  if (lbeShareActive()) return 'тече друго споделяне';
+  if (!h.lbeMap?.has) return 'няма достъпна LBE карта';
+  return '';
+}
+
+function renderLbePick() {
+  if (!$('lbePickDialog').open) return;
+  const hs = state.headsets.filter(h => h.online).sort((a, b) => (a.number || 0) - (b.number || 0));
+  $('lbePickList').innerHTML = hs.length ? hs.map(h => {
+    const block = onlineShareBlock(h);
+    return `<div class="online-row">
+      <span class="online-num">${h.number ? '№' + h.number : '—'}</span>
+      <span class="online-name">${esc(h.name)}</span>
+      <span class="online-act"><button type="button" class="btn primary" data-lbepick="${esc(h.id)}" ${block ? 'disabled' : ''}>Избери</button>${block ? `<small>${esc(block)}</small>` : ''}</span>
+    </div>`;
+  }).join('') : '<div class="muted">Няма каски онлайн.</div>';
+}
+
+function renderOnline() {
+  renderLbePick();
+  if (!$('onlineDialog').open) return;
+  const hs = state.headsets.filter(h => h.online).sort((a, b) => (a.number || 0) - (b.number || 0));
+  $('onlineCount').textContent = `${hs.length} от ${state.headsets.length} каски са свързани към сървъра.`;
+  $('onlineList').innerHTML = hs.length ? hs.map(h => {
+    const st = statusOf(h);
+    const block = onlineShareBlock(h);
+    const busy = !!(state.session || state.matchRunning);
+    return `<div class="online-row">
+      <span class="online-num">${h.number ? '№' + h.number : '—'}</span>
+      <span class="online-name">${esc(h.name)}<small>${esc(h.ip || 'няма адрес')}</small></span>
+      <span class="pill ${st.cls}">${esc(st.label)}</span>
+      <span class="online-batt">${h.battery == null ? '—' : Math.round(h.battery) + '%'}${h.charging ? ' ⚡' : ''}</span>
+      <span class="online-act">
+        <button type="button" class="btn primary" data-lbetake="${esc(h.id)}" ${busy ? 'disabled' : ''} title="Сегашната калибровка се пази в копие">Вземи LBE от ${esc(h.number ? '№' + h.number : h.name)}</button>
+        <button type="button" class="btn" data-lbefrom="${esc(h.id)}" ${block ? 'disabled' : ''}>Сподели LBE зона</button>${busy ? '<small>тече игра</small>' : ''}${block ? `<small>${esc(block)}</small>` : ''}
+      </span>
+    </div>`;
+  }).join('') : '<div class="muted">Няма каски онлайн. Каската трябва да е в същата мрежа като компютъра.</div>';
+}
+
+$('showOnline').onclick = () => { $('onlineDialog').showModal(); renderOnline(); };
+$('onlineClose').onclick = () => $('onlineDialog').close();
+$('shareLbe').onclick = () => { $('lbePickDialog').showModal(); renderLbePick(); };
+$('lbePickClose').onclick = () => $('lbePickDialog').close();
+$('lbePickList').onclick = e => {
+  const b = e.target.closest('[data-lbepick]');
+  if (!b) return;
+  $('lbePickDialog').close();
+  openLbeShare(b.dataset.lbepick);
+};
+$('onlineList').onclick = e => {
+  const b = e.target.closest('[data-lbefrom]');
+  if (b) return openLbeShare(b.dataset.lbefrom);
+  const take = e.target.closest('[data-lbetake]');
+  if (!take) return;
+  const h = state.headsets.find(x => x.id === take.dataset.lbetake);
+  if (h && confirm(`Да подредя Арената по LBE зоната от ${hsLabel(h)}? Сегашната калибровка се пази в копие.`)) {
+    call('/api/calibrate/lbe', { headsetId: h.id });
+  }
+};
+
+$('lbeShareCancel').onclick = () => $('lbeShareDialog').close();
+$('lbeShareGo').onclick = async () => {
+  const to = [...document.querySelectorAll('[data-lbeto]:checked')].map(i => i.dataset.lbeto);
+  if (!to.length) return toast('Избери поне една каска', 'warn');
+  await call('/api/lbe/share', { from: lbeShareFromId, to });
+  $('lbeShareDialog').close();
+};
+
+// ---------- Настройки (екран като Hero Zone Setup) ----------
+
+function renderSetup() {
+  const cal = state.calibration;
+  const online = state.headsets.filter(h => h.online).length;
+  const lbeOn = !!state.lbe?.enabled;
+  const gameUp = !!state.gameServer;
+  const cards = [
+    ['Размер на залата', cal ? `${cal.width.toFixed(1)} × ${cal.depth.toFixed(1)} м` : `${HALL.w} × ${HALL.d} м`, ''],
+    ['Игра на компютъра', gameUp ? 'работи' : 'спряна', gameUp ? 'ok' : 'bad'],
+    ['Unreal (камери)', live.ok ? 'на живо' : 'няма връзка', live.ok ? 'ok' : 'bad'],
+    ['Свързани каски', `${online} / ${state.headsets.length}`, ''],
+    ['LBE режим', lbeOn ? 'включен' : 'изключен', lbeOn ? 'ok' : ''],
+  ];
+  $('setupCards').innerHTML = cards.map(([k, v, c]) =>
+    `<div class="setup-card"><div class="k">${esc(k)}</div><div class="v ${c}">${esc(v)}</div></div>`).join('');
+}
+
+function renderGames() {
+  const free = state.headsets.filter(h => h.online && h.phase === 'idle');
+  const chosen = selected.size ? free.filter(h => selected.has(h.id)) : free;
+  $('selectHint').textContent = selected.size ? `избрани ${selected.size}` : 'отбележи каски в списъка за определени';
+  $('games').innerHTML = state.games.map(g => {
+    let why = '';
+    const uncalibrated = chosen.filter(h => !h.hasCalibration);
+    if (!state.gameServer) why = 'Пусни „VR Varna" от работния плот';
+    else if (uncalibrated.length) why = `Калибрирай: ${uncalibrated.map(h => h.name).join(', ')}`;
+    else if (state.session) why = 'Вече тече игра';
+    else if (!chosen.length) why = 'Няма свободни каски';
+    else if (chosen.length > g.maxPlayers) why = `До ${g.maxPlayers} играчи`;
+    const low = chosen.filter(h => h.lowBattery).length;
+    return `
+    <div class="game" style="border-left-color:${esc(g.color || '#4f8cff')}">
+      <div class="game-title">${esc(g.name)}</div>
+      <div class="muted small">${esc(g.description || '')}</div>
+      <div class="game-row">
+        <span class="muted small">${g.minPlayers}–${g.maxPlayers} играчи · ${g.minutes} мин</span>
+        <button class="btn primary" data-launch="${esc(g.id)}" ${why ? 'disabled' : ''} title="${esc(why)}">${why ? esc(why) : `Пусни на ${chosen.length}`}</button>
+      </div>
+      ${low && !why ? `<div class="warn">${low} от каските са със слаба батерия</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderSession() {
+  const s = state.session;
+  $('stopBtn').hidden = !s;
+  $('sessionInfo').hidden = !s;
+  if (!s) return;
+  $('sessionInfo').innerHTML = `${esc(s.gameName)} · ${s.headsets.length} каски · <b id="sessionTime">00:00</b>`;
+}
+
+setInterval(() => {
+  const s = state?.session;
+  const el = $('sessionTime');
+  if (!s || !el) return;
+  const sec = Math.max(0, Math.floor((Date.now() - new Date(s.startedAt)) / 1000));
+  el.textContent = `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
+  el.style.color = sec > s.minutes * 60 ? 'var(--bad)' : '';
+}, 500);
+
+// ---------- калибриране ----------
+
+let calibOpen = false;
+
+function renderCalibUndo() {
+  const b = $('calibUndo');
+  if (!b) return;
+  const lock = matchRunningUi() || !!state.session;
+  b.disabled = lock;
+  b.classList.toggle('lbe-locked', lock);
+}
+
+function renderCalibDialog() {
+  if (!calibOpen) return;
+  const running = state.headsets.find(h => h.phase === 'calibrating');
+  const pending = state.pendingCalibration;
+  $('calibPick').hidden = !!(running || pending);
+  $('calibRun').hidden = !running;
+  $('calibResult').hidden = !pending || !!running;
+  $('calibConfirm').hidden = !pending || !!running;
+  $('calibRetry').hidden = !pending || !!running;
+
+  if (!running && !pending) {
+    const free = state.headsets.filter(h => h.online && h.phase === 'idle');
+    $('calibHeadsets').innerHTML = free.length
+      ? free.map(h => `<button type="button" class="btn" data-calib="${esc(h.id)}"><span>${esc(h.name)}</span><span class="muted">${h.battery ?? '—'}%</span></button>`).join('')
+      : '<div class="muted">Няма свободна свързана каска.</div>';
+  }
+  if (running) {
+    [...$('cornerSteps').children].forEach((li, i) => {
+      li.className = i < running.calibStep ? 'done' : i === running.calibStep ? 'now' : '';
+      li.textContent = i < running.calibStep ? `✓ Ъгъл ${i + 1}` : `Ъгъл ${i + 1}`;
+    });
+  }
+  if (pending) {
+    $('resultSize').textContent = `${pending.width.toFixed(2)} × ${pending.depth.toFixed(2)} м`;
+    const warns = [];
+    if (pending.skew > 0.15) warns.push(`Ъглите не образуват правоъгълник (разлика в диагоналите ${Math.round(pending.skew * 100)} см) — по-добре мини отначало.`);
+    if (pending.width < 2 || pending.depth < 2) warns.push('Залата излиза под 2 м — вероятно е натиснат грешен ъгъл.');
+    // залата в играта се нагласява по този размер; дългата страна е от ъгъл 1 към ъгъл 2
+    if (pending.width + 0.3 < pending.depth) warns.push('Ъгъл 1 → ъгъл 2 трябва да е по дългата стена — мини отначало.');
+    else if (pending.width > 10.5 || pending.depth > 10.5) warns.push('Залата излиза над 10 м — вероятно е натиснат грешен ъгъл.');
+    $('resultWarn').hidden = !warns.length;
+    $('resultWarn').textContent = warns.join(' ');
+  }
+}
+
+$('calibStart').onclick = () => { calibOpen = true; $('calibDialog').showModal(); renderCalibDialog(); };
+$('calibCancel').onclick = async () => {
+  calibOpen = false; $('calibDialog').close();
+  if (state.pendingCalibration || state.headsets.some(h => h.phase === 'calibrating')) await call('/api/calibrate/cancel');
+};
+$('calibRetry').onclick = () => call('/api/calibrate/cancel');
+// gta-vr-1: „Върни предишната калибровка" — показва какво ще се върне, иска потвърждение, после връща и праща на каските
+$('calibUndo').onclick = async () => {
+  if (matchRunningUi() || state.session) { toast('Тече мач — спри мача, после връщай калибровката', 'error'); return; }
+  const res = await fetch('/api/calibration/previous').then(r => r.json()).catch(() => ({}));
+  const p = res.previous;
+  if (!p) { toast('Няма по-стара калибровка в историята', 'warn'); return; }
+  const when = p.savedAt ? new Date(p.savedAt).toLocaleString('bg-BG') : p.file;
+  const size = Number.isFinite(p.width) && Number.isFinite(p.depth) ? `${p.width.toFixed(2)} × ${p.depth.toFixed(2)} м` : '—';
+  const yaw = Number.isFinite(p.yawDeg) ? `${p.yawDeg.toFixed(1)}°` : '—';
+  if (p.lbeMismatch?.length) {
+    const names = p.lbeMismatch.map(x => state.headsets.find(h => h.id === x.id)?.name || x.id).join(', ');
+    toast(`Не може: LBE картата е друга (${names}) — копието е за друга карта`, 'error');
+    return;
+  }
+  if (!confirm(`Да върна ли предишната калибровка?\n\nЗапазена: ${when}\nЗала: ${size}, ъгъл ${yaw}\nКаски: ${p.headsets.length}\n\nСегашната се пази в историята и пак може да се върне.`)) return;
+  await call('/api/calibration/restore-previous', { file: p.file });
+};
+$('calibClear').onclick = () => { if (confirm('Да изтрия ли всички записани калибровки?')) call('/api/calibrate/clear'); };
+$('calibLbe').onclick = async () => { await call('/api/calibrate/lbe', {}); calibOpen = false; $('calibDialog').close(); };
+$('calibConfirm').onclick = async () => { await call('/api/calibrate/confirm'); calibOpen = false; $('calibDialog').close(); };
+$('calibDialog').addEventListener('cancel', e => { e.preventDefault(); $('calibCancel').click(); });
+$('stopBtn').onclick = () => { if (confirm('Да спра ли играта на всички каски?')) call('/api/stop'); };
+
+// ---------- LBE (PICO Large Space) ----------
+
+let lbeOpen = false;
+const LBE_ORIGIN = { '-1': 'няма нула', 0: 'сама', 1: 'от маркер' };
+
+function lbeForm() {
+  return {
+    enabled: true,
+    length: Number($('lbeLength').value), width: Number($('lbeWidth').value),
+    originType: Number($('lbeOrigin').value), distance: Number($('lbeDistance').value), openVst: $('lbeVst').checked,
+  };
+}
+
+function renderLbeDialog() {
+  if (!lbeOpen) return;
+  const online = state.headsets.filter(h => h.online);
+  $('lbeHeadsets').innerHTML = online.length
+    ? online.map(h => {
+      const l = h.lbe;
+      const sys = l && 'largeSpace' in l ? (l.largeSpace ? 'LBE включено' : 'LBE изключено') : 'LBE: още не е питано';
+      const quick = l?.on ? ` · бърз режим ${l.length} × ${l.width} м` : '';
+      const st = !l ? 'чака отговор' : sys + quick;
+      return `<div class="btn"><span>${esc(h.name)}</span><span class="muted">${esc(st)}</span></div>`;
+    }).join('')
+    : '<div class="muted">Няма свързана каска.</div>';
+}
+
+$('lbeStart').onclick = () => {
+  const c = state.lbe || {};
+  $('lbeLength').value = c.length ?? HALL.w;
+  $('lbeWidth').value = c.width ?? HALL.d;
+  $('lbeOrigin').value = String(c.originType ?? 1);
+  $('lbeDistance').value = c.distance ?? 0.5;
+  $('lbeVst').checked = c.openVst !== false;
+  lbeOpen = true;
+  $('lbeDialog').showModal();
+  renderLbeDialog();
+};
+$('lbeClose').onclick = () => { lbeOpen = false; $('lbeDialog').close(); };
+$('lbeDialog').addEventListener('cancel', () => { lbeOpen = false; });
+// Бутоните, които могат да сменят нулата на каските (LBE бърз режим / LBE вкл. / нов маркер):
+// по време на мач са спрени, иначе питат с предупреждение (07.11.2026, доклад на Тодор).
+const LBE_RISKY = ['lbeOn', 'lbeSysOn', 'lbeRescan', 'mapLbeToggle'];
+const LBE_WARN = '⚠ ВНИМАНИЕ: това може да презапише нулата (началото) на каските — залата и калибровката се разместват, играчите ще стрелят „накриво".\n' +
+  'Не го прави, докато някой играе. ';
+function lbeGuard(text) {
+  if (matchRunningUi()) { toast('Тече мач — първо спри мача, после пипай LBE', 'error'); return false; }
+  return confirm(LBE_WARN + '\n\n' + text);
+}
+$('lbeOn').onclick = () => {
+  if (lbeGuard('Бързият режим презаписва нулата от LSpace. Ползвай го само ако нямаш карта от LSpace. Да продължа ли?')) call('/api/lbe', lbeForm());
+};
+$('lbeOff').onclick = () => call('/api/lbe', { ...lbeForm(), enabled: false });
+// LBE на ниво система (картата от LSpace) — това е главното включване/изключване
+$('lbeSysOn').onclick = () => { if (lbeGuard('Да включа ли LBE на всички каски? Калибровките ще се изтрият — калибрирай веднъж след това.')) call('/api/largespace', { on: true }); };
+$('lbeSysOff').onclick = () => { if (confirm('Да изключа ли LBE на всички каски? Калибровките ще се изтрият.')) call('/api/largespace', { on: false }); };
+$('lbeRescan').onclick = () => { if (lbeGuard('Каските ще сканират маркера пак и ще вземат нова нула. Да продължа ли?')) call('/api/lbe/origin', {}); };
+$('lbeBorder').onclick = () => call('/api/headset/border', {});
+$('lbeTracking').onclick = () => call('/api/headset/tracking', { on: true });
+$('lbeLSpace').onclick = () => call('/api/headset/lspace', {});
+$('lbeFit').onclick = () => call('/api/calibrate/lbe', {});
+$('lbeRotate').onclick = $('calibRotate').onclick = $('mapRotate').onclick = () => call('/api/calibrate/rotate', {});
+
+// екран „Карти / LBE"
+$('mapLbeToggle').onclick = () => {
+  const on = $('mapLbeToggle').getAttribute('aria-checked') !== 'true';
+  if ((on ? lbeGuard : confirm)(on
+    ? 'Да включа ли LBE на всички каски? Калибровките ще се изтрият — калибрирай веднъж след това.'
+    : 'Да изключа ли LBE на всички каски? Калибровките ще се изтрият.')) call('/api/largespace', { on });
+};
+$('mapLspace').onclick = () => call('/api/headset/lspace', {});
+$('mapFit').onclick = () => call('/api/calibrate/lbe', {});
+
+// управление на мача
+function matchBody(command) {
+  return {
+    command,
+    teams: $('matchTeams').checked,
+    targetKills: Number($('matchTarget').value),
+    roundSeconds: Number($('matchMinutes').value) * 60,
+    roundsToWin: Number($('matchRoundsToWin').value) || 3,
+    friendlyFire: $('matchFriendlyFire').checked,
+    headshotOneShot: $('matchHeadshot').checked,
+  };
+}
+$('matchStart').onclick = () => call('/api/match', matchBody('start'));
+$('matchRestart').onclick = () => call('/api/match', matchBody('restart'));
+$('matchStop').onclick = () => call('/api/match', matchBody('stop'));
+$('forceStart').onclick = () => call('/api/match', matchBody('forceStart'));
+$('matchTeams').onchange = $('matchTarget').onchange = $('matchMinutes').onchange =
+  $('matchRoundsToWin').onchange = $('matchFriendlyFire').onchange = $('matchHeadshot').onchange = () => call('/api/match', matchBody('settings'));
+
+// ---------- кликове и промени ----------
+
+function setView(key) {
+  userPickedView = true;
+  if (key.startsWith('corner:')) view = { mode: 'corner', idx: Number(key.split(':')[1]) };
+  else view = { mode: key };   // overview | top | grid
+  renderHud();
+}
+
+// ---------- кадри на живо от Unreal ----------
+
+// Кои камери от Unreal иска текущият изглед (независимо дали Unreal е пуснат).
+function desiredCams() {
+  if (view.mode === 'corner') return [`cam_${view.idx + 1}`];
+  if (view.mode === 'top') return ['cam_top'];
+  if (view.mode === 'grid') return (live.cams.length ? live.cams.map(c => c.id) : ['cam_1', 'cam_2', 'cam_3', 'cam_4', 'cam_top']);
+  // през очите на каска — Unreal слага камера в главата на нейния герой
+  if (view.mode === 'headset') return [`head:${view.id}`];
+  return [];
+}
+
+// Кои да се покажат сега (празно → рисуваме схемата).
+function liveCams() {
+  return live.ok ? desiredCams().map(c => (c.startsWith('head:') ? 'cam_head' : c)) : [];
+}
+
+// Казваме на моста в Unreal кои камери гледаме — той снима само тях, по-често и по-качествено.
+function sendWant() {
+  fetch('/api/live/want', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ cams: desiredCams() }) })
+    .catch(() => {});
+}
+setInterval(sendWant, 3000);
+
+let liveShown = '';
+function renderLive() {
+  const ids = liveCams();
+  const layer = $('live');
+  layer.hidden = !ids.length;
+  // смяна на каската в „От каска“ — веднага казваме на Unreal
+  const key = ids.join(',') + (view.mode === 'headset' ? `:${view.id}` : '');
+  if (key === liveShown) return;
+  liveShown = key;
+  sendWant();
+  layer.className = `live ${ids.length > 1 ? 'many' : 'one'}`;
+  layer.innerHTML = ids.map(id => `
+    <figure><img data-live="${esc(id)}" alt="">${ids.length > 1 ? `<figcaption>${esc(CAM_NAMES[id] || id)}</figcaption>` : ''}</figure>`).join('');
+  document.querySelectorAll('#live img[data-live]').forEach(loadNext);
+}
+
+// Всеки кадър се тегли веднага след предишния (поне 60 мс между тях) и сменя стария
+// чак когато е зареден — без премигване. Спира само, когато картинката се махне от екрана.
+function loadNext(img) {
+  if (!img.isConnected) return;
+  const started = performance.now();
+  const next = new Image();
+  next.onload = () => {
+    img.src = next.src;
+    setTimeout(() => loadNext(img), Math.max(0, 60 - (performance.now() - started)));
+  };
+  next.onerror = () => setTimeout(() => loadNext(img), 500);
+  next.src = `/live/${img.dataset.live}.jpg?t=${Date.now()}`;
+}
+
+async function pollLive() {
+  try {
+    const res = await fetch('/live/status.json', { cache: 'no-store' });
+    const s = await res.json();
+    live = { ok: Date.now() / 1000 - s.time < 5, mode: s.mode, map: s.map, cams: s.cams || [] };
+  } catch {
+    live = { ok: false, cams: [] };
+  }
+  // щом Unreal е на живо — главният прозорец показва залата от камера 1 (с хората и обстановката)
+  if (live.ok && !userPickedView && view.mode === 'overview') {
+    view = { mode: 'corner', idx: 0 };
+    if (state) renderHud();
+  }
+  const b = $('unrealBadge');
+  b.textContent = live.ok ? `Unreal: на живо · ${liveModeText(live.mode)} · ${live.map}` : 'Unreal: няма връзка';
+  b.className = `badge ${live.ok ? 'ok' : 'off'}`;
+  $('camLabel').textContent = camText();
+  renderLive();
+}
+setInterval(pollLive, 1000);
+pollLive();
+
+document.addEventListener('click', async e => {
+  const cam = e.target.closest('.cam');
+  if (cam) return setView(cam.dataset.cam);
+
+  const watch = e.target.closest('[data-watch]');
+  if (watch && e.detail === 1) {
+    userPickedView = true;
+    view = { mode: 'headset', id: watch.dataset.watch };
+    return renderHud();
+  }
+
+  const vol = e.target.closest('[data-vol]');
+  if (vol) {
+    const h = state.headsets.find(x => x.id === vol.dataset.vol);
+    const value = clamp((h?.volume ?? 50) + Number(vol.dataset.d), 0, 100);
+    return call('/api/headset/volume', { headsetId: vol.dataset.vol, value });
+  }
+
+  const share = e.target.closest('[data-lbeshare]');
+  if (share) return openLbeShare(share.dataset.lbeshare);
+  if (e.target.id === 'lbeShareStop') { if (confirm('Да спра ли споделянето на LBE картата?')) call('/api/lbe/share/cancel', {}); return; }
+
+  // клик на каска в „Червени / Сини" → в другия отбор (без отбор → в по-малкия)
+  const tchip = e.target.closest('[data-team-id]');
+  if (tchip) {
+    const now = Number(tchip.dataset.teamNow) || 0;
+    let to = now === 1 ? 2 : 1;
+    if (!now) {
+      const on = (state.headsets || []).filter(h => h.online).map(h => teamView(h).team);
+      to = on.filter(t => t === 2).length < on.filter(t => t === 1).length ? 2 : 1;
+    }
+    await call('/api/match/team', { headsetId: tchip.dataset.teamId, team: to });
+    return;
+  }
+
+  const act = e.target.closest('[data-act]');
+  if (act) {
+    if (act.dataset.act === 'reboot' && !confirm('Да рестартирам ли каската?')) return;
+    const r = await call(`/api/headset/${act.dataset.act}`, { headsetId: act.dataset.id });
+    if (act.dataset.act === 'identify' && r.ok) toast('Каската вибрира — виж коя е');
+    return;
+  }
+
+  const launch = e.target.closest('[data-launch]');
+  if (launch) {
+    const ids = [...selected];
+    await call('/api/launch', { gameId: launch.dataset.launch, headsetIds: ids });
+    selected.clear();
+    return;
+  }
+
+  const calib = e.target.closest('[data-calib]');
+  if (calib) return call('/api/calibrate', { headsetId: calib.dataset.calib });
+});
+
+document.addEventListener('dblclick', async e => {
+  const t = e.target.closest('[data-rename]');
+  if (!t) return;
+  const h = state.headsets.find(x => x.id === t.dataset.rename);
+  const name = prompt('Ново име на каската:', h?.name);
+  if (name !== null) await call('/api/headset/rename', { headsetId: t.dataset.rename, name });
+});
+
+document.addEventListener('change', e => {
+  if (e.target.dataset.sel) {
+    const id = e.target.dataset.sel;
+    e.target.checked ? selected.add(id) : selected.delete(id);
+    return renderHud();
+  }
+  if (e.target.id === 'camHead') {
+    userPickedView = true;
+    view = e.target.value ? { mode: 'headset', id: e.target.value } : { mode: 'overview' };
+    renderHud();
+  }
+});
+
+connect();
+requestAnimationFrame(frame);
+
+// ---------- раздели в левия панел ----------
+
+function showSection(sec) {
+  document.querySelectorAll('.nav').forEach(n => n.classList.toggle('on', n.dataset.section === sec));
+  document.querySelectorAll('[data-panel]').forEach(p => { p.hidden = p.dataset.panel !== sec; });
+  const nav = document.querySelector(`.nav[data-section="${sec}"]`);
+  if (nav) $('sectionTitle').textContent = nav.dataset.title || nav.textContent.trim();
+}
+document.querySelectorAll('.nav').forEach(b => { b.onclick = () => showSection(b.dataset.section); });
+// клик върху каска („виж през нея") превключва към Камери
+document.addEventListener('click', e => { if (e.target.closest('[data-watch]')) showSection('cameras'); });

@@ -1,0 +1,42 @@
+<!doctype html>
+<!-- MS Games launcher artwork, rasterised by brand.ps1 with headless Edge. ?v=icons | logo | art -->
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; background: transparent; overflow: hidden; }
+  .tile { position: absolute; top: 0; display: grid; place-items: center; box-sizing: border-box;
+          background: linear-gradient(160deg, #10241a 0%, #050f08 70%); border-radius: 21%; }
+  .tile img { display: block; }
+  #logo img { display: block; width: 1040px; height: 224px; }
+  #art { position: relative; width: 1280px; height: 816px; overflow: hidden; background: #050f08; }
+  #art .glow-g { position: absolute; left: -260px; top: -320px; width: 1100px; height: 1100px; border-radius: 50%;
+                 background: radial-gradient(closest-side, rgba(67,208,102,.34), rgba(67,208,102,0)); }
+  #art .glow-y { position: absolute; right: -380px; bottom: -520px; width: 1200px; height: 1200px; border-radius: 50%;
+                 background: radial-gradient(closest-side, rgba(252,227,67,.20), rgba(252,227,67,0)); }
+  #art .floor { position: absolute; left: 0; right: 0; bottom: 0; height: 300px;
+                background: repeating-linear-gradient(90deg, rgba(242,247,238,.05) 0 2px, transparent 2px 80px),
+                            linear-gradient(180deg, rgba(5,15,8,0), rgba(10,23,15,.9)); }
+  #art .big { position: absolute; right: 70px; top: 150px; width: 560px; filter: drop-shadow(0 30px 60px rgba(0,0,0,.55)); }
+  #art .ghost { position: absolute; right: -150px; top: -60px; width: 1100px; opacity: .06; }
+  #art .bar { position: absolute; left: 0; top: 0; height: 12px; }
+  #art .bar.g { width: 62%; background: #43d066; }
+  #art .bar.y { left: 62%; width: 38%; background: #fce343; }
+</style>
+<body>
+<script>
+  const v = new URLSearchParams(location.search).get('v') || 'icons';
+  const mark = '../../../lobby-stage/public/brand/mark.svg', logo = '../../../lobby-stage/public/brand/logo.svg';
+  if (v === 'icons') {
+    let x = 0;
+    for (const n of [256, 64, 48, 32, 24, 16]) {
+      const t = document.createElement('div'); t.className = 'tile';
+      t.style.cssText = `left:${x}px;width:${n}px;height:${n}px`;
+      const w = Math.round(n * (n <= 24 ? 0.76 : 0.68));
+      t.innerHTML = `<img src="${mark}" style="width:${w}px;height:${Math.round(w * 112 / 128)}px">`;
+      document.body.append(t); x += n + 8;
+    }
+  } else if (v === 'logo') {
+    document.body.innerHTML = `<div id="logo"><img src="${logo}"></div>`;
+  } else {
+    document.body.innerHTML = `<div id="art"><div class="glow-g"></div><div class="glow-y"></div><img class="ghost" src="${mark}"><div class="floor"></div><img class="big" src="${mark}"><div class="bar g"></div><div class="bar y"></div></div>`;
+  }
+</script>

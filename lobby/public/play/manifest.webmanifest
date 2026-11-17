@@ -1,0 +1,10 @@
+{
+  "name": "MS Games",
+  "short_name": "MS Games",
+  "start_url": "/play/?app=1",
+  "scope": "/play/",
+  "display": "fullscreen",
+  "background_color": "#131411",
+  "theme_color": "#131411",
+  "icons": [{ "src": "/play/app-icon-512.png", "sizes": "512x512", "type": "image/png" }]
+}

@@ -1,0 +1,426 @@
+{
+ "pack": "POLYGON/Police Station",
+ "models": {
+  "SM_Prop_Beaker_01": {
+   "tris": 176,
+   "size": [
+    0.198,
+    0.359,
+    0.198
+   ],
+   "min": [
+    -0.099,
+    0,
+    -0.099
+   ],
+   "max": [
+    0.099,
+    0.359,
+    0.099
+   ],
+   "skinned": false,
+   "bytes": 13172,
+   "materials": [
+    {
+     "name": "police",
+     "map": "tex/PolygonPoliceStation_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Sample_Cup_01": {
+   "tris": 124,
+   "size": [
+    0.103,
+    0.135,
+    0.09
+   ],
+   "min": [
+    -0.052,
+    0,
+    -0.045
+   ],
+   "max": [
+    0.052,
+    0.135,
+    0.045
+   ],
+   "skinned": false,
+   "bytes": 8256,
+   "materials": [
+    {
+     "name": "police",
+     "map": "tex/PolygonPoliceStation_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Microscope_01": {
+   "tris": 810,
+   "size": [
+    0.317,
+    0.592,
+    0.4
+   ],
+   "min": [
+    -0.159,
+    0,
+    -0.2
+   ],
+   "max": [
+    0.159,
+    0.592,
+    0.2
+   ],
+   "skinned": false,
+   "bytes": 53600,
+   "materials": [
+    {
+     "name": "police",
+     "map": "tex/PolygonPoliceStation_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Microwave_01": {
+   "tris": 200,
+   "size": [
+    0.569,
+    0.327,
+    0.533
+   ],
+   "min": [
+    -0.284,
+    0,
+    -0.246
+   ],
+   "max": [
+    0.284,
+    0.327,
+    0.287
+   ],
+   "skinned": false,
+   "bytes": 13284,
+   "materials": [
+    {
+     "name": "MAT_01A",
+     "map": "tex/PolygonPoliceStation_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_AirVent_01": {
+   "tris": 212,
+   "size": [
+    0.584,
+    0.098,
+    0.9
+   ],
+   "min": [
+    -0.292,
+    -0.098,
+    -0.45
+   ],
+   "max": [
+    0.292,
+    0,
+    0.45
+   ],
+   "skinned": false,
+   "bytes": 13384,
+   "materials": [
+    {
+     "name": "Police3",
+     "map": "tex/PolygonPoliceStation_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_PowerBox_01": {
+   "tris": 1484,
+   "size": [
+    2,
+    1.588,
+    1.161
+   ],
+   "min": [
+    -1,
+    0,
+    -0.623
+   ],
+   "max": [
+    1,
+    1.588,
+    0.538
+   ],
+   "skinned": false,
+   "bytes": 101184,
+   "materials": [
+    {
+     "name": "MAT_01A",
+     "map": "tex/PolygonPoliceStation_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Lab_Cabinet_01": {
+   "tris": 1641,
+   "size": [
+    0.867,
+    1.865,
+    0.641
+   ],
+   "min": [
+    -0.383,
+    0,
+    -0.291
+   ],
+   "max": [
+    0.483,
+    1.865,
+    0.35
+   ],
+   "skinned": false,
+   "bytes": 122840,
+   "materials": [
+    {
+     "name": "Glass",
+     "map": null,
+     "image": "PolygonHorrorAsylum_Texture_01_A.png"
+    },
+    {
+     "name": "Police_MAT",
+     "map": null,
+     "image": "PolygonPoliceStation_Texture_01_A (1).png"
+    }
+   ]
+  },
+  "SM_Prop_Lab_Cabinet_02": {
+   "tris": 745,
+   "size": [
+    1.564,
+    1.535,
+    0.895
+   ],
+   "min": [
+    -0.908,
+    0,
+    -0.541
+   ],
+   "max": [
+    0.656,
+    1.535,
+    0.354
+   ],
+   "skinned": false,
+   "bytes": 48832,
+   "materials": [
+    {
+     "name": "Glass",
+     "map": null,
+     "image": "PolygonHorrorAsylum_Texture_01_A.png"
+    },
+    {
+     "name": "Police_MAT",
+     "map": null,
+     "image": "PolygonPoliceStation_Texture_01_A (1).png"
+    }
+   ]
+  },
+  "SM_Prop_Glovebox_Isolator_01": {
+   "tris": 1130,
+   "size": [
+    1.17,
+    1.605,
+    0.676
+   ],
+   "min": [
+    -0.585,
+    0,
+    -0.338
+   ],
+   "max": [
+    0.585,
+    1.605,
+    0.338
+   ],
+   "skinned": false,
+   "bytes": 79404,
+   "materials": [
+    {
+     "name": "transparent2",
+     "map": null,
+     "image": "PolygonHorrorAsylum_Texture_01_A.png"
+    },
+    {
+     "name": "police",
+     "map": "tex/PolygonPoliceStation_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Evidence_Bag_01": {
+   "tris": 92,
+   "size": [
+    0.067,
+    0.108,
+    0.026
+   ],
+   "min": [
+    -0.034,
+    0,
+    -0.013
+   ],
+   "max": [
+    0.034,
+    0.108,
+    0.013
+   ],
+   "skinned": false,
+   "bytes": 8240,
+   "materials": [
+    {
+     "name": "MAT_01A",
+     "map": "tex/PolygonPoliceStation_Emissive_01_A.png"
+    },
+    {
+     "name": "PLASTIC_MAT",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Prop_Box_01": {
+   "tris": 272,
+   "size": [
+    0.543,
+    0.357,
+    0.433
+   ],
+   "min": [
+    -0.272,
+    0,
+    -0.217
+   ],
+   "max": [
+    0.272,
+    0.357,
+    0.217
+   ],
+   "skinned": false,
+   "bytes": 19836,
+   "materials": [
+    {
+     "name": "police",
+     "map": "tex/PolygonPoliceStation_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Laptop_01": {
+   "tris": 760,
+   "size": [
+    0.53,
+    0.066,
+    0.484
+   ],
+   "min": [
+    -0.265,
+    0,
+    -0.242
+   ],
+   "max": [
+    0.265,
+    0.066,
+    0.242
+   ],
+   "skinned": false,
+   "bytes": 44884,
+   "materials": [
+    {
+     "name": "MAT_01A",
+     "map": "tex/PolygonPoliceStation_Emissive_01_A.png"
+    },
+    {
+     "name": "SCREEN_MAT",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Prop_Weapon_Locker_02": {
+   "tris": 604,
+   "size": [
+    0.833,
+    2.1,
+    0.867
+   ],
+   "min": [
+    0,
+    0,
+    0
+   ],
+   "max": [
+    0.833,
+    2.1,
+    0.867
+   ],
+   "skinned": false,
+   "bytes": 36744,
+   "materials": [
+    {
+     "name": "MAT_01A",
+     "map": "tex/PolygonPoliceStation_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Cupboard_01": {
+   "tris": 588,
+   "size": [
+    3.2,
+    1.041,
+    0.581
+   ],
+   "min": [
+    -1.6,
+    1.065,
+    -0.264
+   ],
+   "max": [
+    1.6,
+    2.106,
+    0.317
+   ],
+   "skinned": false,
+   "bytes": 48372,
+   "materials": [
+    {
+     "name": "police",
+     "map": "tex/PolygonPoliceStation_Emissive_01_A.png"
+    },
+    {
+     "name": "pasted__police",
+     "map": "tex/PolygonPoliceStation_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_TestTube_Holder_01": {
+   "tris": 1496,
+   "size": [
+    0.554,
+    0.364,
+    0.326
+   ],
+   "min": [
+    -0.277,
+    0,
+    -0.163
+   ],
+   "max": [
+    0.277,
+    0.364,
+    0.163
+   ],
+   "skinned": false,
+   "bytes": 92728,
+   "materials": [
+    {
+     "name": "police",
+     "map": "tex/PolygonPoliceStation_Emissive_01_A.png"
+    }
+   ]
+  }
+ }
+}

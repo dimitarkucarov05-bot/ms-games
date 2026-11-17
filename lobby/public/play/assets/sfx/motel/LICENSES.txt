@@ -1,0 +1,7 @@
+Sounds of The Motel (MS Games). Every file here is a cut of a recording from:
+- the Sonniss.com #GameAudioGDC bundles 2015-2020 (royalty-free, commercial use, no attribution), or
+- Kenney.nl audio packs (CC0), or
+- voice/: the RAVEN announcer, generated offline with Kokoro-82M (Apache 2.0).
+music/ccby_*.ogg are excerpts of music by Kevin MacLeod (incompetech.com), CC BY 4.0: they are only listed under
+"alternatives" in map.json and may be used only with the credit shown in the product.
+Which recording each file comes from: SOURCES.tsv. Full licence index: vr-arena/_sound-src/LICENSES.md.

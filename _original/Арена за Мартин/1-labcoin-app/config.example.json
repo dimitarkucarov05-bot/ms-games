@@ -1,0 +1,13 @@
+{
+  "port": 4780,
+  "lobbyUrl": "http://127.0.0.1:47801",
+  "icalUrl": "",
+  "d1AccountId": "",
+  "d1DatabaseId": "",
+  "d1Token": "",
+  "maxHeadsets": 5,
+  "quizSeconds": 15,
+  "quizQuestions": 12,
+  "publicBaseUrl": "",
+  "publishKey": ""
+}

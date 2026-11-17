@@ -1,0 +1,39 @@
+{
+ "pack": "POLYGON/City Characters Pack",
+ "models": {
+  "Character": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\FBX\\Character.fbx",
+  "SK_Character_Biker": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\FBX\\Characters\\SK_Character_Biker.fbx",
+  "SK_Character_FastFoodGuy": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\FBX\\Characters\\SK_Character_FastFoodGuy.fbx",
+  "SK_Character_FireFighter": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\FBX\\Characters\\SK_Character_FireFighter.fbx",
+  "SK_Character_GamerGirl": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\FBX\\Characters\\SK_Character_GamerGirl.fbx",
+  "SK_Character_Gangster": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\FBX\\Characters\\SK_Character_Gangster.fbx",
+  "SK_Character_Grandma": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\FBX\\Characters\\SK_Character_Grandma.fbx",
+  "SK_Character_Grandpa": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\FBX\\Characters\\SK_Character_Grandpa.fbx",
+  "SK_Character_HipsterGirl": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\FBX\\Characters\\SK_Character_HipsterGirl.fbx",
+  "SK_Character_HipsterGuy": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\FBX\\Characters\\SK_Character_HipsterGuy.fbx",
+  "SK_Character_Hobo": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\FBX\\Characters\\SK_Character_Hobo.fbx",
+  "SK_Character_Hotdog": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\FBX\\Characters\\SK_Character_Hotdog.fbx",
+  "SK_Character_Jock": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\FBX\\Characters\\SK_Character_Jock.fbx",
+  "SK_Character_Paramedic": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\FBX\\Characters\\SK_Character_Paramedic.fbx",
+  "SK_Character_PunkGirl": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\FBX\\Characters\\SK_Character_PunkGirl.fbx",
+  "SK_Character_PunkGuy": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\FBX\\Characters\\SK_Character_PunkGuy.fbx",
+  "SK_Character_Roadworker": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\FBX\\Characters\\SK_Character_Roadworker.fbx",
+  "SK_Character_ShopKeeper": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\FBX\\Characters\\SK_Character_ShopKeeper.fbx",
+  "SK_Character_SummerGirl": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\FBX\\Characters\\SK_Character_SummerGirl.fbx",
+  "SK_Character_Tourist": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\FBX\\Characters\\SK_Character_Tourist.fbx"
+ },
+ "textures": {
+  "polygon_city_characters_texture_01_a.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\Textures\\Polygon_City_Characters_Texture_01_A.png",
+  "polygon_city_characters_texture_01_b.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\Textures\\Polygon_City_Characters_Texture_01_B.png",
+  "polygon_city_characters_texture_01_c.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\Textures\\Polygon_City_Characters_Texture_01_C.png",
+  "polygon_city_characters_texture_02_a.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\Textures\\Polygon_City_Characters_Texture_02_A.png",
+  "polygon_city_characters_texture_02_b.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\Textures\\Polygon_City_Characters_Texture_02_B.png",
+  "polygon_city_characters_texture_02_c.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\Textures\\Polygon_City_Characters_Texture_02_C.png",
+  "polygon_city_characters_texture_03_a.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\Textures\\Polygon_City_Characters_Texture_03_A.png",
+  "polygon_city_characters_texture_03_b.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\Textures\\Polygon_City_Characters_Texture_03_B.png",
+  "polygon_city_characters_texture_03_c.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\Textures\\Polygon_City_Characters_Texture_03_C.png",
+  "polygon_city_characters_texture_04_a.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\Textures\\Polygon_City_Characters_Texture_04_A.png",
+  "polygon_city_characters_texture_04_b.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\Textures\\Polygon_City_Characters_Texture_04_B.png",
+  "polygon_city_characters_texture_04_c.png": "\\\\192.168.1.40\\synty\\Originals\\POLYGON\\City Characters Pack\\Source\\Textures\\Polygon_City_Characters_Texture_04_C.png"
+ }
+}

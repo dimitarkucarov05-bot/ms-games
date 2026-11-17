@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MS Games</title>
+<meta name="theme-color" content="#131411">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23131411'/%3E%3Crect x='6.5' y='8.5' width='19' height='15' rx='2' fill='none' stroke='%23e9ece2' stroke-width='2'/%3E%3Ccircle cx='19.5' cy='16' r='3' fill='%23c8f03c'/%3E%3C/svg%3E">
+<link rel="preload" href="fonts/sofia-sans-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/sofia-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="console.css">
+</head>
+<body>
+<div id="app" data-section="games">
+
+  <nav id="rail" aria-label="Split">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 28 28" aria-hidden="true">
+        <rect x="2.5" y="5.5" width="23" height="17" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.75"/>
+        <circle cx="18" cy="14" r="3.25" class="brand-dot"/>
+      </svg>
+      <div class="brand-text" aria-label="MS Games"><span class="brand-name">MS</span><span class="brand-word">GAMES</span></div>
+    </div>
+
+    <div class="nav-group">
+      <button class="nav" data-go="games">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.25" y="2.25" width="4.75" height="4.75" rx="1"/><rect x="9" y="2.25" width="4.75" height="4.75" rx="1"/><rect x="2.25" y="9" width="4.75" height="4.75" rx="1"/><rect x="9" y="9" width="4.75" height="4.75" rx="1"/></svg>
+        <span>Games</span><span class="nav-live" id="navGames" hidden></span>
+      </button>
+      <button class="nav" data-go="board">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.75 4.25h10.5M2.75 8h7M2.75 11.75h4"/></svg>
+        <span>Leaderboard</span>
+      </button>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Arena</div>
+      <button class="nav" data-go="overview">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.75" y="3.25" width="12.5" height="9.5" rx="1.5"/><circle cx="6" cy="8" r="1.1" class="fill"/><circle cx="10.5" cy="6.5" r="1.1" class="fill"/></svg>
+        <span>Watch</span>
+      </button>
+      <button class="nav" data-go="headsets">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.25 6.5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1.4a1.5 1.5 0 0 1-1.2-.6l-.35-.47a1 1 0 0 0-1.6 0l-.35.47a1.5 1.5 0 0 1-1.2.6h-1.4a2 2 0 0 1-2-2z"/></svg>
+        <span>Headsets</span><span class="nav-count" id="navHeadsets"></span>
+      </button>
+      <button class="nav" data-go="calib">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 6V3.5a1 1 0 0 1 1-1H6M10 2.5h2.5a1 1 0 0 1 1 1V6M13.5 10v2.5a1 1 0 0 1-1 1H10M6 13.5H3.5a1 1 0 0 1-1-1V10"/></svg>
+        <span>Calibration</span>
+      </button>
+      <button class="nav" data-go="match">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 13V8.5M6.5 13V3M10 13V6.5M13.25 13v-3"/></svg>
+        <span>Match</span><span class="nav-live" id="navMatch" hidden></span>
+      </button>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">System</div>
+      <button class="nav" data-go="settings">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4.75h5.25M11 4.75h2.5M2.5 11.25H5M8.25 11.25h5.25"/><circle cx="9.4" cy="4.75" r="1.6"/><circle cx="6.6" cy="11.25" r="1.6"/></svg>
+        <span>Settings</span>
+      </button>
+    </div>
+
+  </nav>
+
+  <main id="main">
+    <header id="topbar">
+      <div class="top-left">
+        <button type="button" id="backBtn" class="btn btn-quiet back" hidden>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.75 3.5 5.25 8l4.5 4.5"/></svg><span>Games</span>
+        </button>
+        <h1 id="title">Games</h1>
+      </div>
+      <div class="top-right">
+        <button type="button" id="sessionChip" class="chip chip-live" title="To the running game" hidden><i></i><span id="sessionName"></span><b id="sessionClock" class="num">00:00</b></button>
+        <div id="calibChip" class="chip" hidden></div>
+        <div id="offlineChip" class="chip chip-bad" hidden>No connection to the server</div>
+      </div>
+    </header>
+
+    <!-- ПРЕГЛЕД: план на залата + списък -->
+    <section class="view" data-view="overview">
+      <div class="stage-wrap">
+        <div class="stage-bar">
+          <div class="seg" id="viewSeg" role="tablist" aria-label="View">
+            <button data-cam="plan" class="on">Plan</button>
+            <button data-cam="persp">3D</button>
+            <button data-cam="corner:0" data-live hidden>Camera 1</button>
+            <button data-cam="corner:1" data-live hidden>Camera 2</button>
+            <button data-cam="corner:2" data-live hidden>Camera 3</button>
+            <button data-cam="corner:3" data-live hidden>Camera 4</button>
+            <button data-cam="top" data-live hidden>Top view</button>
+            <button data-cam="grid" data-live hidden>All</button>
+          </div>
+          <select id="camHead" class="select" data-live hidden aria-label="Headset view"><option value="">From headset</option></select>
+          <span id="camLabel" class="stage-caption"></span>
+        </div>
+        <div id="stageBox">
+          <canvas id="stage"></canvas>
+          <div id="live" class="live" hidden></div>
+          <div id="stageEmpty" class="stage-empty" hidden>
+            <p class="empty-title">The arena is empty</p>
+            <p>Headsets appear here as soon as they connect to this computer.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="roster" aria-label="Headsets">
+        <div class="roster-head"><span class="label">Headsets</span><span id="rosterCount" class="num muted"></span></div>
+        <div id="roster" class="roster-list"></div>
+        <div id="rosterEmpty" class="empty-note" hidden>No connected headsets.</div>
+      </aside>
+    </section>
+
+    <!-- КАСКИ -->
+    <section class="view view-pad" data-view="headsets" hidden>
+      <div class="view-head">
+        <p id="hsSummary" class="muted"></p>
+        <div class="view-actions">
+          <span id="hsSelected" class="muted" hidden></span>
+          <button id="hsClear" class="btn btn-quiet" hidden>Clear selection</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="tbl" id="hsTable">
+          <thead><tr>
+            <th class="c-check"><span class="sr">Selection</span></th>
+            <th class="c-num">№</th>
+            <th>Headset</th>
+            <th>Status</th>
+            <th>Battery</th>
+            <th>Controllers</th>
+            <th class="r">FPS</th>
+            <th>Sound</th>
+            <th>Calibration</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="hsBody"></tbody>
+        </table>
+      </div>
+      <div id="hsEmpty" class="empty" hidden>
+        <p class="empty-title">No headsets yet</p>
+        <p>The headset must be on the same Wi-Fi network as this computer. Open the address below in the headset browser and press Enter. It appears here by itself and stays in the list.</p>
+        <p class="empty-addr">Headset address: <b id="hsAddr" class="num"></b></p>
+      </div>
+    </section>
+
+    <!-- ИГРИ: библиотека, страница на игра, зареждане, игра -->
+    <section class="view" data-view="games" hidden>
+
+      <!-- библиотека -->
+      <div id="libView" class="view-pad lib">
+        <div id="libNotice" class="notice notice-plain" hidden>
+          <span><b>No headset online.</b> <span id="libNoticeText"></span></span>
+          <button type="button" class="btn" data-nav="headsets">Headsets</button>
+        </div>
+        <div id="libHead" class="pane-head lib-head"><span class="label">Installed</span><span id="libCount" class="muted num"></span></div>
+        <div id="tiles" class="tiles"></div>
+        <div id="legacyBox" class="lib-legacy" hidden>
+          <div class="pane-head"><span class="label">PC games</span></div>
+          <div id="games" class="game-list"></div>
+        </div>
+        <div id="gamesEmpty" class="empty" hidden>
+          <p class="empty-title">No games installed</p>
+          <p>Each game is a separate app next to the server: a description in the file <span class="code">game/name.game.json</span>, rules and a page for the headsets. Add a game, restart the server and it appears here.</p>
+        </div>
+      </div>
+
+      <!-- страница на игра -->
+      <div id="gameView" class="gp" hidden>
+        <div class="gp-main">
+          <div id="gpCover" class="cover"><span class="cover-type" data-f="type"></span><span class="cover-pill" data-f="pill" hidden></span></div>
+          <div class="gp-body">
+            <div class="gp-info">
+              <p id="gpLead" class="gp-lead"></p>
+              <p id="gpDesc" class="gp-desc"></p>
+              <dl id="gpFacts" class="gp-facts"></dl>
+              <p id="gpTags" class="gp-tags"></p>
+            </div>
+            <div id="gpTop" class="gp-top" hidden>
+              <div class="pane-head"><span class="label">Top scores</span><button type="button" id="gpTopAll" class="link" data-period="all" hidden>Full leaderboard</button></div>
+              <ol id="gpTopList" class="gp-top-list"></ol>
+              <p id="gpTopEmpty" class="empty-note" hidden>No results yet. The first team to finish the game appears here.</p>
+            </div>
+          </div>
+        </div>
+        <aside class="gp-side" aria-label="Launch">
+          <div id="gpOpts" class="side-sec">
+            <div class="opt" id="themeOpt"><span>Theme</span><div class="seg seg-wrap" id="themeSeg" aria-label="Theme"></div></div>
+            <label class="toggle opt" id="fastOpt"><span>Quick trial<small id="fastHint"></small></span><input id="fastGame" type="checkbox"><i></i></label>
+          </div>
+          <div class="roster-head"><span class="label">Headsets</span><span id="pickCount" class="num muted"></span></div>
+          <div id="pick" class="side-list"></div>
+          <div id="pickEmpty" class="side-empty" hidden>
+            <p class="empty-title">No headset online</p>
+            <p id="pickEmptyText"></p>
+          </div>
+          <div class="gp-go">
+            <label id="teamField" class="team-field"><span>Team name</span><input id="teamName" class="input" type="text" maxlength="28" autocomplete="off" spellcheck="false"></label>
+            <p id="launchWhy" class="go-why" hidden></p>
+            <button type="button" id="launchLink" class="btn" hidden></button>
+            <button type="button" id="launchBtn" class="btn btn-primary btn-big">Launch</button>
+          </div>
+        </aside>
+      </div>
+
+      <!-- зареждане -->
+      <div id="loadView" class="lv" hidden>
+        <div id="lvArt" class="lv-art" aria-hidden="true"></div>
+        <div class="lv-box">
+          <span id="lvLabel" class="label">Loading</span>
+          <h2 id="lvName" class="lv-name"></h2>
+          <p id="lvMeta" class="muted"></p>
+          <div id="lvRows" class="lv-rows"></div>
+          <div id="lvFail" class="notice" hidden></div>
+          <div class="btn-row">
+            <button type="button" id="lvRetry" class="btn btn-primary" hidden>Try again</button>
+            <button type="button" id="lvSkip" class="btn" hidden>To the game</button>
+            <button type="button" id="lvCancel" class="btn btn-danger" data-confirm="Press again to stop">Stop loading</button>
+            <button type="button" id="lvBack" class="btn" hidden>Back to the game</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- върви игра -->
+      <div id="runView" class="rv" hidden>
+        <div class="rv-main">
+          <div class="rv-head">
+            <div class="rv-title">
+              <span class="label rv-live"><i></i>Game running</span>
+              <h2 id="rvName" class="rv-name"></h2>
+              <div id="rvTeamBox" class="rv-team"><span class="label">Team</span><span id="rvTeam" class="rv-team-name"></span><button type="button" id="rvTeamEdit" class="btn btn-quiet"></button></div>
+              <p id="rvMeta" class="muted"></p>
+            </div>
+            <div class="rv-clock">
+              <b id="rvClock" class="clock clock-big">00:00</b>
+              <span id="rvClockLabel" class="label">left</span>
+            </div>
+          </div>
+          <div id="watch" class="watch">
+            <div class="watch-bar">
+              <span class="label">Through the eyes of</span>
+              <div id="watchSeg" class="seg seg-wrap" aria-label="Player to watch"></div>
+              <button type="button" id="watchClose" class="btn btn-quiet" hidden>Close</button>
+            </div>
+            <div id="watchBox" class="watch-box">
+              <div id="watchIdle" class="watch-idle">
+                <p class="empty-title">See what the player sees</p>
+                <p>Pick a player above. The picture is rendered on this computer and is heavy, so it runs only when you ask for it and only for one player.</p>
+              </div>
+            </div>
+          </div>
+          <div id="watchNone" class="watch-none" hidden>
+            <p>This game runs on the computer. Its cameras are in Watch.</p>
+            <button type="button" class="btn" data-nav="overview">Watch</button>
+          </div>
+        </div>
+        <aside class="gp-side" aria-label="Players">
+          <div class="roster-head"><span class="label">Players</span><span id="rvCount" class="num muted"></span></div>
+          <div id="rvRows" class="side-list rv-rows"></div>
+          <div id="rvFreeBox" class="rv-free" hidden>
+            <div class="roster-head"><span class="label">Free headsets</span></div>
+            <div id="rvFree" class="side-list"></div>
+          </div>
+          <div class="gp-go">
+            <button type="button" id="stopBtn" class="btn btn-danger btn-big" data-confirm="Press again to stop">Stop the game</button>
+          </div>
+        </aside>
+      </div>
+
+      <!-- играта свърши сама: резултатът, докато операторът го затвори -->
+      <div id="resultView" class="lv" hidden>
+        <div id="resArt" class="lv-art" aria-hidden="true"></div>
+        <div class="lv-box res-box">
+          <span id="resLabel" class="label">Game over</span>
+          <h2 id="resTeam" class="lv-name"></h2>
+          <p id="resMeta" class="muted"></p>
+          <dl id="resFacts" class="res-facts"></dl>
+          <p id="resNote" class="res-note" hidden></p>
+          <div class="btn-row">
+            <button type="button" id="resDone" class="btn btn-primary">Done</button>
+            <button type="button" id="resBoard" class="btn">Leaderboard</button>
+            <button type="button" id="resRename" class="btn btn-quiet">Rename</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- КЛАСАЦИЯ -->
+    <section class="view view-pad" data-view="board" hidden>
+      <div class="view-head">
+        <div class="view-actions">
+          <select id="boardGame" class="select" aria-label="Game" hidden></select>
+          <div class="seg" id="boardPeriod" aria-label="Period">
+            <button type="button" data-period="day" class="on">Today</button>
+            <button type="button" data-period="week">Week</button>
+            <button type="button" data-period="month">Month</button>
+            <button type="button" data-period="all">All</button>
+          </div>
+          <span id="boardCount" class="muted num"></span>
+        </div>
+        <div class="view-actions">
+          <a class="btn btn-quiet" href="/board" target="_blank" rel="noopener" title="Opens the leaderboard full screen in a new window, for the TV in the arena">Arena screen</a>
+        </div>
+      </div>
+      <div class="table-wrap" id="boardWrap" hidden>
+        <table class="tbl tbl-board" id="boardTable">
+          <thead><tr>
+            <th class="c-rank">Rank</th>
+            <th>Team</th>
+            <th class="r">Score</th>
+            <th>Stars</th>
+            <th class="r">Players</th>
+            <th>When</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="boardBody"></tbody>
+        </table>
+      </div>
+      <div id="boardEmpty" class="empty" hidden>
+        <p class="empty-title" id="boardEmptyTitle"></p>
+        <p id="boardEmptyText"></p>
+      </div>
+      <p id="boardMore" class="hint" hidden></p>
+    </section>
+
+    <!-- МАЧ -->
+    <section class="view view-pad" data-view="match" hidden>
+      <div class="score">
+        <div class="score-team" data-team="1">
+          <span class="team-name">Red</span>
+          <b id="redScore" class="score-num">0</b>
+        </div>
+        <div class="score-mid">
+          <span id="matchPhase" class="label">No match</span>
+          <b id="matchTimer" class="clock"></b>
+          <span id="matchRounds" class="muted num"></span>
+        </div>
+        <div class="score-team" data-team="2">
+          <b id="blueScore" class="score-num">0</b>
+          <span class="team-name">Blue</span>
+        </div>
+      </div>
+
+      <div class="match-bar">
+        <div class="btn-row">
+          <button id="matchStart" class="btn btn-primary">Start round</button>
+          <button id="matchRestart" class="btn">New round</button>
+          <button id="matchStop" class="btn btn-danger">Stop</button>
+        </div>
+        <div class="match-cfg">
+          <label class="field"><span>Kill target</span><input id="matchTarget" class="input num" type="number" min="1" max="100" value="20"></label>
+          <label class="field"><span>Round, min</span><input id="matchMinutes" class="input num" type="number" min="1" max="30" value="5"></label>
+          <label class="field" title="How many rounds win the match"><span>Rounds to win</span><input id="matchRoundsToWin" class="input num" type="number" min="1" max="9" value="3"></label>
+          <label class="toggle"><input id="matchTeams" type="checkbox" checked><i></i><span>Teams</span></label>
+          <label class="toggle" title="Whether you can hurt a teammate"><input id="matchFriendlyFire" type="checkbox"><i></i><span>Friendly fire</span></label>
+          <label class="toggle" title="A headshot kills instantly"><input id="matchHeadshot" type="checkbox" checked><i></i><span>Head = 1 shot</span></label>
+        </div>
+      </div>
+
+      <div id="matchWarn" class="notice" hidden></div>
+
+      <div id="circleBox" class="notice notice-plain" hidden>
+        <span>Red in the circle <b id="circleRed" class="num"></b></span>
+        <span>Blue in the circle <b id="circleBlue" class="num"></b></span>
+        <span id="circleTimer"></span>
+        <span id="circleMissing" class="muted"></span>
+        <button type="button" id="forceStart" class="btn btn-danger">Start anyway</button>
+      </div>
+
+      <div class="teams">
+        <div class="team" data-team="1">
+          <div class="team-head"><span class="team-name">Red</span><span id="redCount" class="num muted"></span></div>
+          <div id="teamRed" class="chips"></div>
+        </div>
+        <div class="team" data-team="2">
+          <div class="team-head"><span class="team-name">Blue</span><span id="blueCount" class="num muted"></span></div>
+          <div id="teamBlue" class="chips"></div>
+        </div>
+      </div>
+      <div id="teamNoneBox" class="team-none" hidden>
+        <span class="label">No team</span>
+        <div id="teamNone" class="chips"></div>
+      </div>
+      <p class="hint">Click a headset to move it to the other team.</p>
+
+      <div class="table-wrap">
+        <table class="tbl" id="boardTable">
+          <thead><tr><th class="c-num">#</th><th>Player</th><th>Team</th><th class="r">Kills</th><th class="r">Deaths</th><th class="r">Score</th></tr></thead>
+          <tbody id="board"></tbody>
+        </table>
+      </div>
+      <div id="noMatch" class="empty-note" hidden>The table fills in once headsets join a game.</div>
+    </section>
+
+    <!-- КАЛИБРОВКА -->
+    <section class="view view-pad" data-view="calib" hidden>
+      <div class="calib">
+        <div class="calib-list">
+          <div class="pane-head"><span class="label">Headsets</span><span id="calibSummary" class="muted"></span></div>
+          <div id="calibRows" class="calib-rows"></div>
+          <div id="calibEmpty" class="empty-note" hidden>No connected headset to calibrate.</div>
+        </div>
+
+        <div class="calib-flow">
+          <div id="calibIdle">
+            <div class="pane-head"><span class="label">How it works</span></div>
+            <ol class="steps">
+              <li>Mark the four corners of the arena on the floor and number them 1 to 4 in order. Corner 2 is along the long wall from corner 1.</li>
+              <li>Pick a headset from the list and put it on.</li>
+              <li>Touch the right controller to each corner and pull the trigger. Four times, in the same order.</li>
+              <li>Check the size and save. Every headset goes through the same corners in the same order.</li>
+            </ol>
+          </div>
+
+          <div id="calibRun" hidden>
+            <div class="pane-head"><span class="label">Calibrating</span><span id="calibRunName"></span></div>
+            <ol class="corners" id="cornerSteps">
+              <li><b class="num">1</b><span>Corner 1</span></li>
+              <li><b class="num">2</b><span>Corner 2</span></li>
+              <li><b class="num">3</b><span>Corner 3</span></li>
+              <li><b class="num">4</b><span>Corner 4</span></li>
+            </ol>
+            <p class="muted">Touch the right controller to the corner and pull the trigger.</p>
+            <button type="button" id="calibCancel" class="btn">Cancel</button>
+          </div>
+
+          <div id="calibResult" hidden>
+            <div class="pane-head"><span class="label">Measured arena</span></div>
+            <b id="resultSize" class="big-num"></b>
+            <div id="resultWarn" class="notice" hidden></div>
+            <p class="muted">After saving, the calibration goes to the headset and is remembered. A headset that joins later receives it automatically.</p>
+            <div class="btn-row">
+              <button type="button" id="calibConfirm" class="btn btn-primary">Save</button>
+              <button type="button" id="calibRetry" class="btn">Start over</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="calib-foot">
+        <div class="hall-now">
+          <span class="label">Arena now</span>
+          <b id="hallNow" class="num"></b>
+        </div>
+        <div class="btn-row">
+          <button type="button" id="calibUndo" class="btn">Restore previous</button>
+          <button type="button" id="calibRotate" class="btn" title="If the arena is flipped: rotates it 180° around the centre, no new calibration needed">Rotate by 180°</button>
+          <button type="button" id="calibClear" class="btn btn-danger" data-confirm="Press again to delete">Delete calibrations</button>
+        </div>
+      </div>
+      <div id="prevBox" class="notice notice-plain" hidden>
+        <span id="prevText"></span>
+        <div class="btn-row">
+          <button type="button" id="prevApply" class="btn btn-primary">Restore it</button>
+          <button type="button" id="prevCancel" class="btn">Cancel</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- НАСТРОЙКИ -->
+    <section class="view view-pad" data-view="settings" hidden>
+      <dl class="facts" id="facts"></dl>
+      <p class="hint">Console data (headset names and numbers, calibrations, games) is kept in the folder <span class="code">data</span> next to the server.</p>
+    </section>
+  </main>
+
+  <!-- мрежа: винаги на екрана -->
+  <footer id="netbar" aria-label="Network">
+    <span class="net-item" id="netConn" data-tone="bad"><i></i><span id="stConn">no connection to the server</span></span>
+    <span class="net-item" title="This computer's address on the network"><span>Server</span><b id="netServer" class="num"></b></span>
+    <span class="net-item" title="Open this address in the headset browser"><span>Headset address</span><b id="netPlay" class="num"></b></span>
+    <span class="net-gap"></span>
+    <span class="net-item" id="netGameBox" hidden><span>PC game</span><b id="stGame">stopped</b></span>
+    <span class="net-item"><span>Headsets online</span><b id="stHeadsets" class="num">0 of 0</b></span>
+  </footer>
+</div>
+
+<div id="toasts" role="status" aria-live="polite"></div>
+<script src="console.js"></script>
+</body>
+</html>

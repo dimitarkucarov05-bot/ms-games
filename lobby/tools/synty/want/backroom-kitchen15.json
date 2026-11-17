@@ -1,0 +1,2 @@
+[ { "pack": "POLYGON/Nightclubs", "models": ["SM_Item_Crate_01", "SM_Prop_Bar_Tap_01", "SM_Prop_Bar_Tap_02", "SM_Prop_Bar_Tap_03"] },
+  { "pack": "POLYGON/Gang Warfare Pack", "models": ["SM_Prop_Warehouse_Wall_Switch_01", "SM_Prop_Plant_Light_01"] } ]

@@ -1,0 +1,47 @@
+{
+  "id": "motel",
+  "name": "The Motel",
+  "tagline": "Nobody checks out",
+  "description": "Night at an abandoned roadside motel. You get thirty seconds to board up the gates and grab a weapon, then the dead come out of the dark in five waves and tear the boards off one by one. Stand at a gate and a hammer appears in your hand to nail them back while your other hand keeps shooting. Fuel barrels explode when shot, the power goes out, and the last wave runs at you. Then something huge arrives.",
+  "version": "2.1.0",
+  "status": "ready",
+  "rules": "motel.js",
+  "client": "motel",
+  "cover": "/play/games/motel/cover.jpg",
+  "color": "#e2543a",
+  "minPlayers": 1,
+  "maxPlayers": 6,
+  "minutes": 10,
+  "themes": [
+    {
+      "id": "night",
+      "name": "Night"
+    }
+  ],
+  "tags": [
+    "shooter",
+    "co-op",
+    "waves",
+    "barricades",
+    "melee",
+    "horror"
+  ],
+  "levels": [
+    {
+      "id": "easy",
+      "name": "Easy"
+    },
+    {
+      "id": "normal",
+      "name": "Normal"
+    },
+    {
+      "id": "hard",
+      "name": "Hard"
+    },
+    {
+      "id": "nightmare",
+      "name": "Nightmare"
+    }
+  ]
+}

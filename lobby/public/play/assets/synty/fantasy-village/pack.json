@@ -1,0 +1,32 @@
+{
+ "pack": "POLYGON/Fantasy Village",
+ "models": {
+  "SM_Prop_Ladle_01": {
+   "tris": 180,
+   "size": [
+    0.137,
+    0.41,
+    0.315
+   ],
+   "min": [
+    -0.069,
+    -0.294,
+    -0.107
+   ],
+   "max": [
+    0.069,
+    0.116,
+    0.208
+   ],
+   "skinned": false,
+   "bytes": 17264,
+   "materials": [
+    {
+     "name": "MAT_01A",
+     "map": null,
+     "image": "PolygonSunshineCity_Emissive_01_A.png"
+    }
+   ]
+  }
+ }
+}

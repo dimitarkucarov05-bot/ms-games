@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LabCoin Арена — екран</title>
+<link rel="icon" href="/brand/favicon.png">
+<link rel="stylesheet" href="/style.css">
+<style>
+  body { overflow: hidden; }
+  .scr { height: 100vh; display: flex; flex-direction: column; padding: 3vh 4vw; gap: 2.4vh; }
+  .top { display: flex; align-items: center; gap: 1.4vw; font-size: 2.4vh; color: var(--muted); padding: 1.2vh 2vh; background: var(--night); border: .4vh solid var(--stroke); border-radius: 2.6vh; box-shadow: .8vh .8vh 0 var(--stroke); }
+  .top .logo { width: 5vh; height: 5vh; }
+  .top .mark { font-size: 3.4vh; }
+  .top .chip { font-size: 1.4vh; padding: 1vh 1.2vh; }
+  .title { font-family: var(--font-display); font-size: 4vh; color: var(--ink); margin-left: 1vw; }
+  .big { font-family: var(--font-display); font-size: 6vh; line-height: 1.15; }
+  .seats { display: grid; grid-template-columns: repeat(auto-fit, minmax(15vw, 1fr)); gap: 2vh; flex: 1; align-content: center; }
+  .seatcard { background: var(--night); border: .5vh solid var(--stroke); border-radius: 2.4vh; padding: 1.6vh; text-align: center; box-shadow: .8vh .8vh 0 var(--stroke); }
+  .seatcard .n { font-family: var(--font-display); font-size: 6.5vh; color: var(--coin); line-height: 1; text-shadow: 0 0 20px rgba(255,210,63,.45); }
+  .seatcard .nm { font-size: 3.2vh; font-weight: 800; margin-top: 1vh; }
+  .seatcard.ans { border-color: var(--lab); }
+  .seatcard.right { background: color-mix(in srgb, var(--lab) 22%, var(--night)); border-color: var(--lab); }
+  .seatcard.wrong { opacity: .4; }
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 2.4vh; }
+  .opt { background: var(--o); color: var(--stroke); border: .5vh solid var(--stroke); border-radius: 2.4vh; padding: 2.5vh 3vh; font-family: var(--font-display); font-size: 4.2vh; display: flex; gap: 2vh; align-items: center; box-shadow: 0 .8vh 0 rgba(0,0,0,.6); }
+  .opt .L { background: var(--stroke); color: var(--ink); border-radius: 1.2vh; padding: .4vh 1.6vh; }
+  .opt.dim { opacity: .22; }
+  .bar { height: 1.8vh; background: var(--night2); border: .3vh solid var(--stroke); border-radius: 1vh; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--lab); box-shadow: 0 0 12px var(--lab); transition: width .25s linear; }
+  .mini { display: flex; gap: 1vh; flex-wrap: wrap; }
+  .mini span { width: 5vh; height: 5vh; border-radius: 1.2vh; background: var(--night2); border: .3vh solid var(--stroke); display: grid; place-items: center; font-family: var(--font-display); font-size: 2.6vh; }
+  .mini span.ans { background: var(--lab); color: var(--stroke); }
+  table.b { font-size: 3.4vh; background: var(--night); border: .5vh solid var(--stroke); border-radius: 2.4vh; box-shadow: .8vh .8vh 0 var(--stroke); border-collapse: separate; border-spacing: 0; overflow: hidden; }
+  table.b td, table.b th { padding: 1.2vh 1.4vw; }
+  table.b th { font-size: 1.6vh; }
+  .teams { grid-template-columns: repeat(auto-fit, minmax(20vw, 1fr)); gap: 2.4vh; flex: 1; align-content: center; }
+  .team { font-size: 3.4vh; padding: 2.5vh; border-width: .5vh; border-left-width: 1.4vh; }
+  .team b { font-size: 4.4vh; display: block; margin-bottom: 1vh; }
+  .podium { display: flex; gap: 3vw; align-items: flex-end; justify-content: center; flex: 1; }
+  .pod { text-align: center; }
+  .pod .blk { width: 18vw; border-radius: 2.4vh 2.4vh 0 0; background: var(--night2); border: .5vh solid var(--stroke); border-bottom: 0; display: grid; place-items: center; font-size: 9vh; }
+  .pod.p1 .blk { background: linear-gradient(180deg,#ffe27a,#ffd23f 55%,#e0ae18); }
+  .pod .nm { font-family: var(--font-display); font-size: 4vh; margin-bottom: 1vh; }
+  .pod .pt { color: var(--muted); font-size: 2.6vh; }
+  .qr { background: #fff; border: .5vh solid var(--stroke); border-radius: 1.5vh; padding: 1vh; width: 22vh; height: 22vh; box-shadow: .8vh .8vh 0 var(--stroke); }
+  .padlog { position: fixed; right: 1vw; bottom: 1vh; font-size: 1.6vh; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="scr" id="scr"></div>
+<div class="padlog" id="padlog"></div>
+<script>
+const id = location.pathname.split('/').pop();
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const LETTERS = ['А', 'Б', 'В', 'Г'];
+let B = null;
+
+async function load() {
+  try { const r = await fetch('/api/b/' + id); if (r.ok) { B = await r.json(); render(); } } catch {}
+}
+setInterval(load, 500); load();
+
+const hdr = sub => `<div class="top"><img class="logo" src="/brand/logo.png" alt=""><span class="mark"><span class="vr">VR&nbsp;</span><span class="city">VARNA</span></span><span class="chip">LabCoin</span><span class="title">${esc(B.title)}</span><span style="flex:1"></span><span>${sub || ''}</span></div>`;
+const kidName = k => B.kids.find(x => x.id === k)?.name || '?';
+const active = () => B.kids.filter(k => B.activeKids.includes(k.id));
+
+function render() {
+  const s = $('scr');
+  const mode = B.screen;
+  if (mode === 'quiz' && B.quizView.question) return s.innerHTML = quiz();
+  if (mode === 'quiz') return s.innerHTML = hdr('КУИЗ') + `<div class="big" style="margin:auto;text-align:center">КУИЗ<br><span style="font-size:3.4vh;color:var(--muted)">Всеки сам за себе си. Седни на своя номер.</span></div>` + seatsGrid();
+  if (mode === 'teams') return s.innerHTML = teams();
+  if (mode === 'arena') return s.innerHTML = arena();
+  if (mode === 'board') return s.innerHTML = board();
+  if (mode === 'final') return s.innerHTML = final();
+  s.innerHTML = hdr('Седни на своя номер') + seatsGrid();
+}
+const $ = id => document.getElementById(id);
+
+function seatsGrid(cls) {
+  return `<div class="seats">${active().map(k => `<div class="seatcard ${cls ? cls(k) : ''}"><div class="n">${k.seat}</div><div class="nm">${esc(k.name)}${k.birthdayKid ? ' 🎂' : ''}</div></div>`).join('')}</div>`;
+}
+
+function quiz() {
+  const q = B.quizView, qq = q.question, reveal = qq.correct !== null;
+  const answered = new Set(q.answered);
+  const pct = q.phase === 'question' ? (q.remainingMs / (q.seconds * 1000)) * 100 : 0;
+  return hdr(`Въпрос ${q.idx + 1} от ${q.total}`) +
+    `<div class="big">${esc(qq.q)}</div>
+     <div class="bar"><i style="width:${pct}%"></i></div>
+     <div class="opts">${qq.a.map((a, i) => `<div class="opt opt-${i} ${reveal && qq.correct !== i ? 'dim' : ''}"><span class="L">${LETTERS[i]}</span>${esc(a)}</div>`).join('')}</div>
+     ${reveal
+       ? seatsGrid(k => { const a = q.answers?.[k.id]; return a && a.choice === qq.correct ? 'right' : 'wrong'; })
+       : `<div class="mini">${active().map(k => `<span class="${answered.has(k.id) ? 'ans' : ''}">${k.seat}</span>`).join('')}</div>`}`;
+}
+
+function teams() {
+  const ar = B.arena;
+  return hdr('АРЕНАТА · отборите') + `<div class="teams">${ar.teams.map(t => `<div class="team" style="--c:${t.color}"><b style="color:${t.color}">${t.name}</b>${t.kidIds.map(kidName).map(esc).join('<br>')}</div>`).join('')}</div>
+    <div style="font-size:3vh;color:var(--muted)">${ar.matches.map(m => `${m.label}: ${m.a ? `${tn(m.a)} срещу ${tn(m.b)}` : 'победителите'}`).join(' · ')}</div>`;
+}
+const tn = tid => { const t = B.arena.teams.find(x => x.id === tid); return t ? `<span style="color:${t.color}">${t.name}</span>` : '?'; };
+
+function arena() {
+  const m = B.arena.matches.find(x => x.status === 'live') || [...B.arena.matches].reverse().find(x => x.status === 'done');
+  if (!m) return teams();
+  const rows = Object.keys(m.sides).map(k => ({ k, side: m.sides[k], ...(m.result?.[k] || { kills: 0, deaths: 0 }) })).sort((a, b) => b.kills - a.kills);
+  const sum = side => rows.filter(r => r.side === side).reduce((s, r) => s + r.kills, 0);
+  return hdr(`АРЕНАТА · ${m.label}${m.status === 'live' ? ' · на живо' : ''}`) +
+    `<div class="big" style="text-align:center">${tn(m.a)} ${sum('a')} : ${sum('b')} ${tn(m.b)}</div>
+     <table class="b"><tr><th>Дете</th><th>Каска</th><th class="num">Убийства</th><th class="num">Смърти</th></tr>
+     ${rows.map(r => `<tr><td><span style="color:${r.side === 'a' ? 'var(--red)' : 'var(--blue)'}">●</span> ${esc(kidName(r.k))}</td><td>${m.headsets[r.k] ?? '–'}</td><td class="num"><b>${r.kills}</b></td><td class="num">${r.deaths}</td></tr>`).join('')}</table>`;
+}
+
+function board() {
+  return hdr('КЛАСИРАНЕ') + `<table class="b"><tr><th>#</th><th>Дете</th><th class="num">Куиз</th><th class="num">Арена</th><th class="num">Step</th><th class="num">Общо</th></tr>
+    ${B.board.map(r => `<tr class="place-${r.place}"><td>${r.place}</td><td>${esc(r.name)}</td><td class="num">${r.quiz ? r.quiz.points : '–'}</td><td class="num">${r.arena ? r.arena.points : '–'}</td><td class="num">${r.step ? r.step.points : '–'}</td><td class="num"><b>${r.total}</b></td></tr>`).join('')}</table>`;
+}
+
+function final() {
+  const [a, b, c] = B.board;
+  const pod = (r, h) => r ? `<div class="pod p${r.place}"><div class="nm">${esc(r.name)}</div><div class="pt">${r.total} т.</div><div class="blk" style="height:${h}vh">${['🥇', '🥈', '🥉'][r.place - 1] || r.place}</div></div>` : '';
+  return hdr('ПОБЕДИТЕЛИ') + `<div class="podium">${pod(b, 22, '🥈')}${pod(a, 32, '🥇')}${pod(c, 15, '🥉')}</div>
+    <div class="row" style="justify-content:center;gap:3vw"><img class="qr" src="/api/qr/${B.slug}.svg" alt="QR"><div style="font-size:3vh">Сканирай за класирането<br><span class="muted" style="font-size:2.2vh">${esc(B.lbUrl)}</span></div></div>`;
+}
+
+// ─── Бутоните (USB енкодер = джойстик) ───────────────────────────────────────
+// Енкодер №p, бутон №b (0–11): място = p*3 + floor(b/4) + 1, отговор = b % 4 (А, Б, В, Г).
+const prev = {};
+function pollPads() {
+  const pads = navigator.getGamepads ? [...navigator.getGamepads()].filter(Boolean) : [];
+  pads.forEach((pad, p) => {
+    pad.buttons.forEach((btn, b) => {
+      const key = p + ':' + b;
+      if (btn.pressed && !prev[key] && b < 12) {
+        const seat = p * 3 + Math.floor(b / 4) + 1, choice = b % 4;
+        fetch(`/api/b/${id}/quiz/press`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ seat, choice }) });
+      }
+      prev[key] = btn.pressed;
+    });
+  });
+  $('padlog').textContent = pads.length ? `Бутони: ${pads.length} енкодера` : '';
+  requestAnimationFrame(pollPads);
+}
+requestAnimationFrame(pollPads);
+</script>
+</body>
+</html>

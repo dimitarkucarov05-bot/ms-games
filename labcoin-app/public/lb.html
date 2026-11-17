@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Лидерборд — LabCoin Арена</title>
+<link rel="icon" href="/brand/favicon.png">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="wrap" style="max-width:640px">
+  <div class="island"><img class="logo" src="/brand/logo.png" alt=""><span class="mark"><span class="coin-pip"></span><span><span class="vr">VR&nbsp;</span><span class="city">VARNA</span></span></span><span class="chip">LabCoin Арена</span></div>
+  <div id="app" class="card">Зарежда…</div>
+  <p class="muted small">Точки по място във всяка игра: 1-во 10, 2-ро 8, 3-то 7 … Игрите са куиз, VR арена и Step Matrix.</p>
+</div>
+<script>
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const medal = p => ({ 1: '🥇', 2: '🥈', 3: '🥉' })[p] || p;
+async function load() {
+  const r = await fetch('/api/lb/' + location.pathname.split('/').pop());
+  const d = await r.json();
+  if (!r.ok) { document.getElementById('app').textContent = d.error; return; }
+  document.title = d.title + ' — LabCoin Арена';
+  document.getElementById('app').innerHTML = `<h1>${esc(d.title)}</h1><p class="muted">${esc(d.date)}</p>
+    <table><tr><th>#</th><th>Име</th><th class="num">Куиз</th><th class="num">Арена</th><th class="num">Step</th><th class="num">Общо</th></tr>
+    ${d.rows.map(r => `<tr class="place-${r.place}"><td>${medal(r.place)}</td><td>${esc(r.name)}</td><td class="num">${r.quiz}</td><td class="num">${r.arena}</td><td class="num">${r.step}</td><td class="num"><b>${r.total}</b></td></tr>`).join('')}</table>`;
+}
+load(); setInterval(load, 10000);
+</script>
+</body>
+</html>

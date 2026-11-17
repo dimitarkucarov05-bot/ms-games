@@ -1,0 +1,4 @@
+step 1 done 21:24 (first pass on disk; now reworking for quality: real city block, textures, light)
+step 2 done 21:47 (city block from City Pack: corner stand, two streets, crossing, lit windows)
+step 3 done 21:47 (back room: barrels, boxes, freezer, shelf, duct, one hanging lamp; fridge wall on the shop side)
+step 4 done 22:01 (kids theme; halls 4x4, 6x6, 10x6; two levels per SPEC 12: level 0 stand+storeroom+city, level 1 underground lab)

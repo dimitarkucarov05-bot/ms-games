@@ -1,0 +1,1735 @@
+{
+ "pack": "POLYGON/Alpine Mountain - Nature Biome",
+ "models": {
+  "SM_Env_Background_Trees_01": {
+   "tris": 32,
+   "size": [
+    27.414,
+    16.02,
+    8.453
+   ],
+   "min": [
+    -13.278,
+    -0.299,
+    -8.736
+   ],
+   "max": [
+    14.136,
+    15.721,
+    -0.282
+   ],
+   "skinned": false,
+   "bytes": 4176,
+   "materials": [
+    {
+     "name": "Card",
+     "map": null,
+     "image": "pine04.tga"
+    },
+    {
+     "name": "lambert2035",
+     "map": null,
+     "image": "TreePine_02.tga"
+    }
+   ]
+  },
+  "SM_Env_Background_Trees_02": {
+   "tris": 20,
+   "size": [
+    18.957,
+    15.973,
+    3.622
+   ],
+   "min": [
+    -10.738,
+    -0.252,
+    -4.599
+   ],
+   "max": [
+    8.218,
+    15.721,
+    -0.976
+   ],
+   "skinned": false,
+   "bytes": 3552,
+   "materials": [
+    {
+     "name": "Card",
+     "map": null,
+     "image": "pine04.tga"
+    },
+    {
+     "name": "lambert2035",
+     "map": null,
+     "image": "TreePine_02.tga"
+    }
+   ]
+  },
+  "SM_Env_Branch_04": {
+   "tris": 70,
+   "size": [
+    0.357,
+    0.198,
+    0.939
+   ],
+   "min": [
+    -0.174,
+    -0.052,
+    -0.479
+   ],
+   "max": [
+    0.183,
+    0.146,
+    0.46
+   ],
+   "skinned": false,
+   "bytes": 7304,
+   "materials": [
+    {
+     "name": "MAT_01A2",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_Bush_01": {
+   "tris": 2697,
+   "size": [
+    2.789,
+    1.276,
+    2.679
+   ],
+   "min": [
+    -1.23,
+    -0.147,
+    -1.559
+   ],
+   "max": [
+    1.559,
+    1.129,
+    1.12
+   ],
+   "skinned": false,
+   "bytes": 192524,
+   "materials": [
+    {
+     "name": "Leaves_01_MAT",
+     "map": null,
+     "image": "Alpine_Bush_01.tga"
+    },
+    {
+     "name": "Branches_01_MAT",
+     "map": null,
+     "image": "Branches_01.tga"
+    }
+   ]
+  },
+  "SM_Env_Bush_01_Alt": {
+   "tris": 7060,
+   "size": [
+    4.698,
+    1.288,
+    4.53
+   ],
+   "min": [
+    -2.219,
+    -0.094,
+    -2.506
+   ],
+   "max": [
+    2.479,
+    1.193,
+    2.024
+   ],
+   "skinned": false,
+   "bytes": 497312,
+   "materials": [
+    {
+     "name": "Leaves_01_MAT1",
+     "map": null,
+     "image": "Alpine_Bush_01.tga"
+    },
+    {
+     "name": "Branches_01_MAT1",
+     "map": null,
+     "image": "Branches_01.tga"
+    }
+   ]
+  },
+  "SM_Env_Bush_02": {
+   "tris": 756,
+   "size": [
+    1.432,
+    2.061,
+    1.4
+   ],
+   "min": [
+    -0.683,
+    -0.001,
+    -0.701
+   ],
+   "max": [
+    0.749,
+    2.06,
+    0.699
+   ],
+   "skinned": false,
+   "bytes": 47724,
+   "materials": [
+    {
+     "name": "BerryBush_01_MAT",
+     "map": null,
+     "image": "Alpine_Bush_02_Alt.tga"
+    }
+   ]
+  },
+  "SM_Env_Bush_02_Alt": {
+   "tris": 397,
+   "size": [
+    1.121,
+    1.213,
+    1.213
+   ],
+   "min": [
+    -0.659,
+    -0.053,
+    -0.573
+   ],
+   "max": [
+    0.462,
+    1.16,
+    0.64
+   ],
+   "skinned": false,
+   "bytes": 27448,
+   "materials": [
+    {
+     "name": "BerryBush_01_MAT1",
+     "map": null,
+     "image": "Alpine_Bush_02_Alt.tga"
+    }
+   ]
+  },
+  "SM_Env_Bush_Flower_01": {
+   "tris": 904,
+   "size": [
+    1.843,
+    1.751,
+    1.708
+   ],
+   "min": [
+    -0.864,
+    -0.031,
+    -0.946
+   ],
+   "max": [
+    0.979,
+    1.72,
+    0.762
+   ],
+   "skinned": false,
+   "bytes": 56672,
+   "materials": [
+    {
+     "name": "lambert4",
+     "map": null,
+     "image": "Alpine_Bush_Flowers_01.tga"
+    }
+   ]
+  },
+  "SM_Env_Bush_Flower_01_Alt": {
+   "tris": 2784,
+   "size": [
+    3.492,
+    1.787,
+    3.656
+   ],
+   "min": [
+    -1.697,
+    -0.1,
+    -1.919
+   ],
+   "max": [
+    1.796,
+    1.687,
+    1.737
+   ],
+   "skinned": false,
+   "bytes": 168484,
+   "materials": [
+    {
+     "name": "lambert4",
+     "map": null,
+     "image": "Alpine_Bush_Flowers_01.tga"
+    }
+   ]
+  },
+  "SM_Env_Cloud_Ring_01": {
+   "tris": 14456,
+   "size": [
+    277.462,
+    26.062,
+    259.424
+   ],
+   "min": [
+    -145.422,
+    19.752,
+    -133.324
+   ],
+   "max": [
+    132.04,
+    45.814,
+    126.1
+   ],
+   "skinned": false,
+   "bytes": 605820,
+   "materials": [
+    {
+     "name": "NatureSHD",
+     "map": null,
+     "image": "PolygonNatureBiomes_Texture_01_Justin.psd"
+    }
+   ]
+  },
+  "SM_Env_Flowers_01": {
+   "tris": 52,
+   "size": [
+    0.545,
+    0.643,
+    0.595
+   ],
+   "min": [
+    -0.267,
+    -0.005,
+    -0.287
+   ],
+   "max": [
+    0.278,
+    0.638,
+    0.308
+   ],
+   "skinned": false,
+   "bytes": 5724,
+   "materials": [
+    {
+     "name": "lambert5",
+     "map": null,
+     "image": "Flowers_01.tga"
+    }
+   ]
+  },
+  "SM_Env_Flowers_01_Alt": {
+   "tris": 344,
+   "size": [
+    1.627,
+    0.68,
+    1.438
+   ],
+   "min": [
+    -0.767,
+    -0.024,
+    -0.613
+   ],
+   "max": [
+    0.86,
+    0.656,
+    0.825
+   ],
+   "skinned": false,
+   "bytes": 25884,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Env_Grass_01": {
+   "tris": 50,
+   "size": [
+    1.893,
+    1.028,
+    1.9
+   ],
+   "min": [
+    -0.949,
+    -0.055,
+    -0.949
+   ],
+   "max": [
+    0.945,
+    0.973,
+    0.951
+   ],
+   "skinned": false,
+   "bytes": 6568,
+   "materials": [
+    {
+     "name": "grassSHD",
+     "map": null,
+     "image": "Grass_01.tga"
+    },
+    {
+     "name": "grassSHD13",
+     "map": null,
+     "image": "Grass_01.tga"
+    }
+   ]
+  },
+  "SM_Env_GroundCover_01": {
+   "tris": 132,
+   "size": [
+    1.893,
+    0.542,
+    1.559
+   ],
+   "min": [
+    -0.918,
+    -0.098,
+    -0.835
+   ],
+   "max": [
+    0.975,
+    0.444,
+    0.723
+   ],
+   "skinned": false,
+   "bytes": 10552,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Env_GroundCover_02": {
+   "tris": 210,
+   "size": [
+    2.401,
+    0.992,
+    2.077
+   ],
+   "min": [
+    -1.156,
+    -0.047,
+    -1.054
+   ],
+   "max": [
+    1.245,
+    0.944,
+    1.023
+   ],
+   "skinned": false,
+   "bytes": 15248,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Env_GroundCover_03": {
+   "tris": 486,
+   "size": [
+    3.647,
+    1.129,
+    3.089
+   ],
+   "min": [
+    -1.806,
+    -0.117,
+    -1.565
+   ],
+   "max": [
+    1.841,
+    1.012,
+    1.523
+   ],
+   "skinned": false,
+   "bytes": 32768,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Env_Ground_Mound_Large_01": {
+   "tris": 227,
+   "size": [
+    15.457,
+    1.289,
+    15.508
+   ],
+   "min": [
+    -7.798,
+    -1.242,
+    -7.966
+   ],
+   "max": [
+    7.659,
+    0.047,
+    7.542
+   ],
+   "skinned": false,
+   "bytes": 23312,
+   "materials": [
+    {
+     "name": "lambert1907",
+     "map": null,
+     "image": "PolygonMilitary_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Env_Moss_Lumps_01": {
+   "tris": 324,
+   "size": [
+    3.091,
+    0.922,
+    2.605
+   ],
+   "min": [
+    -1.546,
+    -0.114,
+    -1.302
+   ],
+   "max": [
+    1.546,
+    0.808,
+    1.302
+   ],
+   "skinned": false,
+   "bytes": 34372,
+   "materials": [
+    {
+     "name": "MAT_01A6",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_Moss_Lumps_02": {
+   "tris": 248,
+   "size": [
+    2.774,
+    0.664,
+    2.055
+   ],
+   "min": [
+    -1.387,
+    -0.114,
+    -1.028
+   ],
+   "max": [
+    1.387,
+    0.55,
+    1.028
+   ],
+   "skinned": false,
+   "bytes": 26612,
+   "materials": [
+    {
+     "name": "MAT_01A7",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_Moss_Lumps_03": {
+   "tris": 196,
+   "size": [
+    2.196,
+    0.572,
+    1.677
+   ],
+   "min": [
+    -1.098,
+    -0.114,
+    -0.839
+   ],
+   "max": [
+    1.098,
+    0.458,
+    0.839
+   ],
+   "skinned": false,
+   "bytes": 21304,
+   "materials": [
+    {
+     "name": "MAT_01A5",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_MountainRange_01": {
+   "tris": 10771,
+   "size": [
+    23.804,
+    5.627,
+    24.368
+   ],
+   "min": [
+    -11.938,
+    -0.066,
+    -12.168
+   ],
+   "max": [
+    11.866,
+    5.561,
+    12.2
+   ],
+   "skinned": false,
+   "bytes": 1065076,
+   "materials": [
+    {
+     "name": "MAT_01A",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_MountainRange_02": {
+   "tris": 5204,
+   "size": [
+    20.009,
+    4.762,
+    21.145
+   ],
+   "min": [
+    -9.969,
+    0,
+    -10.556
+   ],
+   "max": [
+    10.04,
+    4.762,
+    10.589
+   ],
+   "skinned": false,
+   "bytes": 514468,
+   "materials": [
+    {
+     "name": "MAT_01A",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_MountainRange_03": {
+   "tris": 2381,
+   "size": [
+    15.537,
+    4.245,
+    16.575
+   ],
+   "min": [
+    -7.793,
+    0,
+    -8.295
+   ],
+   "max": [
+    7.744,
+    4.245,
+    8.279
+   ],
+   "skinned": false,
+   "bytes": 237192,
+   "materials": [
+    {
+     "name": "MAT_01A",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_MountainRange_04": {
+   "tris": 2311,
+   "size": [
+    7.474,
+    4.355,
+    8.425
+   ],
+   "min": [
+    -3.737,
+    0,
+    -4.213
+   ],
+   "max": [
+    3.737,
+    4.355,
+    4.213
+   ],
+   "skinned": false,
+   "bytes": 231580,
+   "materials": [
+    {
+     "name": "MAT_01A",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_Pine_01": {
+   "tris": 4368,
+   "size": [
+    6.472,
+    16.967,
+    5.121
+   ],
+   "min": [
+    -3.174,
+    -0.556,
+    -2.614
+   ],
+   "max": [
+    3.298,
+    16.411,
+    2.507
+   ],
+   "skinned": false,
+   "bytes": 323960,
+   "materials": [
+    {
+     "name": "MAT_01A1",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_Pine_02": {
+   "tris": 7402,
+   "size": [
+    5.169,
+    11.626,
+    5.638
+   ],
+   "min": [
+    -2.614,
+    -0.552,
+    -2.904
+   ],
+   "max": [
+    2.555,
+    11.074,
+    2.734
+   ],
+   "skinned": false,
+   "bytes": 541212,
+   "materials": [
+    {
+     "name": "MAT_01A1",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_Pine_03": {
+   "tris": 17634,
+   "size": [
+    3.515,
+    6.906,
+    4.121
+   ],
+   "min": [
+    -1.727,
+    -0.24,
+    -1.937
+   ],
+   "max": [
+    1.788,
+    6.666,
+    2.185
+   ],
+   "skinned": false,
+   "bytes": 1222016,
+   "materials": [
+    {
+     "name": "treesFromBranch_MAT_01A4",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_Pine_04": {
+   "tris": 25239,
+   "size": [
+    6.511,
+    10.249,
+    7.005
+   ],
+   "min": [
+    -3.327,
+    -0.412,
+    -3.142
+   ],
+   "max": [
+    3.184,
+    9.837,
+    3.863
+   ],
+   "skinned": false,
+   "bytes": 1638432,
+   "materials": [
+    {
+     "name": "MAT_01A",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_Pine_05": {
+   "tris": 16000,
+   "size": [
+    3.641,
+    6.102,
+    3.66
+   ],
+   "min": [
+    -1.822,
+    -0.212,
+    -1.735
+   ],
+   "max": [
+    1.819,
+    5.89,
+    1.925
+   ],
+   "skinned": false,
+   "bytes": 1087112,
+   "materials": [
+    {
+     "name": "MAT_01A13",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_Pine_Cone_01": {
+   "tris": 382,
+   "size": [
+    0.143,
+    0.135,
+    0.136
+   ],
+   "min": [
+    -0.072,
+    -0.06,
+    -0.068
+   ],
+   "max": [
+    0.071,
+    0.075,
+    0.068
+   ],
+   "skinned": false,
+   "bytes": 36348,
+   "materials": [
+    {
+     "name": "MAT_01A7",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_Pine_NoLeaves_01": {
+   "tris": 3192,
+   "size": [
+    5.44,
+    16.325,
+    4.445
+   ],
+   "min": [
+    -2.568,
+    -0.347,
+    -2.105
+   ],
+   "max": [
+    2.872,
+    15.977,
+    2.341
+   ],
+   "skinned": false,
+   "bytes": 248824,
+   "materials": [
+    {
+     "name": "MAT_01A5",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_Pine_Stump_01": {
+   "tris": 122,
+   "size": [
+    0.589,
+    1.432,
+    0.577
+   ],
+   "min": [
+    -0.266,
+    -0.347,
+    -0.298
+   ],
+   "max": [
+    0.323,
+    1.084,
+    0.279
+   ],
+   "skinned": false,
+   "bytes": 12096,
+   "materials": [
+    {
+     "name": "MAT_01A5",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_01": {
+   "tris": 786,
+   "size": [
+    6.207,
+    2.329,
+    2.83
+   ],
+   "min": [
+    -3.103,
+    -0.415,
+    -1.415
+   ],
+   "max": [
+    3.103,
+    1.914,
+    1.415
+   ],
+   "skinned": false,
+   "bytes": 81556,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_010": {
+   "tris": 1920,
+   "size": [
+    16.162,
+    14.681,
+    11.342
+   ],
+   "min": [
+    -8.128,
+    -1.463,
+    -5.715
+   ],
+   "max": [
+    8.034,
+    13.218,
+    5.626
+   ],
+   "skinned": false,
+   "bytes": 149444,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_02": {
+   "tris": 596,
+   "size": [
+    3.776,
+    1.176,
+    1.439
+   ],
+   "min": [
+    -1.914,
+    -0.146,
+    -0.668
+   ],
+   "max": [
+    1.862,
+    1.03,
+    0.771
+   ],
+   "skinned": false,
+   "bytes": 62172,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_03": {
+   "tris": 592,
+   "size": [
+    4.381,
+    2.461,
+    2.429
+   ],
+   "min": [
+    -2.19,
+    -0.499,
+    -1.321
+   ],
+   "max": [
+    2.19,
+    1.962,
+    1.107
+   ],
+   "skinned": false,
+   "bytes": 61764,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_04": {
+   "tris": 596,
+   "size": [
+    2.601,
+    1.825,
+    1.702
+   ],
+   "min": [
+    -1.301,
+    -0.194,
+    -0.851
+   ],
+   "max": [
+    1.301,
+    1.631,
+    0.851
+   ],
+   "skinned": false,
+   "bytes": 61756,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_05": {
+   "tris": 576,
+   "size": [
+    3.581,
+    1.475,
+    2.394
+   ],
+   "min": [
+    -1.652,
+    -0.277,
+    -1.545
+   ],
+   "max": [
+    1.929,
+    1.198,
+    0.849
+   ],
+   "skinned": false,
+   "bytes": 60136,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_06": {
+   "tris": 596,
+   "size": [
+    4.258,
+    2.045,
+    2.545
+   ],
+   "min": [
+    -2.129,
+    -0.261,
+    -1.273
+   ],
+   "max": [
+    2.129,
+    1.784,
+    1.273
+   ],
+   "skinned": false,
+   "bytes": 62168,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_07": {
+   "tris": 519,
+   "size": [
+    4.803,
+    2.932,
+    3.637
+   ],
+   "min": [
+    -2.448,
+    -0.359,
+    -1.863
+   ],
+   "max": [
+    2.354,
+    2.572,
+    1.774
+   ],
+   "skinned": false,
+   "bytes": 45352,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_09": {
+   "tris": 1344,
+   "size": [
+    9.562,
+    8.064,
+    8.169
+   ],
+   "min": [
+    -4.828,
+    -1.525,
+    -4.129
+   ],
+   "max": [
+    4.734,
+    6.539,
+    4.04
+   ],
+   "skinned": false,
+   "bytes": 105124,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_Cliff_01": {
+   "tris": 2484,
+   "size": [
+    22.274,
+    10.227,
+    9.142
+   ],
+   "min": [
+    -11.184,
+    -1.533,
+    -4.615
+   ],
+   "max": [
+    11.09,
+    8.694,
+    4.526
+   ],
+   "skinned": false,
+   "bytes": 219976,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_Cliff_04": {
+   "tris": 456,
+   "size": [
+    11.825,
+    13.405,
+    13.454
+   ],
+   "min": [
+    -5.912,
+    -1.572,
+    -6.727
+   ],
+   "max": [
+    5.912,
+    11.833,
+    6.727
+   ],
+   "skinned": false,
+   "bytes": 47836,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_Cliff_06": {
+   "tris": 504,
+   "size": [
+    9.481,
+    12.148,
+    18.39
+   ],
+   "min": [
+    -3.406,
+    -1.492,
+    -9.826
+   ],
+   "max": [
+    6.075,
+    10.656,
+    8.564
+   ],
+   "skinned": false,
+   "bytes": 52156,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_Cliff_07": {
+   "tris": 1710,
+   "size": [
+    28.776,
+    10.218,
+    13.857
+   ],
+   "min": [
+    -14.388,
+    -0.815,
+    -6.929
+   ],
+   "max": [
+    14.388,
+    9.403,
+    6.929
+   ],
+   "skinned": false,
+   "bytes": 175556,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_Pebbles_01": {
+   "tris": 114,
+   "size": [
+    0.468,
+    0.047,
+    0.347
+   ],
+   "min": [
+    -0.343,
+    -0.019,
+    -0.17
+   ],
+   "max": [
+    0.125,
+    0.028,
+    0.177
+   ],
+   "skinned": false,
+   "bytes": 12188,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_Pebbles_02": {
+   "tris": 150,
+   "size": [
+    0.697,
+    0.05,
+    0.35
+   ],
+   "min": [
+    -0.349,
+    -0.019,
+    -0.199
+   ],
+   "max": [
+    0.349,
+    0.031,
+    0.151
+   ],
+   "skinned": false,
+   "bytes": 15472,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_Pebbles_03": {
+   "tris": 150,
+   "size": [
+    0.615,
+    0.061,
+    0.458
+   ],
+   "min": [
+    -0.219,
+    -0.019,
+    -0.269
+   ],
+   "max": [
+    0.396,
+    0.042,
+    0.189
+   ],
+   "skinned": false,
+   "bytes": 15472,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_Pebbles_04": {
+   "tris": 156,
+   "size": [
+    0.461,
+    0.094,
+    0.297
+   ],
+   "min": [
+    -0.199,
+    -0.046,
+    -0.165
+   ],
+   "max": [
+    0.263,
+    0.049,
+    0.132
+   ],
+   "skinned": false,
+   "bytes": 17240,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_Pebbles_05": {
+   "tris": 204,
+   "size": [
+    1.128,
+    0.291,
+    0.739
+   ],
+   "min": [
+    -0.489,
+    -0.122,
+    -0.308
+   ],
+   "max": [
+    0.639,
+    0.169,
+    0.431
+   ],
+   "skinned": false,
+   "bytes": 22008,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_River_01": {
+   "tris": 204,
+   "size": [
+    1.199,
+    0.322,
+    0.741
+   ],
+   "min": [
+    -0.599,
+    -0.135,
+    -0.37
+   ],
+   "max": [
+    0.599,
+    0.187,
+    0.37
+   ],
+   "skinned": false,
+   "bytes": 21880,
+   "materials": [
+    {
+     "name": "MAT_01A",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_River_02": {
+   "tris": 194,
+   "size": [
+    1.026,
+    0.244,
+    0.901
+   ],
+   "min": [
+    -0.513,
+    -0.138,
+    -0.451
+   ],
+   "max": [
+    0.513,
+    0.106,
+    0.451
+   ],
+   "skinned": false,
+   "bytes": 20792,
+   "materials": [
+    {
+     "name": "MAT_01A",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_River_03": {
+   "tris": 100,
+   "size": [
+    0.573,
+    0.194,
+    0.611
+   ],
+   "min": [
+    -0.287,
+    -0.097,
+    -0.305
+   ],
+   "max": [
+    0.287,
+    0.097,
+    0.305
+   ],
+   "skinned": false,
+   "bytes": 11264,
+   "materials": [
+    {
+     "name": "MAT_01A",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_River_04": {
+   "tris": 156,
+   "size": [
+    0.615,
+    0.148,
+    0.511
+   ],
+   "min": [
+    -0.302,
+    -0.071,
+    -0.266
+   ],
+   "max": [
+    0.313,
+    0.076,
+    0.245
+   ],
+   "skinned": false,
+   "bytes": 16916,
+   "materials": [
+    {
+     "name": "MAT_01A",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_Rough_01": {
+   "tris": 2330,
+   "size": [
+    8.578,
+    3.139,
+    8.228
+   ],
+   "min": [
+    -4.136,
+    -2.064,
+    -4.459
+   ],
+   "max": [
+    4.443,
+    1.076,
+    3.769
+   ],
+   "skinned": false,
+   "bytes": 231156,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_Rough_02": {
+   "tris": 480,
+   "size": [
+    6.187,
+    1.956,
+    3.228
+   ],
+   "min": [
+    -3.186,
+    -0.552,
+    -1.715
+   ],
+   "max": [
+    3.001,
+    1.405,
+    1.513
+   ],
+   "skinned": false,
+   "bytes": 44564,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_02",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_Small_01": {
+   "tris": 114,
+   "size": [
+    1.648,
+    0.683,
+    1.309
+   ],
+   "min": [
+    -0.824,
+    -0.033,
+    -0.655
+   ],
+   "max": [
+    0.824,
+    0.65,
+    0.655
+   ],
+   "skinned": false,
+   "bytes": 12940,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_Small_02": {
+   "tris": 100,
+   "size": [
+    1.972,
+    0.54,
+    0.893
+   ],
+   "min": [
+    -0.986,
+    -0.042,
+    -0.447
+   ],
+   "max": [
+    0.986,
+    0.498,
+    0.447
+   ],
+   "skinned": false,
+   "bytes": 11512,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Rock_Small_03": {
+   "tris": 46,
+   "size": [
+    0.884,
+    0.605,
+    0.765
+   ],
+   "min": [
+    -0.442,
+    -0.032,
+    -0.382
+   ],
+   "max": [
+    0.442,
+    0.572,
+    0.382
+   ],
+   "skinned": false,
+   "bytes": 6008,
+   "materials": [
+    {
+     "name": "PolygonNatureBiomesS2_Alpine_Texture_01",
+     "map": "tex/PolygonNatureBiomesS2_Alpine_Texture_01.png"
+    }
+   ]
+  },
+  "SM_Env_Water_Plane_01": {
+   "tris": 20000,
+   "size": [
+    50,
+    0,
+    50
+   ],
+   "min": [
+    -25,
+    0,
+    -25
+   ],
+   "max": [
+    25,
+    0,
+    25
+   ],
+   "skinned": false,
+   "bytes": 447696,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Prop_Campfire_01": {
+   "tris": 1112,
+   "size": [
+    0.9,
+    0.357,
+    0.971
+   ],
+   "min": [
+    -0.384,
+    0,
+    -0.542
+   ],
+   "max": [
+    0.516,
+    0.357,
+    0.429
+   ],
+   "skinned": false,
+   "bytes": 85772,
+   "materials": [
+    {
+     "name": "MAT_01A10",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Canoe_01": {
+   "tris": 1977,
+   "size": [
+    1.69,
+    1.18,
+    4.485
+   ],
+   "min": [
+    -0.86,
+    0.002,
+    -2.071
+   ],
+   "max": [
+    0.83,
+    1.182,
+    2.414
+   ],
+   "skinned": false,
+   "bytes": 137424,
+   "materials": [
+    {
+     "name": "MAT_01A",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Jetty_01": {
+   "tris": 3184,
+   "size": [
+    3.446,
+    4.429,
+    5.075
+   ],
+   "min": [
+    -1.723,
+    0,
+    -2.537
+   ],
+   "max": [
+    1.723,
+    4.429,
+    2.537
+   ],
+   "skinned": false,
+   "bytes": 228708,
+   "materials": [
+    {
+     "name": "lambert3",
+     "map": null,
+     "image": "PolygonFantasyGothic_Emissive_01_A.png"
+    }
+   ]
+  },
+  "SM_Prop_Lookout_01": {
+   "tris": 8303,
+   "size": [
+    3.243,
+    5.798,
+    5.467
+   ],
+   "min": [
+    -1.621,
+    0,
+    -2.733
+   ],
+   "max": [
+    1.621,
+    5.798,
+    2.733
+   ],
+   "skinned": false,
+   "bytes": 577012,
+   "materials": [
+    {
+     "name": "Nature_Base_Mat4",
+     "map": null,
+     "image": "PolygonNatureBiomes_Texture_01_Tom.png"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,44 @@
+{
+ "vote.hover": [
+  "hover_01.ogg",
+  "hover_02.ogg"
+ ],
+ "vote.pick": [
+  "pick_01.ogg",
+  "pick_02.ogg"
+ ],
+ "vote.win": "vote_win.ogg",
+ "vote.last": [
+  "tick_01.ogg",
+  "tick_02.ogg",
+  "tick_03.ogg"
+ ],
+ "countdown.tick": [
+  "count_01.ogg",
+  "count_02.ogg",
+  "count_03.ogg"
+ ],
+ "countdown.go": "go.ogg",
+ "results.show": "results.ogg",
+ "message.in": [
+  "radio_01.ogg",
+  "radio_02.ogg"
+ ],
+ "pause.toggle": "pause.ogg",
+ "ui.click": [
+  "click_01.ogg",
+  "click_02.ogg"
+ ],
+ "setup.point": "point.ogg",
+ "setup.done": "setup_done.ogg",
+ "range.shot": [
+  "range_shot_01.ogg",
+  "range_shot_02.ogg",
+  "range_shot_03.ogg"
+ ],
+ "range.hit": [
+  "range_hit_01.ogg",
+  "range_hit_02.ogg"
+ ],
+ "range.best": "range_best.ogg"
+}

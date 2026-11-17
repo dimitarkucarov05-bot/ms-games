@@ -1,0 +1,169 @@
+{
+  "v": 1,
+  "day": 5,
+  "money": 426,
+  "earned": 911,
+  "unlocked": [
+    "cellar"
+  ],
+  "stock": {
+    "blue": 0,
+    "clear": 0,
+    "red": 1,
+    "green": 0,
+    "yellow": 0,
+    "papers": 19,
+    "seeds": 4,
+    "box": 1
+  },
+  "pots": [
+    0,
+    0
+  ],
+  "items": [
+    {
+      "kind": "plant",
+      "state": {},
+      "slot": null,
+      "level": 1,
+      "x": -0.049,
+      "y": 0,
+      "z": -0.018
+    },
+    {
+      "kind": "plant",
+      "state": {},
+      "slot": null,
+      "level": 1,
+      "x": -0.536,
+      "y": 0,
+      "z": -0.692
+    },
+    {
+      "kind": "plant",
+      "state": {},
+      "slot": null,
+      "level": 1,
+      "x": -0.151,
+      "y": 0,
+      "z": 0.009
+    },
+    {
+      "kind": "plant",
+      "state": {},
+      "slot": null,
+      "level": 1,
+      "x": 0.037,
+      "y": 0,
+      "z": -0.126
+    },
+    {
+      "kind": "blue",
+      "state": {
+        "c": [
+          100,
+          0,
+          0,
+          0,
+          0
+        ],
+        "shake": 1
+      },
+      "slot": null,
+      "level": 1,
+      "x": -0.27,
+      "y": 0,
+      "z": -0.938
+    },
+    {
+      "kind": "clear",
+      "state": {
+        "c": [
+          0,
+          150,
+          0,
+          0,
+          0
+        ],
+        "shake": 1
+      },
+      "slot": null,
+      "level": 1,
+      "x": -0.073,
+      "y": 1.05,
+      "z": -1.657
+    },
+    {
+      "kind": "plant",
+      "state": {},
+      "slot": null,
+      "level": 1,
+      "x": 0.318,
+      "y": 0,
+      "z": -0.368
+    },
+    {
+      "kind": "plant",
+      "state": {},
+      "slot": null,
+      "level": 1,
+      "x": 0.474,
+      "y": 0,
+      "z": -0.355
+    },
+    {
+      "kind": "box",
+      "state": {
+        "n": []
+      },
+      "slot": "stash.5",
+      "level": 1,
+      "x": 1,
+      "y": 1.17,
+      "z": -0.24
+    },
+    {
+      "kind": "plant",
+      "state": {},
+      "slot": null,
+      "level": 1,
+      "x": -0.386,
+      "y": 0,
+      "z": -0.982
+    },
+    {
+      "kind": "plant",
+      "state": {},
+      "slot": null,
+      "level": 1,
+      "x": -0.667,
+      "y": 0,
+      "z": 0.584
+    },
+    {
+      "kind": "plant",
+      "state": {},
+      "slot": null,
+      "level": 1,
+      "x": -0.299,
+      "y": 0,
+      "z": 0.671
+    },
+    {
+      "kind": "plant",
+      "state": {},
+      "slot": null,
+      "level": 1,
+      "x": -0.185,
+      "y": 0,
+      "z": -0.988
+    }
+  ],
+  "dealers": [
+    [],
+    [],
+    []
+  ],
+  "at": 1794675883275,
+  "savedAt": "2026-11-14T17:04:51.132Z"
+}

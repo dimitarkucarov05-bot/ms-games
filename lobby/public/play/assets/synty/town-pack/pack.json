@@ -1,0 +1,167 @@
+{
+ "pack": "POLYGON/Town Pack",
+ "models": {
+  "SM_Prop_LetterBox_01": {
+   "tris": 162,
+   "size": [
+    0.241,
+    1.351,
+    0.452
+   ],
+   "min": [
+    -0.114,
+    0,
+    -0.213
+   ],
+   "max": [
+    0.127,
+    1.351,
+    0.239
+   ],
+   "skinned": false,
+   "bytes": 12256,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": "PolygonTown_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_LetterBox_02": {
+   "tris": 114,
+   "size": [
+    0.285,
+    1.257,
+    0.376
+   ],
+   "min": [
+    -0.143,
+    0,
+    -0.169
+   ],
+   "max": [
+    0.143,
+    1.257,
+    0.207
+   ],
+   "skinned": false,
+   "bytes": 9236,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": "PolygonTown_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_LetterBox_03": {
+   "tris": 132,
+   "size": [
+    0.241,
+    0.413,
+    0.452
+   ],
+   "min": [
+    -0.114,
+    -0.004,
+    -0.213
+   ],
+   "max": [
+    0.127,
+    0.409,
+    0.239
+   ],
+   "skinned": false,
+   "bytes": 10468,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": "PolygonTown_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_Bookshelf_01": {
+   "tris": 76,
+   "size": [
+    1.151,
+    2.185,
+    0.379
+   ],
+   "min": [
+    -0.575,
+    0,
+    -0.19
+   ],
+   "max": [
+    0.575,
+    2.185,
+    0.19
+   ],
+   "skinned": false,
+   "bytes": 5944,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": "PolygonTown_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_ShopShelf_01": {
+   "tris": 2715,
+   "size": [
+    1.691,
+    1.701,
+    0.668
+   ],
+   "min": [
+    -0.846,
+    0,
+    0
+   ],
+   "max": [
+    0.846,
+    1.701,
+    0.668
+   ],
+   "skinned": false,
+   "bytes": 172056,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": "PolygonTown_Texture_01_A.psd"
+    }
+   ]
+  },
+  "SM_Prop_WorkShelf_01_Combined": {
+   "tris": 1040,
+   "size": [
+    1.813,
+    2.281,
+    0.812
+   ],
+   "min": [
+    -0.907,
+    0,
+    -0.723
+   ],
+   "max": [
+    0.907,
+    2.281,
+    0.09
+   ],
+   "skinned": false,
+   "bytes": 63456,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": null,
+     "image": "PolygonTown_Texture_01_A.psd"
+    }
+   ]
+  }
+ }
+}

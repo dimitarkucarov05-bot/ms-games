@@ -1,0 +1,5279 @@
+{
+ "pack": "POLYGON/City Pack",
+ "models": {
+  "SM_Bld_Apartment_01": {
+   "tris": 456,
+   "size": [
+    0.05,
+    0.03,
+    0.052
+   ],
+   "min": [
+    0,
+    0,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0.03,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 36688,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Apartment_02": {
+   "tris": 1038,
+   "size": [
+    0.052,
+    0.03,
+    0.052
+   ],
+   "min": [
+    -0.001,
+    0,
+    -0.051
+   ],
+   "max": [
+    0.051,
+    0.03,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 85680,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Apartment_03": {
+   "tris": 500,
+   "size": [
+    0.053,
+    0.03,
+    0.055
+   ],
+   "min": [
+    -0.001,
+    0,
+    -0.051
+   ],
+   "max": [
+    0.051,
+    0.03,
+    0.004
+   ],
+   "skinned": false,
+   "bytes": 36280,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Apartment_Corner_01": {
+   "tris": 884,
+   "size": [
+    0.052,
+    0.03,
+    0.052
+   ],
+   "min": [
+    -0.002,
+    0,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0.03,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 69668,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Apartment_Door_01": {
+   "tris": 629,
+   "size": [
+    0.051,
+    0.03,
+    0.056
+   ],
+   "min": [
+    0,
+    0,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0.03,
+    0.005
+   ],
+   "skinned": false,
+   "bytes": 49524,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Apartment_Door_02": {
+   "tris": 616,
+   "size": [
+    0.051,
+    0.03,
+    0.051
+   ],
+   "min": [
+    -0.001,
+    0,
+    -0.051
+   ],
+   "max": [
+    0.051,
+    0.03,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 45080,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Apartment_Roof_01": {
+   "tris": 140,
+   "size": [
+    0.053,
+    0.005,
+    0.059
+   ],
+   "min": [
+    -0.002,
+    0,
+    -0.052
+   ],
+   "max": [
+    0.052,
+    0.005,
+    0.007
+   ],
+   "skinned": false,
+   "bytes": 12740,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Apartment_Roof_02": {
+   "tris": 164,
+   "size": [
+    0.053,
+    0.007,
+    0.055
+   ],
+   "min": [
+    -0.001,
+    0,
+    -0.052
+   ],
+   "max": [
+    0.051,
+    0.007,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 15444,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Apartment_Roof_03": {
+   "tris": 140,
+   "size": [
+    0.053,
+    0.007,
+    0.056
+   ],
+   "min": [
+    -0.002,
+    0,
+    -0.052
+   ],
+   "max": [
+    0.052,
+    0.007,
+    0.005
+   ],
+   "skinned": false,
+   "bytes": 13380,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Apartment_Roof_Corner_01": {
+   "tris": 200,
+   "size": [
+    0.059,
+    0.005,
+    0.059
+   ],
+   "min": [
+    -0.007,
+    0,
+    -0.052
+   ],
+   "max": [
+    0.052,
+    0.005,
+    0.007
+   ],
+   "skinned": false,
+   "bytes": 17904,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Apartment_Stack_01": {
+   "tris": 1360,
+   "size": [
+    0.05,
+    0.09,
+    0.052
+   ],
+   "min": [
+    0,
+    0,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0.09,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 105568,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Apartment_Stack_02": {
+   "tris": 3090,
+   "size": [
+    0.052,
+    0.09,
+    0.052
+   ],
+   "min": [
+    -0.001,
+    0,
+    -0.051
+   ],
+   "max": [
+    0.051,
+    0.09,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 252400,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Apartment_Stack_03": {
+   "tris": 1384,
+   "size": [
+    0.053,
+    0.09,
+    0.055
+   ],
+   "min": [
+    -0.001,
+    0,
+    -0.051
+   ],
+   "max": [
+    0.051,
+    0.09,
+    0.004
+   ],
+   "skinned": false,
+   "bytes": 98456,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Apartment_Stairs_01": {
+   "tris": 1331,
+   "size": [
+    0.053,
+    0.041,
+    0.103
+   ],
+   "min": [
+    -0.001,
+    -0.015,
+    -0.102
+   ],
+   "max": [
+    0.051,
+    0.026,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 92360,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Cover_01": {
+   "tris": 172,
+   "size": [
+    0.048,
+    0.011,
+    0.01
+   ],
+   "min": [
+    -0.024,
+    -0.011,
+    0
+   ],
+   "max": [
+    0.024,
+    0,
+    0.01
+   ],
+   "skinned": false,
+   "bytes": 14704,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Cover_02": {
+   "tris": 76,
+   "size": [
+    0.014,
+    0.01,
+    0.007
+   ],
+   "min": [
+    -0.007,
+    -0.01,
+    0
+   ],
+   "max": [
+    0.007,
+    0,
+    0.007
+   ],
+   "skinned": false,
+   "bytes": 7524,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_FireEscape_01": {
+   "tris": 512,
+   "size": [
+    0.033,
+    0.015,
+    0.016
+   ],
+   "min": [
+    0.001,
+    -0.005,
+    0
+   ],
+   "max": [
+    0.033,
+    0.01,
+    0.016
+   ],
+   "skinned": false,
+   "bytes": 37764,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_FireEscape_02": {
+   "tris": 848,
+   "size": [
+    0.033,
+    0.036,
+    0.016
+   ],
+   "min": [
+    0.001,
+    -0.005,
+    0
+   ],
+   "max": [
+    0.033,
+    0.031,
+    0.016
+   ],
+   "skinned": false,
+   "bytes": 64036,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_OfficeOld_Large_01": {
+   "tris": 17856,
+   "size": [
+    0.161,
+    0.253,
+    0.161
+   ],
+   "min": [
+    -0.005,
+    0,
+    -0.156
+   ],
+   "max": [
+    0.156,
+    0.253,
+    0.006
+   ],
+   "skinned": false,
+   "bytes": 1256808,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_OfficeOld_Small_01": {
+   "tris": 11700,
+   "size": [
+    0.111,
+    0.252,
+    0.112
+   ],
+   "min": [
+    -0.005,
+    0,
+    -0.106
+   ],
+   "max": [
+    0.106,
+    0.252,
+    0.006
+   ],
+   "skinned": false,
+   "bytes": 827508,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_OfficeOld_Small_02": {
+   "tris": 3560,
+   "size": [
+    0.111,
+    0.253,
+    0.112
+   ],
+   "min": [
+    -0.005,
+    0,
+    -0.106
+   ],
+   "max": [
+    0.106,
+    0.253,
+    0.006
+   ],
+   "skinned": false,
+   "bytes": 257060,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_OfficeRound_01": {
+   "tris": 4290,
+   "size": [
+    0.22,
+    0.384,
+    0.221
+   ],
+   "min": [
+    -0.11,
+    0,
+    -0.11
+   ],
+   "max": [
+    0.11,
+    0.384,
+    0.11
+   ],
+   "skinned": false,
+   "bytes": 225172,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_OfficeSquare_01": {
+   "tris": 3840,
+   "size": [
+    0.15,
+    0.3,
+    0.15
+   ],
+   "min": [
+    0,
+    0,
+    -0.15
+   ],
+   "max": [
+    0.15,
+    0.3,
+    0
+   ],
+   "skinned": false,
+   "bytes": 167712,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Roof_Access_01": {
+   "tris": 410,
+   "size": [
+    0.028,
+    0.027,
+    0.029
+   ],
+   "min": [
+    -0.014,
+    0,
+    -0.014
+   ],
+   "max": [
+    0.014,
+    0.027,
+    0.014
+   ],
+   "skinned": false,
+   "bytes": 33796,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Shop_01": {
+   "tris": 454,
+   "size": [
+    0.05,
+    0.031,
+    0.055
+   ],
+   "min": [
+    0,
+    0,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0.031,
+    0.005
+   ],
+   "skinned": false,
+   "bytes": 35484,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Shop_02": {
+   "tris": 662,
+   "size": [
+    0.05,
+    0.033,
+    0.054
+   ],
+   "min": [
+    0,
+    0,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0.033,
+    0.004
+   ],
+   "skinned": false,
+   "bytes": 50420,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Shop_03": {
+   "tris": 665,
+   "size": [
+    0.101,
+    0.031,
+    0.055
+   ],
+   "min": [
+    0,
+    0,
+    -0.05
+   ],
+   "max": [
+    0.1,
+    0.031,
+    0.005
+   ],
+   "skinned": false,
+   "bytes": 51716,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Shop_04": {
+   "tris": 468,
+   "size": [
+    0.051,
+    0.032,
+    0.059
+   ],
+   "min": [
+    -0.001,
+    0,
+    -0.051
+   ],
+   "max": [
+    0.051,
+    0.032,
+    0.008
+   ],
+   "skinned": false,
+   "bytes": 33620,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Shop_05": {
+   "tris": 148,
+   "size": [
+    0.051,
+    0.03,
+    0.052
+   ],
+   "min": [
+    -0.001,
+    0,
+    -0.051
+   ],
+   "max": [
+    0.051,
+    0.03,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 12984,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Shop_06": {
+   "tris": 264,
+   "size": [
+    0.052,
+    0.03,
+    0.059
+   ],
+   "min": [
+    -0.001,
+    0,
+    -0.051
+   ],
+   "max": [
+    0.051,
+    0.03,
+    0.008
+   ],
+   "skinned": false,
+   "bytes": 20356,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Shop_Corner_01": {
+   "tris": 667,
+   "size": [
+    0.054,
+    0.03,
+    0.055
+   ],
+   "min": [
+    -0.002,
+    0,
+    -0.052
+   ],
+   "max": [
+    0.052,
+    0.03,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 49532,
+   "materials": [
+    {
+     "name": "blinn285",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Shop_Corner_02": {
+   "tris": 530,
+   "size": [
+    0.053,
+    0.03,
+    0.053
+   ],
+   "min": [
+    -0.002,
+    0,
+    -0.052
+   ],
+   "max": [
+    0.052,
+    0.03,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 34324,
+   "materials": [
+    {
+     "name": "lambert2",
+     "map": "tex/PolygonCity_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Bld_Shop_Cover_01": {
+   "tris": 120,
+   "size": [
+    0.046,
+    0.003,
+    0.028
+   ],
+   "min": [
+    -0.023,
+    -0.001,
+    -0.014
+   ],
+   "max": [
+    0.023,
+    0.001,
+    0.014
+   ],
+   "skinned": false,
+   "bytes": 11152,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Shop_Cover_02": {
+   "tris": 212,
+   "size": [
+    0.047,
+    0.012,
+    0.032
+   ],
+   "min": [
+    -0.024,
+    -0.006,
+    -0.016
+   ],
+   "max": [
+    0.024,
+    0.006,
+    0.016
+   ],
+   "skinned": false,
+   "bytes": 16224,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Shop_Cover_03": {
+   "tris": 123,
+   "size": [
+    0.05,
+    0.018,
+    0.035
+   ],
+   "min": [
+    -0.025,
+    -0.007,
+    -0.018
+   ],
+   "max": [
+    0.025,
+    0.011,
+    0.018
+   ],
+   "skinned": false,
+   "bytes": 11216,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Shop_Cover_04": {
+   "tris": 268,
+   "size": [
+    0.051,
+    0.007,
+    0.007
+   ],
+   "min": [
+    -0.026,
+    -0.007,
+    0
+   ],
+   "max": [
+    0.026,
+    0,
+    0.007
+   ],
+   "skinned": false,
+   "bytes": 24404,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Bld_Shop_Cover_05": {
+   "tris": 520,
+   "size": [
+    0.054,
+    0.007,
+    0.054
+   ],
+   "min": [
+    -0.007,
+    -0.007,
+    -0.047
+   ],
+   "max": [
+    0.047,
+    0,
+    0.007
+   ],
+   "skinned": false,
+   "bytes": 45684,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Fence_01": {
+   "tris": 716,
+   "size": [
+    0.05,
+    0.021,
+    0.004
+   ],
+   "min": [
+    -0.05,
+    0,
+    -0.002
+   ],
+   "max": [
+    0,
+    0.021,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 60808,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Grass_01": {
+   "tris": 112,
+   "size": [
+    0.05,
+    0.001,
+    0.05
+   ],
+   "min": [
+    0,
+    0,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0.001,
+    0
+   ],
+   "skinned": false,
+   "bytes": 8684,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_PalmTree_01": {
+   "tris": 806,
+   "size": [
+    0.037,
+    0.137,
+    0.038
+   ],
+   "min": [
+    -0.018,
+    -0.008,
+    -0.017
+   ],
+   "max": [
+    0.019,
+    0.13,
+    0.021
+   ],
+   "skinned": false,
+   "bytes": 96080,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Road_01": {
+   "tris": 25,
+   "size": [
+    0.05,
+    0,
+    0.05
+   ],
+   "min": [
+    0,
+    0,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0,
+    0
+   ],
+   "skinned": false,
+   "bytes": 2944,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Road_02": {
+   "tris": 14,
+   "size": [
+    0.05,
+    0,
+    0.05
+   ],
+   "min": [
+    0,
+    0,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0,
+    0
+   ],
+   "skinned": false,
+   "bytes": 2472,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Road_03": {
+   "tris": 52,
+   "size": [
+    0.05,
+    0,
+    0.05
+   ],
+   "min": [
+    0,
+    0,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0,
+    0
+   ],
+   "skinned": false,
+   "bytes": 4264,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Road_Bare_01": {
+   "tris": 2,
+   "size": [
+    0.05,
+    0,
+    0.05
+   ],
+   "min": [
+    0,
+    0,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0,
+    0
+   ],
+   "skinned": false,
+   "bytes": 1752,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Road_Crossing_01": {
+   "tris": 82,
+   "size": [
+    0.05,
+    0,
+    0.05
+   ],
+   "min": [
+    0,
+    0,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0,
+    0
+   ],
+   "skinned": false,
+   "bytes": 5736,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Road_Lines_01": {
+   "tris": 10,
+   "size": [
+    0.05,
+    0,
+    0.05
+   ],
+   "min": [
+    0,
+    0,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0,
+    0
+   ],
+   "skinned": false,
+   "bytes": 2268,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Road_ParkingLines_01": {
+   "tris": 29,
+   "size": [
+    0.1,
+    0,
+    0.05
+   ],
+   "min": [
+    0,
+    0,
+    -0.05
+   ],
+   "max": [
+    0.1,
+    0,
+    0
+   ],
+   "skinned": false,
+   "bytes": 3556,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Road_Patch_01": {
+   "tris": 64,
+   "size": [
+    0.018,
+    0.001,
+    0.018
+   ],
+   "min": [
+    -0.009,
+    0,
+    -0.009
+   ],
+   "max": [
+    0.009,
+    0.001,
+    0.009
+   ],
+   "skinned": false,
+   "bytes": 7420,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Sidewalk_01": {
+   "tris": 38,
+   "size": [
+    0.05,
+    0,
+    0.05
+   ],
+   "min": [
+    0,
+    0,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0,
+    0
+   ],
+   "skinned": false,
+   "bytes": 4924,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Sidewalk_Corner_01": {
+   "tris": 102,
+   "size": [
+    0.05,
+    0.003,
+    0.05
+   ],
+   "min": [
+    0,
+    -0.002,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0.001,
+    0
+   ],
+   "skinned": false,
+   "bytes": 10428,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Sidewalk_Grate_01": {
+   "tris": 335,
+   "size": [
+    0.05,
+    0.003,
+    0.05
+   ],
+   "min": [
+    0,
+    -0.002,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0.001,
+    0
+   ],
+   "skinned": false,
+   "bytes": 26744,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Sidewalk_Gutter_01": {
+   "tris": 461,
+   "size": [
+    0.05,
+    0.012,
+    0.05
+   ],
+   "min": [
+    0,
+    -0.011,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0.001,
+    0
+   ],
+   "skinned": false,
+   "bytes": 35876,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Sidewalk_Panel_01": {
+   "tris": 427,
+   "size": [
+    0.05,
+    0.003,
+    0.05
+   ],
+   "min": [
+    0,
+    -0.002,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0.001,
+    0
+   ],
+   "skinned": false,
+   "bytes": 31416,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Sidewalk_Straight_01": {
+   "tris": 75,
+   "size": [
+    0.05,
+    0.003,
+    0.05
+   ],
+   "min": [
+    0,
+    -0.002,
+    -0.05
+   ],
+   "max": [
+    0.05,
+    0.001,
+    0
+   ],
+   "skinned": false,
+   "bytes": 6492,
+   "materials": [
+    {
+     "name": "blinn268.001",
+     "map": "tex/PolygonCity_Texture_01_A.png"
+    }
+   ]
+  },
+  "SM_Env_Skyline_01": {
+   "tris": 96,
+   "size": [
+    3.633,
+    0.25,
+    3.633
+   ],
+   "min": [
+    -1.816,
+    0,
+    -1.816
+   ],
+   "max": [
+    1.816,
+    0.25,
+    1.816
+   ],
+   "skinned": false,
+   "bytes": 6464,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Skyline_02": {
+   "tris": 96,
+   "size": [
+    4.353,
+    0.423,
+    4.353
+   ],
+   "min": [
+    -2.176,
+    0,
+    -2.176
+   ],
+   "max": [
+    2.176,
+    0.423,
+    2.176
+   ],
+   "skinned": false,
+   "bytes": 6460,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Skyline_03": {
+   "tris": 96,
+   "size": [
+    3.99,
+    0.341,
+    3.99
+   ],
+   "min": [
+    -1.995,
+    0,
+    -1.995
+   ],
+   "max": [
+    1.995,
+    0.341,
+    1.995
+   ],
+   "skinned": false,
+   "bytes": 6452,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Skyline_04": {
+   "tris": 96,
+   "size": [
+    4.762,
+    0.297,
+    4.762
+   ],
+   "min": [
+    -2.381,
+    0,
+    -2.381
+   ],
+   "max": [
+    2.381,
+    0.297,
+    2.381
+   ],
+   "skinned": false,
+   "bytes": 6464,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Street_Divider_01": {
+   "tris": 42,
+   "size": [
+    0.013,
+    0.002,
+    0.05
+   ],
+   "min": [
+    -0.007,
+    0,
+    0
+   ],
+   "max": [
+    0.007,
+    0.002,
+    0.05
+   ],
+   "skinned": false,
+   "bytes": 4140,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_SubwayEntrance_01": {
+   "tris": 693,
+   "size": [
+    0.05,
+    0.101,
+    0.154
+   ],
+   "min": [
+    -0.05,
+    -0.064,
+    -0.145
+   ],
+   "max": [
+    0,
+    0.037,
+    0.009
+   ],
+   "skinned": false,
+   "bytes": 54628,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Tree_01": {
+   "tris": 604,
+   "size": [
+    0.019,
+    0.042,
+    0.025
+   ],
+   "min": [
+    -0.014,
+    0,
+    -0.01
+   ],
+   "max": [
+    0.005,
+    0.042,
+    0.015
+   ],
+   "skinned": false,
+   "bytes": 65364,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Tree_02": {
+   "tris": 686,
+   "size": [
+    0.022,
+    0.047,
+    0.015
+   ],
+   "min": [
+    -0.015,
+    0,
+    -0.007
+   ],
+   "max": [
+    0.007,
+    0.047,
+    0.008
+   ],
+   "skinned": false,
+   "bytes": 74896,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Env_Tree_03": {
+   "tris": 316,
+   "size": [
+    0.022,
+    0.038,
+    0.019
+   ],
+   "min": [
+    -0.014,
+    0,
+    -0.008
+   ],
+   "max": [
+    0.008,
+    0.038,
+    0.011
+   ],
+   "skinned": false,
+   "bytes": 37528,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_ATM_01": {
+   "tris": 418,
+   "size": [
+    0.011,
+    0.015,
+    0.005
+   ],
+   "min": [
+    -0.006,
+    -0.008,
+    -0.003
+   ],
+   "max": [
+    0.006,
+    0.008,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 31980,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Aircon_01": {
+   "tris": 224,
+   "size": [
+    0.008,
+    0.01,
+    0.007
+   ],
+   "min": [
+    -0.004,
+    0,
+    0
+   ],
+   "max": [
+    0.004,
+    0.01,
+    0.007
+   ],
+   "skinned": false,
+   "bytes": 17664,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Barrier_01": {
+   "tris": 262,
+   "size": [
+    0.014,
+    0.01,
+    0.007
+   ],
+   "min": [
+    -0.007,
+    0,
+    -0.003
+   ],
+   "max": [
+    0.007,
+    0.01,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 21428,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Billboard_01": {
+   "tris": 460,
+   "size": [
+    0.044,
+    0.023,
+    0.008
+   ],
+   "min": [
+    -0.022,
+    0.007,
+    0
+   ],
+   "max": [
+    0.022,
+    0.031,
+    0.008
+   ],
+   "skinned": false,
+   "bytes": 37116,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Billboard_Pole_01": {
+   "tris": 160,
+   "size": [
+    0.006,
+    0.069,
+    0.006
+   ],
+   "min": [
+    -0.003,
+    0,
+    -0.003
+   ],
+   "max": [
+    0.003,
+    0.069,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 13580,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Billboard_Roof_01": {
+   "tris": 674,
+   "size": [
+    0.044,
+    0.031,
+    0.016
+   ],
+   "min": [
+    -0.022,
+    0,
+    -0.008
+   ],
+   "max": [
+    0.022,
+    0.031,
+    0.008
+   ],
+   "skinned": false,
+   "bytes": 55352,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Billboard_Sign_01": {
+   "tris": 12,
+   "size": [
+    0.042,
+    0.02,
+    0.001
+   ],
+   "min": [
+    -0.021,
+    0.008,
+    0.002
+   ],
+   "max": [
+    0.021,
+    0.029,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 2692,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Billboard_Sign_02": {
+   "tris": 12,
+   "size": [
+    0.042,
+    0.02,
+    0.001
+   ],
+   "min": [
+    -0.021,
+    0.008,
+    0.002
+   ],
+   "max": [
+    0.021,
+    0.029,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 2692,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Billboard_Sign_03": {
+   "tris": 12,
+   "size": [
+    0.042,
+    0.02,
+    0.001
+   ],
+   "min": [
+    -0.021,
+    0.008,
+    0.002
+   ],
+   "max": [
+    0.021,
+    0.029,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 2692,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Billboard_Sign_04": {
+   "tris": 12,
+   "size": [
+    0.042,
+    0.02,
+    0.001
+   ],
+   "min": [
+    -0.021,
+    0.008,
+    0.002
+   ],
+   "max": [
+    0.021,
+    0.029,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 2692,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Billboard_Sign_05": {
+   "tris": 12,
+   "size": [
+    0.042,
+    0.02,
+    0.001
+   ],
+   "min": [
+    -0.021,
+    0.008,
+    0.002
+   ],
+   "max": [
+    0.021,
+    0.029,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 2692,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Billboard_Sign_06": {
+   "tris": 12,
+   "size": [
+    0.042,
+    0.02,
+    0.001
+   ],
+   "min": [
+    -0.021,
+    0.008,
+    0.002
+   ],
+   "max": [
+    0.021,
+    0.029,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 2692,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Billboard_Sign_07": {
+   "tris": 12,
+   "size": [
+    0.042,
+    0.02,
+    0.001
+   ],
+   "min": [
+    -0.021,
+    0.008,
+    0.002
+   ],
+   "max": [
+    0.021,
+    0.029,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 2692,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_BusStop_01": {
+   "tris": 620,
+   "size": [
+    0.045,
+    0.031,
+    0.016
+   ],
+   "min": [
+    -0.023,
+    0,
+    -0.009
+   ],
+   "max": [
+    0.023,
+    0.031,
+    0.007
+   ],
+   "skinned": false,
+   "bytes": 44680,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_CarboardBox_01": {
+   "tris": 50,
+   "size": [
+    0.006,
+    0.005,
+    0.006
+   ],
+   "min": [
+    -0.003,
+    0,
+    -0.003
+   ],
+   "max": [
+    0.003,
+    0.005,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 5548,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_CarboardBox_02": {
+   "tris": 52,
+   "size": [
+    0.006,
+    0.005,
+    0.006
+   ],
+   "min": [
+    -0.003,
+    0,
+    -0.003
+   ],
+   "max": [
+    0.003,
+    0.005,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 5236,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_CarboardBox_03": {
+   "tris": 104,
+   "size": [
+    0.01,
+    0.008,
+    0.011
+   ],
+   "min": [
+    -0.005,
+    0,
+    -0.005
+   ],
+   "max": [
+    0.005,
+    0.008,
+    0.006
+   ],
+   "skinned": false,
+   "bytes": 10540,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_CarboardBox_04": {
+   "tris": 60,
+   "size": [
+    0.008,
+    0.007,
+    0.01
+   ],
+   "min": [
+    -0.004,
+    0,
+    -0.005
+   ],
+   "max": [
+    0.004,
+    0.007,
+    0.005
+   ],
+   "skinned": false,
+   "bytes": 6812,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Cone_01": {
+   "tris": 184,
+   "size": [
+    0.005,
+    0.01,
+    0.005
+   ],
+   "min": [
+    -0.003,
+    0,
+    -0.003
+   ],
+   "max": [
+    0.003,
+    0.01,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 16116,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Cone_02": {
+   "tris": 220,
+   "size": [
+    0.01,
+    0.01,
+    0.009
+   ],
+   "min": [
+    -0.005,
+    0,
+    -0.005
+   ],
+   "max": [
+    0.005,
+    0.01,
+    0.005
+   ],
+   "skinned": false,
+   "bytes": 19856,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Couch_01": {
+   "tris": 378,
+   "size": [
+    0.018,
+    0.011,
+    0.011
+   ],
+   "min": [
+    -0.009,
+    0,
+    -0.006
+   ],
+   "max": [
+    0.009,
+    0.011,
+    0.006
+   ],
+   "skinned": false,
+   "bytes": 32560,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Deckchair_01": {
+   "tris": 427,
+   "size": [
+    0.009,
+    0.01,
+    0.022
+   ],
+   "min": [
+    -0.004,
+    0,
+    -0.011
+   ],
+   "max": [
+    0.004,
+    0.01,
+    0.011
+   ],
+   "skinned": false,
+   "bytes": 39388,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_HotdogStand_01": {
+   "tris": 1362,
+   "size": [
+    0.03,
+    0.037,
+    0.024
+   ],
+   "min": [
+    -0.015,
+    0,
+    -0.012
+   ],
+   "max": [
+    0.015,
+    0.037,
+    0.012
+   ],
+   "skinned": false,
+   "bytes": 109520,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Hydrant_01": {
+   "tris": 400,
+   "size": [
+    0.006,
+    0.011,
+    0.005
+   ],
+   "min": [
+    -0.003,
+    0,
+    -0.003
+   ],
+   "max": [
+    0.003,
+    0.011,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 34776,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LargeSign_Beer_01": {
+   "tris": 118,
+   "size": [
+    0.02,
+    0.033,
+    0.02
+   ],
+   "min": [
+    -0.01,
+    -0.017,
+    -0.01
+   ],
+   "max": [
+    0.01,
+    0.017,
+    0.01
+   ],
+   "skinned": false,
+   "bytes": 11624,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LargeSign_Bottle_01": {
+   "tris": 244,
+   "size": [
+    0.018,
+    0.058,
+    0.018
+   ],
+   "min": [
+    -0.009,
+    -0.029,
+    -0.009
+   ],
+   "max": [
+    0.009,
+    0.029,
+    0.009
+   ],
+   "skinned": false,
+   "bytes": 22460,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LargeSign_BowlingBall_01": {
+   "tris": 80,
+   "size": [
+    0.03,
+    0.032,
+    0.032
+   ],
+   "min": [
+    -0.015,
+    -0.016,
+    -0.016
+   ],
+   "max": [
+    0.015,
+    0.016,
+    0.016
+   ],
+   "skinned": false,
+   "bytes": 11764,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LargeSign_BowlingPin_01": {
+   "tris": 208,
+   "size": [
+    0.016,
+    0.052,
+    0.016
+   ],
+   "min": [
+    -0.008,
+    -0.026,
+    -0.008
+   ],
+   "max": [
+    0.008,
+    0.026,
+    0.008
+   ],
+   "skinned": false,
+   "bytes": 19612,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LargeSign_Burger_01": {
+   "tris": 492,
+   "size": [
+    0.037,
+    0.022,
+    0.037
+   ],
+   "min": [
+    -0.019,
+    -0.011,
+    -0.019
+   ],
+   "max": [
+    0.019,
+    0.011,
+    0.019
+   ],
+   "skinned": false,
+   "bytes": 38436,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LargeSign_Coffee_01": {
+   "tris": 344,
+   "size": [
+    0.022,
+    0.013,
+    0.016
+   ],
+   "min": [
+    -0.014,
+    0,
+    -0.008
+   ],
+   "max": [
+    0.008,
+    0.013,
+    0.008
+   ],
+   "skinned": false,
+   "bytes": 29772,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LargeSign_Donut_01": {
+   "tris": 456,
+   "size": [
+    0.038,
+    0.014,
+    0.038
+   ],
+   "min": [
+    -0.019,
+    -0.007,
+    -0.019
+   ],
+   "max": [
+    0.019,
+    0.007,
+    0.019
+   ],
+   "skinned": false,
+   "bytes": 40896,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LargeSign_Guitar_01": {
+   "tris": 488,
+   "size": [
+    0.021,
+    0.064,
+    0.004
+   ],
+   "min": [
+    -0.01,
+    0,
+    -0.002
+   ],
+   "max": [
+    0.01,
+    0.064,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 37736,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LargeSign_Hotdog_01": {
+   "tris": 500,
+   "size": [
+    0.014,
+    0.011,
+    0.039
+   ],
+   "min": [
+    -0.007,
+    0,
+    -0.02
+   ],
+   "max": [
+    0.007,
+    0.011,
+    0.02
+   ],
+   "skinned": false,
+   "bytes": 43508,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LargeSign_Icecream_01": {
+   "tris": 188,
+   "size": [
+    0.019,
+    0.05,
+    0.019
+   ],
+   "min": [
+    -0.01,
+    -0.025,
+    -0.01
+   ],
+   "max": [
+    0.01,
+    0.025,
+    0.01
+   ],
+   "skinned": false,
+   "bytes": 18652,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LargeSign_Lollypop_01": {
+   "tris": 604,
+   "size": [
+    0.034,
+    0.064,
+    0.005
+   ],
+   "min": [
+    -0.017,
+    -0.032,
+    -0.003
+   ],
+   "max": [
+    0.017,
+    0.032,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 54192,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LargeSign_Milkshake_01": {
+   "tris": 472,
+   "size": [
+    0.022,
+    0.047,
+    0.017
+   ],
+   "min": [
+    -0.013,
+    -0.02,
+    -0.009
+   ],
+   "max": [
+    0.01,
+    0.027,
+    0.009
+   ],
+   "skinned": false,
+   "bytes": 42080,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LargeSign_Noodles_01": {
+   "tris": 280,
+   "size": [
+    0.029,
+    0.036,
+    0.025
+   ],
+   "min": [
+    -0.015,
+    -0.001,
+    -0.013
+   ],
+   "max": [
+    0.015,
+    0.035,
+    0.012
+   ],
+   "skinned": false,
+   "bytes": 23604,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LargeSign_Pizza_01": {
+   "tris": 274,
+   "size": [
+    0.034,
+    0.006,
+    0.03
+   ],
+   "min": [
+    -0.017,
+    0,
+    -0.015
+   ],
+   "max": [
+    0.017,
+    0.006,
+    0.015
+   ],
+   "skinned": false,
+   "bytes": 22748,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LargeSign_Popcorn_01": {
+   "tris": 848,
+   "size": [
+    0.017,
+    0.028,
+    0.017
+   ],
+   "min": [
+    -0.009,
+    -0.014,
+    -0.009
+   ],
+   "max": [
+    0.009,
+    0.014,
+    0.009
+   ],
+   "skinned": false,
+   "bytes": 86056,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LargeSign_Soda_01": {
+   "tris": 256,
+   "size": [
+    0.019,
+    0.056,
+    0.019
+   ],
+   "min": [
+    -0.01,
+    -0.028,
+    -0.01
+   ],
+   "max": [
+    0.01,
+    0.028,
+    0.01
+   ],
+   "skinned": false,
+   "bytes": 24456,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LargeSign_Taco_01": {
+   "tris": 374,
+   "size": [
+    0.012,
+    0.022,
+    0.037
+   ],
+   "min": [
+    -0.006,
+    0,
+    -0.019
+   ],
+   "max": [
+    0.006,
+    0.022,
+    0.019
+   ],
+   "skinned": false,
+   "bytes": 32468,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LightPole_Arm_01": {
+   "tris": 748,
+   "size": [
+    0.004,
+    0.009,
+    0.063
+   ],
+   "min": [
+    -0.003,
+    0.041,
+    -0.001
+   ],
+   "max": [
+    0.001,
+    0.05,
+    0.062
+   ],
+   "skinned": false,
+   "bytes": 57776,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LightPole_Base_01": {
+   "tris": 348,
+   "size": [
+    0.003,
+    0.065,
+    0.025
+   ],
+   "min": [
+    -0.002,
+    0,
+    -0.002
+   ],
+   "max": [
+    0.002,
+    0.065,
+    0.023
+   ],
+   "skinned": false,
+   "bytes": 24392,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LightPole_Base_02": {
+   "tris": 660,
+   "size": [
+    0.011,
+    0.049,
+    0.004
+   ],
+   "min": [
+    -0.005,
+    0,
+    -0.002
+   ],
+   "max": [
+    0.005,
+    0.049,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 54472,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LightPole_Box_01": {
+   "tris": 44,
+   "size": [
+    0.002,
+    0.005,
+    0.004
+   ],
+   "min": [
+    -0.001,
+    0.048,
+    -0.003
+   ],
+   "max": [
+    0.001,
+    0.053,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 4492,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LightPole_CrossButton_01": {
+   "tris": 66,
+   "size": [
+    0.002,
+    0.003,
+    0.002
+   ],
+   "min": [
+    -0.001,
+    0.01,
+    0
+   ],
+   "max": [
+    0.001,
+    0.013,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 6188,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LightPole_CrossLights_01": {
+   "tris": 156,
+   "size": [
+    0.005,
+    0.004,
+    0.003
+   ],
+   "min": [
+    0,
+    0.025,
+    0
+   ],
+   "max": [
+    0.005,
+    0.029,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 13024,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LightPole_Lights_01": {
+   "tris": 390,
+   "size": [
+    0.005,
+    0.009,
+    0.003
+   ],
+   "min": [
+    -0.004,
+    0.034,
+    -0.002
+   ],
+   "max": [
+    0.001,
+    0.043,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 30344,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_LightPole_Lights_02": {
+   "tris": 230,
+   "size": [
+    0.003,
+    0.009,
+    0.004
+   ],
+   "min": [
+    -0.002,
+    0.034,
+    0
+   ],
+   "max": [
+    0.002,
+    0.043,
+    0.004
+   ],
+   "skinned": false,
+   "bytes": 19024,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Light_Attachment_01": {
+   "tris": 88,
+   "size": [
+    0.002,
+    0.004,
+    0.027
+   ],
+   "min": [
+    -0.001,
+    -0.003,
+    0
+   ],
+   "max": [
+    0.001,
+    0.001,
+    0.027
+   ],
+   "skinned": false,
+   "bytes": 9168,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Mailbox_01": {
+   "tris": 409,
+   "size": [
+    0.007,
+    0.012,
+    0.006
+   ],
+   "min": [
+    -0.003,
+    0,
+    -0.003
+   ],
+   "max": [
+    0.003,
+    0.012,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 29816,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Manhole_01": {
+   "tris": 258,
+   "size": [
+    0.01,
+    0.001,
+    0.01
+   ],
+   "min": [
+    -0.005,
+    0,
+    -0.005
+   ],
+   "max": [
+    0.005,
+    0.001,
+    0.005
+   ],
+   "skinned": false,
+   "bytes": 22008,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Manhole_02": {
+   "tris": 442,
+   "size": [
+    0.011,
+    0,
+    0.011
+   ],
+   "min": [
+    -0.006,
+    0,
+    -0.005
+   ],
+   "max": [
+    0.006,
+    0,
+    0.005
+   ],
+   "skinned": false,
+   "bytes": 32512,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Newspaper_01": {
+   "tris": 48,
+   "size": [
+    0.005,
+    0.001,
+    0.004
+   ],
+   "min": [
+    -0.002,
+    0,
+    -0.002
+   ],
+   "max": [
+    0.002,
+    0.001,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 5240,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Newspaper_02": {
+   "tris": 322,
+   "size": [
+    0.006,
+    0.012,
+    0.005
+   ],
+   "min": [
+    -0.003,
+    0,
+    -0.002
+   ],
+   "max": [
+    0.003,
+    0.012,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 26152,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Pallet_01": {
+   "tris": 228,
+   "size": [
+    0.023,
+    0.004,
+    0.021
+   ],
+   "min": [
+    -0.011,
+    0,
+    -0.01
+   ],
+   "max": [
+    0.011,
+    0.004,
+    0.01
+   ],
+   "skinned": false,
+   "bytes": 19504,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Paper_01": {
+   "tris": 2,
+   "size": [
+    0.003,
+    0,
+    0.005
+   ],
+   "min": [
+    -0.002,
+    0,
+    -0.002
+   ],
+   "max": [
+    0.002,
+    0,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 1816,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Paper_02": {
+   "tris": 2,
+   "size": [
+    0.003,
+    0,
+    0.005
+   ],
+   "min": [
+    -0.002,
+    0,
+    -0.002
+   ],
+   "max": [
+    0.002,
+    0,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 1816,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Paper_03": {
+   "tris": 5,
+   "size": [
+    0.003,
+    0,
+    0.005
+   ],
+   "min": [
+    -0.002,
+    0,
+    -0.002
+   ],
+   "max": [
+    0.002,
+    0,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 1960,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_ParkBench_01": {
+   "tris": 552,
+   "size": [
+    0.021,
+    0.01,
+    0.006
+   ],
+   "min": [
+    -0.01,
+    0,
+    -0.003
+   ],
+   "max": [
+    0.011,
+    0.01,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 40652,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_ParkingMeter_01": {
+   "tris": 180,
+   "size": [
+    0.002,
+    0.015,
+    0.001
+   ],
+   "min": [
+    -0.001,
+    0,
+    -0.001
+   ],
+   "max": [
+    0.001,
+    0.015,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 15664,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_ParkingMeter_02": {
+   "tris": 310,
+   "size": [
+    0.008,
+    0.019,
+    0.005
+   ],
+   "min": [
+    -0.004,
+    0,
+    -0.003
+   ],
+   "max": [
+    0.004,
+    0.019,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 22644,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Phones_01": {
+   "tris": 1036,
+   "size": [
+    0.026,
+    0.025,
+    0.01
+   ],
+   "min": [
+    -0.013,
+    0,
+    -0.005
+   ],
+   "max": [
+    0.013,
+    0.025,
+    0.005
+   ],
+   "skinned": false,
+   "bytes": 81520,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_PicnicTable_01": {
+   "tris": 322,
+   "size": [
+    0.025,
+    0.01,
+    0.017
+   ],
+   "min": [
+    -0.012,
+    0,
+    -0.008
+   ],
+   "max": [
+    0.012,
+    0.01,
+    0.008
+   ],
+   "skinned": false,
+   "bytes": 28592,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_PlanterWindow_01": {
+   "tris": 491,
+   "size": [
+    0.01,
+    0.007,
+    0.004
+   ],
+   "min": [
+    -0.005,
+    0,
+    -0.001
+   ],
+   "max": [
+    0.005,
+    0.007,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 55784,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_PlanterWindow_02": {
+   "tris": 317,
+   "size": [
+    0.009,
+    0.007,
+    0.003
+   ],
+   "min": [
+    -0.004,
+    0,
+    0
+   ],
+   "max": [
+    0.005,
+    0.007,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 33768,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Planter_01": {
+   "tris": 422,
+   "size": [
+    0.023,
+    0.008,
+    0.007
+   ],
+   "min": [
+    -0.012,
+    0,
+    -0.004
+   ],
+   "max": [
+    0.012,
+    0.008,
+    0.004
+   ],
+   "skinned": false,
+   "bytes": 45916,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Planter_02": {
+   "tris": 479,
+   "size": [
+    0.015,
+    0.008,
+    0.005
+   ],
+   "min": [
+    -0.008,
+    0,
+    -0.002
+   ],
+   "max": [
+    0.008,
+    0.008,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 55024,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Poster_01": {
+   "tris": 12,
+   "size": [
+    0.007,
+    0.01,
+    0
+   ],
+   "min": [
+    -0.003,
+    0.001,
+    0
+   ],
+   "max": [
+    0.003,
+    0.011,
+    0
+   ],
+   "skinned": false,
+   "bytes": 2688,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Poster_02": {
+   "tris": 12,
+   "size": [
+    0.007,
+    0.01,
+    0
+   ],
+   "min": [
+    -0.003,
+    0.001,
+    0
+   ],
+   "max": [
+    0.003,
+    0.011,
+    0
+   ],
+   "skinned": false,
+   "bytes": 2692,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Poster_03": {
+   "tris": 12,
+   "size": [
+    0.007,
+    0.01,
+    0
+   ],
+   "min": [
+    -0.003,
+    0.001,
+    0
+   ],
+   "max": [
+    0.003,
+    0.011,
+    0
+   ],
+   "skinned": false,
+   "bytes": 2688,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Poster_Frame_01": {
+   "tris": 150,
+   "size": [
+    0.008,
+    0.012,
+    0.002
+   ],
+   "min": [
+    -0.004,
+    0,
+    0
+   ],
+   "max": [
+    0.004,
+    0.012,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 11344,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_PotPlant_01": {
+   "tris": 200,
+   "size": [
+    0.006,
+    0.008,
+    0.006
+   ],
+   "min": [
+    -0.003,
+    0,
+    -0.003
+   ],
+   "max": [
+    0.003,
+    0.008,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 20700,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_PotPlant_02": {
+   "tris": 552,
+   "size": [
+    0.007,
+    0.016,
+    0.006
+   ],
+   "min": [
+    -0.003,
+    0,
+    -0.003
+   ],
+   "max": [
+    0.003,
+    0.016,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 56744,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_PowerBox_01": {
+   "tris": 364,
+   "size": [
+    0.02,
+    0.019,
+    0.008
+   ],
+   "min": [
+    -0.01,
+    0,
+    -0.004
+   ],
+   "max": [
+    0.01,
+    0.019,
+    0.004
+   ],
+   "skinned": false,
+   "bytes": 27124,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Power_Cables_01": {
+   "tris": 168,
+   "size": [
+    0.124,
+    0.007,
+    0.015
+   ],
+   "min": [
+    -0.124,
+    -0.004,
+    -0.007
+   ],
+   "max": [
+    0,
+    0.003,
+    0.007
+   ],
+   "skinned": false,
+   "bytes": 11304,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Power_Cables_02": {
+   "tris": 96,
+   "size": [
+    0.064,
+    0.004,
+    0.015
+   ],
+   "min": [
+    -0.061,
+    -0.003,
+    -0.007
+   ],
+   "max": [
+    0.003,
+    0.001,
+    0.007
+   ],
+   "skinned": false,
+   "bytes": 8008,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Power_Cables_03": {
+   "tris": 56,
+   "size": [
+    0.001,
+    0.006,
+    0.135
+   ],
+   "min": [
+    0,
+    -0.005,
+    -0.067
+   ],
+   "max": [
+    0,
+    0.001,
+    0.067
+   ],
+   "skinned": false,
+   "bytes": 4560,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Roof_Aircon_01": {
+   "tris": 188,
+   "size": [
+    0.009,
+    0.006,
+    0.005
+   ],
+   "min": [
+    -0.005,
+    0,
+    -0.002
+   ],
+   "max": [
+    0.005,
+    0.006,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 15028,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Roof_Aircon_02": {
+   "tris": 338,
+   "size": [
+    0.016,
+    0.011,
+    0.008
+   ],
+   "min": [
+    -0.008,
+    0,
+    -0.004
+   ],
+   "max": [
+    0.008,
+    0.011,
+    0.004
+   ],
+   "skinned": false,
+   "bytes": 26408,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Roof_Aircon_03": {
+   "tris": 292,
+   "size": [
+    0.015,
+    0.011,
+    0.01
+   ],
+   "min": [
+    -0.008,
+    0,
+    -0.005
+   ],
+   "max": [
+    0.008,
+    0.011,
+    0.005
+   ],
+   "skinned": false,
+   "bytes": 22356,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_SatDish_01": {
+   "tris": 250,
+   "size": [
+    0.012,
+    0.013,
+    0.007
+   ],
+   "min": [
+    -0.006,
+    0,
+    -0.002
+   ],
+   "max": [
+    0.006,
+    0.013,
+    0.005
+   ],
+   "skinned": false,
+   "bytes": 22776,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_SecurityCamera_01": {
+   "tris": 170,
+   "size": [
+    0.004,
+    0.005,
+    0.006
+   ],
+   "min": [
+    -0.002,
+    -0.003,
+    0
+   ],
+   "max": [
+    0.002,
+    0.002,
+    0.006
+   ],
+   "skinned": false,
+   "bytes": 15724,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_SidewalkPoles_01": {
+   "tris": 288,
+   "size": [
+    0.032,
+    0.011,
+    0.002
+   ],
+   "min": [
+    -0.016,
+    0,
+    -0.001
+   ],
+   "max": [
+    0.016,
+    0.011,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 27712,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_SidewalkPoles_02": {
+   "tris": 72,
+   "size": [
+    0.002,
+    0.011,
+    0.002
+   ],
+   "min": [
+    -0.001,
+    0,
+    -0.001
+   ],
+   "max": [
+    0.001,
+    0.011,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 8172,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Arrow_01": {
+   "tris": 72,
+   "size": [
+    0.009,
+    0.023,
+    0.001
+   ],
+   "min": [
+    -0.005,
+    -0.007,
+    0
+   ],
+   "max": [
+    0.005,
+    0.015,
+    0
+   ],
+   "skinned": false,
+   "bytes": 6660,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Attachment_01": {
+   "tris": 76,
+   "size": [
+    0.025,
+    0.009,
+    0.003
+   ],
+   "min": [
+    -0.013,
+    0,
+    -0.002
+   ],
+   "max": [
+    0.013,
+    0.009,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 6912,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Attachment_02": {
+   "tris": 44,
+   "size": [
+    0.002,
+    0.007,
+    0.003
+   ],
+   "min": [
+    -0.001,
+    -0.004,
+    0
+   ],
+   "max": [
+    0.001,
+    0.003,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 5196,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Attachment_03": {
+   "tris": 196,
+   "size": [
+    0.006,
+    0.006,
+    0.012
+   ],
+   "min": [
+    -0.003,
+    -0.003,
+    0
+   ],
+   "max": [
+    0.003,
+    0.003,
+    0.012
+   ],
+   "skinned": false,
+   "bytes": 16380,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Bar_01": {
+   "tris": 276,
+   "size": [
+    0.013,
+    0.007,
+    0.001
+   ],
+   "min": [
+    -0.007,
+    0,
+    -0.001
+   ],
+   "max": [
+    0.007,
+    0.007,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 35636,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Barber_01": {
+   "tris": 448,
+   "size": [
+    0.003,
+    0.009,
+    0.005
+   ],
+   "min": [
+    -0.002,
+    0,
+    0
+   ],
+   "max": [
+    0.002,
+    0.009,
+    0.005
+   ],
+   "skinned": false,
+   "bytes": 39296,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Bustop_01": {
+   "tris": 132,
+   "size": [
+    0.006,
+    0.038,
+    0.001
+   ],
+   "min": [
+    -0.003,
+    0,
+    0
+   ],
+   "max": [
+    0.003,
+    0.038,
+    0
+   ],
+   "skinned": false,
+   "bytes": 11376,
+   "materials": [
+    {
+     "name": "lambert2",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Bustop_02": {
+   "tris": 132,
+   "size": [
+    0.006,
+    0.038,
+    0.001
+   ],
+   "min": [
+    -0.003,
+    0,
+    0
+   ],
+   "max": [
+    0.003,
+    0.038,
+    0
+   ],
+   "skinned": false,
+   "bytes": 11376,
+   "materials": [
+    {
+     "name": "lambert2",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Cafe_01": {
+   "tris": 292,
+   "size": [
+    0.013,
+    0.006,
+    0.001
+   ],
+   "min": [
+    -0.007,
+    -0.003,
+    -0.001
+   ],
+   "max": [
+    0.007,
+    0.003,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 37152,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Chinese_Noodles_01": {
+   "tris": 532,
+   "size": [
+    0.009,
+    0.005,
+    0.002
+   ],
+   "min": [
+    -0.004,
+    -0.003,
+    0
+   ],
+   "max": [
+    0.004,
+    0.003,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 45004,
+   "materials": [
+    {
+     "name": "lambert1",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_DeliPizza_01": {
+   "tris": 60,
+   "size": [
+    0.003,
+    0.016,
+    0.001
+   ],
+   "min": [
+    -0.002,
+    -0.008,
+    -0.001
+   ],
+   "max": [
+    0.002,
+    0.008,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 5148,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Entrance_01": {
+   "tris": 12,
+   "size": [
+    0.01,
+    0.004,
+    0.001
+   ],
+   "min": [
+    -0.005,
+    0,
+    0
+   ],
+   "max": [
+    0.005,
+    0.004,
+    0
+   ],
+   "skinned": false,
+   "bytes": 2676,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_FireDepartment_01": {
+   "tris": 984,
+   "size": [
+    0.042,
+    0.004,
+    0.001
+   ],
+   "min": [
+    -0.021,
+    0,
+    0
+   ],
+   "max": [
+    0.021,
+    0.004,
+    0
+   ],
+   "skinned": false,
+   "bytes": 121268,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_GiveWay_01": {
+   "tris": 144,
+   "size": [
+    0.009,
+    0.022,
+    0.001
+   ],
+   "min": [
+    -0.004,
+    0,
+    -0.001
+   ],
+   "max": [
+    0.004,
+    0.022,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 11924,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_GiveWay_02": {
+   "tris": 148,
+   "size": [
+    0.009,
+    0.022,
+    0.001
+   ],
+   "min": [
+    -0.004,
+    0,
+    -0.001
+   ],
+   "max": [
+    0.004,
+    0.022,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 12272,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_GiveWay_03": {
+   "tris": 158,
+   "size": [
+    0.01,
+    0.022,
+    0.001
+   ],
+   "min": [
+    -0.005,
+    0,
+    -0.001
+   ],
+   "max": [
+    0.005,
+    0.022,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 12728,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Hospital_01": {
+   "tris": 526,
+   "size": [
+    0.033,
+    0.007,
+    0.001
+   ],
+   "min": [
+    -0.017,
+    0,
+    -0.001
+   ],
+   "max": [
+    0.017,
+    0.007,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 65312,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Hotel_01": {
+   "tris": 448,
+   "size": [
+    0.013,
+    0.038,
+    0.003
+   ],
+   "min": [
+    -0.006,
+    -0.003,
+    -0.002
+   ],
+   "max": [
+    0.007,
+    0.035,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 49972,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Parking_01": {
+   "tris": 116,
+   "size": [
+    0.004,
+    0.017,
+    0.001
+   ],
+   "min": [
+    -0.002,
+    0,
+    -0.001
+   ],
+   "max": [
+    0.002,
+    0.017,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 10596,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Pizza_01": {
+   "tris": 314,
+   "size": [
+    0.022,
+    0.007,
+    0.001
+   ],
+   "min": [
+    -0.011,
+    0,
+    -0.001
+   ],
+   "max": [
+    0.011,
+    0.007,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 40064,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Police_01": {
+   "tris": 402,
+   "size": [
+    0.019,
+    0.006,
+    0.001
+   ],
+   "min": [
+    -0.01,
+    0,
+    -0.001
+   ],
+   "max": [
+    0.01,
+    0.006,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 40580,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Pub_01": {
+   "tris": 248,
+   "size": [
+    0.011,
+    0.005,
+    0.001
+   ],
+   "min": [
+    -0.006,
+    0,
+    -0.001
+   ],
+   "max": [
+    0.006,
+    0.005,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 31708,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Stop_01": {
+   "tris": 140,
+   "size": [
+    0.008,
+    0.023,
+    0.001
+   ],
+   "min": [
+    -0.004,
+    0,
+    -0.001
+   ],
+   "max": [
+    0.004,
+    0.023,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 11820,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Street_01": {
+   "tris": 94,
+   "size": [
+    0.013,
+    0,
+    0.004
+   ],
+   "min": [
+    -0.006,
+    0,
+    -0.002
+   ],
+   "max": [
+    0.006,
+    0,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 8164,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Street_02": {
+   "tris": 94,
+   "size": [
+    0.013,
+    0,
+    0.004
+   ],
+   "min": [
+    -0.006,
+    0,
+    -0.002
+   ],
+   "max": [
+    0.006,
+    0,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 8164,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_Warning_01": {
+   "tris": 20,
+   "size": [
+    0.008,
+    0.005,
+    0.001
+   ],
+   "min": [
+    -0.004,
+    0,
+    0
+   ],
+   "max": [
+    0.004,
+    0.005,
+    0
+   ],
+   "skinned": false,
+   "bytes": 3128,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Sign_XXX_01": {
+   "tris": 618,
+   "size": [
+    0.021,
+    0.009,
+    0.002
+   ],
+   "min": [
+    -0.011,
+    0,
+    -0.001
+   ],
+   "max": [
+    0.011,
+    0.009,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 50568,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Skip_01": {
+   "tris": 1352,
+   "size": [
+    0.024,
+    0.029,
+    0.013
+   ],
+   "min": [
+    -0.012,
+    0,
+    -0.007
+   ],
+   "max": [
+    0.012,
+    0.029,
+    0.007
+   ],
+   "skinned": false,
+   "bytes": 99056,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Skip_02": {
+   "tris": 1352,
+   "size": [
+    0.024,
+    0.018,
+    0.013
+   ],
+   "min": [
+    -0.012,
+    0,
+    -0.007
+   ],
+   "max": [
+    0.012,
+    0.018,
+    0.007
+   ],
+   "skinned": false,
+   "bytes": 98052,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Table_02": {
+   "tris": 142,
+   "size": [
+    0.012,
+    0.006,
+    0.012
+   ],
+   "min": [
+    -0.006,
+    0,
+    -0.006
+   ],
+   "max": [
+    0.006,
+    0.006,
+    0.006
+   ],
+   "skinned": false,
+   "bytes": 10564,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_TrafficLight_01": {
+   "tris": 214,
+   "size": [
+    0.003,
+    0.009,
+    0.003
+   ],
+   "min": [
+    -0.002,
+    -0.009,
+    0
+   ],
+   "max": [
+    0.002,
+    0,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 17788,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_TrafficLight_02": {
+   "tris": 294,
+   "size": [
+    0.003,
+    0.011,
+    0.004
+   ],
+   "min": [
+    -0.002,
+    -0.011,
+    -0.001
+   ],
+   "max": [
+    0.002,
+    0,
+    0.002
+   ],
+   "skinned": false,
+   "bytes": 24368,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_TrafficLight_03": {
+   "tris": 242,
+   "size": [
+    0.005,
+    0.011,
+    0.003
+   ],
+   "min": [
+    -0.002,
+    -0.01,
+    0
+   ],
+   "max": [
+    0.002,
+    0.001,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 20296,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_TrashBag_01": {
+   "tris": 128,
+   "size": [
+    0.006,
+    0.009,
+    0.008
+   ],
+   "min": [
+    -0.003,
+    0,
+    -0.004
+   ],
+   "max": [
+    0.003,
+    0.009,
+    0.004
+   ],
+   "skinned": false,
+   "bytes": 12704,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_TrashBag_02": {
+   "tris": 128,
+   "size": [
+    0.008,
+    0.01,
+    0.008
+   ],
+   "min": [
+    -0.004,
+    0,
+    -0.004
+   ],
+   "max": [
+    0.004,
+    0.01,
+    0.004
+   ],
+   "skinned": false,
+   "bytes": 13300,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_TrashBag_03": {
+   "tris": 128,
+   "size": [
+    0.007,
+    0.008,
+    0.009
+   ],
+   "min": [
+    -0.004,
+    0,
+    -0.004
+   ],
+   "max": [
+    0.004,
+    0.008,
+    0.004
+   ],
+   "skinned": false,
+   "bytes": 12696,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_TrashCan_01": {
+   "tris": 380,
+   "size": [
+    0.007,
+    0.009,
+    0.007
+   ],
+   "min": [
+    -0.004,
+    -0.004,
+    -0.004
+   ],
+   "max": [
+    0.004,
+    0.004,
+    0.004
+   ],
+   "skinned": false,
+   "bytes": 31716,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Trashbin_01": {
+   "tris": 584,
+   "size": [
+    0.006,
+    0.012,
+    0.006
+   ],
+   "min": [
+    -0.003,
+    0,
+    -0.003
+   ],
+   "max": [
+    0.003,
+    0.012,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 43628,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Trashbin_02": {
+   "tris": 244,
+   "size": [
+    0.007,
+    0.016,
+    0.006
+   ],
+   "min": [
+    -0.004,
+    0,
+    -0.003
+   ],
+   "max": [
+    0.004,
+    0.016,
+    0.003
+   ],
+   "skinned": false,
+   "bytes": 20040,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Umbrella_01": {
+   "tris": 372,
+   "size": [
+    0.016,
+    0.013,
+    0.016
+   ],
+   "min": [
+    -0.008,
+    -0.003,
+    -0.008
+   ],
+   "max": [
+    0.008,
+    0.011,
+    0.008
+   ],
+   "skinned": false,
+   "bytes": 28188,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Vents_Exhaust_01": {
+   "tris": 276,
+   "size": [
+    0.009,
+    0.016,
+    0.027
+   ],
+   "min": [
+    -0.004,
+    0,
+    0
+   ],
+   "max": [
+    0.004,
+    0.016,
+    0.027
+   ],
+   "skinned": false,
+   "bytes": 23640,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Washingline_01": {
+   "tris": 776,
+   "size": [
+    0.052,
+    0.012,
+    0.002
+   ],
+   "min": [
+    -0.052,
+    -0.012,
+    -0.001
+   ],
+   "max": [
+    0,
+    0,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 65328,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Washingline_02": {
+   "tris": 684,
+   "size": [
+    0.052,
+    0.014,
+    0.002
+   ],
+   "min": [
+    -0.052,
+    -0.014,
+    -0.001
+   ],
+   "max": [
+    0,
+    0,
+    0.001
+   ],
+   "skinned": false,
+   "bytes": 58736,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Water_Tower_01": {
+   "tris": 1520,
+   "size": [
+    0.024,
+    0.055,
+    0.024
+   ],
+   "min": [
+    -0.012,
+    0,
+    -0.012
+   ],
+   "max": [
+    0.012,
+    0.055,
+    0.012
+   ],
+   "skinned": false,
+   "bytes": 131108,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Prop_Window_01": {
+   "tris": 114,
+   "size": [
+    0.013,
+    0.023,
+    0.004
+   ],
+   "min": [
+    -0.007,
+    0,
+    0
+   ],
+   "max": [
+    0.007,
+    0.023,
+    0.004
+   ],
+   "skinned": false,
+   "bytes": 10516,
+   "materials": [
+    {
+     "name": "blinn283",
+     "map": "tex/PolygonCity_Texture.png"
+    }
+   ]
+  },
+  "SM_Veh_Car_Ambo_01": {
+   "tris": 6445,
+   "size": [
+    2.473,
+    2.583,
+    5.094
+   ],
+   "min": [
+    -1.236,
+    0,
+    -2.41
+   ],
+   "max": [
+    1.236,
+    2.583,
+    2.684
+   ],
+   "skinned": false,
+   "bytes": 413112,
+   "materials": [
+    {
+     "name": "Glass",
+     "map": null,
+     "image": null
+    },
+    {
+     "name": "Body",
+     "map": null,
+     "image": "PolygonCity_Texture_Cars02.psd"
+    }
+   ]
+  },
+  "SM_Veh_Car_Medium_01": {
+   "tris": 6574,
+   "size": [
+    2.366,
+    1.884,
+    4.974
+   ],
+   "min": [
+    -1.183,
+    0,
+    -2.442
+   ],
+   "max": [
+    1.183,
+    1.884,
+    2.532
+   ],
+   "skinned": false,
+   "bytes": 432092,
+   "materials": [
+    {
+     "name": "Body",
+     "map": null,
+     "image": "PolygonCity_Texture_Cars02.psd"
+    },
+    {
+     "name": "Glass",
+     "map": null,
+     "image": null
+    }
+   ]
+  },
+  "SM_Veh_Car_Muscle_01": {
+   "tris": 5876,
+   "size": [
+    2.43,
+    1.493,
+    5.643
+   ],
+   "min": [
+    -1.215,
+    0.001,
+    -2.691
+   ],
+   "max": [
+    1.215,
+    1.494,
+    2.951
+   ],
+   "skinned": false,
+   "bytes": 378528,
+   "materials": [
+    {
+     "name": "Glass",
+     "map": null,
+     "image": null
+    },
+    {
+     "name": "Body",
+     "map": null,
+     "image": "PolygonCity_Texture_Cars02.psd"
+    }
+   ]
+  },
+  "SM_Veh_Car_Police_01": {
+   "tris": 6040,
+   "size": [
+    2.172,
+    1.741,
+    5.247
+   ],
+   "min": [
+    -1.086,
+    0,
+    -2.468
+   ],
+   "max": [
+    1.086,
+    1.741,
+    2.779
+   ],
+   "skinned": false,
+   "bytes": 394512,
+   "materials": [
+    {
+     "name": "Glass",
+     "map": null,
+     "image": null
+    },
+    {
+     "name": "Body",
+     "map": null,
+     "image": "PolygonCity_Texture_Cars02.psd"
+    }
+   ]
+  },
+  "SM_Veh_Car_Sedan_01": {
+   "tris": 5520,
+   "size": [
+    2.172,
+    1.535,
+    5.175
+   ],
+   "min": [
+    -1.086,
+    0,
+    -2.468
+   ],
+   "max": [
+    1.086,
+    1.535,
+    2.707
+   ],
+   "skinned": false,
+   "bytes": 368792,
+   "materials": [
+    {
+     "name": "Glass",
+     "map": null,
+     "image": null
+    },
+    {
+     "name": "Body",
+     "map": null,
+     "image": "PolygonCity_Texture_Cars02.psd"
+    }
+   ]
+  },
+  "SM_Veh_Car_Small_01": {
+   "tris": 5668,
+   "size": [
+    2.068,
+    1.734,
+    4.085
+   ],
+   "min": [
+    -1.022,
+    0,
+    -1.916
+   ],
+   "max": [
+    1.047,
+    1.734,
+    2.169
+   ],
+   "skinned": false,
+   "bytes": 359104,
+   "materials": [
+    {
+     "name": "Glass",
+     "map": null,
+     "image": null
+    },
+    {
+     "name": "Body",
+     "map": null,
+     "image": "PolygonCity_Texture_Cars02.psd"
+    }
+   ]
+  },
+  "SM_Veh_Car_Taxi_01": {
+   "tris": 6010,
+   "size": [
+    2.172,
+    1.722,
+    5.176
+   ],
+   "min": [
+    -1.086,
+    0,
+    -2.468
+   ],
+   "max": [
+    1.086,
+    1.722,
+    2.708
+   ],
+   "skinned": false,
+   "bytes": 395148,
+   "materials": [
+    {
+     "name": "Glass",
+     "map": null,
+     "image": null
+    },
+    {
+     "name": "Body",
+     "map": null,
+     "image": "PolygonCity_Texture_Cars02.psd"
+    }
+   ]
+  },
+  "SM_Veh_Car_Van_01": {
+   "tris": 5677,
+   "size": [
+    2.473,
+    2.027,
+    5.043
+   ],
+   "min": [
+    -1.236,
+    0,
+    -2.423
+   ],
+   "max": [
+    1.236,
+    2.027,
+    2.621
+   ],
+   "skinned": false,
+   "bytes": 367288,
+   "materials": [
+    {
+     "name": "Body",
+     "map": null,
+     "image": "PolygonCity_Texture_Cars02.psd"
+    },
+    {
+     "name": "Glass",
+     "map": null,
+     "image": null
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,378 @@
+{
+  "note": "ПРЕДЛОЖЕНИЕ за графика на целия рожден ден (12.11.2026). Митко ще го поправи. LabCoin е винаги последните 45 мин; финалът с награди и QR е краят на рождения ден. Дължините на PERFECT и GIGA CHAD ги няма на сайта, затова са предположение. Пакетът се познава по името от календара (match = текст в името на пакета, без значение главни/малки).",
+  "packages": [
+    {
+      "match": "giga",
+      "label": "GIGA CHAD (предположение: 3 ч)",
+      "assumed": true,
+      "parts": [
+        {
+          "key": "welcome",
+          "label": "Посрещане, правила, обща снимка",
+          "minutes": 10
+        },
+        {
+          "key": "zones1",
+          "label": "Зони на смени: VR Solo, racing, Step Matrix",
+          "minutes": 35
+        },
+        {
+          "key": "gta",
+          "label": "GTA стая",
+          "minutes": 15
+        },
+        {
+          "key": "para",
+          "label": "VR параглайдер + Counter Arena",
+          "minutes": 20
+        },
+        {
+          "key": "workshop",
+          "label": "Работилница за игри",
+          "minutes": 15
+        },
+        {
+          "key": "lab",
+          "label": "Тайният лаб",
+          "minutes": 10
+        },
+        {
+          "key": "cake",
+          "label": "Торта и почерпка",
+          "minutes": 30
+        },
+        {
+          "key": "lc-intro",
+          "label": "LabCoin: сбор, имена, кой къде сяда",
+          "minutes": 3,
+          "labcoin": true
+        },
+        {
+          "key": "lc-quiz",
+          "label": "LabCoin: Куиз",
+          "minutes": 10,
+          "labcoin": true
+        },
+        {
+          "key": "lc-toArena",
+          "label": "LabCoin: отбори и отиване до арената",
+          "minutes": 2,
+          "labcoin": true
+        },
+        {
+          "key": "lc-arena",
+          "label": "LabCoin: VR арена (2 полуфинала + финал)",
+          "minutes": 18,
+          "labcoin": true
+        },
+        {
+          "key": "lc-toStep",
+          "label": "LabCoin: класиране и ред за Step Matrix",
+          "minutes": 2,
+          "labcoin": true
+        },
+        {
+          "key": "lc-step",
+          "label": "LabCoin: Step Matrix",
+          "minutes": 8,
+          "labcoin": true
+        },
+        {
+          "key": "lc-final",
+          "label": "LabCoin: победител, награди, QR",
+          "minutes": 2,
+          "labcoin": true
+        }
+      ]
+    },
+    {
+      "match": "perfect",
+      "label": "PERFECT (предположение: 2 ч 30 мин)",
+      "assumed": true,
+      "parts": [
+        {
+          "key": "welcome",
+          "label": "Посрещане, правила, обща снимка",
+          "minutes": 10
+        },
+        {
+          "key": "zones1",
+          "label": "Зони на смени: VR Solo, racing, Step Matrix",
+          "minutes": 30
+        },
+        {
+          "key": "gta",
+          "label": "GTA стая",
+          "minutes": 15
+        },
+        {
+          "key": "para",
+          "label": "VR параглайдер + Counter Arena",
+          "minutes": 20
+        },
+        {
+          "key": "lab",
+          "label": "Тайният лаб",
+          "minutes": 10
+        },
+        {
+          "key": "cake",
+          "label": "Торта и почерпка",
+          "minutes": 20
+        },
+        {
+          "key": "lc-intro",
+          "label": "LabCoin: сбор, имена, кой къде сяда",
+          "minutes": 3,
+          "labcoin": true
+        },
+        {
+          "key": "lc-quiz",
+          "label": "LabCoin: Куиз",
+          "minutes": 10,
+          "labcoin": true
+        },
+        {
+          "key": "lc-toArena",
+          "label": "LabCoin: отбори и отиване до арената",
+          "minutes": 2,
+          "labcoin": true
+        },
+        {
+          "key": "lc-arena",
+          "label": "LabCoin: VR арена (2 полуфинала + финал)",
+          "minutes": 18,
+          "labcoin": true
+        },
+        {
+          "key": "lc-toStep",
+          "label": "LabCoin: класиране и ред за Step Matrix",
+          "minutes": 2,
+          "labcoin": true
+        },
+        {
+          "key": "lc-step",
+          "label": "LabCoin: Step Matrix",
+          "minutes": 8,
+          "labcoin": true
+        },
+        {
+          "key": "lc-final",
+          "label": "LabCoin: победител, награди, QR",
+          "minutes": 2,
+          "labcoin": true
+        }
+      ]
+    },
+    {
+      "match": "godzila|godzilla|хранене",
+      "label": "STANDARD с хранене в Godzila (2 ч)",
+      "parts": [
+        {
+          "key": "welcome",
+          "label": "Посрещане, правила",
+          "minutes": 8
+        },
+        {
+          "key": "zones1",
+          "label": "Зони на смени: VR Solo, racing, Step Matrix",
+          "minutes": 37
+        },
+        {
+          "key": "lab",
+          "label": "Тайният лаб",
+          "minutes": 10
+        },
+        {
+          "key": "cake",
+          "label": "Хранене (Godzila) и торта",
+          "minutes": 20
+        },
+        {
+          "key": "lc-intro",
+          "label": "LabCoin: сбор, имена, кой къде сяда",
+          "minutes": 3,
+          "labcoin": true
+        },
+        {
+          "key": "lc-quiz",
+          "label": "LabCoin: Куиз",
+          "minutes": 10,
+          "labcoin": true
+        },
+        {
+          "key": "lc-toArena",
+          "label": "LabCoin: отбори и отиване до арената",
+          "minutes": 2,
+          "labcoin": true
+        },
+        {
+          "key": "lc-arena",
+          "label": "LabCoin: VR арена (2 полуфинала + финал)",
+          "minutes": 18,
+          "labcoin": true
+        },
+        {
+          "key": "lc-toStep",
+          "label": "LabCoin: класиране и ред за Step Matrix",
+          "minutes": 2,
+          "labcoin": true
+        },
+        {
+          "key": "lc-step",
+          "label": "LabCoin: Step Matrix",
+          "minutes": 8,
+          "labcoin": true
+        },
+        {
+          "key": "lc-final",
+          "label": "LabCoin: победител, награди, QR",
+          "minutes": 2,
+          "labcoin": true
+        }
+      ]
+    },
+    {
+      "match": "standar",
+      "label": "STANDARD (2 ч 30 мин)",
+      "parts": [
+        {
+          "key": "welcome",
+          "label": "Посрещане, правила, обща снимка",
+          "minutes": 10
+        },
+        {
+          "key": "zones1",
+          "label": "Зони на смени 1: VR Solo, racing, Step Matrix",
+          "minutes": 35
+        },
+        {
+          "key": "lab",
+          "label": "Тайният лаб",
+          "minutes": 15
+        },
+        {
+          "key": "zones2",
+          "label": "Зони на смени 2",
+          "minutes": 25
+        },
+        {
+          "key": "cake",
+          "label": "Торта и почерпка",
+          "minutes": 20
+        },
+        {
+          "key": "lc-intro",
+          "label": "LabCoin: сбор, имена, кой къде сяда",
+          "minutes": 3,
+          "labcoin": true
+        },
+        {
+          "key": "lc-quiz",
+          "label": "LabCoin: Куиз",
+          "minutes": 10,
+          "labcoin": true
+        },
+        {
+          "key": "lc-toArena",
+          "label": "LabCoin: отбори и отиване до арената",
+          "minutes": 2,
+          "labcoin": true
+        },
+        {
+          "key": "lc-arena",
+          "label": "LabCoin: VR арена (2 полуфинала + финал)",
+          "minutes": 18,
+          "labcoin": true
+        },
+        {
+          "key": "lc-toStep",
+          "label": "LabCoin: класиране и ред за Step Matrix",
+          "minutes": 2,
+          "labcoin": true
+        },
+        {
+          "key": "lc-step",
+          "label": "LabCoin: Step Matrix",
+          "minutes": 8,
+          "labcoin": true
+        },
+        {
+          "key": "lc-final",
+          "label": "LabCoin: победител, награди, QR",
+          "minutes": 2,
+          "labcoin": true
+        }
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "key": "welcome",
+      "label": "Посрещане, правила, обща снимка",
+      "minutes": 10
+    },
+    {
+      "key": "zones1",
+      "label": "Зони на смени 1: VR Solo, racing, Step Matrix",
+      "minutes": 35
+    },
+    {
+      "key": "lab",
+      "label": "Тайният лаб",
+      "minutes": 15
+    },
+    {
+      "key": "zones2",
+      "label": "Зони на смени 2",
+      "minutes": 25
+    },
+    {
+      "key": "cake",
+      "label": "Торта и почерпка",
+      "minutes": 20
+    },
+    {
+      "key": "lc-intro",
+      "label": "LabCoin: сбор, имена, кой къде сяда",
+      "minutes": 3,
+      "labcoin": true
+    },
+    {
+      "key": "lc-quiz",
+      "label": "LabCoin: Куиз",
+      "minutes": 10,
+      "labcoin": true
+    },
+    {
+      "key": "lc-toArena",
+      "label": "LabCoin: отбори и отиване до арената",
+      "minutes": 2,
+      "labcoin": true
+    },
+    {
+      "key": "lc-arena",
+      "label": "LabCoin: VR арена (2 полуфинала + финал)",
+      "minutes": 18,
+      "labcoin": true
+    },
+    {
+      "key": "lc-toStep",
+      "label": "LabCoin: класиране и ред за Step Matrix",
+      "minutes": 2,
+      "labcoin": true
+    },
+    {
+      "key": "lc-step",
+      "label": "LabCoin: Step Matrix",
+      "minutes": 8,
+      "labcoin": true
+    },
+    {
+      "key": "lc-final",
+      "label": "LabCoin: победител, награди, QR",
+      "minutes": 2,
+      "labcoin": true
+    }
+  ]
+}

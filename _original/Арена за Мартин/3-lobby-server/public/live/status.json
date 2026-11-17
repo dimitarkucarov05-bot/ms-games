@@ -1,0 +1,45 @@
+{
+	"time": 1794360890.2650001,
+	"mode": "server",
+	"map": "Lobby_Synty",
+	"frames": 7904,
+	"fps": 14.5,
+	"shooting": [
+		"cam_1"
+	],
+	"size": [ 1920, 1080 ],
+	"seq":
+	{
+		"cam_1": 7654,
+		"cam_4": 62,
+		"cam_top": 64,
+		"cam_2": 62,
+		"cam_3": 62
+	},
+	"ring": 8,
+	"format": "jpg",
+	"players": 0,
+	"head": "",
+	"cams": [
+		{
+			"id": "cam_1",
+			"label": "Spectator_Cam_1"
+		},
+		{
+			"id": "cam_2",
+			"label": "Spectator_Cam_2"
+		},
+		{
+			"id": "cam_3",
+			"label": "Spectator_Cam_3"
+		},
+		{
+			"id": "cam_4",
+			"label": "Spectator_Cam_4"
+		},
+		{
+			"id": "cam_top",
+			"label": "Spectator_Cam_Top"
+		}
+	]
+}

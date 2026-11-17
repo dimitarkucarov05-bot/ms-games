@@ -1,0 +1,1504 @@
+{
+ "motel": {
+  "shot.pistol": {
+   "files": [
+    "guns/pistol_01.ogg",
+    "guns/pistol_02.ogg",
+    "guns/pistol_03.ogg",
+    "guns/pistol_04.ogg",
+    "guns/pistol_05.ogg",
+    "guns/pistol_06.ogg"
+   ],
+   "kids": [],
+   "gain": 1.0,
+   "pitch": [
+    0.96,
+    1.04
+   ],
+   "space": "2d own / 3d others"
+  },
+  "shot.smg": {
+   "files": [
+    "guns/smg_01.ogg",
+    "guns/smg_02.ogg",
+    "guns/smg_03.ogg",
+    "guns/smg_04.ogg",
+    "guns/smg_05.ogg"
+   ],
+   "kids": [],
+   "gain": 0.85,
+   "pitch": [
+    0.96,
+    1.05
+   ],
+   "space": "2d own / 3d others"
+  },
+  "shot.revolver": {
+   "files": [
+    "guns/revolver_01.ogg",
+    "guns/revolver_02.ogg",
+    "guns/revolver_03.ogg",
+    "guns/revolver_04.ogg"
+   ],
+   "kids": [],
+   "gain": 1.0,
+   "pitch": [
+    0.95,
+    1.03
+   ],
+   "space": "2d own / 3d others"
+  },
+  "shot.shotgun": {
+   "files": [
+    "guns/shotgun_01.ogg",
+    "guns/shotgun_02.ogg",
+    "guns/shotgun_03.ogg",
+    "guns/shotgun_04.ogg"
+   ],
+   "kids": [],
+   "gain": 1.0,
+   "pitch": [
+    0.95,
+    1.03
+   ],
+   "space": "2d own / 3d others",
+   "note": "blast only; play shotgun.pump 0.35 s later"
+  },
+  "shot.carbine": {
+   "files": [
+    "guns/carbine_01.ogg",
+    "guns/carbine_02.ogg",
+    "guns/carbine_03.ogg",
+    "guns/carbine_04.ogg"
+   ],
+   "kids": [],
+   "gain": 0.9,
+   "pitch": [
+    0.96,
+    1.04
+   ],
+   "space": "2d own / 3d others"
+  },
+  "shot.rifle": {
+   "files": [
+    "guns/rifle_01.ogg",
+    "guns/rifle_02.ogg",
+    "guns/rifle_03.ogg",
+    "guns/rifle_04.ogg",
+    "guns/rifle_05.ogg"
+   ],
+   "kids": [],
+   "gain": 0.95,
+   "pitch": [
+    0.96,
+    1.04
+   ],
+   "space": "2d own / 3d others"
+  },
+  "shot.hunting": {
+   "files": [
+    "guns/hunting_01.ogg",
+    "guns/hunting_02.ogg",
+    "guns/hunting_03.ogg"
+   ],
+   "kids": [],
+   "gain": 1.0,
+   "pitch": [
+    0.96,
+    1.02
+   ],
+   "space": "2d own / 3d others"
+  },
+  "shot.lmg": {
+   "files": [
+    "guns/lmg_01.ogg",
+    "guns/lmg_02.ogg",
+    "guns/lmg_03.ogg",
+    "guns/lmg_04.ogg"
+   ],
+   "kids": [],
+   "gain": 0.9,
+   "pitch": [
+    0.95,
+    1.04
+   ],
+   "space": "2d own / 3d others"
+  },
+  "gun.dry": {
+   "files": [
+    "guns/dry_01.ogg",
+    "guns/dry_02.ogg",
+    "guns/dry_03.ogg"
+   ],
+   "kids": [],
+   "gain": 0.6,
+   "pitch": [
+    0.97,
+    1.05
+   ],
+   "space": "2d"
+  },
+  "gun.reload": {
+   "files": [
+    "guns/reload_01.ogg",
+    "guns/reload_02.ogg",
+    "guns/reload_03.ogg"
+   ],
+   "kids": [],
+   "gain": 0.8,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "2d",
+   "note": "magazine out at 0 s, in at 0.9 s (about 1.4 s)"
+  },
+  "gun.mag.out": {
+   "files": [
+    "guns/mag_out_01.ogg",
+    "guns/mag_out_02.ogg",
+    "guns/mag_out_03.ogg"
+   ],
+   "kids": [],
+   "gain": 0.8,
+   "space": "2d",
+   "added": "the two halves of gun.reload on their own, for reloads of another length"
+  },
+  "gun.mag.in": {
+   "files": [
+    "guns/mag_in_01.ogg",
+    "guns/mag_in_02.ogg",
+    "guns/mag_in_03.ogg"
+   ],
+   "kids": [],
+   "gain": 0.8,
+   "space": "2d",
+   "added": "see gun.mag.out"
+  },
+  "gun.loaded": {
+   "files": [
+    "guns/loaded_01.ogg",
+    "guns/loaded_02.ogg",
+    "guns/loaded_03.ogg"
+   ],
+   "kids": [],
+   "gain": 0.8,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "2d"
+  },
+  "gun.pickup": {
+   "files": [
+    "guns/pickup_01.ogg",
+    "guns/pickup_02.ogg",
+    "guns/pickup_03.ogg"
+   ],
+   "kids": [],
+   "gain": 0.8,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "space": "2d"
+  },
+  "gun.take": {
+   "files": [
+    "guns/take_01.ogg",
+    "guns/take_02.ogg"
+   ],
+   "kids": [],
+   "gain": 0.8,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "space": "2d"
+  },
+  "shotgun.pump": {
+   "files": [
+    "guns/pump_01.ogg",
+    "guns/pump_02.ogg",
+    "guns/pump_03.ogg"
+   ],
+   "kids": [],
+   "gain": 0.8,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "2d",
+   "added": "pump after every shotgun blast (0.35 s later)"
+  },
+  "shell.drop": {
+   "files": [
+    "guns/shell_01.ogg",
+    "guns/shell_02.ogg",
+    "guns/shell_03.ogg",
+    "guns/shell_04.ogg",
+    "guns/shell_05.ogg"
+   ],
+   "kids": [],
+   "gain": 0.35,
+   "pitch": [
+    1.1,
+    1.5
+   ],
+   "cooldown": 0.08,
+   "space": "3d at the floor",
+   "added": "a spent case landing, 0.35-0.5 s after a shot"
+  },
+  "shell.drop.shotgun": {
+   "files": [
+    "guns/shell_shotgun_01.ogg",
+    "guns/shell_shotgun_02.ogg"
+   ],
+   "kids": [],
+   "gain": 0.45,
+   "pitch": [
+    0.95,
+    1.1
+   ],
+   "space": "3d at the floor",
+   "added": "shotgun shell landing"
+  },
+  "bullet.impact.metal": {
+   "files": [
+    "impact/bullet_metal_01.ogg",
+    "impact/bullet_metal_02.ogg"
+   ],
+   "kids": [],
+   "gain": 0.5,
+   "pitch": [
+    0.9,
+    1.15
+   ],
+   "cooldown": 0.06,
+   "space": "3d at the hit point",
+   "added": "a missed bullet hitting a prop / the ground"
+  },
+  "bullet.impact.wood": {
+   "files": [
+    "impact/bullet_wood_01.ogg",
+    "impact/bullet_wood_02.ogg",
+    "impact/bullet_wood_03.ogg"
+   ],
+   "kids": [],
+   "gain": 0.5,
+   "pitch": [
+    0.9,
+    1.15
+   ],
+   "cooldown": 0.06,
+   "space": "3d at the hit point",
+   "added": "a missed bullet hitting a prop / the ground"
+  },
+  "impact.body": {
+   "files": [
+    "impact/body_01.ogg",
+    "impact/body_02.ogg",
+    "impact/body_03.ogg",
+    "impact/body_04.ogg",
+    "impact/body_05.ogg",
+    "impact/body_06.ogg"
+   ],
+   "kids": [
+    "impact/body_kids_01.ogg",
+    "impact/body_kids_02.ogg",
+    "impact/body_kids_03.ogg",
+    "impact/body_kids_04.ogg"
+   ],
+   "gain": 0.7,
+   "pitch": [
+    0.93,
+    1.07
+   ],
+   "cooldown": 0.03,
+   "space": "2d"
+  },
+  "impact.head": {
+   "files": [
+    "impact/head_01.ogg",
+    "impact/head_02.ogg",
+    "impact/head_03.ogg",
+    "impact/head_04.ogg",
+    "impact/head_05.ogg"
+   ],
+   "kids": [
+    "impact/head_kids_01.ogg",
+    "impact/head_kids_02.ogg",
+    "impact/head_kids_03.ogg"
+   ],
+   "gain": 0.8,
+   "pitch": [
+    0.95,
+    1.08
+   ],
+   "cooldown": 0.03,
+   "space": "2d"
+  },
+  "impact.headshot": {
+   "files": [
+    "impact/headshot_01.ogg",
+    "impact/headshot_02.ogg",
+    "impact/headshot_03.ogg",
+    "impact/headshot_04.ogg"
+   ],
+   "kids": [
+    "impact/headshot_kids_01.ogg",
+    "impact/headshot_kids_02.ogg",
+    "impact/headshot_kids_03.ogg"
+   ],
+   "gain": 0.85,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "space": "2d"
+  },
+  "impact.gore": {
+   "files": [
+    "impact/gore_01.ogg",
+    "impact/gore_02.ogg",
+    "impact/gore_03.ogg",
+    "impact/gore_04.ogg"
+   ],
+   "kids": [],
+   "gain": 0.8,
+   "pitch": [
+    0.92,
+    1.08
+   ],
+   "space": "3d at the zombie's head",
+   "note": "never in kids mode"
+  },
+  "melee.chop": {
+   "files": [
+    "melee/chop_01.ogg",
+    "melee/chop_02.ogg",
+    "melee/chop_03.ogg",
+    "melee/chop_04.ogg"
+   ],
+   "kids": [
+    "melee/chop_kids_01.ogg",
+    "melee/chop_kids_02.ogg",
+    "melee/chop_kids_03.ogg"
+   ],
+   "gain": 0.9,
+   "pitch": [
+    0.93,
+    1.07
+   ],
+   "space": "2d"
+  },
+  "melee.swing": {
+   "files": [
+    "melee/swing_01.ogg",
+    "melee/swing_02.ogg",
+    "melee/swing_03.ogg",
+    "melee/swing_04.ogg"
+   ],
+   "kids": [],
+   "gain": 0.6,
+   "pitch": [
+    0.9,
+    1.15
+   ],
+   "cooldown": 0.15,
+   "space": "2d",
+   "added": "axe / machete swing through the air (tip speed over 2.2 m/s)"
+  },
+  "melee.saw.idle": {
+   "files": [
+    "melee/saw_idle.ogg"
+   ],
+   "kids": [],
+   "gain": 0.6,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "cooldown": 1.6,
+   "space": "2d",
+   "note": "1.85 s seamless slice: play as a loop while held"
+  },
+  "melee.saw.cut": {
+   "files": [
+    "melee/saw_cut_01.ogg",
+    "melee/saw_cut_02.ogg"
+   ],
+   "kids": [],
+   "gain": 0.8,
+   "pitch": [
+    0.98,
+    1.02
+   ],
+   "cooldown": 1.3,
+   "space": "2d",
+   "note": "1.5 s seamless slices"
+  },
+  "melee.saw.start": {
+   "files": [
+    "melee/saw_start.ogg"
+   ],
+   "kids": [],
+   "gain": 0.8,
+   "space": "2d",
+   "added": "the chainsaw is taken / the trigger is first pulled"
+  },
+  "zombie.idle": {
+   "files": [
+    "zombie/idle_01.ogg",
+    "zombie/idle_02.ogg",
+    "zombie/idle_03.ogg",
+    "zombie/idle_04.ogg",
+    "zombie/idle_05.ogg",
+    "zombie/idle_06.ogg",
+    "zombie/idle_07.ogg",
+    "zombie/idle_08.ogg",
+    "zombie/idle_09.ogg",
+    "zombie/idle_10.ogg",
+    "zombie/idle_11.ogg",
+    "zombie/idle_12.ogg"
+   ],
+   "kids": [],
+   "gain": 0.8,
+   "pitch": [
+    0.88,
+    1.08
+   ],
+   "cooldown": 0.4,
+   "space": "3d"
+  },
+  "zombie.idle.runner": {
+   "files": [
+    "zombie/runner_01.ogg",
+    "zombie/runner_02.ogg",
+    "zombie/runner_03.ogg",
+    "zombie/runner_04.ogg",
+    "zombie/runner_05.ogg",
+    "zombie/runner_06.ogg"
+   ],
+   "kids": [],
+   "gain": 0.85,
+   "pitch": [
+    0.95,
+    1.12
+   ],
+   "cooldown": 0.35,
+   "space": "3d"
+  },
+  "zombie.idle.big": {
+   "files": [
+    "zombie/big_01.ogg",
+    "zombie/big_02.ogg",
+    "zombie/big_03.ogg",
+    "zombie/big_04.ogg",
+    "zombie/big_05.ogg"
+   ],
+   "kids": [],
+   "gain": 1.0,
+   "pitch": [
+    0.82,
+    0.96
+   ],
+   "cooldown": 0.8,
+   "space": "3d"
+  },
+  "zombie.step": {
+   "files": [
+    "zombie/step_01.ogg",
+    "zombie/step_02.ogg",
+    "zombie/step_03.ogg",
+    "zombie/step_04.ogg",
+    "zombie/step_05.ogg",
+    "zombie/step_06.ogg"
+   ],
+   "kids": [],
+   "gain": 0.45,
+   "pitch": [
+    0.88,
+    1.1
+   ],
+   "cooldown": 0.09,
+   "space": "3d"
+  },
+  "zombie.step.heavy": {
+   "files": [
+    "zombie/step_heavy_01.ogg",
+    "zombie/step_heavy_02.ogg",
+    "zombie/step_heavy_03.ogg",
+    "zombie/step_heavy_04.ogg"
+   ],
+   "kids": [],
+   "gain": 1.0,
+   "pitch": [
+    0.7,
+    0.85
+   ],
+   "cooldown": 0.2,
+   "space": "3d",
+   "note": "pitched down on purpose: weight"
+  },
+  "zombie.attack": {
+   "files": [
+    "zombie/attack_01.ogg",
+    "zombie/attack_02.ogg",
+    "zombie/attack_03.ogg",
+    "zombie/attack_04.ogg",
+    "zombie/attack_05.ogg",
+    "zombie/attack_06.ogg"
+   ],
+   "kids": [],
+   "gain": 0.9,
+   "pitch": [
+    0.9,
+    1.08
+   ],
+   "cooldown": 0.25,
+   "space": "3d"
+  },
+  "zombie.attack.big": {
+   "files": [
+    "zombie/attack_big_01.ogg",
+    "zombie/attack_big_02.ogg",
+    "zombie/attack_big_03.ogg"
+   ],
+   "kids": [],
+   "gain": 1.0,
+   "pitch": [
+    0.85,
+    1.0
+   ],
+   "cooldown": 0.5,
+   "space": "3d"
+  },
+  "zombie.death": {
+   "files": [
+    "zombie/death_01.ogg",
+    "zombie/death_02.ogg",
+    "zombie/death_03.ogg",
+    "zombie/death_04.ogg",
+    "zombie/death_05.ogg",
+    "zombie/death_06.ogg"
+   ],
+   "kids": [
+    "zombie/death_kids_01.ogg",
+    "zombie/death_kids_02.ogg",
+    "zombie/death_kids_03.ogg"
+   ],
+   "gain": 0.85,
+   "pitch": [
+    0.88,
+    1.06
+   ],
+   "cooldown": 0.08,
+   "space": "3d",
+   "note": "kids: only the soft body fall"
+  },
+  "zombie.bodyfall": {
+   "files": [
+    "zombie/bodyfall_01.ogg",
+    "zombie/bodyfall_02.ogg",
+    "zombie/bodyfall_03.ogg",
+    "zombie/bodyfall_04.ogg"
+   ],
+   "kids": [],
+   "gain": 0.6,
+   "pitch": [
+    0.8,
+    1.0
+   ],
+   "cooldown": 0.08,
+   "space": "3d",
+   "added": "the body reaching the ground, 0.4-0.6 s after zombie.death"
+  },
+  "zombie.death.big": {
+   "files": [
+    "zombie/death_big_01.ogg",
+    "zombie/death_big_02.ogg"
+   ],
+   "kids": [],
+   "gain": 1.0,
+   "pitch": [
+    0.85,
+    0.95
+   ],
+   "space": "3d"
+  },
+  "screamer.scream": {
+   "files": [
+    "zombie/scream_01.ogg",
+    "zombie/scream_02.ogg",
+    "zombie/scream_03.ogg"
+   ],
+   "kids": [
+    "zombie/scream_kids_01.ogg"
+   ],
+   "gain": 1.0,
+   "pitch": [
+    0.95,
+    1.05
+   ],
+   "cooldown": 2.0,
+   "space": "3d"
+  },
+  "brute.roar": {
+   "files": [
+    "zombie/brute_roar_01.ogg",
+    "zombie/brute_roar_02.ogg"
+   ],
+   "kids": [],
+   "gain": 1.0,
+   "pitch": [
+    0.85,
+    0.95
+   ],
+   "cooldown": 3.0,
+   "space": "3d"
+  },
+  "leaper.leap": {
+   "files": [
+    "zombie/leap_01.ogg",
+    "zombie/leap_02.ogg",
+    "zombie/leap_03.ogg"
+   ],
+   "kids": [],
+   "gain": 0.95,
+   "pitch": [
+    0.95,
+    1.1
+   ],
+   "space": "3d"
+  },
+  "leaper.land": {
+   "files": [
+    "zombie/land_01.ogg",
+    "zombie/land_02.ogg",
+    "zombie/land_03.ogg"
+   ],
+   "kids": [],
+   "gain": 0.9,
+   "pitch": [
+    0.85,
+    1.0
+   ],
+   "space": "3d"
+  },
+  "digger.rise": {
+   "files": [
+    "zombie/dig_01.ogg",
+    "zombie/dig_02.ogg",
+    "zombie/dig_03.ogg"
+   ],
+   "kids": [],
+   "gain": 0.9,
+   "pitch": [
+    0.9,
+    1.05
+   ],
+   "space": "3d"
+  },
+  "fence.rattle": {
+   "files": [
+    "world/fence_rattle_01.ogg",
+    "world/fence_rattle_02.ogg",
+    "world/fence_rattle_03.ogg"
+   ],
+   "kids": [],
+   "gain": 0.9,
+   "pitch": [
+    0.9,
+    1.05
+   ],
+   "cooldown": 1.0,
+   "space": "3d at the fence side",
+   "added": "leapers shake the fence 2 s before the first one jumps"
+  },
+  "boss.siren": {
+   "files": [
+    "boss/siren.ogg"
+   ],
+   "kids": [],
+   "gain": 0.75,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d"
+  },
+  "boss.roar": {
+   "files": [
+    "boss/roar_01.ogg",
+    "boss/roar_02.ogg"
+   ],
+   "kids": [],
+   "gain": 1.0,
+   "pitch": [
+    0.8,
+    0.9
+   ],
+   "cooldown": 2.0,
+   "space": "3d"
+  },
+  "boss.rage": {
+   "files": [
+    "boss/rage.ogg"
+   ],
+   "kids": [],
+   "gain": 1.0,
+   "pitch": [
+    0.82,
+    0.88
+   ],
+   "space": "3d",
+   "added": "the roar at 40 % health (once)"
+  },
+  "boss.hurt": {
+   "files": [
+    "boss/hurt_01.ogg",
+    "boss/hurt_02.ogg"
+   ],
+   "kids": [],
+   "gain": 0.95,
+   "pitch": [
+    0.75,
+    0.85
+   ],
+   "cooldown": 1.5,
+   "space": "3d",
+   "added": "each stagger"
+  },
+  "boss.windup": {
+   "files": [
+    "boss/windup.ogg"
+   ],
+   "kids": [],
+   "gain": 0.8,
+   "space": "3d",
+   "added": "rising whoosh while the thrown thing is in the air (about 1.2 s before boss.slam)"
+  },
+  "boss.slam": {
+   "files": [
+    "boss/slam_01.ogg",
+    "boss/slam_02.ogg"
+   ],
+   "kids": [],
+   "gain": 1.0,
+   "pitch": [
+    0.9,
+    1.0
+   ],
+   "space": "3d",
+   "added": "the thrown wreck / the ground smash landing"
+  },
+  "player.hurt": {
+   "files": [
+    "player/hurt_01.ogg",
+    "player/hurt_02.ogg",
+    "player/hurt_03.ogg",
+    "player/hurt_04.ogg"
+   ],
+   "kids": [
+    "player/hurt_kids_01.ogg",
+    "player/hurt_kids_02.ogg"
+   ],
+   "gain": 0.95,
+   "pitch": [
+    0.92,
+    1.06
+   ],
+   "space": "2d"
+  },
+  "player.down": {
+   "files": [
+    "player/down_01.ogg",
+    "player/down_02.ogg"
+   ],
+   "kids": [],
+   "gain": 0.8,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d"
+  },
+  "player.up": {
+   "files": [
+    "player/up_01.ogg",
+    "player/up_02.ogg"
+   ],
+   "kids": [],
+   "gain": 0.7,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d"
+  },
+  "player.heart": {
+   "files": [
+    "player/heart_01.ogg",
+    "player/heart_02.ogg"
+   ],
+   "kids": [],
+   "gain": 0.8,
+   "pitch": [
+    0.98,
+    1.02
+   ],
+   "space": "2d"
+  },
+  "player.combo": {
+   "files": [
+    "player/combo_01.ogg",
+    "player/combo_02.ogg"
+   ],
+   "kids": [],
+   "gain": 0.5,
+   "pitch": [
+    1.0,
+    1.12
+   ],
+   "space": "2d"
+  },
+  "player.combo.big": {
+   "files": [
+    "player/combo_big.ogg"
+   ],
+   "kids": [],
+   "gain": 0.55,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d"
+  },
+  "wave.start": {
+   "files": [
+    "world/wave_siren.ogg"
+   ],
+   "kids": [],
+   "gain": 0.7,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d (or 3d far outside the fence)"
+  },
+  "wave.clear": {
+   "files": [
+    "world/wave_clear.ogg"
+   ],
+   "kids": [],
+   "gain": 0.6,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d"
+  },
+  "stinger.wave": {
+   "files": [
+    "stinger/wave_01.ogg",
+    "stinger/wave_02.ogg"
+   ],
+   "kids": [],
+   "gain": 0.6,
+   "space": "2d",
+   "added": "a hit under the WAVE n title"
+  },
+  "stinger.blackout": {
+   "files": [
+    "stinger/blackout.ogg"
+   ],
+   "kids": [],
+   "gain": 0.7,
+   "space": "2d",
+   "added": "right after world.power.off"
+  },
+  "stinger.boss": {
+   "files": [
+    "stinger/boss.ogg"
+   ],
+   "kids": [],
+   "gain": 0.75,
+   "space": "2d",
+   "added": "when the boss is first seen"
+  },
+  "stinger.jump": {
+   "files": [
+    "stinger/jump_01.ogg",
+    "stinger/jump_02.ogg",
+    "stinger/jump_03.ogg"
+   ],
+   "kids": [],
+   "gain": 0.65,
+   "cooldown": 20,
+   "space": "2d",
+   "added": "first digger, a leaper landing behind a player; never in kids mode"
+  },
+  "riser.10s": {
+   "files": [
+    "stinger/riser_10s.ogg"
+   ],
+   "kids": [],
+   "gain": 0.5,
+   "space": "2d",
+   "added": "last 10 s of the prep and of each break; ends on the wave start"
+  },
+  "end.win": {
+   "files": [
+    "stinger/end_win.ogg"
+   ],
+   "kids": [],
+   "gain": 0.8,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d"
+  },
+  "end.lose": {
+   "files": [
+    "stinger/end_lose.ogg"
+   ],
+   "kids": [],
+   "gain": 0.8,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d"
+  },
+  "score.tick": {
+   "files": [
+    "ui/score_tick_01.ogg",
+    "ui/score_tick_02.ogg",
+    "ui/score_tick_03.ogg"
+   ],
+   "kids": [],
+   "gain": 0.4,
+   "pitch": [
+    1.0,
+    1.25
+   ],
+   "cooldown": 0.05,
+   "space": "2d",
+   "added": "score counting up on the end screen (raise the pitch as it climbs)"
+  },
+  "score.final": {
+   "files": [
+    "ui/score_final.ogg"
+   ],
+   "kids": [],
+   "gain": 0.8,
+   "space": "2d",
+   "added": "the final number lands"
+  },
+  "score.record": {
+   "files": [
+    "ui/score_record.ogg"
+   ],
+   "kids": [],
+   "gain": 0.85,
+   "space": "2d",
+   "added": "NEW RECORD"
+  },
+  "award.reveal": {
+   "files": [
+    "ui/award_01.ogg",
+    "ui/award_02.ogg"
+   ],
+   "kids": [],
+   "gain": 0.6,
+   "pitch": [
+    0.96,
+    1.04
+   ],
+   "space": "2d",
+   "added": "each player's award appearing"
+  },
+  "gate.bang": {
+   "files": [
+    "gate/bang_01.ogg",
+    "gate/bang_02.ogg",
+    "gate/bang_03.ogg",
+    "gate/bang_04.ogg",
+    "gate/bang_05.ogg",
+    "gate/bang_06.ogg"
+   ],
+   "kids": [],
+   "gain": 1.0,
+   "pitch": [
+    0.8,
+    0.95
+   ],
+   "cooldown": 0.1,
+   "space": "3d"
+  },
+  "gate.crack": {
+   "files": [
+    "gate/crack_01.ogg",
+    "gate/crack_02.ogg",
+    "gate/crack_03.ogg",
+    "gate/crack_04.ogg"
+   ],
+   "kids": [],
+   "gain": 1.0,
+   "pitch": [
+    0.9,
+    1.08
+   ],
+   "space": "3d"
+  },
+  "gate.smash": {
+   "files": [
+    "gate/smash_01.ogg",
+    "gate/smash_02.ogg"
+   ],
+   "kids": [],
+   "gain": 1.0,
+   "pitch": [
+    0.88,
+    1.0
+   ],
+   "space": "3d"
+  },
+  "gate.hammer": {
+   "files": [
+    "gate/hammer_01.ogg",
+    "gate/hammer_02.ogg",
+    "gate/hammer_03.ogg",
+    "gate/hammer_04.ogg"
+   ],
+   "kids": [],
+   "gain": 0.85,
+   "pitch": [
+    0.94,
+    1.08
+   ],
+   "cooldown": 0.1,
+   "space": "3d"
+  },
+  "gate.sealed": {
+   "files": [
+    "gate/sealed.ogg"
+   ],
+   "kids": [],
+   "gain": 0.8,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "3d"
+  },
+  "plank.drop": {
+   "files": [
+    "gate/plank_drop_01.ogg",
+    "gate/plank_drop_02.ogg",
+    "gate/plank_drop_03.ogg"
+   ],
+   "kids": [],
+   "gain": 0.7,
+   "pitch": [
+    0.9,
+    1.1
+   ],
+   "space": "3d",
+   "added": "a torn plank landing inside the zone"
+  },
+  "barrel.boom": {
+   "files": [
+    "world/boom_01.ogg",
+    "world/boom_02.ogg",
+    "world/boom_03.ogg"
+   ],
+   "kids": [],
+   "gain": 1.0,
+   "pitch": [
+    0.92,
+    1.04
+   ],
+   "space": "3d"
+  },
+  "chest.open": {
+   "files": [
+    "chest/open.ogg"
+   ],
+   "kids": [],
+   "gain": 1.0,
+   "pitch": [
+    0.97,
+    1.03
+   ],
+   "space": "3d",
+   "note": "latch, hinge creak, lid slam at 1.05 s"
+  },
+  "chest.drop": {
+   "files": [
+    "chest/drop_01.ogg",
+    "chest/drop_02.ogg",
+    "chest/drop_03.ogg",
+    "chest/drop_04.ogg"
+   ],
+   "kids": [],
+   "gain": 0.8,
+   "pitch": [
+    0.85,
+    1.05
+   ],
+   "space": "3d"
+  },
+  "chest.fly": {
+   "files": [
+    "chest/fly_01.ogg",
+    "chest/fly_02.ogg",
+    "chest/fly_03.ogg",
+    "chest/fly_04.ogg"
+   ],
+   "kids": [],
+   "gain": 0.5,
+   "pitch": [
+    0.9,
+    1.2
+   ],
+   "space": "3d",
+   "added": "each weapon leaving the chest"
+  },
+  "world.thunder": {
+   "files": [
+    "world/thunder_01.ogg",
+    "world/thunder_02.ogg",
+    "world/thunder_03.ogg"
+   ],
+   "kids": [],
+   "gain": 0.85,
+   "pitch": [
+    0.92,
+    1.04
+   ],
+   "space": "2d"
+  },
+  "world.power.off": {
+   "files": [
+    "world/power_off.ogg"
+   ],
+   "kids": [],
+   "gain": 0.9,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d"
+  },
+  "world.power.on": {
+   "files": [
+    "world/power_on.ogg"
+   ],
+   "kids": [],
+   "gain": 0.9,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "space": "2d"
+  },
+  "world.neon.hum": {
+   "files": [
+    "world/neon_hum.ogg"
+   ],
+   "kids": [],
+   "gain": 0.35,
+   "loop": true,
+   "space": "3d at the MOTEL sign",
+   "added": "loop: the sign buzzing; stop it in the blackout"
+  },
+  "world.spark": {
+   "files": [
+    "world/spark_01.ogg",
+    "world/spark_02.ogg"
+   ],
+   "kids": [],
+   "gain": 0.7,
+   "pitch": [
+    0.95,
+    1.1
+   ],
+   "space": "3d at the sign",
+   "added": "the sign flickering (boss steps, power failing)"
+  },
+  "world.alarm": {
+   "files": [
+    "world/alarm.ogg"
+   ],
+   "kids": [],
+   "gain": 0.8,
+   "pitch": [
+    1.0,
+    1.0
+   ],
+   "cooldown": 3.5,
+   "space": "3d far out on the path",
+   "note": "4 s seamless alarm figure: repeat it while the alarm lasts"
+  },
+  "world.heli.away": {
+   "files": [
+    "world/heli_away.ogg"
+   ],
+   "kids": [],
+   "gain": 0.7,
+   "space": "2d",
+   "added": "16 s: the helicopter leaving at the start of the prep (take-off part of the recording)"
+  },
+  "world.heli.in": {
+   "files": [
+    "world/heli_in.ogg"
+   ],
+   "kids": [],
+   "gain": 0.8,
+   "space": "2d",
+   "added": "12 s: rotor growing for the pick-up at the win (rotor at speed, long fade-in)"
+  },
+  "radio.open": {
+   "files": [
+    "voice/radio_open.ogg"
+   ],
+   "kids": [],
+   "gain": 0.5,
+   "space": "2d",
+   "added": "walkie-talkie squelch around a voice.radio.* line"
+  },
+  "radio.close": {
+   "files": [
+    "voice/radio_close.ogg"
+   ],
+   "kids": [],
+   "gain": 0.5,
+   "space": "2d",
+   "added": "walkie-talkie squelch around a voice.radio.* line"
+  },
+  "ambience.night": {
+   "files": [
+    "amb/night.ogg"
+   ],
+   "kids": [],
+   "gain": 0.55,
+   "loop": true,
+   "space": "2d",
+   "note": "crickets + wind in trees, 30 s seamless"
+  },
+  "ambience.rain": {
+   "files": [
+    "amb/rain.ogg"
+   ],
+   "kids": [],
+   "gain": 0.5,
+   "loop": true,
+   "space": "2d",
+   "added": "loop for the storm of the last wave"
+  },
+  "ambience.fire": {
+   "files": [
+    "amb/fire.ogg"
+   ],
+   "kids": [],
+   "gain": 0.6,
+   "loop": true,
+   "space": "3d at each fire barrel",
+   "added": "loop: barrel fire crackle"
+  },
+  "music.calm": {
+   "files": [
+    "music/calm.ogg"
+   ],
+   "kids": [],
+   "gain": 0.3,
+   "loop": true,
+   "space": "2d"
+  },
+  "music.wave": {
+   "files": [
+    "music/wave.ogg"
+   ],
+   "kids": [],
+   "gain": 0.36,
+   "loop": true,
+   "space": "2d",
+   "note": "the library's own seamless pulse loop"
+  },
+  "music.intense": {
+   "files": [
+    "music/intense.ogg"
+   ],
+   "kids": [],
+   "gain": 0.42,
+   "loop": true,
+   "space": "2d",
+   "note": "music.wave with two more layers on top, same length: crossfades cleanly from music.wave"
+  },
+  "music.boss": {
+   "files": [
+    "music/boss.ogg"
+   ],
+   "kids": [],
+   "gain": 0.45,
+   "loop": true,
+   "space": "2d",
+   "note": "the pulse of music.wave under a darker cinematic layer, same length"
+  },
+  "music.calm.ccby": {
+   "files": [
+    "music/ccby_calm.ogg"
+   ],
+   "kids": [],
+   "gain": 0.4,
+   "loop": true,
+   "space": "2d",
+   "added": "alternative bed: \"Gathering Darkness\" by Kevin MacLeod, CC BY 4.0, credit required; to use it, put this file first in music.calm"
+  },
+  "music.wave.ccby": {
+   "files": [
+    "music/ccby_wave.ogg"
+   ],
+   "kids": [],
+   "gain": 0.4,
+   "loop": true,
+   "space": "2d",
+   "added": "alternative bed: \"Unseen Horrors\" by Kevin MacLeod, CC BY 4.0, credit required; to use it, put this file first in music.wave"
+  },
+  "music.intense.ccby": {
+   "files": [
+    "music/ccby_intense.ogg"
+   ],
+   "kids": [],
+   "gain": 0.4,
+   "loop": true,
+   "space": "2d",
+   "added": "alternative bed: \"Volatile Reaction\" by Kevin MacLeod, CC BY 4.0, credit required; to use it, put this file first in music.intense"
+  },
+  "music.boss.ccby": {
+   "files": [
+    "music/ccby_boss.ogg"
+   ],
+   "kids": [],
+   "gain": 0.4,
+   "loop": true,
+   "space": "2d",
+   "added": "alternative bed: \"Killers\" by Kevin MacLeod, CC BY 4.0, credit required; to use it, put this file first in music.boss"
+  },
+  "end.win.ccby": {
+   "files": [
+    "music/ccby_win.ogg"
+   ],
+   "kids": [],
+   "gain": 0.6,
+   "space": "2d",
+   "added": "alternative victory music: \"Heroic Age\" by Kevin MacLeod, CC BY 4.0, credit required"
+  }
+ },
+ "lobby": {
+  "vote.hover": {
+   "files": [
+    "hover_01.ogg",
+    "hover_02.ogg"
+   ],
+   "kids": []
+  },
+  "vote.pick": {
+   "files": [
+    "pick_01.ogg",
+    "pick_02.ogg"
+   ],
+   "kids": []
+  },
+  "vote.win": {
+   "files": [
+    "vote_win.ogg"
+   ],
+   "kids": []
+  },
+  "vote.last": {
+   "files": [
+    "tick_01.ogg",
+    "tick_02.ogg",
+    "tick_03.ogg"
+   ],
+   "kids": []
+  },
+  "countdown.tick": {
+   "files": [
+    "count_01.ogg",
+    "count_02.ogg",
+    "count_03.ogg"
+   ],
+   "kids": []
+  },
+  "countdown.go": {
+   "files": [
+    "go.ogg"
+   ],
+   "kids": []
+  },
+  "results.show": {
+   "files": [
+    "results.ogg"
+   ],
+   "kids": []
+  },
+  "message.in": {
+   "files": [
+    "radio_01.ogg",
+    "radio_02.ogg"
+   ],
+   "kids": []
+  },
+  "pause.toggle": {
+   "files": [
+    "pause.ogg"
+   ],
+   "kids": []
+  },
+  "ui.click": {
+   "files": [
+    "click_01.ogg",
+    "click_02.ogg"
+   ],
+   "kids": []
+  },
+  "setup.point": {
+   "files": [
+    "point.ogg"
+   ],
+   "kids": []
+  },
+  "setup.done": {
+   "files": [
+    "setup_done.ogg"
+   ],
+   "kids": []
+  },
+  "range.shot": {
+   "files": [
+    "range_shot_01.ogg",
+    "range_shot_02.ogg",
+    "range_shot_03.ogg"
+   ],
+   "kids": []
+  },
+  "range.hit": {
+   "files": [
+    "range_hit_01.ogg",
+    "range_hit_02.ogg"
+   ],
+   "kids": []
+  },
+  "range.best": {
+   "files": [
+    "range_best.ogg"
+   ],
+   "kids": []
+  }
+ }
+}
