@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MS Games TV</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="tv.css">
+</head>
+<body data-mode="attract">
+
+<!-- the live picture: the watch page renders the real game world, the director moves its camera -->
+<div id="stage"></div>
+
+<!-- attract mode: key art in slow motion, the record board, what happens next -->
+<section id="attract">
+  <div class="art"><i id="artA"></i><i id="artB"></i></div>
+  <div class="shade"></div>
+  <header class="top">
+    <div class="brand"><span class="mark"></span><div class="word"><b>MS GAMES</b><span>VR ARENA</span></div></div>
+    <div class="venue" id="venue" hidden><span>Presented by</span><img id="venueLogo" alt="" hidden><b id="venueName"></b></div>
+  </header>
+  <div class="hero">
+    <div class="kicker" id="aKicker">Now playing at the arena</div>
+    <h1 id="aTitle">The Motel</h1>
+    <p class="tag" id="aTag"></p>
+    <ul class="facts" id="aFacts"></ul>
+  </div>
+  <aside class="board">
+    <div class="boardHead"><b id="bTitle">Record board</b><span id="bSub">All time</span></div>
+    <ol id="bList"></ol>
+    <p class="empty" id="bEmpty" hidden>No records yet. The first team sets one.</p>
+  </aside>
+  <footer class="next">
+    <i class="dot"></i>
+    <b id="nextLine">Next game starts soon</b>
+    <span id="nextSub">Ask at the counter to play</span>
+    <time id="clockA"></time>
+  </footer>
+</section>
+
+<!-- the broadcast overlay while a game runs -->
+<section id="hud">
+  <div class="bug">
+    <span class="mark"></span>
+    <div><b id="hGame">The Motel</b><span id="hMode">Live</span></div>
+  </div>
+  <div class="live"><i></i><b>LIVE</b><span id="hShot"></span></div>
+
+  <div class="bossBar" id="bossBar" hidden><b>BOSS</b><div><i id="bossFill"></i></div></div>
+
+  <div class="banner" id="banner"><i></i><b id="bannerText"></b><span id="bannerSub"></span></div>
+
+  <div class="third">
+    <div class="team">
+      <span>Team</span>
+      <b id="hTeam">Players</b>
+    </div>
+    <div class="cell score">
+      <span>Score</span>
+      <b id="hScore">0</b>
+    </div>
+    <div class="cell wave">
+      <span id="hWaveLabel">Wave</span>
+      <b id="hWave">1</b>
+    </div>
+    <div class="cell time">
+      <span>Time left</span>
+      <b id="hTime">0:00</b>
+    </div>
+    <div class="players" id="hPlayers"></div>
+  </div>
+</section>
+
+<!-- the end of a game: the result, held until the session goes back to idle -->
+<section id="results">
+  <div class="card">
+    <div class="rHead"><span class="mark"></span><b id="rGame">The Motel</b><span id="rDiff"></span></div>
+    <div class="rTeam" id="rTeam"></div>
+    <div class="rScore"><b id="rScore">0</b><span id="rRank"></span></div>
+    <table><thead><tr><th>Player</th><th>Kills</th><th>Deaths</th><th>Score</th></tr></thead><tbody id="rRows"></tbody></table>
+  </div>
+</section>
+
+<!-- between attract and live: the game is loading on the TV too -->
+<section id="curtain">
+  <div class="art"><i id="artC"></i></div>
+  <div class="shade"></div>
+  <div class="center">
+    <span class="mark"></span>
+    <h2 id="cTitle">The Motel</h2>
+    <p id="cLine">Starting now</p>
+    <div class="line"><i id="cFill"></i></div>
+  </div>
+</section>
+
+<div id="hint">Click for full screen</div>
+
+<script type="module" src="tv.js"></script>
+</body>
+</html>

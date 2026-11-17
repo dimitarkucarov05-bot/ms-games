@@ -1,0 +1,26 @@
+Sounds of the waiting room (S3). All are cuts of recordings from the Sonniss #GameAudioGDC bundles
+(royalty-free, commercial use allowed), downloaded from the official your.org mirror into vr-arena/_sound-src
+and cut with lobby/tools/sfx/sfx.py (trim, fade, mono, level). Nothing synthesized.
+
+vote.ogg     2016 3maze - Buttons and Switches / switch_on_042.wav                     0.0-0.6 s
+hover.ogg    2015 TheLibrarybyEmptySea - UI1 / TheLibrarybyMTC_UI_GlassTicks_25.wav
+tick.ogg     2016 Alexander Kopeikin - Black Metal / dry hard metal impact with rust debris 20.wav   0.08-1.8 s
+go.ogg       2017 Bluezone Corporation - Cinematic Trailer Sound Effects / Bluezone-BC0226-whoosh-impact-005.wav   0.2-2.5 s
+bell.ogg     2015 Soundopolis - Percussion 01 / Bell_Waiter_Fienup_001.wav              0.0-2.2 s
+results.ogg  2016 Bottle Rocket Fx - Impact Collection / Impact_Drum Hit_03.wav        0.0-3.8 s
+click.ogg    2016 3maze - Buttons and Switches / button_on_off_064.wav
+
+Used for: vote = vote confirmed; hover = laser moves onto a game; tick = countdown 3-2-1 and setup point touched;
+go = countdown end and the vote winner; bell = operator message and end message; results = scores shown;
+click = small confirmations (swap hands, height set).
+
+Ambience loops (added for the camp atmosphere):
+fire.ogg     2018 UberDuo - The Cabin Audio Playset / FireCracklingInAWoodstove.wav     loop, crossfade 0.7 s
+night.ogg    2018 Soundrangers - Nature Ambience / forest_alpine_crickets_01_60_loop.wav  0-32 s, loop
+wind.ogg     2015 Soundopolis - Natures Fury_Wind_01 / Wind_Trees_Cattails_Fienup_001.wav  4-34 s, loop
+Hooks: see lobby/sfx.js HOOKS; S8 can replace any of them through /play/assets/sfx/lobby/hooks.json.
+shot.ogg     2016 Pole Position Production - Heckler & Koch VP70 9mm / HK_VP70_9mm_1m_in_front_RE20_clean_Double_shots_x_1.wav  0.47-0.93 s (first shot)
+hit.ogg      2016 Alexander Kopeikin - Sci-Fi Metal Elements HD / sci-fi metal impact, steel bulkhead hit, low 01.wav  0.09-1.6 s
+(range.shot / range.hit hooks: the waiting room's shooting range)
+hum.ogg      2017 Zero-G - Dark Skies - Cinematic Ambiences / Sci Fi - Starship Sub Amb.wav   loop, crossfade 1.5 s (the hub)
+portal.ogg   2017 SoundMorph - Portals / Door - SpaceShip_hatchway_06.wav   0-3.8 s (a game portal opens)

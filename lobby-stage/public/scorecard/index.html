@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1000">
+<title>Scorecard · MS Games</title>
+<link rel="preload" href="/fonts/sofia-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="scorecard.css">
+</head>
+<body>
+<main id="card" class="card" data-look="digital" aria-busy="true">
+  <header class="sc-top">
+    <span class="sc-game" id="scGame"></span>
+    <span class="sc-date" id="scDate"></span>
+  </header>
+  <figure class="sc-cover" id="scCover"><span class="sc-cover-name" id="scCoverName"></span></figure>
+  <section class="sc-head">
+    <div class="sc-team-box">
+      <span class="sc-label" id="scLabel">Team</span>
+      <h1 class="sc-team" id="scTeam"></h1>
+      <p class="sc-meta" id="scMeta"></p>
+    </div>
+  </section>
+  <section class="sc-nums">
+    <div class="sc-score"><b id="scScore"></b><span class="sc-label">Score</span></div>
+    <div class="sc-rank" id="scRankBox"><b id="scRank"></b><span class="sc-label" id="scRankLabel">Rank</span></div>
+    <div class="sc-record" id="scRecord" hidden>New record</div>
+  </section>
+  <table class="sc-players">
+    <thead><tr id="scHead"></tr></thead>
+    <tbody id="scRows"></tbody>
+  </table>
+  <footer class="sc-foot">
+    <div class="sc-venue"><span class="sc-label">Presented by</span><span id="scVenue"></span></div>
+    <span class="sc-brand"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="2.5" y="5.5" width="23" height="17" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.75"/><circle cx="18" cy="14" r="3.25" class="dot"/></svg>MS Games</span>
+  </footer>
+</main>
+<p id="scMissing" class="sc-missing" hidden></p>
+<script src="/console/mock.js"></script>
+<script src="scorecard.js"></script>
+</body>
+</html>
