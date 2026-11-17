@@ -27,15 +27,15 @@
 
 :root {
   color-scheme: dark;
-  --bg: oklch(0.158 0.006 120);
-  --rail: oklch(0.186 0.007 120);
-  --line: oklch(0.265 0.008 120);
-  --line-2: oklch(0.36 0.010 120);
-  --text: oklch(0.95 0.008 112);
-  --text-2: oklch(0.77 0.012 115);
-  --text-3: oklch(0.63 0.012 115);
-  --signal: oklch(0.9 0.19 122);
-  --signal-ink: oklch(0.21 0.05 122);
+  --bg: oklch(0.158 0.006 305);
+  --rail: oklch(0.186 0.007 305);
+  --line: oklch(0.265 0.008 305);
+  --line-2: oklch(0.36 0.01 305);
+  --text: oklch(0.95 0.008 305);
+  --text-2: oklch(0.77 0.012 305);
+  --text-3: oklch(0.63 0.012 305);
+  --signal: oklch(0.78 0.17 318);
+  --signal-ink: oklch(0.21 0.05 318);
   --bad: oklch(0.71 0.19 36);
   --u: min(1vw, 1.78vh);          /* една „стотна" от екрана 16:9: всичко се мери с нея, за да стои еднакво на всеки телевизор */
 }
@@ -75,7 +75,7 @@ li .score { font-size: calc(var(--u) * 4.6); text-align: right; }
 li:nth-child(-n+3) .place { color: var(--text); }
 li:first-child .team { font-size: calc(var(--u) * 2.8); }
 li:first-child .score { font-size: calc(var(--u) * 5.4); color: var(--signal); }
-li.fresh { background: oklch(0.9 0.19 122 / 0.08); }
+li.fresh { background: oklch(0.78 0.17 318 / 0.08); }
 li.fresh .place::after { content: "new"; display: block; font: 700 calc(var(--u) * 0.95) "Sofia Sans", sans-serif; letter-spacing: 0.09em; text-transform: uppercase; color: var(--signal); margin-top: calc(var(--u) * 0.3); }
 .empty { align-self: center; justify-self: center; text-align: center; color: var(--text-2); font-size: calc(var(--u) * 2.4); max-width: 34ch; }
 .empty small { display: block; margin-top: calc(var(--u) * 0.8); font-size: calc(var(--u) * 1.5); color: var(--text-3); }

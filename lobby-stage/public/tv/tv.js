@@ -25,7 +25,7 @@ const cap = s => String(s || '').replace(/^./, c => c.toUpperCase());
 function text(el, v) { v = String(v ?? ''); if (el.textContent !== v) { el.textContent = v; return true; } return false; }
 
 // ---------- brand mark: public/brand/mark.svg when S1 has published it, else option C "Stack" drawn here ----------
-const MARK = '<svg viewBox="0 0 128 112" aria-hidden="true"><path d="M4 108 L4 4 L26 4 L64 52 L102 4 L124 4 L124 108 L102 108 L102 46 L64 94 L26 46 L26 108 Z" fill="oklch(0.97 0.012 130)"/><path d="M4 108 L4 4 L26 4 L26 108 Z" fill="oklch(0.76 0.19 148)"/><path d="M102 108 L102 4 L124 4 L124 108 Z" fill="oklch(0.91 0.17 100)"/></svg>';
+const MARK = '<svg viewBox="0 0 128 112" aria-hidden="true"><path d="M4 108 L4 4 L26 4 L64 52 L102 4 L124 4 L124 108 L102 108 L102 46 L64 94 L26 46 L26 108 Z" fill="oklch(0.97 0.012 315)"/><path d="M4 108 L4 4 L26 4 L26 108 Z" fill="oklch(0.76 0.19 318)"/><path d="M102 108 L102 4 L124 4 L124 108 Z" fill="oklch(0.91 0.17 100)"/></svg>';
 for (const m of document.querySelectorAll('.mark')) m.innerHTML = MARK;
 {
   const probe = new Image();
@@ -312,7 +312,7 @@ function renderHud() {
   const box = $('hPlayers');
   if (sig !== plSig) {
     plSig = sig;
-    box.innerHTML = pls.map(p => `<div class="pl" data-id="${esc(p.id)}" style="--c:${esc(colorOf(p.id) || 'oklch(0.97 0.012 130)')}"><div class="who"><i>${esc(p.n || '')}</i><b>${esc(p.name || 'Player')}</b></div><div class="n"><b>0</b><span>Kills</span></div><div class="hp"><i></i></div></div>`).join('');
+    box.innerHTML = pls.map(p => `<div class="pl" data-id="${esc(p.id)}" style="--c:${esc(colorOf(p.id) || 'oklch(0.97 0.012 315)')}"><div class="who"><i>${esc(p.n || '')}</i><b>${esc(p.name || 'Player')}</b></div><div class="n"><b>0</b><span>Kills</span></div><div class="hp"><i></i></div></div>`).join('');
   }
   pls.forEach((p, i) => {
     const el = box.children[i];
@@ -367,7 +367,7 @@ function renderResults() {
   text($('rDiff'), DIFF[r.difficulty || r.level || run?.difficulty] || '');
   text($('rRank'), r.newRecord ? 'New record' : r.rank ? `Rank ${r.rank}` : (r.won === false ? '' : r.won ? 'Survived' : ''));
   const rows = (r.players || []).slice().sort((a, b) => (b.score || 0) - (a.score || 0));
-  $('rRows').innerHTML = rows.map(p => `<tr><td><i style="--c:${esc(colorOf(p.id) || 'oklch(0.97 0.012 130)')}">${esc(p.n || '')}</i>${esc(p.name || 'Player')}</td><td>${num(p.kills)}</td><td>${num(p.deaths)}</td><td>${num(p.score)}</td></tr>`).join('');
+  $('rRows').innerHTML = rows.map(p => `<tr><td><i style="--c:${esc(colorOf(p.id) || 'oklch(0.97 0.012 315)')}">${esc(p.n || '')}</i>${esc(p.name || 'Player')}</td><td>${num(p.kills)}</td><td>${num(p.deaths)}</td><td>${num(p.score)}</td></tr>`).join('');
 }
 
 // ---------- full screen, pointer ----------

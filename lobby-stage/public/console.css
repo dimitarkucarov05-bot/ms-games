@@ -32,24 +32,24 @@
   color-scheme: dark;
 
   /* MS Games palette (design section 0b): night green base, arena green primary, signal yellow accent, white text */
-  --bg:        oklch(0.155 0.022 155);
-  --rail:      oklch(0.172 0.024 155);
-  --surface:   oklch(0.19 0.026 155);
-  --surface-2: oklch(0.225 0.028 155);
-  --surface-3: oklch(0.27 0.03 155);
-  --line:      oklch(0.28 0.03 155);
-  --line-2:    oklch(0.36 0.034 155);
+  --bg:        oklch(0.155 0.022 305);
+  --rail:      oklch(0.172 0.024 305);
+  --surface:   oklch(0.19 0.026 305);
+  --surface-2: oklch(0.225 0.028 305);
+  --surface-3: oklch(0.27 0.03 305);
+  --line:      oklch(0.28 0.03 305);
+  --line-2:    oklch(0.36 0.034 305);
 
-  --text:   oklch(0.97 0.012 130);
-  --text-2: oklch(0.83 0.018 138);
-  --text-3: oklch(0.72 0.02 140);
+  --text:   oklch(0.97 0.012 315);
+  --text-2: oklch(0.83 0.018 315);
+  --text-3: oklch(0.72 0.02 315);
 
   /* primary action: arena green */
-  --signal:     oklch(0.76 0.19 148);
-  --signal-hi:  oklch(0.82 0.17 148);
-  --signal-ink: oklch(0.17 0.04 150);
-  --signal-dim: oklch(0.76 0.19 148 / 0.14);
-  --deep:       oklch(0.52 0.15 150);
+  --signal:     oklch(0.76 0.19 318);
+  --signal-hi:  oklch(0.82 0.17 318);
+  --signal-ink: oklch(0.17 0.04 305);
+  --signal-dim: oklch(0.76 0.19 318 / 0.14);
+  --deep:       oklch(0.52 0.15 318);
   /* live and accent: signal yellow */
   --accent:     oklch(0.91 0.17 100);
   --accent-ink: oklch(0.2 0.05 100);
@@ -180,7 +180,7 @@ button, input, select { font: inherit; color: inherit; }
 }
 .chip[data-tone="warn"] { color: var(--warn); border-color: oklch(0.77 0.16 58 / 0.4); }
 .chip-bad { color: var(--bad); border-color: oklch(0.68 0.21 28 / 0.45); }
-.chip-live { color: var(--text); border-color: oklch(0.76 0.19 148 / 0.4); background: var(--signal-dim); }
+.chip-live { color: var(--text); border-color: oklch(0.76 0.19 318 / 0.4); background: var(--signal-dim); }
 .chip-live i { width: 7px; height: 7px; border-radius: 50%; background: var(--signal); animation: pulse 1.6s ease-in-out infinite; }
 .chip-live b { font: 700 17px/1 var(--font-num); letter-spacing: 0.03em; color: var(--signal); }
 .chip-live b.over { color: var(--bad); }
@@ -282,7 +282,7 @@ button.chip-live:hover { border-color: var(--signal); }
 .tbl td { padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; white-space: nowrap; }
 .tbl tbody tr:last-child td { border-bottom: 0; }
 .tbl tbody tr { transition: background 120ms var(--ease); }
-.tbl tbody tr:hover { background: oklch(0.19 0.026 155 / 0.6); }
+.tbl tbody tr:hover { background: oklch(0.19 0.026 305 / 0.6); }
 .tbl td.r { text-align: right; }
 .c-check { width: 40px; padding-right: 0 !important; }
 .c-num { width: 54px; }
@@ -367,10 +367,10 @@ tr.off .num-badge, .roster-row.off .num-badge { color: var(--text-3); }
 .cover-pill {
   position: absolute; left: 10px; top: 10px;
   display: inline-flex; align-items: center; gap: 7px; height: 26px; padding: 0 10px;
-  border: 1px solid var(--line-2); border-radius: 999px; background: oklch(0.155 0.022 155 / 0.92);
+  border: 1px solid var(--line-2); border-radius: 999px; background: oklch(0.155 0.022 305 / 0.92);
   font-size: 12.5px; font-weight: 650; color: var(--text); white-space: nowrap;
 }
-.cover-pill[data-tone="live"] { border-color: oklch(0.76 0.19 148 / 0.5); }
+.cover-pill[data-tone="live"] { border-color: oklch(0.76 0.19 318 / 0.5); }
 .cover-pill[data-tone="live"]::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--signal); animation: pulse 1.6s ease-in-out infinite; }
 .cover-pill b { font: 700 16px/1 var(--font-num); letter-spacing: 0.03em; color: var(--signal); }
 .cover-pill b.over { color: var(--bad); }
@@ -395,10 +395,10 @@ a.btn { text-decoration: none; }
   max-width: 440px; padding: 11px 15px;
   border: 1px solid var(--line-2); border-radius: var(--r-2);
   background: var(--surface-2); color: var(--text); font-size: 14.5px;
-  box-shadow: 0 8px 24px oklch(0.08 0.02 155 / 0.5);
+  box-shadow: 0 8px 24px oklch(0.08 0.02 305 / 0.5);
   animation: toast-in 220ms var(--ease);
 }
-.toast.ok { border-color: oklch(0.76 0.19 148 / 0.5); }
+.toast.ok { border-color: oklch(0.76 0.19 318 / 0.5); }
 .toast.warn { border-color: oklch(0.77 0.16 58 / 0.55); color: var(--warn); }
 .toast.error { border-color: oklch(0.68 0.21 28 / 0.6); color: var(--bad); }
 .toast.out { opacity: 0; transform: translateY(6px); transition: opacity 200ms var(--ease), transform 200ms var(--ease); }

@@ -95,7 +95,7 @@ App.drawArena = function (canvas, opts = {}) {
     const pt = opts.points && opts.points[h.id];
     if (h.id === opts.focus || pt === 'p1' || pt === 'p2') { g.strokeStyle = COL.accent; g.lineWidth = 2.5; g.beginPath(); g.arc(px, py, r + 5, 0, Math.PI * 2); g.stroke(); }
     g.fillStyle = col; g.beginPath(); g.arc(px, py, r, 0, Math.PI * 2); g.fill();
-    g.fillStyle = 'oklch(0.17 0.04 150)'; g.font = `800 ${Math.round(r * 1.3)}px ${css('--font-num')}`; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillStyle = 'oklch(0.17 0.04 305)'; g.font = `800 ${Math.round(r * 1.3)}px ${css('--font-num')}`; g.textAlign = 'center'; g.textBaseline = 'middle';
     g.fillText(String(h.number || ''), px, py + 1);
   }
 };
