@@ -78,7 +78,7 @@ export function createRoom({ THREE, root, assets, bounds, anchors = null }) {
     boardGroup = new THREE.Group();
     boardGroup.position.set(a.x, a.y, a.z); boardGroup.rotation.y = a.ry || 0;
     if (a.display) {      // inside a station display (the hub's SM_Bld_Wall_04): the glass glows dark green, the scores on it
-      const glass = new THREE.Mesh(new THREE.PlaneGeometry(a.w, a.h), new THREE.MeshBasicMaterial({ color: 0x0a1f12, toneMapped: false }));
+      const glass = new THREE.Mesh(new THREE.PlaneGeometry(a.w, a.h), new THREE.MeshBasicMaterial({ color: 0x150b21, toneMapped: false }));
       boardGroup.add(glass);
       boardText = makeText(THREE, a.w * 0.94, a.h * 0.9, 480, { depthTest: true, order: 2 });
       boardText.mesh.position.set(0, 0, 0.004);

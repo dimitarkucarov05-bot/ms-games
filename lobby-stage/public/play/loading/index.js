@@ -5,9 +5,9 @@
 //   await loading.out({ swap });                          // swap() disposes the game and shows the waiting room
 //
 // What the player sees going in:
-//   1. the MS Games hub sinks: the night rises from the ground to over the head, with an arena-green glow on its edge;
+//   1. the MS Games hub sinks: the night rises from the ground to over the head, with an arena-purple glow on its edge;
 //   2. in the dark the game's key art comes out of the black, the MS Games mark and the title land in bold type with a real sound and a
-//      short pulse in both hands, and one thin green line under it fills as the game loads;
+//      short pulse in both hands, and one thin purple line under it fills as the game loads;
 //   3. everything is loaded BEFORE the reveal: shaders are compiled and textures uploaded while it is still dark;
 //   4. the title leaves and the night drains back down: the game world stands there, from the sky to the ground.
 //
@@ -22,8 +22,8 @@
 
 const FONT_NUM = '"Sofia Sans XC", "Sofia Sans", "Segoe UI", sans-serif';
 const HOOKS_URL = '/play/assets/sfx/lobby/hooks.json';
-// MS Games brand (design 0b): arena green, signal yellow, white. Hex values are the sRGB of the oklch tokens.
-const BRAND = { white: '#f3f8ef', green: '#3fcf6b', yellow: '#f2e23a', greenHex: 0x3fcf6b };
+// MS Games brand (design 0b, lobby re-coloured to purple 18.11.2026): arena purple, signal yellow, white. Hex values are the sRGB of the oklch tokens.
+const BRAND = { white: '#f5f0fa', purple: '#b455f2', yellow: '#f2e23a', purpleHex: 0xb455f2 };      // purple: Martin, 18.11.2026
 const FALLBACK_SOUND = { 'loading.title': 'countdown.go' };
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -57,7 +57,7 @@ export function createLoading(env) {
           float e = mix(-1.45, 1.45, level);
           float dark = 1.0 - smoothstep(e - 0.42, e, h);
           float band = exp(-pow((h - (e - 0.05)) / 0.07, 2.0)) * glow * (1.0 - smoothstep(0.86, 1.0, level)) * smoothstep(0.0, 0.1, level);
-          gl_FragColor = vec4(vec3(0.03, 0.42, 0.13) * band, max(dark, band * 0.42));      // arena green on the rising edge
+          gl_FragColor = vec4(vec3(0.36, 0.1, 0.52) * band, max(dark, band * 0.42));      // arena purple on the rising edge
         }`,
       side: THREE.BackSide, transparent: true, depthTest: false, depthWrite: false, fog: false, toneMapped: false,
     }),
@@ -105,12 +105,12 @@ export function createLoading(env) {
     g.lineWidth = Math.max(4, px * 0.05); g.strokeStyle = 'rgba(0, 0, 0, 0.8)'; g.fillStyle = BRAND.white;
     const y = 256 + 270 + px * 0.04;
     g.strokeText(t, canvas.width / 2, y); g.fillText(t, canvas.width / 2, y);
-    // the MS Games mark above the title (brand option C "Stack": white M, green left pillar, yellow right pillar)
+    // the MS Games mark above the title (brand option C "Stack": white M, purple left pillar, yellow right pillar)
     try { g.letterSpacing = '0px'; } catch { /* older canvas */ }
     const k = 150 / 112;
     g.save(); g.translate(canvas.width / 2 - 64 * k, 44); g.scale(k, k);
     g.fillStyle = BRAND.white; g.fill(new Path2D('M4 108 L4 4 L26 4 L64 52 L102 4 L124 4 L124 108 L102 108 L102 46 L64 94 L26 46 L26 108 Z'));
-    g.fillStyle = BRAND.green; g.fill(new Path2D('M4 108 L4 4 L26 4 L26 108 Z'));
+    g.fillStyle = BRAND.purple; g.fill(new Path2D('M4 108 L4 4 L26 4 L26 108 Z'));
     g.fillStyle = BRAND.yellow; g.fill(new Path2D('M102 108 L102 4 L124 4 L124 108 Z'));
     g.restore();
     titleTex.needsUpdate = true;
@@ -118,7 +118,7 @@ export function createLoading(env) {
 
   // Progress: one thin line. The track is barely there; the fill is white.
   const BAR_W = 1.1;
-  const barMat = new THREE.MeshBasicMaterial({ color: BRAND.greenHex, transparent: true, opacity: 0, depthTest: false, depthWrite: false, fog: false, toneMapped: false });
+  const barMat = new THREE.MeshBasicMaterial({ color: BRAND.purpleHex, transparent: true, opacity: 0, depthTest: false, depthWrite: false, fog: false, toneMapped: false });
   const trackMat = barMat.clone(); trackMat.color.setHex(0xffffff);
   const barGeo = new THREE.PlaneGeometry(1, 0.007);
   barGeo.translate(0.5, 0, 0);      // grows from its left end

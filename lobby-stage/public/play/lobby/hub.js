@@ -1,7 +1,8 @@
 // MS Games lobby: the shared hub every headset waits in between games and every game launches from.
 // A station hall from Synty's Sci-Fi Space Pack (natural size, 5 m modules) around the play zone, in the brand colours:
-// the pack's own grey-and-green texture variant (Texture_03_F) with its green emissive (Emissive_02), the pack's teal
-// nebula skybox (Skybox_03) through the windows, white key light, green fill, yellow accents at the portals.
+// the pack's grey texture variant (Texture_03_F) and its emissive (Emissive_02) re-coloured to purple (the *_Lilac.png copies,
+// made by hue-shifting green/cyan to violet/magenta, same UV layout), the pack's purple nebula skybox (Skybox_01) through the
+// windows, white key light, violet fill, yellow accents at the portals. Purple lobby: Martin, 18.11.2026.
 //
 //   Ahead (-Z): the portal wall. One door frame per installed game (its light strips pulse yellow), its key art lit in
 //   the display of the wall module beside it (SM_Bld_Wall_04); the record board in the other display.
@@ -13,11 +14,11 @@
 //     -> { group, bounds, update(dt, t), look(on), spots: {vote}, portals: [{gameId, x, z, open(on)}], anchors, dispose() }
 
 const SCI = 'sci-fi-space-pack', APO = 'apocalypse-pack';
-const TEX = 'tex/PolygonSciFiSpace_Texture_03_F.png', EMI = 'tex/PolygonSciFiSpace_Emissive_02.png';
-const SKY = 'PolygonSciFiSpace_Skybox_03_';
+const TEX = 'tex/PolygonSciFiSpace_Texture_03_F_Lilac.png', EMI = 'tex/PolygonSciFiSpace_Emissive_02_Lilac.png';
+const SKY = 'PolygonSciFiSpace_Skybox_01_';
 const M = 5;                                    // the pack's module
 const DISPLAY = { y: 1.66, w: 2.92, h: 1.48 };   // the display opening of SM_Bld_Wall_04 (measured on the model)
-export const BRAND = { green: 0x43d066, deep: 0x007f35, yellow: 0xfce343, white: 0xf2f7ee, base: 0x050f08 };
+export const BRAND = { purple: 0xb455f2, deep: 0x5b1b8f, yellow: 0xfce343, white: 0xeadfff, base: 0x0b0612 };
 
 /** The placeholder M mark (option C "Stack" from public/brand/options.html) as a canvas, until public/brand/mark.svg exists. */
 function stackMark(size = 1024) {
@@ -26,7 +27,7 @@ function stackMark(size = 1024) {
   const path = (d, fill) => { g.fillStyle = fill; g.fill(new Path2D(d)); };
   g.setTransform(k, 0, 0, k, 0, oy);
   path('M4 108 L4 4 L26 4 L64 52 L102 4 L124 4 L124 108 L102 108 L102 46 L64 94 L26 46 L26 108 Z', '#f2f7ee');
-  path('M4 108 L4 4 L26 4 L26 108 Z', '#43d066');
+  path('M4 108 L4 4 L26 4 L26 108 Z', '#b455f2');
   path('M102 108 L102 4 L124 4 L124 108 Z', '#fce343');
   return c;
 }
@@ -49,7 +50,7 @@ export async function createHub({ THREE, root, assets, hall, rooms, scene, light
   let rnd = 11;
   const rand = () => { rnd = (rnd * 16807) % 2147483647; return rnd / 2147483647; };
 
-  // one shared material for the whole station: the green variant with its green emissive (light strips glow)
+  // one shared material for the whole station: the purple variant with its purple emissive (light strips glow)
   const texLoader = new THREE.TextureLoader();
   const tex = (p, srgb = true) => { const t = texLoader.load(`/play/assets/synty/${SCI}/${p}`); t.flipY = false; if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 2; disposables.push(t); return t; };
   const mat = new THREE.MeshLambertMaterial({ map: tex(TEX), emissiveMap: tex(EMI), emissive: 0xffffff, emissiveIntensity: 1.6 });
@@ -145,7 +146,7 @@ export async function createHub({ THREE, root, assets, hall, rooms, scene, light
       const dsp = slot != null ? displayOf(slot) : null;
       if (g.cover && dsp) {
         used.add(slot);
-        const pm = new THREE.MeshBasicMaterial({ color: 0x0a170f, toneMapped: false });      // the display glows with the cover
+        const pm = new THREE.MeshBasicMaterial({ color: 0x150b21, toneMapped: false });      // the display glows with the cover
         texLoader.load(g.cover, t => {
           t.colorSpace = THREE.SRGBColorSpace;
           const a = t.image ? t.image.width / t.image.height : 16 / 9, want = dsp.w / dsp.h;
@@ -194,7 +195,7 @@ export async function createHub({ THREE, root, assets, hall, rooms, scene, light
     // the real mark replaces the placeholder as soon as S1 publishes it
     texLoader.load('/brand/mark.svg', t => { t.colorSpace = THREE.SRGBColorSpace; markMat.map = t; markMat.needsUpdate = true; disposables.push(t); }, undefined, () => {});
 
-    // ---- light: white key, green fill along the windows, yellow at the portals, one spot over the vote row ----
+    // ---- light: white key, violet fill along the windows, yellow at the portals, one spot over the vote row ----
     // few real lights (Quest 2): a white pool over the zone, the yellow portal spot, the range spot; the rest is emissive
     const key = new THREE.SpotLight(BRAND.white, 55, 9, 0.8, 0.65, 1.2);
     key.position.set(mx, 3.9, mz + 0.4); key.target.position.set(mx, 0, mz - 0.2);
@@ -235,7 +236,7 @@ export async function createHub({ THREE, root, assets, hall, rooms, scene, light
       sky.visible = true;
       scene.fog = null;
       scene.background = new THREE.Color(BRAND.base);
-      if (hemi) { hemi.intensity = 0.42; hemi.color.set(0xb8d8c4); hemi.groundColor.set(0x08120c); }
+      if (hemi) { hemi.intensity = 0.5; hemi.color.set(0xb894ee); hemi.groundColor.set(0x1c0e2c); }
       if (sun) { saved.sunVis = sun.visible; sun.visible = false; }      // no sun inside a station
       refreshShadows?.();
     } else {
