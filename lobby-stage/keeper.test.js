@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { startKeeper, installHeadset, runInstall, shq, GRANTS, ID_FILE } from './keeper.js';
 
 /** Една измислена каска зад adb. opts: model, ip, app (има ли приложението), awake, powered, running (върви ли приложението). */
@@ -39,7 +40,8 @@ function keeperFor(devices, lobby = { headsets: [], zone: true, session: false }
   return { k, w, said, aligned, file };
 }
 // пазачът проверява дали файлът с приложението съществува: за пробата стига самият този файл
-function fileURLToPathSafe() { return new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'); }
+// (fileURLToPath, не URL.pathname: pathname оставя %20 за интервал в пътя и файлът не се намира)
+function fileURLToPathSafe() { return fileURLToPath(import.meta.url); }
 
 test('a Quest on the cable: Wi-Fi control is switched on, the app is installed, it is woken while charging and the app is started', async () => {
   const devices = {

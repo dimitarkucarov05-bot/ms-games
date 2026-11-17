@@ -1,5 +1,5 @@
-node_modules/
-public/play/assets/
+node_modules
+public/play/assets
 data/
 data-*/
 *.log
