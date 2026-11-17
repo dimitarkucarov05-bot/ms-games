@@ -2,7 +2,18 @@
 
 Репото е **частно** (в него са Synty моделите, лицензирани само за екипа на LabCoin). Не го правете публично.
 
-## Първи път (на другия Windows компютър)
+## Най-бързо: едно .exe, винаги най-новото
+
+GitHub сам го строи при всяка промяна в `main` (около 10 минути след качването) и го слага на един и същ адрес:
+
+    https://github.com/martiness14/ms-games/releases/latest/download/MS-Games-Setup.exe
+
+(влез в GitHub с `martiness14`; или `gh release download latest -R martiness14/ms-games`). Пусни го: не иска Node, Git, нищо друго.
+Бележката на release-а казва от кой къмит и кога е. Така Windows компютърът винаги взема последния билд.
+
+## За разработка (git)
+
+### Първи път
 
 1. Инсталирай **Git for Windows** (git-scm.com) и **Node.js 24** (nodejs.org).
 2. В PowerShell или cmd, в папката, където искаш проекта:
@@ -12,8 +23,8 @@
 
    Първия път Git ще отвори браузър за вход в GitHub (акаунт `martiness14`).
    Репото е около 600 MB; клонирането отнема няколко минути.
-3. Двоен клик на **`dev-windows.cmd`**. Първия път той прави `npm install` в `lobby` и двете връзки (`mklink /J`),
-   които описва `README-PACKAGE.md`, после пуска сървъра и отваря конзолата.
+3. Двоен клик на **`dev-windows.cmd`**. Той сам прави `git pull`, инсталира Node (с winget), ако липсва, прави `npm install` и двете
+   връзки (`mklink /J`), после пуска сървъра и отваря конзолата. Следващия път същият двоен клик взема най-новото и пуска.
    Windows ще попита за защитната стена: натисни **Да** (Allow).
 
 ## Адреси
@@ -42,14 +53,9 @@
 
 С пуснат сървър: `node tools\s2-e2e.mjs 47901` (пълен път със симулирани каски).
 
-## Готовият инсталатор
+## Инсталаторът
 
-В GitHub → **Releases** → `MS-Games-Setup-2.0.0.exe` (165 MB). Контролна сума SHA-256 е в бележката на release-а.
-Проверка в PowerShell: `Get-FileHash .\MS-Games-Setup-2.0.0.exe -Algorithm SHA256`.
+Виж най-горе: един файл `MS-Games-Setup.exe` в **Releases → latest**, строи се автоматично (`.github/workflows/windows-installer.yml`).
+Проверка на файла: `Get-FileHash .\MS-Games-Setup.exe -Algorithm SHA256` (сумата е в бележката на release-а).
 Каските: MS Games → Setup → Headsets, включи каската с USB кабел и натисни Install.
-
-## Какво не е в репото
-
-- `config.json` на `labcoin-app` (в `.gitignore` на приложението; има `config.example.json`, копирай го и го преименувай).
-- `node_modules` (чрез `npm install`), работните `*.log`, `data-dev*` (сървърът ги прави сам).
-- Големите библиотеки със звуци и гласовия инструмент (виж `README-PACKAGE.md`, „Left out of this package“).
+Картинките в самия инсталатор (екранът на setup-а) още са със старите зелени цветове.

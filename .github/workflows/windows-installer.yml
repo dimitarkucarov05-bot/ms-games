@@ -1,0 +1,74 @@
+# One installer, always current: every push to main builds MS-Games-Setup.exe on a Windows runner and republishes it as the
+# single "latest" release. Download: https://github.com/martiness14/ms-games/releases/latest/download/MS-Games-Setup.exe
+# (the repo is private: sign in to GitHub first, or use  gh release download latest -R martiness14/ms-games).
+# The Synty licence covers the LabCoin team only: keep the repo and its releases private.
+name: Windows installer
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['**/*.md', 'docs/**']
+  workflow_dispatch:
+
+concurrency:
+  group: windows-installer
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  installer:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Packages and the two junctions the packer expects
+        shell: powershell
+        run: |
+          Push-Location lobby
+          npm ci --no-audit --no-fund
+          Pop-Location
+          New-Item -ItemType Junction -Path "$PWD\lobby-stage\node_modules" -Target "$PWD\lobby\node_modules" | Out-Null
+          New-Item -ItemType Junction -Path "$PWD\lobby-stage\public\play\assets" -Target "$PWD\lobby\public\play\assets" | Out-Null
+
+      - name: adb for the headset installer (Android platform-tools)
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force C:\Android\sdk | Out-Null
+          Invoke-WebRequest https://dl.google.com/android/repository/platform-tools-latest-windows.zip -OutFile "$env:RUNNER_TEMP\pt.zip"
+          Expand-Archive "$env:RUNNER_TEMP\pt.zip" -DestinationPath C:\Android\sdk -Force
+          if (-not (Test-Path C:\Android\sdk\platform-tools\adb.exe)) { throw 'adb.exe missing after unzip' }
+
+      - name: Default TLS certificate for PCs without OpenSSL
+        shell: powershell
+        run: |
+          $d = "$PWD\lobby\launcher\tls-default"
+          New-Item -ItemType Directory -Force $d | Out-Null
+          $ErrorActionPreference = 'Continue'
+          & 'C:\Program Files\Git\usr\bin\openssl.exe' req -x509 -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -nodes -keyout "$d\key.pem" -out "$d\cert.pem" -days 3650 -subj '/CN=MS Games' -addext 'subjectAltName=DNS:localhost,IP:127.0.0.1' 2>&1 | Out-Null
+          if (-not (Test-Path "$d\cert.pem")) { throw 'openssl did not make the certificate' }
+
+      - name: Build the installer
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File lobby\launcher\package-v2.ps1
+
+      - name: Publish as the single latest installer
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd lobby/launcher/dist2
+          cp MS-Games-Setup-*.exe MS-Games-Setup.exe
+          sha256sum MS-Games-Setup.exe | awk '{print $1"  MS-Games-Setup.exe"}' > MS-Games-Setup.exe.sha256
+          NOTES="Built from commit ${GITHUB_SHA::7} on $(date -u '+%Y-%m-%d %H:%M UTC'). $(cat 'MS Games/app/BUILD.txt' 2>/dev/null)
+          SHA-256: $(cut -d' ' -f1 MS-Games-Setup.exe.sha256)
+          Private: the installer contains Synty models licensed to the LabCoin team only."
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest MS-Games-Setup.exe MS-Games-Setup.exe.sha256 --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest \
+            --title "MS Games installer (always the latest)" --notes "$NOTES"
