@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Проба на каската — MS Games</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; padding: 18px; background: oklch(0.15 0.035 305); color: oklch(0.97 0.012 320); font: 17px/1.45 system-ui, "Segoe UI", sans-serif; }
+  h1 { margin: 0 0 6px; font-size: 26px; }
+  p { margin: 6px 0 14px; color: oklch(0.84 0.025 315); max-width: 70ch; }
+  button { font: 650 18px system-ui; min-height: 54px; padding: 0 22px; margin: 0 8px 10px 0; border-radius: 12px; border: 1px solid oklch(0.38 0.06 305); background: oklch(0.225 0.045 305); color: inherit; }
+  button.main { background: oklch(0.72 0.21 318); color: oklch(0.17 0.05 315); border-color: oklch(0.72 0.21 318); }
+  pre { margin: 10px 0 0; padding: 14px; border-radius: 12px; background: oklch(0.12 0.03 305); border: 1px solid oklch(0.29 0.05 305); font: 14.5px/1.4 ui-monospace, Menlo, Consolas, monospace; white-space: pre-wrap; word-break: break-word; max-height: 62vh; overflow: auto; }
+</style>
+</head>
+<body>
+<h1>Проба на каската</h1>
+<p>Отвори тази страница в браузъра на каската (Pico, Quest, Vive Focus). Натисни „Провери“, после „Влез във VR“ и постой 10 секунди, като гледаш наоколо. Резултатът се праща сам към компютъра в залата.</p>
+<button class="main" id="check">Провери</button><button id="enter" disabled>Влез във VR (10 с)</button><button id="send">Прати отново</button>
+<pre id="log">Още нищо не е пробвано.</pre>
+<script src="probe.js"></script>
+</body>
+</html>

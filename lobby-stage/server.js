@@ -2483,6 +2483,9 @@ const api = {
     }
     return r;
   },
+  // what the headset's browser really gives a web game (public/probe/): the reports are kept for the integration work with PICO / Quest / Vive Focus
+  'POST /api/probe': body => { const rec = { at: new Date().toISOString(), report: JSON.parse(JSON.stringify(body || {}), (k, v) => (typeof v === 'string' ? v.slice(0, 600) : v)) }; if (JSON.stringify(rec).length > 60000) throw new Error('Report too large'); appendJsonl(path.join(DATA, 'probes.jsonl'), rec); return { ok: true }; },
+  'GET /api/probes': () => ({ ok: true, probes: tailJsonl(path.join(DATA, 'probes.jsonl'), 20).reverse() }),
   'POST /api/labcoin/check': async () => labcoin.check(),      // is the key, the address and the switch right? (one scan of a code that cannot exist)
   'POST /api/labcoin/release': ({ headsetId } = {}) => ({ ok: labRelease(String(headsetId || '')) }),
   'POST /api/labcoin/release-all': () => { const ids = [...labBound.keys()]; for (const id of ids) labRelease(id); return { ok: true, released: ids.length }; },
