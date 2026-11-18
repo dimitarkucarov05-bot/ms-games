@@ -9,7 +9,7 @@
 # What goes in:
 #   MS Games.exe + setup-stub.exe   built by build.ps1 -OutDir dist2 (skip with -NoBuild)
 #   runtime\node.exe                the Node on this PC
-#   app\                            server.js, zone.js, keeper.js, package.json (version set), lib\, game\motel*, node_modules\ws
+#   app\                            server.js, zone.js, keeper.js, package.json (version set), lib\, game\motel* and game\neon*, node_modules\ws
 #   app\public\                     console, play, tv, brand, scorecard, board, fonts; no dev or test pages
 #   app\public\play\assets\         sfx (without the credit-only alternatives), and only the Synty packs / maps / ui
 #                                   folders that the packed code names
@@ -64,7 +64,7 @@ $app = Join-Path $out 'app'
 foreach ($f in 'server.js', 'zone.js', 'keeper.js', 'package.json') { Copy-Item (Join-Path $stage $f) $app }
 Robo (Join-Path $stage 'lib') (Join-Path $app 'lib') *.js /XF *.test.js
 New-Item -ItemType Directory -Force (Join-Path $app 'game') | Out-Null
-Get-ChildItem (Join-Path $stage 'game') -File -Filter 'motel*' | Where-Object { $_.Name -notmatch '\.test\.js$' } | Copy-Item -Destination (Join-Path $app 'game')
+Get-ChildItem (Join-Path $stage 'game') -File | Where-Object { $_.Name -match '^(motel|neon)' -and $_.Name -notmatch '\.test\.js$' } | Copy-Item -Destination (Join-Path $app 'game')
 Robo (Join-Path $stage 'node_modules\ws') (Join-Path $app 'node_modules\ws') /E
 
 # pages; the assets folder is a junction into the live lobby and is copied separately below (read only)
@@ -112,6 +112,8 @@ foreach ($d in Get-ChildItem $assets -Directory | Where-Object { 'synty', 'maps'
 }
 Get-ChildItem $assets -File | Copy-Item -Destination $assetsOut
 if (-not (Test-Path (Join-Path $assetsOut 'sfx\motel\map.json'))) { throw 'MISSING in the package: sfx\motel\map.json' }
+if (-not (Test-Path (Join-Path $assetsOut 'sfx\neon\map.json'))) { throw 'MISSING in the package: sfx\neon\map.json' }
+if (-not (Test-Path (Join-Path $assetsOut 'synty\_gang\characters.json'))) { throw 'MISSING in the package: synty\_gang\characters.json' }
 
 # ---------- headset tools and the default certificate ----------
 $hs = Join-Path $app 'headset'
@@ -131,7 +133,8 @@ try {
     if (& git -C $stage status --porcelain 2>$null) { $dirty = ' + uncommitted changes' }
 } catch { } finally { $ErrorActionPreference = 'Stop' }
 $motel = (Get-Content (Join-Path $app 'game\motel.game.json') -Raw | ConvertFrom-Json).version
-$stamp = "$AppName $version, packed $(Get-Date -Format 'yyyy-MM-dd HH:mm'), lobby-stage $commit$dirty, The Motel $motel"
+$neon = (Get-Content (Join-Path $app 'game\neon.game.json') -Raw | ConvertFrom-Json).version
+$stamp = "$AppName $version, packed $(Get-Date -Format 'yyyy-MM-dd HH:mm'), lobby-stage $commit$dirty, The Motel $motel, Neon Coast $neon"
 Set-Content (Join-Path $app 'BUILD.txt') $stamp -Encoding ascii
 Write-Host $stamp
 
@@ -139,7 +142,7 @@ Write-Host $stamp
 $bundled = Join-Path $out 'runtime\node.exe'
 & $bundled (Join-Path $here 'v2-prune.mjs') $app $version
 if ($LASTEXITCODE -ne 0) { throw 'v2-prune.mjs failed' }
-foreach ($f in 'server.js', 'zone.js', 'keeper.js', 'game\motel.js') {
+foreach ($f in 'server.js', 'zone.js', 'keeper.js', 'game\motel.js', 'game\neon.js') {
     & $bundled --check (Join-Path $app $f)
     if ($LASTEXITCODE -ne 0) { throw "$f does not parse" }
 }

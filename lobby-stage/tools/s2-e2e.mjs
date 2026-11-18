@@ -1,7 +1,7 @@
 // End-to-end test of the session engine against a running dev server with simulated headsets (S2).
 //
 //   node tools/dev-server.mjs --port 47932 --data data-dev-s2      (in another terminal)
-//   node tools/s2-e2e.mjs [port] [parts]       parts: setup,quick,labcoin,playlist,party,ops (or all, the default) and draw
+//   node tools/s2-e2e.mjs [port] [parts]       parts: setup,quick,labcoin,neon,playlist,party,ops (or all, the default) and draw
 //
 // The Motel runs with `fast` (its trial cut: time runs 6x faster, about 100 s a game). A full run takes about 10 minutes:
 // detach it, e.g. `(node tools/s2-e2e.mjs 47932 > e2e.log 2>&1; echo EXIT $? >> e2e.log) &` (a tool's 2-minute command limit
@@ -337,11 +337,36 @@ async function labcoinPart() {
   await post('/api/session/stop').catch(() => {});
 }
 
+async function neonPart() {
+  say('== neon: Neon Coast starts, the street map and the star names arrive in the headsets, the gang comes up the street');
+  await until('sims connected', async () => (await state()).headsets.filter(h => ids.includes(h.id) && h.online).length === 3);
+  try { await post('/api/session/stop'); } catch { /* none */ }
+  try { await post('/api/flow/close'); } catch { /* none */ }
+  await post('/api/settings', { resultsSec: 8, countdownSec: 3, autoStart: false, endMessage: { preset: 'thanks' }, clockScope: 'game' });
+  check((await state()).games.some(g => g.id === 'neon' && g.status === 'ready'), 'Neon Coast is in the library and ready');
+  await post('/api/flow/open', { kind: 'quick' });
+  await wait(800);
+  const pc = await get(`/api/precheck?gameId=neon&headsetIds=${ids.join(',')}`);
+  check(pc.ok, `precheck clean for neon (${pc.items.length} items)`, JSON.stringify(pc.items));
+  const r = await post('/api/session/start', { gameId: 'neon', difficulty: 'normal', minutes: 10, headsetIds: ids, team: 'Neon', fast: true });
+  check(r.run.state === 'countdown', 'countdown first');
+  await until('playing', async () => (await runState()) === 'playing', 30_000);
+  const gs = sims[0].seen('gameStart').at(-1);
+  check(gs && gs.game === 'neon' && gs.title === 'Neon Coast' && gs.client === 'neon', `gameStart names the game (${gs?.game} / ${gs?.title} / ${gs?.client})`);
+  check(Array.isArray(gs.waveNames) && gs.waveNames[0] === 'One star' && gs.waveNames.includes('Lights out'), `star names: ${gs.waveNames?.join(', ')}`);
+  check(Array.isArray(gs.lanes) && ['west', 'east', 'north', 'south', 'northeast'].every(id => gs.lanes.some(l => l.id === id)), 'the five street lanes came with the start');
+  await until('the gang is in the street', async () => { const g = sims[0].seen('game').at(-1); return g && Array.isArray(g.z) && g.z.length > 0; }, 60_000, 500);
+  check(true, 'gang members are on the street');
+  await post('/api/session/stop');
+  await until('stopped', async () => !(await state()).run || (await runState()) !== 'playing', 10_000);
+}
+
 try {
   if (PARTS.includes('draw')) await drawPart();
   if (want('setup')) await setupPart();
   if (want('quick')) await quickPart();
   if (want('labcoin')) await labcoinPart();
+  if (want('neon')) await neonPart();
   if (want('playlist')) await playlistPart();
   if (want('party')) await partyPart();
   if (want('ops')) await opsPart();

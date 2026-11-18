@@ -1,0 +1,608 @@
+{
+ "_note": "Neon Coast: bandite sa vuzrastni geroi ot Synty City Characters (nikoga detskite), animaciite sa na Motel (ednakuv skelet). Boss i brute sa po-golemi Biker.",
+ "characters": "/play/assets/synty/_gang/",
+ "zombies": {
+  "walker": [
+   "SK_Character_HipsterGuy",
+   "SK_Character_Tourist",
+   "SK_Character_Jock",
+   "SK_Character_Biker",
+   "SK_Character_GamerGirl",
+   "SK_Character_PunkGirl"
+  ],
+  "runner": [
+   "SK_Character_Jock",
+   "SK_Character_PunkGirl",
+   "SK_Character_GamerGirl",
+   "SK_Character_Biker"
+  ],
+  "leaper": [
+   "SK_Character_Jock",
+   "SK_Character_PunkGirl",
+   "SK_Character_GamerGirl"
+  ],
+  "boss": [
+   "SK_Character_Biker"
+  ],
+  "brute": [
+   "SK_Character_Biker",
+   "SK_Character_Jock"
+  ],
+  "scale": {
+   "boss": 1.3,
+   "brute": 1.12
+  }
+ },
+ "clips": {
+  "idle": [
+   "idle_c"
+  ],
+  "walk": [
+   "walk_m",
+   "walk_f"
+  ],
+  "run": [
+   "run_m",
+   "run_f",
+   "sprint"
+  ],
+  "attack": [
+   "attack_c",
+   "attack_a"
+  ],
+  "hit": [
+   "hit_f",
+   "hit_l",
+   "hit_r",
+   "hit_b",
+   "stagger"
+  ],
+  "death": [
+   "death_b",
+   "death_f",
+   "death_l",
+   "death_r"
+  ],
+  "roar": [
+   "menace"
+  ],
+  "rise": [
+   "rise"
+  ],
+  "stumble": [
+   "stumble"
+  ]
+ },
+ "clipSpeed": {
+  "walk_a": 1.68,
+  "walk_m": 1.45,
+  "walk_f": 1.45,
+  "walk_low": 1.43,
+  "run_a": 3.62,
+  "run_m": 2.59,
+  "run_f": 2.59,
+  "sprint": 7.24
+ },
+ "clipNotes": {
+  "idle_a": "прегърбен, диша",
+  "idle_b": "клати се като пиян",
+  "idle_c": "отпуснат",
+  "walk_a": "прегърбено дебнене (най-зомбито)",
+  "walk_low": "ниско, приклекнал",
+  "attack_a": "замах с ръка, 2.4 с, ударът е около 0.3 от клипа",
+  "attack_b": "душене с две ръце пред гърдите, 3.6 с",
+  "attack_c": "бърз широк замах, 0.87 с",
+  "stagger": "по-силно залитане от hit",
+  "death_b": "пада по гръб",
+  "death_f": "пада по очи",
+  "death_l": "пада наляво",
+  "death_r": "пада надясно",
+  "roar_a": "прикляка и вдига ръце с рев",
+  "roar_b": "нисък рев, наведен",
+  "menace": "заплашително пристъпване",
+  "rise": "лежи по гръб и се изправя, 4 с",
+  "stumble": "спъва се на бегом и се съвзема"
+ },
+ "bossNote": "The district boss is the Biker, scaled up.",
+ "weapons": {
+  "pistol": {
+   "slug": "battle-royale-pack",
+   "model": "SM_Wep_Pistol_Heavy_01",
+   "muzzle": [
+    0,
+    0.073,
+    0.296
+   ],
+   "grip": [
+    0,
+    -0.061,
+    -0.016
+   ],
+   "forward": [
+    0,
+    0,
+    1
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "length": 0.39,
+   "parts": [
+    "SM_Wep_Pistol_Heavy_Mag_01",
+    "SM_Wep_Pistol_Heavy_Slide_01",
+    "SM_Wep_Pistol_Heavy_Hammer_01",
+    "SM_Wep_Pistol_Heavy_Trigger_01"
+   ]
+  },
+  "smg": {
+   "slug": "battle-royale-pack",
+   "model": "SM_Wep_SubMGun_Lite_01",
+   "muzzle": [
+    0,
+    0.056,
+    0.311
+   ],
+   "grip": [
+    0,
+    -0.071,
+    -0.004
+   ],
+   "forward": [
+    0,
+    0,
+    1
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "length": 0.501,
+   "parts": [
+    "SM_Wep_SubMGun_Lite_Grip_01",
+    "SM_Wep_SubMGun_Lite_Mag_01",
+    "SM_Wep_SubMGun_Lite_Slide_01",
+    "SM_Wep_SubMGun_Lite_Stock_01",
+    "SM_Wep_SubMGun_Lite_Trigger_01"
+   ]
+  },
+  "shotgun": {
+   "slug": "battle-royale-pack",
+   "model": "SM_Wep_Shotgun_01",
+   "muzzle": [
+    0.001,
+    0.1,
+    0.862
+   ],
+   "grip": [
+    0,
+    -0.057,
+    -0.021
+   ],
+   "forward": [
+    0,
+    0,
+    1
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "length": 1.205,
+   "parts": [
+    "SM_Wep_Shotgun_Pump_01",
+    "SM_Wep_Shotgun_Slide_01",
+    "SM_Wep_Shotgun_Stock_01",
+    "SM_Wep_Shotgun_StockPad_01",
+    "SM_Wep_Shotgun_Trigger_01"
+   ]
+  },
+  "rifle": {
+   "slug": "battle-royale-pack",
+   "model": "SM_Wep_Rifle_Assault_03",
+   "muzzle": [
+    0,
+    0.072,
+    0.748
+   ],
+   "grip": [
+    0,
+    -0.064,
+    -0.026
+   ],
+   "forward": [
+    0,
+    0,
+    1
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "length": 1.044,
+   "parts": [
+    "SM_Wep_Rifle_Assault_Flash_03",
+    "SM_Wep_Rifle_Assault_Mag_03",
+    "SM_Wep_Rifle_Assault_Slide_03",
+    "SM_Wep_Rifle_Assault_Trigger_03"
+   ],
+   "flash": "SM_Wep_Rifle_Assault_Flash_03"
+  },
+  "revolver": {
+   "slug": "battle-royale-pack",
+   "model": "SM_Wep_Pistol_Revolver_01",
+   "muzzle": [
+    0,
+    0.07,
+    0.404
+   ],
+   "grip": [
+    0,
+    -0.059,
+    -0.018
+   ],
+   "forward": [
+    0,
+    0,
+    1
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "length": 0.467,
+   "parts": [
+    "SM_Wep_Pistol_Revolver_Cylinder_01",
+    "SM_Wep_Pistol_Revolver_Hammer_01",
+    "SM_Wep_Pistol_Revolver_Trigger_01"
+   ]
+  },
+  "lmg": {
+   "slug": "battle-royale-pack",
+   "model": "SM_Wep_MachineGun_01",
+   "muzzle": [
+    0,
+    0.156,
+    0.653
+   ],
+   "grip": [
+    0,
+    -0.06,
+    -0.03
+   ],
+   "forward": [
+    0,
+    0,
+    1
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "length": 1.015,
+   "parts": [
+    "SM_Wep_MachineGun_Mag_01",
+    "SM_Wep_MachineGun_Belt_01",
+    "SM_Wep_MachineGun_Slide_01",
+    "SM_Wep_MachineGun_Trigger_01"
+   ]
+  },
+  "smg2": {
+   "slug": "battle-royale-pack",
+   "model": "SM_Wep_SubMGun_01",
+   "muzzle": [
+    0.001,
+    0.016,
+    0.338
+   ],
+   "grip": [
+    0,
+    -0.068,
+    -0.025
+   ],
+   "forward": [
+    0,
+    0,
+    1
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "length": 0.675,
+   "parts": [
+    "SM_Wep_SubMGun_Mag_01",
+    "SM_Wep_SubMGun_Slide_01",
+    "SM_Wep_SubMGun_Trigger_01"
+   ]
+  },
+  "rifle2": {
+   "slug": "battle-royale-pack",
+   "model": "SM_Wep_Rifle_Assault_01",
+   "muzzle": [
+    0,
+    0.085,
+    0.665
+   ],
+   "grip": [
+    0,
+    -0.059,
+    -0.024
+   ],
+   "forward": [
+    0,
+    0,
+    1
+   ],
+   "up": [
+    0,
+    1,
+    0
+   ],
+   "length": 1.049,
+   "parts": [
+    "SM_Wep_Rifle_Assault_Flash_01",
+    "SM_Wep_Rifle_Assault_Mag_01",
+    "SM_Wep_Rifle_Assault_Slide_01",
+    "SM_Wep_Rifle_Assault_Trigger_01"
+   ],
+   "flash": "SM_Wep_Rifle_Assault_Flash_01"
+  }
+ },
+ "weaponSkins": {
+  "default": "tex/Wep_Skin_01.png",
+  "rust": "tex/Wep_Skin_24.png",
+  "gold": "tex/Wep_Skin_07.png"
+ },
+ "props": {
+  "ammo": {
+   "slug": "apocalypse-pack",
+   "model": "SM_Prop_Ammo_Box_Open_01",
+   "size": [
+    0.2,
+    0.25,
+    0.45
+   ]
+  },
+  "ammo_closed": {
+   "slug": "apocalypse-pack",
+   "model": "SM_Prop_Ammo_Box_01",
+   "size": [
+    0.2,
+    0.3,
+    0.45
+   ]
+  },
+  "ammo_crate": {
+   "slug": "military-pack",
+   "model": "SM_Prop_Crate_Ammo_01",
+   "size": [
+    1.4,
+    0.33,
+    0.86
+   ]
+  },
+  "ammo_pistol": {
+   "slug": "battle-royale-pack",
+   "model": "SM_Wep_Pistol_Ammo_Box_01"
+  },
+  "ammo_shotgun": {
+   "slug": "battle-royale-pack",
+   "model": "SM_Wep_Shotgun_Ammo_Box_01",
+   "size": [
+    0.16,
+    0.06,
+    0.1
+   ]
+  },
+  "ammo_rifle": {
+   "slug": "battle-royale-pack",
+   "model": "SM_Wep_Bullet_Ammo_Box_01",
+   "size": [
+    0.17,
+    0.06,
+    0.11
+   ]
+  },
+  "weapon_case": {
+   "slug": "battle-royale-pack",
+   "model": "SM_Prop_WeaponCase_01",
+   "size": [
+    1.21,
+    0.14,
+    0.46
+   ]
+  },
+  "sandbag": {
+   "slug": "apocalypse-pack",
+   "model": "SM_Prop_Sandbag_Wall_02",
+   "size": [
+    0.84,
+    1.15,
+    2.35
+   ],
+   "note": "дългата страна е по Z; основата е на 0.15 м под началото"
+  },
+  "sandbag_long": {
+   "slug": "apocalypse-pack",
+   "model": "SM_Prop_Sandbag_Wall_01",
+   "size": [
+    0.81,
+    1.18,
+    3.97
+   ]
+  },
+  "sandbag_end": {
+   "slug": "apocalypse-pack",
+   "model": "SM_Prop_Sandbag_Wall_End_01",
+   "size": [
+    0.68,
+    1.08,
+    2.27
+   ]
+  },
+  "sandbag_single": {
+   "slug": "apocalypse-pack",
+   "model": "SM_Prop_Sandbag_01",
+   "size": [
+    0.46,
+    0.22,
+    0.68
+   ]
+  },
+  "barrier": {
+   "slug": "apocalypse-pack",
+   "model": "SM_Prop_Barrier_Concrete_01",
+   "size": [
+    1.99,
+    0.9,
+    0.54
+   ]
+  },
+  "barricade": {
+   "slug": "apocalypse-pack",
+   "model": "SM_Prop_Barricade_01",
+   "size": [
+    0.19,
+    1.46,
+    1.72
+   ]
+  },
+  "barricade_wire": {
+   "slug": "apocalypse-pack",
+   "model": "SM_Prop_Barricade_Wired_01",
+   "size": [
+    0.7,
+    1.31,
+    3.11
+   ]
+  },
+  "barrel_fire": {
+   "slug": "apocalypse-pack",
+   "model": "SM_Prop_Barrel_Open_01",
+   "size": [
+    0.7,
+    1.03,
+    0.7
+   ],
+   "flame": "SM_Flame_FX",
+   "flameSize": [
+    0.12,
+    0.21,
+    0.1
+   ],
+   "note": "пламъкът е отделен оригинален модел; слага се на около 0.95 м"
+  },
+  "firepit": {
+   "slug": "apocalypse-pack",
+   "model": "SM_Prop_FirePit_01",
+   "size": [
+    0.98,
+    0.39,
+    0.91
+   ]
+  },
+  "floodlight": {
+   "slug": "apocalypse-pack",
+   "model": "SM_Prop_Floodlights_01",
+   "size": [
+    3.46,
+    3.94,
+    1.42
+   ],
+   "note": "ремарке с генератор и мачта с прожектори"
+  },
+  "floodlight_small": {
+   "slug": "military-pack",
+   "model": "SM_Prop_Light_Portable_01",
+   "size": [
+    1,
+    1.19,
+    0.87
+   ]
+  },
+  "searchlight": {
+   "slug": "apocalypse-pack",
+   "model": "SM_Prop_SearchLight_01",
+   "size": [
+    0.65,
+    1.11,
+    0.76
+   ]
+  },
+  "medkit": {
+   "slug": "apocalypse-pack",
+   "model": "SM_Prop_MedicalBox_02",
+   "size": [
+    0.36,
+    0.13,
+    0.35
+   ]
+  },
+  "medkit_red": {
+   "slug": "battle-royale-pack",
+   "model": "SM_Prop_MedicalBox_01",
+   "size": [
+    0.48,
+    0.13,
+    0.39
+   ]
+  },
+  "medic_crate": {
+   "slug": "battle-royale-pack",
+   "model": "SM_Prop_Crate_Medical_01",
+   "size": [
+    0.72,
+    0.44,
+    0.49
+   ]
+  },
+  "screen": {
+   "slug": "military-pack",
+   "model": "SM_Prop_Electronics_Tv_01",
+   "size": [
+    0.67,
+    0.58,
+    0.51
+   ],
+   "face": {
+    "center": [
+     0,
+     0.267,
+     -0.253
+    ],
+    "normal": [
+     0,
+     0,
+     -1
+    ],
+    "w": 0.456,
+    "h": 0.388
+   },
+   "note": "екранът гледа към -Z на модела; face е равната му стена"
+  },
+  "table": {
+   "slug": "apocalypse-pack",
+   "model": "SM_Prop_Table_01"
+  },
+  "crate": {
+   "slug": "apocalypse-pack",
+   "model": "SM_Prop_Crate_01"
+  },
+  "generator": {
+   "slug": "apocalypse-pack",
+   "model": "SM_Prop_Generator_01"
+  },
+  "radio": {
+   "slug": "apocalypse-pack",
+   "model": "SM_Prop_Radio_01"
+  }
+ }
+}
