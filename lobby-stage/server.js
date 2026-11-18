@@ -889,11 +889,11 @@ function serverInfoFor(id) {
 function applyCalibrationTo(id, fresh = false) {
   const c = arena.calibrations[id];
   if (!c) return false;
-  const { version, origin, yawDeg, width, depth, corners, hasMap, floorY } = c;
+  const { version, origin, yawDeg, width, depth, corners, hasMap, floorY, source } = c;
   const sent = sendTo(id, {
     type: 'applyCalibration',
     // markers + zoneAt: двете точки на пода, за които каската връзва котвите си (и коя зона е това)
-    calibration: { version, origin, yawDeg, width, depth, corners, floorY: floorY || 0, fresh, markers: arena.zone?.markers || null, zoneAt: arena.zone?.at || null },   // fresh: току-що мерено в сегашното проследяване на каската
+    calibration: { version, origin, yawDeg, width, depth, corners, floorY: floorY || 0, source: source || null, fresh, markers: arena.zone?.markers || null, zoneAt: arena.zone?.at || null },   // fresh: току-що мерено в сегашното проследяване на каската
     mapUrl: hasMap ? `/api/map?v=${version}` : null,
   });
   journal('applyCalibration', id, c, sent ? 'изпратена на каската' : 'НЕ е изпратена (каската не е свързана)');

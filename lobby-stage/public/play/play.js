@@ -1029,9 +1029,9 @@ async function endGame() {
 
 // ---------- зона: чертане от каската ----------
 
-const BUILD = 46;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
+const BUILD = 47;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
 // what this page understands of MS Games 2 (the server may fall back to older flows for pages without a cap)
-const CAPS = ['lobby', 'vote', 'countdown', 'pause', 'settings', 'results', 'endMessage', 'message', 'swapHands', 'calibrateHeight', 'setupPoints', 'identity', 'restartGame', 'recalibrate', 'bench', 'ping'];
+const CAPS = ['lobby', 'vote', 'countdown', 'pause', 'settings', 'results', 'endMessage', 'message', 'swapHands', 'calibrateHeight', 'setupPoints', 'identity', 'restartGame', 'recalibrate', 'bench', 'ping', 'lbeBounds'];
 let zoneMod = null, zoneEditor = null, zoneViewObj = null, zoneData = null;
 let pendingZone = (() => { try { return JSON.parse(store('arena.zonePending') || 'null'); } catch { return null; } })();
 function zoneConfirmed() { pendingZone = null; store('arena.zonePending', ''); }
@@ -1467,6 +1467,7 @@ function handle(m) {
       case 'zoneCancel': if (zoneEditor?.active) { zoneEditor.cancel(); zoneMode(false); } return;
       case 'zone': return onZone(m.zone);
       case 'calibrate': return startCalibrate();
+      case 'calibrateFromLbe': return void sendLbeBounds('request');
       case 'calibrateCancel': return stopCalibrate(true);
       case 'applyCalibration':
         if (!m.calibration) { applyCalibration(null); autoZone(1500); return showPanel('Alignment was reset', ['Touch the controller to points 1 and 2.'], 'warn', 6); }
@@ -1529,6 +1530,60 @@ function renderCard() {
 // ---------- VR сесия ----------
 
 let spaceType = 'local-floor';
+
+// ---------- границата на PICO LBE към пулта ----------
+// При включен LBE на каската (картата на залата от LSpace) браузърът дава границата като boundsGeometry на bounded-floor:
+// многоъгълник в същите координати като главата и ръцете (проследяването на каската). Пулта смята залата от него
+// (lbeBounds → calibrateFromBounds) и праща applyCalibration, без точки А и Б. Личната граница на каска без LBE е 1,7–3 м:
+// затова сама се праща само от Pico браузър и само ако е с размер на зала; бутонът „по LBE“ (calibrateFromLbe) я праща винаги.
+let boundsSpace = null, lbeSig = '';
+const isPicoBrowser = /pico/i.test(navigator.userAgent);
+const LBE_AUTO_MIN_SIDE = 4;      // м: по-късата страна на правоъгълника около границата, за да се прати сама
+
+function lbeCorners() {
+  const space = boundsSpace || (renderer.xr.isPresenting ? renderer.xr.getReferenceSpace() : null);
+  const geo = space && space.boundsGeometry;
+  if (!geo || geo.length < 3) return null;
+  const pts = [];
+  for (const p of geo) {
+    const x = Number(p.x), z = Number(p.z);
+    if (Number.isFinite(x) && Number.isFinite(z)) pts.push({ x: Math.round(x * 100) / 100, z: Math.round(z * 100) / 100 });
+  }
+  return pts.length >= 3 ? pts.slice(0, 200) : null;
+}
+
+/** По-късата страна на най-малкия правоъгълник около точките (завъртане през 3°): личната граница е малка, залата е голяма. */
+function lbeShortSide(pts) {
+  let best = Infinity;
+  for (let a = 0; a < 90; a += 3) {
+    const c = Math.cos(a * Math.PI / 180), s = Math.sin(a * Math.PI / 180);
+    let u0 = Infinity, u1 = -Infinity, v0 = Infinity, v1 = -Infinity;
+    for (const p of pts) {
+      const u = p.x * c + p.z * s, v = -p.x * s + p.z * c;
+      if (u < u0) u0 = u; if (u > u1) u1 = u; if (v < v0) v0 = v; if (v > v1) v1 = v;
+    }
+    const w = u1 - u0, h = v1 - v0;
+    if (w * h < best) { best = w * h; var side = Math.min(w, h); }
+  }
+  return side;
+}
+
+function sendLbeBounds(reason) {
+  const corners = lbeCorners();
+  send({ type: 'lbeBounds', reason, ok: !!corners, corners: corners || [], obstacles: [], space: spaceType, web: true, pico: isPicoBrowser });
+  return !!corners;
+}
+
+function lbeTick() {
+  if (!isPicoBrowser || !renderer.xr.isPresenting || !connected) return;
+  const corners = lbeCorners();
+  if (!corners) return;
+  const sig = corners.map(p => `${p.x.toFixed(1)},${p.z.toFixed(1)}`).join(';');
+  if (sig === lbeSig) return;
+  lbeSig = sig;
+  if (lbeShortSide(corners) >= LBE_AUTO_MIN_SIDE) sendLbeBounds('changed');
+}
+
 async function enterXR() {
   const xr = navigator.xr;
   const wantVR = qs.get('vr') === '1';
@@ -1536,7 +1591,8 @@ async function enterXR() {
   const session = await xr.requestSession(ar ? 'immersive-ar' : 'immersive-vr', { requiredFeatures: ['local-floor'], optionalFeatures: ['bounded-floor', 'anchors'] });
   // bounded-floor е вързано към границата на стаята и не се мести между сесиите: калибровката остава вярна
   spaceType = 'local-floor';
-  try { await session.requestReferenceSpace('bounded-floor'); spaceType = 'bounded-floor'; } catch { /* няма граница за стая */ }
+  boundsSpace = null; lbeSig = '';
+  try { boundsSpace = await session.requestReferenceSpace('bounded-floor'); spaceType = 'bounded-floor'; } catch { /* няма граница за стая */ }
   const saved = JSON.parse(store('arena.calib') || 'null');
   if (saved && saved.space && saved.space !== spaceType && !savedAnchorIds()) applyCalibration(null);   // друго начало и няма котви: старите числа не важат
   renderer.xr.setReferenceSpaceType(spaceType);
@@ -1546,13 +1602,13 @@ async function enterXR() {
   $('card').hidden = true;
   await restoreAnchors(session);
   // има подравняване, но каската няма (или не намира) котвите си: числата може да са остарели, затова двете точки наново
-  needAlign = !!calib && anchorState !== 'ok' && !!session.restorePersistentAnchor;
+  needAlign = !!calib && calib.source !== 'lbe' && anchorState !== 'ok' && !!session.restorePersistentAnchor;
   autoZone();
   if (calib && anchorState === 'ok') showPanel(me.name, ['The arena is in place.'], '', 5);
   else if (calib && needAlign) showPanel('Two-point alignment', ['Touch the right controller to point 1,', 'then point 2. The headset remembers them', 'and will not ask again.'], 'warn', 0);
   else if (calib) showPanel('Check the alignment', ['If the arena does not match the room:', 'both grip buttons together for 2 seconds.'], 'warn', 12);
   else showPanel(me.name, ['No zone yet. Drawing starts by itself;', 'if it does not start: both grip buttons', 'together for 2 seconds.'], 'warn', 0);
-  session.addEventListener('end', () => { $('card').hidden = false; renderer.setClearColor(COL.bg, 1); panel.mesh.visible = false; });
+  session.addEventListener('end', () => { boundsSpace = null; lbeSig = ''; $('card').hidden = false; renderer.setClearColor(COL.bg, 1); panel.mesh.visible = false; });
 }
 
 async function boot() {
@@ -1584,6 +1640,7 @@ async function boot() {
   initShowroom();
   setInterval(sendStatus, 500);
   setInterval(checkWornAndCal, 500);
+  setInterval(lbeTick, 2000);
   sfx.volume(volume / 100);
   setInterval(sendPose, 50);
   renderer.setAnimationLoop(frame);
