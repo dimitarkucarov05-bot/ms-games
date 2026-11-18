@@ -4,6 +4,8 @@
 **Нищо от Pico не е пробвано на истинска каска** (няма такава при мен): всичко „за Pico“ по-долу е от документи и описи в мрежата и е отбелязано
 къде е сигурно и къде не.
 
+> **18.11 вечерта:** пакетът на Митко е прочетен. Как точно работи LBE там (измерено и извод) е в [`LBE-HOW-IT-WORKS.md`](LBE-HOW-IT-WORKS.md).
+
 ## 1. Накратко
 
 - **LBE** (location-based entertainment) на Pico значи: каските от **Enterprise** серията (Pico 4 Enterprise, Pico 4 Ultra Enterprise, Neo 3 Enterprise) могат да
