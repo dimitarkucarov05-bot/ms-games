@@ -114,7 +114,7 @@ say(stamp);
 
 // ---------- the program: Swift menu-bar launcher, Info.plist, icon ----------
 const exe = path.join(APP, 'Contents', 'MacOS', 'MS Games');
-execFileSync('swiftc', ['-O', '-swift-version', '5', '-target', `${process.arch === 'x64' ? 'x86_64' : 'arm64'}-apple-macos12.0`, path.join(HERE, 'mac', 'main.swift'), '-o', exe, '-framework', 'Cocoa'], { stdio: 'inherit' });
+execFileSync('swiftc', ['-O', '-swift-version', '5', '-target', `${process.arch === 'x64' ? 'x86_64' : 'arm64'}-apple-macos12.0`, path.join(HERE, 'mac', 'main.swift'), '-o', exe, '-framework', 'Cocoa', '-framework', 'WebKit'], { stdio: 'inherit' });
 fs.copyFileSync(path.join(HERE, 'mac', 'AppIcon.icns'), path.join(RES, 'AppIcon.icns'));
 fs.writeFileSync(path.join(APP, 'Contents', 'Info.plist'), `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -128,9 +128,11 @@ fs.writeFileSync(path.join(APP, 'Contents', 'Info.plist'), `<?xml version="1.0" 
   <key>CFBundleShortVersionString</key><string>${VERSION}</string>
   <key>CFBundleVersion</key><string>${VERSION}.${commit === '?' ? '0' : parseInt(commit, 16) % 100000}</string>
   <key>LSMinimumSystemVersion</key><string>12.0</string>
-  <key>LSUIElement</key><true/>
   <key>NSHighResolutionCapable</key><true/>
+  <key>NSPrincipalClass</key><string>NSApplication</string>
   <key>NSLocalNetworkUsageDescription</key><string>MS Games talks to the VR headsets and the staff phone on your Wi-Fi.</string>
+  <key>NSCameraUsageDescription</key><string>The scan page reads the QR code on a player's phone with the camera.</string>
+  <key>NSAppTransportSecurity</key><dict><key>NSAllowsLocalNetworking</key><true/><key>NSAllowsArbitraryLoadsInWebContent</key><true/></dict>
 </dict></plist>
 `);
 // ad-hoc signature of the program itself (the bundled Node keeps its own signature)
@@ -148,7 +150,7 @@ if (process.argv.includes('--dmg')) {
 2. First start: the app is not notarized by Apple, so macOS asks once.
    Right-click the app > Open > Open. (If macOS only offers "Move to Bin": System Settings > Privacy & Security > "Open Anyway".)
    Or in Terminal:  xattr -dr com.apple.quarantine "/Applications/MS Games.app"
-3. The program lives in the menu bar (controller icon). It opens the console at http://localhost:47801 and keeps the Mac awake.
+3. MS Games is a normal program with its own window (the console is inside it, not in a browser); it also keeps a controller icon in the menu bar and keeps the Mac awake.
 4. Staff phone, camera works: the menu shows https://<this Mac>:47843/scan/ (accept the certificate warning once).
 5. LabCoin key: put it in ~/Library/Application Support/MS Games/data/labcoin.json (menu: Show the data folder).
 
