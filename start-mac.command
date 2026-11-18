@@ -18,10 +18,13 @@ fi
 
 cd lobby-stage || exit 1
 IP=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null)
+# the HTTPS certificate names the addresses the Mac had when it was made: a new Wi-Fi or hotspot means a new certificate
+mkdir -p data-mac/tls
+if [ "$(cat data-mac/tls/ip.txt 2>/dev/null)" != "$IP" ]; then rm -f data-mac/tls/cert.pem data-mac/tls/key.pem; echo "$IP" > data-mac/tls/ip.txt; fi
 echo "Console (this Mac):        http://localhost:47801"
-echo "Staff phone, camera works: https://${IP:-<this Mac's IP>}:47843/scan/   (accept the certificate warning once)"
-echo "Staff phone, typed code:   http://${IP:-<this Mac's IP>}:47801/scan/"
-echo "Headsets open the game at: https://${IP:-<this Mac's IP>}:47843/play/"
+echo "Staff phone, camera works: https://${IP:-<IP of this Mac>}:47843/scan/   (accept the certificate warning once)"
+echo "Staff phone, typed code:   http://${IP:-<IP of this Mac>}:47801/scan/"
+echo "Headsets open the game at: https://${IP:-<IP of this Mac>}:47843/play/"
 echo "Stop with Ctrl+C."
 echo
 (sleep 3; open http://localhost:47801) &
