@@ -1029,7 +1029,7 @@ async function endGame() {
 
 // ---------- зона: чертане от каската ----------
 
-const BUILD = 47;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
+const BUILD = 48;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
 // what this page understands of MS Games 2 (the server may fall back to older flows for pages without a cap)
 const CAPS = ['lobby', 'vote', 'countdown', 'pause', 'settings', 'results', 'endMessage', 'message', 'swapHands', 'calibrateHeight', 'setupPoints', 'identity', 'restartGame', 'recalibrate', 'bench', 'ping', 'lbeBounds'];
 let zoneMod = null, zoneEditor = null, zoneViewObj = null, zoneData = null;
@@ -1414,7 +1414,7 @@ function connect() {
   ws.onopen = () => {
     connected = true;
     clearTimeout(calmTimer); calmTimer = setTimeout(() => { replaced = 0; }, 20000);      // връзката се задържа: никой не я оспорва
-    if (!watch) send({ type: 'hello', id: me.id, name: me.name, model: desk.on ? 'Browser (no headset)' : 'Meta Quest (browser)', web: true, desktop: desk.on, calibrationVersion: calib?.version ?? null, app: game?.name || null, build: BUILD, inVR: renderer.xr.isPresenting, caps: CAPS });
+    if (!watch) send({ type: 'hello', id: me.id, name: me.name, model: desk.on ? 'Browser (no headset)' : (/pico/i.test(navigator.userAgent) ? 'PICO (browser)' : 'Meta Quest (browser)'), web: true, lbe: !desk.on && /pico/i.test(navigator.userAgent), desktop: desk.on, calibrationVersion: calib?.version ?? null, app: game?.name || null, build: BUILD, inVR: renderer.xr.isPresenting, caps: CAPS });
     if (pendingZone && !watch) setTimeout(() => { if (pendingZone) send(pendingZone); }, 600);   // чертеж, който не е стигнал до сървъра
     calSent = undefined; wornSent = null;      // worn and needsCalibration go out again on the new connection
     renderCard();
@@ -1532,13 +1532,12 @@ function renderCard() {
 let spaceType = 'local-floor';
 
 // ---------- границата на PICO LBE към пулта ----------
-// При включен LBE на каската (картата на залата от LSpace) браузърът дава границата като boundsGeometry на bounded-floor:
-// многоъгълник в същите координати като главата и ръцете (проследяването на каската). Пулта смята залата от него
-// (lbeBounds → calibrateFromBounds) и праща applyCalibration, без точки А и Б. Личната граница на каска без LBE е 1,7–3 м:
-// затова сама се праща само от Pico браузър и само ако е с размер на зала; бутонът „по LBE“ (calibrateFromLbe) я праща винаги.
+// При включен LBE на каската (картата на залата от LSpace) браузърът може да дава границата като boundsGeometry на bounded-floor:
+// многоъгълник в същите координати като главата и ръцете (проследяването на каската). На PICO 4 Ultra с обикновена граница е празен.
+// (lbeBounds). Границата е каквато я е начертал операторът (всякаква форма и размер), затова няма ограничение за размер:
+// сама се праща само от Pico браузър и само за преглед; зона от нея става по искане на оператора (calibrateFromLbe).
 let boundsSpace = null, lbeSig = '';
 const isPicoBrowser = /pico/i.test(navigator.userAgent);
-const LBE_AUTO_MIN_SIDE = 4;      // м: по-късата страна на правоъгълника около границата, за да се прати сама
 
 function lbeCorners() {
   const space = boundsSpace || (renderer.xr.isPresenting ? renderer.xr.getReferenceSpace() : null);
@@ -1550,22 +1549,6 @@ function lbeCorners() {
     if (Number.isFinite(x) && Number.isFinite(z)) pts.push({ x: Math.round(x * 100) / 100, z: Math.round(z * 100) / 100 });
   }
   return pts.length >= 3 ? pts.slice(0, 200) : null;
-}
-
-/** По-късата страна на най-малкия правоъгълник около точките (завъртане през 3°): личната граница е малка, залата е голяма. */
-function lbeShortSide(pts) {
-  let best = Infinity;
-  for (let a = 0; a < 90; a += 3) {
-    const c = Math.cos(a * Math.PI / 180), s = Math.sin(a * Math.PI / 180);
-    let u0 = Infinity, u1 = -Infinity, v0 = Infinity, v1 = -Infinity;
-    for (const p of pts) {
-      const u = p.x * c + p.z * s, v = -p.x * s + p.z * c;
-      if (u < u0) u0 = u; if (u > u1) u1 = u; if (v < v0) v0 = v; if (v > v1) v1 = v;
-    }
-    const w = u1 - u0, h = v1 - v0;
-    if (w * h < best) { best = w * h; var side = Math.min(w, h); }
-  }
-  return side;
 }
 
 function sendLbeBounds(reason) {
@@ -1581,7 +1564,7 @@ function lbeTick() {
   const sig = corners.map(p => `${p.x.toFixed(1)},${p.z.toFixed(1)}`).join(';');
   if (sig === lbeSig) return;
   lbeSig = sig;
-  if (lbeShortSide(corners) >= LBE_AUTO_MIN_SIDE) sendLbeBounds('changed');
+  sendLbeBounds('changed');
 }
 
 async function enterXR() {

@@ -1256,6 +1256,7 @@ function onHeadsetMessage(ws, msg, ip) {
       app: msg.app || null,
       user: msg.user || null,
       web: !!msg.web,   // каска през браузър (WebXR): получава позите на другите
+      lbe: !!msg.web && !!msg.lbe && arena.picoLbe !== false,   // Pico: работи по LBE картата на залата — всички Pico делят една нула
       desk: !!msg.desktop,   // проба от компютър без каска: няма стая за подравняване
       caps: Array.isArray(msg.caps) ? msg.caps.map(String).slice(0, 30) : [],      // what the page understands (e.g. 'setupPoints', 'lobby')
       appVersion: msg.appVersion ? String(msg.appVersion).slice(0, 20) : (h.appVersion || null),
@@ -1266,6 +1267,11 @@ function onHeadsetMessage(ws, msg, ip) {
     // С LBE всички каски имат една нула → новата каска взима общата калибровка.
     if (arena.lbe.enabled && arena.sharedCalibration && !arena.calibrations[id]) {
       arena.calibrations[id] = arena.sharedCalibration;
+      writeJson(ARENA_FILE, arena);
+    }
+    // Pico (LBE): зоната е начертана на друго Pico и нулата е обща → новото Pico взима същото подравняване, без точки А и Б
+    if (h.lbe && !arena.calibrations[id] && arena.lbeFrame && arena.zone && arena.lbeFrame.zoneAt === (arena.zone.at || null)) {
+      arena.calibrations[id] = { ...arena.lbeFrame };
       writeJson(ARENA_FILE, arena);
     }
     // Каската няма последната си калибровка (напр. след рестарт) → пращаме я веднага, без нови 4 точки.
@@ -1385,6 +1391,8 @@ function onHeadsetMessage(ws, msg, ip) {
 
     case 'lbeBounds':
       writeJson(path.join(DATA, `lbe_bounds_${id}.json`), { at: new Date().toISOString(), ...msg });   // за проверка на границата
+      // страница в браузъра (WebXR): границата е каквато я е начертал операторът — без правоъгълник и без размер; зона става само по искане, и само на Pico
+      if (msg.web) { if (msg.reason === 'request' && h.lbe) zoneFromBoundary(id, h, msg); break; }
       // отговор на тихото питане при свързване — като сама промяна, не като бутона
       if (autoBounds.delete(id) && msg.reason === 'request') msg = { ...msg, reason: 'connect' };
       calibrateFromBounds(id, msg);
@@ -1527,6 +1535,28 @@ async function reSolveZone() {
   return true;
 }
 
+/**
+ * Pico = LBE: каските имат една нула (картата на залата от LSpace), затова зоната, начертана на едно Pico (всякаква форма и размер),
+ * важи за всички Pico без точки А и Б. Квест каските не се пипат — те си подравняват както преди.
+ */
+function shareLbeFrame(id) {
+  const c = arena.calibrations[id];
+  if (!c) return;
+  c.source = 'lbe';
+  arena.lbeFrame = { origin: c.origin, yawDeg: c.yawDeg, floorY: c.floorY || 0, width: c.width, depth: c.depth, corners: [], version: c.version, source: 'lbe', at: c.at, zoneAt: arena.zone?.at || null };
+  for (const [hid, other] of headsets) if (hid !== id && other.lbe) arena.calibrations[hid] = { ...arena.lbeFrame };
+  writeJson(ARENA_FILE, arena);
+  for (const hid of sockets.keys()) if (headsets.get(hid)?.lbe) applyCalibrationTo(hid, hid === id);
+}
+
+/** Границата на Pico (ако браузърът я дава) като зона — само по искане на оператора, всякаква форма и размер. */
+function zoneFromBoundary(id, h, msg) {
+  const name = headsetView(h).name;
+  const pts = (msg.ok && Array.isArray(msg.corners) ? msg.corners : []).map(p => ({ x: Number(p?.x), z: Number(p?.z) })).filter(p => Number.isFinite(p.x) && Number.isFinite(p.z));
+  if (pts.length < 3) return toast(`${name}: the browser gives no boundary — draw the zone in the headset`, 'warn');
+  return onZoneDone(id, h, { points: pts, obstacles: [], marks: [], floorY: arena.floors?.[id] });
+}
+
 async function onZoneDone(id, h, msg) {
   h.phase = 'idle';
   if (!zoneLib) await loadZoneLib();
@@ -1545,7 +1575,9 @@ async function onZoneDone(id, h, msg) {
   const markers = own ? touched.map(p => zoneLib.toArena(z.frame, p).map(r3)) : z.markers;
   arena.zone = { poly: z.poly, obstacles: z.obstacles, blocked: z.blocked || [], hall: z.hall, rooms: z.rooms || [], doors: z.doors || [], markers, ownMarkers: own, area: z.area, by: id, at: new Date().toISOString() };
   arena.calibrations = {};   // старите подравнявания са за друга зона
+  arena.lbeFrame = null;
   setCalibrationFromFrame(id, z.frame, z.hall, 'zone', msg.floorY);
+  if (h.lbe) shareLbeFrame(id);
   broadcastZone();
   const warn = (z.warnings || []).join(' ');
   const roomsText = (z.rooms || []).map(r => `${r.w.toFixed(1)} × ${r.d.toFixed(1)}`).join(' + ');
@@ -2811,6 +2843,13 @@ const api = {
     setServerMap(LOBBY_MAP);   // общата игра се връща в лобито
     pushState();
     return { ok: true };
+  },
+
+  // Pico = LBE (общата нула): по подразбиране включено; с false Pico каските се подравняват като Quest (точки А и Б)
+  'POST /api/pico-lbe': ({ enabled }) => {
+    arena.picoLbe = !!enabled; if (!enabled) arena.lbeFrame = null;
+    writeJson(ARENA_FILE, arena);
+    return { ok: true, picoLbe: arena.picoLbe };
   },
 
   'POST /api/headset/rename': ({ headsetId, name }) => {

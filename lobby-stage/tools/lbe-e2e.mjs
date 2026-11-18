@@ -1,56 +1,66 @@
-// Pico LBE: the headset page sends its boundary (WebXR bounded-floor) -> the console fits the hall (calibrateFromBounds) -> applyCalibration.
+// Pico = LBE: the zone drawn on one Pico (any shape, any size) is shared with every Pico, without points A and B; Quests are left alone.
 //   node tools/dev-server.mjs --port 47951 --data data-dev-lbe --fresh      (another shell)
 //   node tools/lbe-e2e.mjs 47951
 import { createRequire } from 'node:module';
 const require = createRequire(new URL('../lobby/', import.meta.url));
 const WebSocket = require('ws');
 const PORT = Number(process.argv[2] || 47951);
-// the hall as a Pico with an LBE map reported it (6 points, 18.8 x 10.1 m) and an ordinary personal boundary (3 x 3 m, 40 points)
-const S = {
-  hall: [{ x: 13.89, z: -4.83 }, { x: -4.78, z: -5.05 }, { x: -5.07, z: 4.92 }, { x: -4.87, z: 4.92 }, { x: 13.73, z: 5.25 }, { x: 13.89, z: -4.83 }],
-  personal: Array.from({ length: 40 }, (_, i) => ({ x: 1.5 * Math.cos(i / 40 * 2 * Math.PI), z: 1.5 * Math.sin(i / 40 * 2 * Math.PI) })),
-};
 let fails = 0; const ok = (c, m) => { console.log(c ? 'OK  ' : 'FAIL', m); if (!c) fails++; };
-const post = async (p, b) => (await fetch(`http://localhost:${PORT}${p}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(b || {}) })).json().catch(() => ({}));
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const ws = new WebSocket(`ws://localhost:${PORT}/headset`);
-const got = [];
-ws.on('message', d => { try { got.push(JSON.parse(d)); } catch {} });
-await new Promise(r => ws.on('open', r));
-const send = m => ws.send(JSON.stringify(m));
-send({ type: 'hello', id: 'PICO-LBE-TEST', name: 'Pico test', model: 'PICO 4 Ultra', web: true, build: 47, caps: ['lbeBounds'] });
-await sleep(600);
-const types = () => got.map(m => m.type);
+const api = async (p, b) => (await fetch(`http://localhost:${PORT}${p}`, b ? { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(b) } : {})).json().catch(() => ({}));
 
-// 1) the operator button asks the headset for its boundary
-const r = await post('/api/calibrate/lbe', { headsetId: 'PICO-LBE-TEST' });
-await sleep(300);
-ok(r.ok && got.some(m => m.type === 'calibrateFromLbe'), 'console button -> calibrateFromLbe reaches the headset');
-
-// 2) a personal 3x3 boundary on request: too small, waits for confirmation, no calibration sent
-got.length = 0;
-send({ type: 'lbeBounds', reason: 'request', ok: true, corners: S.personal, obstacles: [], web: true, pico: true });
-await sleep(500);
-ok(!got.some(m => m.type === 'applyCalibration'), 'personal 3 x 3 m boundary: no calibration is applied');
-
-// 3) the hall polygon (6 points) sent by the headset: calibration from LBE
-got.length = 0;
-send({ type: 'lbeBounds', reason: 'changed', ok: true, corners: S.hall, obstacles: [], web: true, pico: true });
-await sleep(700);
-const ac = got.find(m => m.type === 'applyCalibration');
-ok(!!ac, 'hall polygon -> applyCalibration sent to the headset');
-if (ac) {
-  const c = ac.calibration;
-  console.log('     ->', JSON.stringify({ w: +c.width.toFixed(2), d: +c.depth.toFixed(2), yawDeg: +c.yawDeg.toFixed(1), origin: { x: +c.origin.x.toFixed(2), z: +c.origin.z.toFixed(2) }, source: c.source, version: c.version }));
-  ok(Math.abs(c.width - 18.9) < 0.5 && Math.abs(c.depth - 10.1) < 0.5, 'hall size 18.9 x 10.1 m');
-  ok(c.source === 'lbe', 'calibration source is lbe (client skips the two-point alignment)');
-  ok(Math.abs(c.origin.x - 4.4) < 0.6 && Math.abs(c.origin.z - 0.1) < 0.6, 'origin is the middle of the hall (about x 4.4, z 0.1)');
+async function headset(id, { lbe }) {
+  const ws = new WebSocket(`ws://localhost:${PORT}/headset`);
+  const got = [];
+  ws.on('message', d => { try { got.push(JSON.parse(d)); } catch {} });
+  await new Promise(r => ws.on('open', r));
+  const send = m => ws.send(JSON.stringify(m));
+  send({ type: 'hello', id, name: id, model: lbe ? 'PICO (browser)' : 'Meta Quest (browser)', web: true, lbe, build: 48, caps: ['lbeBounds'] });
+  await sleep(500);
+  return { id, ws, got, send, cal: () => got.filter(m => m.type === 'applyCalibration' && m.calibration).at(-1)?.calibration || null, clear: () => { got.length = 0; } };
 }
-// 4) the same boundary again: nothing changes
-got.length = 0;
-send({ type: 'lbeBounds', reason: 'changed', ok: true, corners: S.hall, obstacles: [], web: true, pico: true });
+
+const A = await headset('PICO-A', { lbe: true });
+const B = await headset('PICO-B', { lbe: true });
+const Q = await headset('QUEST-Q', { lbe: false });
+A.clear(); B.clear(); Q.clear();
+
+// 1) a triangle drawn on Pico A (not a rectangle, not 3 x 3)
+const tri = [{ x: 0, z: 0 }, { x: 7.5, z: 0 }, { x: 3.7, z: 6.5 }];
+A.send({ type: 'zoneDone', points: tri, obstacles: [], marks: [], floorY: 0 });
+await sleep(900);
+const ca = A.cal(), cb = B.cal();
+ok(!!ca && !!cb, 'triangle drawn on Pico A: both Picos get a calibration');
+ok(ca?.source === 'lbe' && cb?.source === 'lbe', 'the calibration is the shared LBE one (no points A and B)');
+ok(ca && cb && Math.abs(ca.origin.x - cb.origin.x) < 1e-6 && Math.abs(ca.origin.z - cb.origin.z) < 1e-6 && ca.yawDeg === cb.yawDeg, 'both Picos have the same origin and direction');
+ok(!Q.cal(), 'the Quest gets nothing');
+const z = (await api('/api/state')).zone;
+console.log('     zone:', JSON.stringify({ poly: z?.poly?.length, hall: z?.hall && { w: +z.hall.w.toFixed(2), d: +z.hall.d.toFixed(2) } }));
+ok(z?.poly?.length >= 3, 'the triangle is the saved zone');
+
+// 2) a new Pico connecting later takes the same alignment
+const C = await headset('PICO-C', { lbe: true });
+const cc = C.cal();
+ok(cc?.source === 'lbe' && cb && Math.abs(cc.origin.x - cb.origin.x) < 1e-6, 'a new Pico gets the shared alignment on connect');
+
+// 3) a rhombus from the boundary, on request: only Picos react, the Quest is ignored
+A.clear(); B.clear(); Q.clear();
+const rhombus = [{ x: 0, z: 4 }, { x: 6, z: 0 }, { x: 12, z: 4 }, { x: 6, z: 8 }];
+Q.send({ type: 'lbeBounds', reason: 'request', ok: true, corners: rhombus, obstacles: [], web: true, pico: false });
+await sleep(500);
+ok(!Q.cal() && !A.cal(), 'a Quest sending a boundary changes nothing');
+A.send({ type: 'lbeBounds', reason: 'request', ok: true, corners: rhombus, obstacles: [], web: true, pico: true });
+await sleep(900);
+ok(!!A.cal() && !!B.cal(), 'a rhombus boundary sent by a Pico on request becomes the zone for all Picos');
+A.send({ type: 'lbeBounds', reason: 'request', ok: true, corners: [], obstacles: [], web: true, pico: true });
+await sleep(300);
+
+// 4) 'changed' reports are only stored, they never change the zone
+A.clear();
+A.send({ type: 'lbeBounds', reason: 'changed', ok: true, corners: tri, obstacles: [], web: true, pico: true });
 await sleep(400);
-ok(!got.some(m => m.type === 'applyCalibration'), 'the same boundary again: no new calibration');
-ws.close();
+ok(!A.cal(), "an automatic 'changed' report does not touch the zone");
+
+for (const h of [A, B, Q, C]) h.ws.close();
 console.log(fails ? `${fails} FAILED` : 'ALL PASSED');
 process.exit(fails ? 1 : 0);
