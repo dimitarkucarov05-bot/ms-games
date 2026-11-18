@@ -59,3 +59,14 @@ GitHub сам го строи при всяка промяна в `main` (око
 Проверка на файла: `Get-FileHash .\MS-Games-Setup.exe -Algorithm SHA256` (сумата е в бележката на release-а).
 Каските: MS Games → Setup → Headsets, включи каската с USB кабел и натисни Install.
 Картинките в самия инсталатор (екранът на setup-а) още са със старите зелени цветове.
+
+## LabCoin връзката (скан, скинове, HEX) в инсталираното приложение
+
+По подразбиране е **изключена**, докато не е свързан истинският LabCoin. За проба с пробни играчи (HOTDOG, WOMAN1, KID001) пусни в PowerShell
+(след първото пускане на MS Games, когато папката вече съществува):
+
+    '{"mode":"mock","grantPin":"1234"}' | Set-Content "$env:LOCALAPPDATA\MS Games\data\labcoin.json"
+
+Без рестарт. Скан: `http://localhost:47801/scan/` (инсталираното слуша на порт 47801); HEX на ръка: конзолата → Headsets → картата на
+каската с вързан играч → сума → „Send HEX“ два пъти (PIN `1234`). Истинският LabCoin се включва със същия файл:
+`{"baseUrl":"https://app.labcoin.bg","key":"…","venue":"vr-sofia","mode":"live","grantPin":"…"}` (ключът не се пише в чата и в git).
