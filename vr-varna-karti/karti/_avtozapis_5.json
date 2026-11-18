@@ -1,0 +1,878 @@
+{
+  "defaults" : {
+    "wall" : {
+      "id" : "bld_bunker_wall_curved_concrete_01",
+      "mesh" : "\/Game\/Synty\/PolygonApocalypse\/Meshes\/Buildings\/SM_Bld_Bunker_Wall_Curved_Concrete_01.SM_Bld_Bunker_Wall_Curved_Concrete_01",
+      "name" : "Стена бетон 5"
+    }
+  },
+  "hall" : {
+    "floor" : "beton",
+    "h" : 10.08,
+    "w" : 18.800000000000001,
+    "wall_h" : 3
+  },
+  "items" : [
+    {
+      "d" : 2,
+      "h" : 0,
+      "id" : "vdnj267",
+      "rot" : 0,
+      "type" : "circle_r",
+      "w" : 2,
+      "x" : 0.10000000000000001,
+      "y" : 0.10000000000000001
+    },
+    {
+      "d" : 2,
+      "h" : 0,
+      "id" : "ln0qmc9",
+      "rot" : 0,
+      "type" : "circle_b",
+      "w" : 2,
+      "x" : 16.699999999999999,
+      "y" : 0.10000000000000001
+    },
+    {
+      "d" : 0.20000000000000001,
+      "h" : 2.3999999999999999,
+      "id" : "pi0ef33",
+      "model" : {
+        "id" : "bld_bunker_wall_curved_concrete_01",
+        "mesh" : "\/Game\/Synty\/PolygonApocalypse\/Meshes\/Buildings\/SM_Bld_Bunker_Wall_Curved_Concrete_01.SM_Bld_Bunker_Wall_Curved_Concrete_01",
+        "name" : "Стена бетон 5"
+      },
+      "pair" : "33lcw5a",
+      "type" : "wall",
+      "w" : 3,
+      "x" : 0,
+      "y" : 2.2000000000000002
+    },
+    {
+      "d" : 0.20000000000000001,
+      "h" : 2.3999999999999999,
+      "id" : "33lcw5a",
+      "pair" : "pi0ef33",
+      "rot" : 0,
+      "type" : "wall",
+      "w" : 3,
+      "x" : 15.800000000000001,
+      "y" : 2.2000000000000002
+    },
+    {
+      "d" : 0.20000000000000001,
+      "h" : 2.3999999999999999,
+      "id" : "k4b4n8i",
+      "model" : {
+        "id" : "bld_bunker_wall_curved_concrete_01",
+        "mesh" : "\/Game\/Synty\/PolygonApocalypse\/Meshes\/Buildings\/SM_Bld_Bunker_Wall_Curved_Concrete_01.SM_Bld_Bunker_Wall_Curved_Concrete_01",
+        "name" : "Стена бетон 5"
+      },
+      "pair" : "uos4ejx",
+      "type" : "wall",
+      "w" : 1.1000000000000001,
+      "x" : 4.2000000000000002,
+      "y" : 2.2000000000000002
+    },
+    {
+      "d" : 0.20000000000000001,
+      "h" : 2.3999999999999999,
+      "id" : "uos4ejx",
+      "pair" : "k4b4n8i",
+      "rot" : 0,
+      "type" : "wall",
+      "w" : 1.1000000000000001,
+      "x" : 13.5,
+      "y" : 2.2000000000000002
+    },
+    {
+      "d" : 0.20000000000000001,
+      "h" : 2.3999999999999999,
+      "id" : "ym0jz1f",
+      "model" : {
+        "id" : "bld_bunker_wall_curved_concrete_01",
+        "mesh" : "\/Game\/Synty\/PolygonApocalypse\/Meshes\/Buildings\/SM_Bld_Bunker_Wall_Curved_Concrete_01.SM_Bld_Bunker_Wall_Curved_Concrete_01",
+        "name" : "Стена бетон 5"
+      },
+      "pair" : "23f40w2",
+      "rot" : 90,
+      "type" : "wall",
+      "w" : 2.2999999999999998,
+      "x" : 4.0999999999999996,
+      "y" : 1.1000000000000001
+    },
+    {
+      "d" : 0.20000000000000001,
+      "h" : 2.3999999999999999,
+      "id" : "23f40w2",
+      "pair" : "ym0jz1f",
+      "rot" : 270,
+      "type" : "wall",
+      "w" : 2.2999999999999998,
+      "x" : 12.4,
+      "y" : 1.1000000000000001
+    },
+    {
+      "climb" : false,
+      "d" : 0.20000000000000001,
+      "h" : 3.7599999999999998,
+      "icon" : "ikoni\/bld_bunker_wall_curved_end_metal_door_01.png",
+      "id" : "ra7uvt2",
+      "kat" : "bld_autorepair_01_door_01",
+      "label" : "Врата метал 1",
+      "mesh" : "\/Game\/Synty\/PolygonApocalypse\/Meshes\/Buildings\/SM_Bld_Bunker_Wall_Curved_End_Metal_Door_01.SM_Bld_Bunker_Wall_Curved_End_Metal_Door_01",
+      "pair" : "qqi1jhx",
+      "type" : "synty",
+      "ue" : {
+        "d0" : 0.16,
+        "h0" : 3.7599999999999998,
+        "rot" : [
+          0,
+          0,
+          0
+        ],
+        "scale" : [
+          1,
+          1,
+          1
+        ],
+        "w0" : 4.5
+      },
+      "w" : 1.2,
+      "x" : 3,
+      "y" : 2.2000000000000002
+    },
+    {
+      "climb" : false,
+      "d" : 0.20000000000000001,
+      "h" : 3.7599999999999998,
+      "icon" : "ikoni\/bld_autorepair_01_door_01.png",
+      "id" : "qqi1jhx",
+      "kat" : "bld_autorepair_01_door_01",
+      "label" : "Врата метал 1",
+      "mesh" : "\/Game\/Synty\/PolygonApocalypse\/Meshes\/Buildings\/SM_Bld_AutoRepair_01_Door_01.SM_Bld_AutoRepair_01_Door_01",
+      "mirrorX" : true,
+      "pair" : "ra7uvt2",
+      "rot" : 0,
+      "type" : "synty",
+      "ue" : {
+        "rot" : [
+          0,
+          0,
+          0
+        ],
+        "scale" : [
+          1,
+          1,
+          1
+        ]
+      },
+      "w" : 1.2,
+      "x" : 14.6,
+      "y" : 2.2000000000000002
+    },
+    {
+      "climb" : false,
+      "d" : 0.27000000000000002,
+      "h" : 0.17000000000000001,
+      "icon" : "ikoni\/wep_pistol_01.png",
+      "id" : "qvlk21x",
+      "kat" : "wep_pistol_01",
+      "label" : "Пистолет 1",
+      "mesh" : "\/Game\/Synty\/PolygonApocalypse\/Meshes\/Weapons\/SM_Wep_Pistol_01.SM_Wep_Pistol_01",
+      "pair" : "vweyp7q",
+      "type" : "synty",
+      "ue" : {
+        "d0" : 0.27000000000000002,
+        "h0" : 0.17000000000000001,
+        "rot" : [
+          0,
+          0,
+          0
+        ],
+        "scale" : [
+          1,
+          1,
+          1
+        ],
+        "w0" : 0.050000000000000003
+      },
+      "w" : 0.050000000000000003,
+      "x" : 2.8999999999999999,
+      "y" : 0.5
+    },
+    {
+      "climb" : false,
+      "d" : 0.27000000000000002,
+      "h" : 0.17000000000000001,
+      "icon" : "ikoni\/wep_pistol_01.png",
+      "id" : "vweyp7q",
+      "kat" : "wep_pistol_01",
+      "label" : "Пистолет 1",
+      "mesh" : "\/Game\/Synty\/PolygonApocalypse\/Meshes\/Weapons\/SM_Wep_Pistol_01.SM_Wep_Pistol_01",
+      "mirrorX" : true,
+      "pair" : "qvlk21x",
+      "rot" : 0,
+      "type" : "synty",
+      "ue" : {
+        "rot" : [
+          0,
+          0,
+          0
+        ],
+        "scale" : [
+          1,
+          1,
+          1
+        ]
+      },
+      "w" : 0.050000000000000003,
+      "x" : 15.9,
+      "y" : 0.5
+    },
+    {
+      "climb" : false,
+      "d" : 0.27000000000000002,
+      "h" : 0.17000000000000001,
+      "icon" : "ikoni\/wep_pistol_01.png",
+      "id" : "6v7rt2s",
+      "kat" : "wep_pistol_01",
+      "label" : "Пистолет 1",
+      "mesh" : "\/Game\/Synty\/PolygonApocalypse\/Meshes\/Weapons\/SM_Wep_Pistol_01.SM_Wep_Pistol_01",
+      "pair" : "famc8hw",
+      "type" : "synty",
+      "ue" : {
+        "d0" : 0.27000000000000002,
+        "h0" : 0.17000000000000001,
+        "rot" : [
+          0,
+          0,
+          0
+        ],
+        "scale" : [
+          1,
+          1,
+          1
+        ],
+        "w0" : 0.050000000000000003
+      },
+      "w" : 0.050000000000000003,
+      "x" : 3.2999999999999998,
+      "y" : 0.5
+    },
+    {
+      "climb" : false,
+      "d" : 0.27000000000000002,
+      "h" : 0.17000000000000001,
+      "icon" : "ikoni\/wep_pistol_01.png",
+      "id" : "famc8hw",
+      "kat" : "wep_pistol_01",
+      "label" : "Пистолет 1",
+      "mesh" : "\/Game\/Synty\/PolygonApocalypse\/Meshes\/Weapons\/SM_Wep_Pistol_01.SM_Wep_Pistol_01",
+      "mirrorX" : true,
+      "pair" : "6v7rt2s",
+      "rot" : 0,
+      "type" : "synty",
+      "ue" : {
+        "rot" : [
+          0,
+          0,
+          0
+        ],
+        "scale" : [
+          1,
+          1,
+          1
+        ]
+      },
+      "w" : 0.050000000000000003,
+      "x" : 15.4,
+      "y" : 0.5
+    },
+    {
+      "climb" : false,
+      "d" : 0.27000000000000002,
+      "h" : 0.17000000000000001,
+      "icon" : "ikoni\/wep_pistol_01.png",
+      "id" : "dtunzb2",
+      "kat" : "wep_pistol_01",
+      "label" : "Пистолет 1",
+      "mesh" : "\/Game\/Synty\/PolygonApocalypse\/Meshes\/Weapons\/SM_Wep_Pistol_01.SM_Wep_Pistol_01",
+      "pair" : "urzudwl",
+      "type" : "synty",
+      "ue" : {
+        "d0" : 0.27000000000000002,
+        "h0" : 0.17000000000000001,
+        "rot" : [
+          0,
+          0,
+          0
+        ],
+        "scale" : [
+          1,
+          1,
+          1
+        ],
+        "w0" : 0.050000000000000003
+      },
+      "w" : 0.050000000000000003,
+      "x" : 3.6000000000000001,
+      "y" : 0.5
+    },
+    {
+      "climb" : false,
+      "d" : 0.27000000000000002,
+      "h" : 0.17000000000000001,
+      "icon" : "ikoni\/wep_pistol_01.png",
+      "id" : "urzudwl",
+      "kat" : "wep_pistol_01",
+      "label" : "Пистолет 1",
+      "mesh" : "\/Game\/Synty\/PolygonApocalypse\/Meshes\/Weapons\/SM_Wep_Pistol_01.SM_Wep_Pistol_01",
+      "mirrorX" : true,
+      "pair" : "dtunzb2",
+      "rot" : 0,
+      "type" : "synty",
+      "ue" : {
+        "rot" : [
+          0,
+          0,
+          0
+        ],
+        "scale" : [
+          1,
+          1,
+          1
+        ]
+      },
+      "w" : 0.050000000000000003,
+      "x" : 15.199999999999999,
+      "y" : 0.5
+    },
+    {
+      "climb" : false,
+      "d" : 0.27000000000000002,
+      "h" : 0.17000000000000001,
+      "icon" : "ikoni\/wep_pistol_01.png",
+      "id" : "ox63g86",
+      "kat" : "wep_pistol_01",
+      "label" : "Пистолет 1",
+      "mesh" : "\/Game\/Synty\/PolygonApocalypse\/Meshes\/Weapons\/SM_Wep_Pistol_01.SM_Wep_Pistol_01",
+      "pair" : "yrr2x4u",
+      "type" : "synty",
+      "ue" : {
+        "d0" : 0.27000000000000002,
+        "h0" : 0.17000000000000001,
+        "rot" : [
+          0,
+          0,
+          0
+        ],
+        "scale" : [
+          1,
+          1,
+          1
+        ],
+        "w0" : 0.050000000000000003
+      },
+      "w" : 0.050000000000000003,
+      "x" : 4,
+      "y" : 0.5
+    },
+    {
+      "climb" : false,
+      "d" : 0.27000000000000002,
+      "h" : 0.17000000000000001,
+      "icon" : "ikoni\/wep_pistol_01.png",
+      "id" : "yrr2x4u",
+      "kat" : "wep_pistol_01",
+      "label" : "Пистолет 1",
+      "mesh" : "\/Game\/Synty\/PolygonApocalypse\/Meshes\/Weapons\/SM_Wep_Pistol_01.SM_Wep_Pistol_01",
+      "mirrorX" : true,
+      "pair" : "ox63g86",
+      "rot" : 0,
+      "type" : "synty",
+      "ue" : {
+        "rot" : [
+          0,
+          0,
+          0
+        ],
+        "scale" : [
+          1,
+          1,
+          1
+        ]
+      },
+      "w" : 0.050000000000000003,
+      "x" : 14.800000000000001,
+      "y" : 0.5
+    },
+    {
+      "climb" : false,
+      "d" : 0.27000000000000002,
+      "h" : 0.17000000000000001,
+      "icon" : "ikoni\/wep_pistol_01.png",
+      "id" : "6doey3x",
+      "kat" : "wep_pistol_01",
+      "label" : "Пистолет 1",
+      "mesh" : "\/Game\/Synty\/PolygonApocalypse\/Meshes\/Weapons\/SM_Wep_Pistol_01.SM_Wep_Pistol_01",
+      "pair" : "8ib0wjs",
+      "type" : "synty",
+      "ue" : {
+        "d0" : 0.27000000000000002,
+        "h0" : 0.17000000000000001,
+        "rot" : [
+          0,
+          0,
+          0
+        ],
+        "scale" : [
+          1,
+          1,
+          1
+        ],
+        "w0" : 0.050000000000000003
+      },
+      "w" : 0.050000000000000003,
+      "x" : 4.4000000000000004,
+      "y" : 0.59999999999999998
+    },
+    {
+      "climb" : false,
+      "d" : 0.27000000000000002,
+      "h" : 0.17000000000000001,
+      "icon" : "ikoni\/wep_pistol_01.png",
+      "id" : "8ib0wjs",
+      "kat" : "wep_pistol_01",
+      "label" : "Пистолет 1",
+      "mesh" : "\/Game\/Synty\/PolygonApocalypse\/Meshes\/Weapons\/SM_Wep_Pistol_01.SM_Wep_Pistol_01",
+      "mirrorX" : true,
+      "pair" : "6doey3x",
+      "rot" : 0,
+      "type" : "synty",
+      "ue" : {
+        "rot" : [
+          0,
+          0,
+          0
+        ],
+        "scale" : [
+          1,
+          1,
+          1
+        ]
+      },
+      "w" : 0.050000000000000003,
+      "x" : 14.4,
+      "y" : 0.59999999999999998
+    },
+    {
+      "d" : 2.2999999999999998,
+      "h" : 0,
+      "id" : "5hk8ptw",
+      "pair" : "d1qbk9s",
+      "type" : "floor_concrete",
+      "w" : 5.2999999999999998,
+      "x" : 0,
+      "y" : 0
+    },
+    {
+      "d" : 2.2999999999999998,
+      "h" : 0,
+      "id" : "d1qbk9s",
+      "pair" : "5hk8ptw",
+      "rot" : 0,
+      "type" : "floor_concrete",
+      "w" : 5.2999999999999998,
+      "x" : 13.5,
+      "y" : 0
+    },
+    {
+      "d" : 2.6000000000000001,
+      "h" : 2.6000000000000001,
+      "id" : "w6k8xqv",
+      "pair" : "2ilaun6",
+      "rot" : 0,
+      "type" : "building",
+      "w" : 2.3999999999999999,
+      "x" : 0,
+      "y" : 7.4800000000000004
+    },
+    {
+      "d" : 2.6000000000000001,
+      "h" : 2.6000000000000001,
+      "id" : "2ilaun6",
+      "pair" : "w6k8xqv",
+      "rot" : 0,
+      "type" : "building",
+      "w" : 2.3999999999999999,
+      "x" : 16.399999999999999,
+      "y" : 7.4800000000000004
+    },
+    {
+      "climb" : false,
+      "d" : 0.20000000000000001,
+      "h" : 3.7599999999999998,
+      "icon" : "ikoni\/bld_autorepair_01_door_01.png",
+      "id" : "drgrtx6",
+      "kat" : "bld_autorepair_01_door_01",
+      "label" : "Врата 1",
+      "mesh" : "\/Game\/Synty\/PolygonApocalypse\/Meshes\/Buildings\/SM_Bld_AutoRepair_01_Door_01.SM_Bld_AutoRepair_01_Door_01",
+      "pair" : "erpozw7",
+      "rot" : 0,
+      "type" : "synty",
+      "ue" : {
+        "d0" : 0.16,
+        "h0" : 3.7599999999999998,
+        "rot" : [
+          0,
+          0,
+          0
+        ],
+        "scale" : [
+          1,
+          1,
+          1
+        ],
+        "w0" : 4.5
+      },
+      "w" : 0.80000000000000004,
+      "x" : 0,
+      "y" : 7.4000000000000004
+    },
+    {
+      "climb" : false,
+      "d" : 0.20000000000000001,
+      "h" : 3.7599999999999998,
+      "icon" : "ikoni\/bld_autorepair_01_door_01.png",
+      "id" : "erpozw7",
+      "kat" : "bld_autorepair_01_door_01",
+      "label" : "Врата 1",
+      "mesh" : "\/Game\/Synty\/PolygonApocalypse\/Meshes\/Buildings\/SM_Bld_AutoRepair_01_Door_01.SM_Bld_AutoRepair_01_Door_01",
+      "mirrorX" : true,
+      "pair" : "drgrtx6",
+      "rot" : 0,
+      "type" : "synty",
+      "ue" : {
+        "rot" : [
+          0,
+          0,
+          0
+        ],
+        "scale" : [
+          1,
+          1,
+          1
+        ]
+      },
+      "w" : 0.80000000000000004,
+      "x" : 18,
+      "y" : 7.4000000000000004
+    },
+    {
+      "climb" : false,
+      "d" : 0.20000000000000001,
+      "h" : 3.7599999999999998,
+      "icon" : "ikoni\/bld_autorepair_01_door_01.png",
+      "id" : "zqahgn7",
+      "kat" : "bld_autorepair_01_door_01",
+      "label" : "Врата 1",
+      "mesh" : "\/Game\/Synty\/PolygonApocalypse\/Meshes\/Buildings\/SM_Bld_AutoRepair_01_Door_01.SM_Bld_AutoRepair_01_Door_01",
+      "mirrorX" : true,
+      "pair" : "pfwx5qc",
+      "rot" : 90,
+      "type" : "synty",
+      "ue" : {
+        "rot" : [
+          0,
+          0,
+          0
+        ],
+        "scale" : [
+          1,
+          1,
+          1
+        ]
+      },
+      "w" : 0.80000000000000004,
+      "x" : 16,
+      "y" : 9.5800000000000001
+    },
+    {
+      "climb" : false,
+      "d" : 0.20000000000000001,
+      "h" : 3.7599999999999998,
+      "icon" : "ikoni\/bld_autorepair_01_door_01.png",
+      "id" : "pfwx5qc",
+      "kat" : "bld_autorepair_01_door_01",
+      "label" : "Врата 1",
+      "mesh" : "\/Game\/Synty\/PolygonApocalypse\/Meshes\/Buildings\/SM_Bld_AutoRepair_01_Door_01.SM_Bld_AutoRepair_01_Door_01",
+      "mirrorX" : false,
+      "pair" : "zqahgn7",
+      "rot" : 270,
+      "type" : "synty",
+      "ue" : {
+        "rot" : [
+          0,
+          0,
+          0
+        ],
+        "scale" : [
+          1,
+          1,
+          1
+        ]
+      },
+      "w" : 0.80000000000000004,
+      "x" : 2,
+      "y" : 9.5800000000000001
+    },
+    {
+      "d" : 0.20000000000000001,
+      "h" : 1.1000000000000001,
+      "id" : "xwpi8by",
+      "pair" : "k8vmg5t",
+      "rot" : 90,
+      "type" : "halfwall",
+      "w" : 2.2999999999999998,
+      "x" : 3.1499999999999999,
+      "y" : 3.25
+    },
+    {
+      "d" : 0.20000000000000001,
+      "h" : 1.1000000000000001,
+      "id" : "k8vmg5t",
+      "pair" : "xwpi8by",
+      "rot" : 270,
+      "type" : "halfwall",
+      "w" : 2.2999999999999998,
+      "x" : 13.4,
+      "y" : 3.25
+    },
+    {
+      "d" : 0.20000000000000001,
+      "h" : 1.1000000000000001,
+      "id" : "1y2ozi6",
+      "pair" : "92ohloj",
+      "rot" : 90,
+      "type" : "halfwall",
+      "w" : 2.2999999999999998,
+      "x" : 1.55,
+      "y" : 3.25
+    },
+    {
+      "d" : 0.20000000000000001,
+      "h" : 1.1000000000000001,
+      "id" : "92ohloj",
+      "pair" : "1y2ozi6",
+      "rot" : 270,
+      "type" : "halfwall",
+      "w" : 2.2999999999999998,
+      "x" : 14.9,
+      "y" : 3.25
+    },
+    {
+      "d" : 0.20000000000000001,
+      "h" : 1.1000000000000001,
+      "id" : "67cm0a6",
+      "pair" : "ov0oh1h",
+      "rot" : 315,
+      "type" : "halfwall",
+      "w" : 2.6000000000000001,
+      "x" : 2.1000000000000001,
+      "y" : 6.5999999999999996
+    },
+    {
+      "d" : 0.20000000000000001,
+      "h" : 1.1000000000000001,
+      "id" : "ov0oh1h",
+      "pair" : "67cm0a6",
+      "rot" : 45,
+      "type" : "halfwall",
+      "w" : 2.6000000000000001,
+      "x" : 14.1,
+      "y" : 6.5999999999999996
+    },
+    {
+      "d" : 0.80000000000000004,
+      "h" : 0.59999999999999998,
+      "id" : "ngcuir2",
+      "pair" : "spr7jd7",
+      "type" : "tires",
+      "w" : 0.80000000000000004,
+      "x" : 7,
+      "y" : 3.6000000000000001
+    },
+    {
+      "d" : 0.80000000000000004,
+      "h" : 0.59999999999999998,
+      "id" : "spr7jd7",
+      "pair" : "ngcuir2",
+      "rot" : 0,
+      "type" : "tires",
+      "w" : 0.80000000000000004,
+      "x" : 11,
+      "y" : 3.6000000000000001
+    },
+    {
+      "d" : 0.80000000000000004,
+      "h" : 0.59999999999999998,
+      "id" : "n6haj2p",
+      "pair" : "g6uplu3",
+      "type" : "tires",
+      "w" : 0.80000000000000004,
+      "x" : 5.5999999999999996,
+      "y" : 5.5999999999999996
+    },
+    {
+      "d" : 0.80000000000000004,
+      "h" : 0.59999999999999998,
+      "id" : "g6uplu3",
+      "pair" : "n6haj2p",
+      "rot" : 0,
+      "type" : "tires",
+      "w" : 0.80000000000000004,
+      "x" : 12.4,
+      "y" : 5.5999999999999996
+    },
+    {
+      "d" : 0.80000000000000004,
+      "h" : 0.59999999999999998,
+      "id" : "1798ms7",
+      "pair" : "7zdzyvt",
+      "type" : "tires",
+      "w" : 0.80000000000000004,
+      "x" : 7.5999999999999996,
+      "y" : 6.7999999999999998
+    },
+    {
+      "d" : 0.80000000000000004,
+      "h" : 0.59999999999999998,
+      "id" : "7zdzyvt",
+      "pair" : "1798ms7",
+      "rot" : 0,
+      "type" : "tires",
+      "w" : 0.80000000000000004,
+      "x" : 10.4,
+      "y" : 6.7999999999999998
+    },
+    {
+      "d" : 0.80000000000000004,
+      "h" : 0.59999999999999998,
+      "id" : "87iyi4l",
+      "pair" : "gcgkmwc",
+      "type" : "tires",
+      "w" : 0.80000000000000004,
+      "x" : 9,
+      "y" : 4.7999999999999998
+    },
+    {
+      "d" : 0.80000000000000004,
+      "h" : 0.59999999999999998,
+      "id" : "gcgkmwc",
+      "pair" : "87iyi4l",
+      "rot" : 0,
+      "type" : "tires",
+      "w" : 0.80000000000000004,
+      "x" : 9,
+      "y" : 4.7999999999999998
+    },
+    {
+      "d" : 0.59999999999999998,
+      "h" : 0.90000000000000002,
+      "id" : "zogtxs2",
+      "pair" : "3zja8xw",
+      "rot" : 165,
+      "type" : "sandbags",
+      "w" : 2,
+      "x" : 6.7000000000000002,
+      "y" : 1.5
+    },
+    {
+      "d" : 0.59999999999999998,
+      "h" : 0.90000000000000002,
+      "id" : "3zja8xw",
+      "pair" : "zogtxs2",
+      "rot" : 195,
+      "type" : "sandbags",
+      "w" : 2,
+      "x" : 10.1,
+      "y" : 1.5
+    },
+    {
+      "d" : 1.1000000000000001,
+      "h" : 4,
+      "id" : "d6ptxy6",
+      "pair" : "toty98j",
+      "type" : "tree",
+      "w" : 1.1000000000000001,
+      "x" : 4.0999999999999996,
+      "y" : 7.5999999999999996
+    },
+    {
+      "d" : 1.1000000000000001,
+      "h" : 4,
+      "id" : "toty98j",
+      "pair" : "d6ptxy6",
+      "rot" : 0,
+      "type" : "tree",
+      "w" : 1.1000000000000001,
+      "x" : 13.6,
+      "y" : 7.5999999999999996
+    },
+    {
+      "d" : 1.1000000000000001,
+      "h" : 4,
+      "id" : "jgpk6y8",
+      "pair" : "9t9ig2k",
+      "type" : "tree",
+      "w" : 1.1000000000000001,
+      "x" : 6.4000000000000004,
+      "y" : 8.9800000000000004
+    },
+    {
+      "d" : 1.1000000000000001,
+      "h" : 4,
+      "id" : "9t9ig2k",
+      "pair" : "jgpk6y8",
+      "rot" : 0,
+      "type" : "tree",
+      "w" : 1.1000000000000001,
+      "x" : 11.300000000000001,
+      "y" : 8.9800000000000004
+    },
+    {
+      "d" : 1.3999999999999999,
+      "h" : 4,
+      "id" : "bi599o9",
+      "type" : "tree",
+      "w" : 1.5,
+      "x" : 8.6999999999999993,
+      "y" : 0
+    },
+    {
+      "d" : 1.8999999999999999,
+      "h" : 2.7999999999999998,
+      "id" : "88xxe9z",
+      "pair" : "2y28df1",
+      "type" : "tower",
+      "w" : 1,
+      "x" : 0,
+      "y" : 4
+    },
+    {
+      "d" : 1.8999999999999999,
+      "h" : 2.7999999999999998,
+      "id" : "2y28df1",
+      "pair" : "88xxe9z",
+      "rot" : 0,
+      "type" : "tower",
+      "w" : 1,
+      "x" : 17.800000000000001,
+      "y" : 4
+    }
+  ],
+  "kind" : "arena",
+  "name" : "Karta_nova",
+  "version" : 1
+}

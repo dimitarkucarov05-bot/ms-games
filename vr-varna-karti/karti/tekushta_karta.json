@@ -1,0 +1,514 @@
+{
+ "version": 1,
+ "name": "Текуща карта (Arena6x6_Synty)",
+ "hall": {
+  "w": 18.8,
+  "h": 10.08
+ },
+ "items": [
+  {
+   "id": "s0",
+   "type": "synty",
+   "label": "кола",
+   "mesh": "/Game/Maps/SyntyLocal/ArenaLOD/SM_Prop_Car_Wrecked_Van_01_L.SM_Prop_Car_Wrecked_Van_01_L",
+   "x": 5.86,
+   "y": 3.82,
+   "w": 2.47,
+   "d": 5.05,
+   "h": 1.76,
+   "ue": {
+    "cx": -2.305,
+    "cy": -1.306,
+    "loc": [
+     -230.0,
+     -120.0,
+     3.12
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "actor": "Synty_car_b_r",
+    "w0": 2.473,
+    "d0": 5.047,
+    "h0": 1.764
+   }
+  },
+  {
+   "id": "s1",
+   "type": "synty",
+   "label": "кола",
+   "mesh": "/Game/Maps/SyntyLocal/ArenaLOD/SM_Prop_Car_Wrecked_SUV_01_L.SM_Prop_Car_Wrecked_SUV_01_L",
+   "x": 10.5,
+   "y": 1.26,
+   "w": 2.37,
+   "d": 4.97,
+   "h": 1.67,
+   "ue": {
+    "cx": 2.278,
+    "cy": 1.292,
+    "loc": [
+     230.0,
+     120.0,
+     4.9
+    ],
+    "rot": [
+     0.0,
+     180.0,
+     -0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "actor": "Synty_car_b_b",
+    "w0": 2.366,
+    "d0": 4.968,
+    "h0": 1.673
+   }
+  },
+  {
+   "id": "s2",
+   "type": "synty",
+   "label": "бариера",
+   "mesh": "/Game/Synty/PolygonApocalypse/Meshes/Props/SM_Prop_Barrier_Concrete_01.SM_Prop_Barrier_Concrete_01",
+   "x": 1.91,
+   "y": 3.57,
+   "w": 1.99,
+   "d": 0.54,
+   "h": 0.9,
+   "ue": {
+    "cx": -6.5,
+    "cy": 1.2,
+    "loc": [
+     -650.0,
+     120.0,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     90.0,
+     -0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "actor": "Synty_wall_a_r",
+    "w0": 1.99,
+    "d0": 0.535,
+    "h0": 0.903
+   }
+  },
+  {
+   "id": "s3",
+   "type": "synty",
+   "label": "бариера",
+   "mesh": "/Game/Synty/PolygonApocalypse/Meshes/Props/SM_Prop_Barrier_Concrete_Broken_01.SM_Prop_Barrier_Concrete_Broken_01",
+   "x": 14.91,
+   "y": 5.78,
+   "w": 1.98,
+   "d": 0.93,
+   "h": 0.9,
+   "ue": {
+    "cx": 6.5,
+    "cy": -1.2,
+    "loc": [
+     650.0,
+     -120.0,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "actor": "Synty_wall_a_b",
+    "w0": 1.984,
+    "d0": 0.927,
+    "h0": 0.903
+   }
+  },
+  {
+   "id": "s4",
+   "type": "synty",
+   "label": "барикада",
+   "mesh": "/Game/Synty/PolygonApocalypse/Meshes/Props/SM_Prop_Barricade_Pallet_01.SM_Prop_Barricade_Pallet_01",
+   "x": 1.43,
+   "y": 1.67,
+   "w": 1.43,
+   "d": 0.23,
+   "h": 1.35,
+   "ue": {
+    "cx": -7.26,
+    "cy": 3.25,
+    "loc": [
+     -726.39,
+     313.26,
+     62.23
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "actor": "Synty_maze_pallet_r",
+    "w0": 1.426,
+    "d0": 0.235,
+    "h0": 1.35
+   }
+  },
+  {
+   "id": "s5",
+   "type": "synty",
+   "label": "барикада",
+   "mesh": "/Game/Synty/PolygonApocalypse/Meshes/Props/SM_Prop_Barricade_Pallet_01.SM_Prop_Barricade_Pallet_01",
+   "x": 15.95,
+   "y": 8.17,
+   "w": 1.43,
+   "d": 0.23,
+   "h": 1.35,
+   "ue": {
+    "cx": 7.26,
+    "cy": -3.25,
+    "loc": [
+     726.39,
+     -313.26,
+     62.23
+    ],
+    "rot": [
+     0.0,
+     180.0,
+     -0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "actor": "Synty_maze_pallet_b",
+    "w0": 1.426,
+    "d0": 0.235,
+    "h0": 1.35
+   }
+  },
+  {
+   "id": "s6",
+   "type": "synty",
+   "label": "стена",
+   "mesh": "/Game/Synty/PolygonApocalypse/Meshes/Buildings/SM_Bld_Bunker_Wall_Concrete_x1_01.SM_Bld_Bunker_Wall_Concrete_x1_01",
+   "x": 4.27,
+   "y": 0.0,
+   "w": 0.25,
+   "d": 2.2,
+   "h": 1.35,
+   "ue": {
+    "cx": -5.0,
+    "cy": 3.94,
+    "loc": [
+     -500.0,
+     284.5,
+     -165.6
+    ],
+    "rot": [
+     0.0,
+     90.0,
+     -0.0
+    ],
+    "scale": [
+     0.876,
+     1.0,
+     1.0
+    ],
+    "actor": "Synty_maze_wallV_r",
+    "w0": 0.25,
+    "d0": 2.199,
+    "h0": 1.35
+   }
+  },
+  {
+   "id": "s7",
+   "type": "synty",
+   "label": "стена",
+   "mesh": "/Game/Synty/PolygonApocalypse/Meshes/Buildings/SM_Bld_Bunker_Wall_Concrete_x1_01.SM_Bld_Bunker_Wall_Concrete_x1_01",
+   "x": 14.27,
+   "y": 7.88,
+   "w": 0.25,
+   "d": 2.2,
+   "h": 1.35,
+   "ue": {
+    "cx": 5.0,
+    "cy": -3.94,
+    "loc": [
+     500.0,
+     -284.5,
+     -165.6
+    ],
+    "rot": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "scale": [
+     0.876,
+     1.0,
+     1.0
+    ],
+    "actor": "Synty_maze_wallV_b",
+    "w0": 0.25,
+    "d0": 2.199,
+    "h0": 1.35
+   }
+  },
+  {
+   "id": "s8",
+   "type": "synty",
+   "label": "стена",
+   "mesh": "/Game/Synty/PolygonApocalypse/Meshes/Buildings/SM_Bld_Bunker_Wall_Concrete_x1_01.SM_Bld_Bunker_Wall_Concrete_x1_01",
+   "x": 5.8,
+   "y": 2.31,
+   "w": 2.51,
+   "d": 0.25,
+   "h": 1.35,
+   "ue": {
+    "cx": -2.345,
+    "cy": 2.6,
+    "loc": [
+     -359.5,
+     260.0,
+     -165.6
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "actor": "Synty_maze_wallH_r",
+    "w0": 2.51,
+    "d0": 0.25,
+    "h0": 1.35
+   }
+  },
+  {
+   "id": "s9",
+   "type": "synty",
+   "label": "стена",
+   "mesh": "/Game/Synty/PolygonApocalypse/Meshes/Buildings/SM_Bld_Bunker_Wall_Concrete_x1_01.SM_Bld_Bunker_Wall_Concrete_x1_01",
+   "x": 10.49,
+   "y": 7.51,
+   "w": 2.51,
+   "d": 0.25,
+   "h": 1.35,
+   "ue": {
+    "cx": 2.345,
+    "cy": -2.6,
+    "loc": [
+     359.5,
+     -260.0,
+     -165.6
+    ],
+    "rot": [
+     0.0,
+     180.0,
+     -0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "actor": "Synty_maze_wallH_b",
+    "w0": 2.51,
+    "d0": 0.25,
+    "h0": 1.35
+   }
+  },
+  {
+   "id": "s10",
+   "type": "synty",
+   "label": "сандък",
+   "mesh": "/Game/Synty/PolygonApocalypse/Meshes/Props/SM_Prop_Crate_01.SM_Prop_Crate_01",
+   "x": 8.35,
+   "y": 6.43,
+   "w": 0.83,
+   "d": 0.83,
+   "h": 0.82,
+   "ue": {
+    "cx": -0.64,
+    "cy": -1.8,
+    "loc": [
+     -64.0,
+     -180.0,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "actor": "Synty_maze_crateC_r",
+    "w0": 0.828,
+    "d0": 0.828,
+    "h0": 0.818
+   }
+  },
+  {
+   "id": "s11",
+   "type": "synty",
+   "label": "сандък",
+   "mesh": "/Game/Synty/PolygonApocalypse/Meshes/Props/SM_Prop_Crate_01.SM_Prop_Crate_01",
+   "x": 9.63,
+   "y": 2.83,
+   "w": 0.83,
+   "d": 0.83,
+   "h": 0.82,
+   "ue": {
+    "cx": 0.64,
+    "cy": 1.8,
+    "loc": [
+     64.0,
+     180.0,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     180.0,
+     -0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "actor": "Synty_maze_crateC_b",
+    "w0": 0.828,
+    "d0": 0.828,
+    "h0": 0.818
+   }
+  },
+  {
+   "id": "s12",
+   "type": "synty",
+   "label": "сандък",
+   "mesh": "/Game/Synty/PolygonApocalypse/Meshes/Props/SM_Prop_Crate_01.SM_Prop_Crate_01",
+   "x": 5.99,
+   "y": 0.03,
+   "w": 0.83,
+   "d": 0.83,
+   "h": 0.82,
+   "ue": {
+    "cx": -3.0,
+    "cy": 4.6,
+    "loc": [
+     -300.0,
+     460.0,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "actor": "Synty_maze_crateN_r",
+    "w0": 0.828,
+    "d0": 0.828,
+    "h0": 0.818
+   }
+  },
+  {
+   "id": "s13",
+   "type": "synty",
+   "label": "сандък",
+   "mesh": "/Game/Synty/PolygonApocalypse/Meshes/Props/SM_Prop_Crate_01.SM_Prop_Crate_01",
+   "x": 11.99,
+   "y": 9.23,
+   "w": 0.83,
+   "d": 0.83,
+   "h": 0.82,
+   "ue": {
+    "cx": 3.0,
+    "cy": -4.6,
+    "loc": [
+     300.0,
+     -460.0,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     180.0,
+     -0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "actor": "Synty_maze_crateN_b",
+    "w0": 0.828,
+    "d0": 0.828,
+    "h0": 0.818
+   }
+  },
+  {
+   "id": "cr",
+   "type": "circle_r",
+   "x": 0.8,
+   "y": 6.28,
+   "w": 3.0,
+   "d": 3.0,
+   "h": 0
+  },
+  {
+   "id": "cb",
+   "type": "circle_b",
+   "x": 15.0,
+   "y": 0.8,
+   "w": 3.0,
+   "d": 3.0,
+   "h": 0
+  }
+ ],
+ "source": {
+  "map": "/Game/Maps/Arena6x6_Synty",
+  "skipped": {
+   "invisible": 60,
+   "no_collision": 1,
+   "floor_ceiling": 64,
+   "outside": 19,
+   "no_mesh": 0
+  }
+ }
+}

@@ -1,0 +1,447 @@
+{
+ "version": 1,
+ "count": 63,
+ "items": [
+  {
+   "id": "m_polygonapocalypse_base_01",
+   "path": "/Game/Synty/PolygonApocalypse/Materials/Base/M_PolygonApocalypse_Base_01.M_PolygonApocalypse_Base_01",
+   "name": "M_PolygonApocalypse_Base_01",
+   "pack": "PolygonApocalypse",
+   "icon": "materiali/m_polygonapocalypse_base_01.png"
+  },
+  {
+   "id": "mi_polygonapocalypse_01_a",
+   "path": "/Game/Synty/PolygonApocalypse/Materials/Alt/MI_PolygonApocalypse_01_A.MI_PolygonApocalypse_01_A",
+   "name": "MI_PolygonApocalypse_01_A",
+   "pack": "PolygonApocalypse",
+   "icon": "materiali/mi_polygonapocalypse_01_a.png"
+  },
+  {
+   "id": "m_polygonapocalypse_basetransparent_01",
+   "path": "/Game/Synty/PolygonApocalypse/Materials/Base/M_PolygonApocalypse_BaseTransparent_01.M_PolygonApocalypse_BaseTransparent_01",
+   "name": "M_PolygonApocalypse_BaseTransparent_01",
+   "pack": "PolygonApocalypse",
+   "icon": "materiali/m_polygonapocalypse_basetransparent_01.png"
+  },
+  {
+   "id": "mi_genericmaterial",
+   "path": "/Game/Synty/PolygonGeneric/Materials/MI_GenericMaterial.MI_GenericMaterial",
+   "name": "MI_GenericMaterial",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/mi_genericmaterial.png"
+  },
+  {
+   "id": "mi_generic_concrete",
+   "path": "/Game/Synty/PolygonGeneric/Materials/Buildings/MI_Generic_Concrete.MI_Generic_Concrete",
+   "name": "MI_Generic_Concrete",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/mi_generic_concrete.png"
+  },
+  {
+   "id": "mi_generic_plaster",
+   "path": "/Game/Synty/PolygonGeneric/Materials/Buildings/MI_Generic_Plaster.MI_Generic_Plaster",
+   "name": "MI_Generic_Plaster",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/mi_generic_plaster.png"
+  },
+  {
+   "id": "mi_wood",
+   "path": "/Game/Synty/PolygonGeneric/Materials/Buildings/MI_Wood.MI_Wood",
+   "name": "MI_Wood",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/mi_wood.png"
+  },
+  {
+   "id": "mi_generic_wood",
+   "path": "/Game/Synty/PolygonGeneric/Materials/Buildings/MI_Generic_Wood.MI_Generic_Wood",
+   "name": "MI_Generic_Wood",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/mi_generic_wood.png"
+  },
+  {
+   "id": "mi_generic_carpet",
+   "path": "/Game/Synty/PolygonGeneric/Materials/Buildings/MI_Generic_Carpet.MI_Generic_Carpet",
+   "name": "MI_Generic_Carpet",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/mi_generic_carpet.png"
+  },
+  {
+   "id": "mi_concrete",
+   "path": "/Game/Synty/PolygonGeneric/Materials/Buildings/MI_Concrete.MI_Concrete",
+   "name": "MI_Concrete",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/mi_concrete.png"
+  },
+  {
+   "id": "mi_stars",
+   "path": "/Game/Synty/PolygonGeneric/Materials/Environment/MI_Stars.MI_Stars",
+   "name": "MI_Stars",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/mi_stars.png"
+  },
+  {
+   "id": "mi_generic_04_b",
+   "path": "/Game/Synty/PolygonGeneric/Materials/Alt/MI_Generic_04_B.MI_Generic_04_B",
+   "name": "MI_Generic_04_B",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/mi_generic_04_b.png"
+  },
+  {
+   "id": "mi_generic_01_a",
+   "path": "/Game/Synty/PolygonGeneric/Materials/Alt/MI_Generic_01_A.MI_Generic_01_A",
+   "name": "MI_Generic_01_A",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/mi_generic_01_a.png"
+  },
+  {
+   "id": "mi_generic_02_b",
+   "path": "/Game/Synty/PolygonGeneric/Materials/Alt/MI_Generic_02_B.MI_Generic_02_B",
+   "name": "MI_Generic_02_B",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/mi_generic_02_b.png"
+  },
+  {
+   "id": "mi_generic_03_b",
+   "path": "/Game/Synty/PolygonGeneric/Materials/Alt/MI_Generic_03_B.MI_Generic_03_B",
+   "name": "MI_Generic_03_B",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/mi_generic_03_b.png"
+  },
+  {
+   "id": "mi_generic_01_c",
+   "path": "/Game/Synty/PolygonGeneric/Materials/Alt/MI_Generic_01_C.MI_Generic_01_C",
+   "name": "MI_Generic_01_C",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/mi_generic_01_c.png"
+  },
+  {
+   "id": "mi_generic_04_a",
+   "path": "/Game/Synty/PolygonGeneric/Materials/Alt/MI_Generic_04_A.MI_Generic_04_A",
+   "name": "MI_Generic_04_A",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/mi_generic_04_a.png"
+  },
+  {
+   "id": "mi_generic_04_c",
+   "path": "/Game/Synty/PolygonGeneric/Materials/Alt/MI_Generic_04_C.MI_Generic_04_C",
+   "name": "MI_Generic_04_C",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/mi_generic_04_c.png"
+  },
+  {
+   "id": "mi_generic_03_c",
+   "path": "/Game/Synty/PolygonGeneric/Materials/Alt/MI_Generic_03_C.MI_Generic_03_C",
+   "name": "MI_Generic_03_C",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/mi_generic_03_c.png"
+  },
+  {
+   "id": "mi_generic_02_c",
+   "path": "/Game/Synty/PolygonGeneric/Materials/Alt/MI_Generic_02_C.MI_Generic_02_C",
+   "name": "MI_Generic_02_C",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/mi_generic_02_c.png"
+  },
+  {
+   "id": "mi_generic_01_b",
+   "path": "/Game/Synty/PolygonGeneric/Materials/Alt/MI_Generic_01_B.MI_Generic_01_B",
+   "name": "MI_Generic_01_B",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/mi_generic_01_b.png"
+  },
+  {
+   "id": "mi_generic_03_a",
+   "path": "/Game/Synty/PolygonGeneric/Materials/Alt/MI_Generic_03_A.MI_Generic_03_A",
+   "name": "MI_Generic_03_A",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/mi_generic_03_a.png"
+  },
+  {
+   "id": "mi_generic_02_a",
+   "path": "/Game/Synty/PolygonGeneric/Materials/Alt/MI_Generic_02_A.MI_Generic_02_A",
+   "name": "MI_Generic_02_A",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/mi_generic_02_a.png"
+  },
+  {
+   "id": "m_genericbase",
+   "path": "/Game/Synty/PolygonGeneric/Materials/Base/M_GenericBase.M_GenericBase",
+   "name": "M_GenericBase",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/m_genericbase.png"
+  },
+  {
+   "id": "m_genericbase_overlay",
+   "path": "/Game/Synty/PolygonGeneric/Materials/Base/M_GenericBase_Overlay.M_GenericBase_Overlay",
+   "name": "M_GenericBase_Overlay",
+   "pack": "PolygonGeneric",
+   "icon": "materiali/m_genericbase_overlay.png"
+  },
+  {
+   "id": "mi_polygonapocalypse_03_a",
+   "path": "/Game/Synty/PolygonApocalypse/Materials/Alt/MI_PolygonApocalypse_03_A.MI_PolygonApocalypse_03_A",
+   "name": "MI_PolygonApocalypse_03_A",
+   "pack": "PolygonApocalypse",
+   "icon": "materiali/mi_polygonapocalypse_03_a.png"
+  },
+  {
+   "id": "mi_polygonapocalypse_01_b",
+   "path": "/Game/Synty/PolygonApocalypse/Materials/Alt/MI_PolygonApocalypse_01_B.MI_PolygonApocalypse_01_B",
+   "name": "MI_PolygonApocalypse_01_B",
+   "pack": "PolygonApocalypse",
+   "icon": "materiali/mi_polygonapocalypse_01_b.png"
+  },
+  {
+   "id": "mi_polygonapocalypse_03_c",
+   "path": "/Game/Synty/PolygonApocalypse/Materials/Alt/MI_PolygonApocalypse_03_C.MI_PolygonApocalypse_03_C",
+   "name": "MI_PolygonApocalypse_03_C",
+   "pack": "PolygonApocalypse",
+   "icon": "materiali/mi_polygonapocalypse_03_c.png"
+  },
+  {
+   "id": "mi_polygonapocalypse_04_c",
+   "path": "/Game/Synty/PolygonApocalypse/Materials/Alt/MI_PolygonApocalypse_04_C.MI_PolygonApocalypse_04_C",
+   "name": "MI_PolygonApocalypse_04_C",
+   "pack": "PolygonApocalypse",
+   "icon": "materiali/mi_polygonapocalypse_04_c.png"
+  },
+  {
+   "id": "mi_polygonapocalypse_04_a",
+   "path": "/Game/Synty/PolygonApocalypse/Materials/Alt/MI_PolygonApocalypse_04_A.MI_PolygonApocalypse_04_A",
+   "name": "MI_PolygonApocalypse_04_A",
+   "pack": "PolygonApocalypse",
+   "icon": "materiali/mi_polygonapocalypse_04_a.png"
+  },
+  {
+   "id": "mi_polygonapocalypse_01_c",
+   "path": "/Game/Synty/PolygonApocalypse/Materials/Alt/MI_PolygonApocalypse_01_C.MI_PolygonApocalypse_01_C",
+   "name": "MI_PolygonApocalypse_01_C",
+   "pack": "PolygonApocalypse",
+   "icon": "materiali/mi_polygonapocalypse_01_c.png"
+  },
+  {
+   "id": "mi_polygonapocalypse_03_b",
+   "path": "/Game/Synty/PolygonApocalypse/Materials/Alt/MI_PolygonApocalypse_03_B.MI_PolygonApocalypse_03_B",
+   "name": "MI_PolygonApocalypse_03_B",
+   "pack": "PolygonApocalypse",
+   "icon": "materiali/mi_polygonapocalypse_03_b.png"
+  },
+  {
+   "id": "mi_polygonapocalypse_04_b",
+   "path": "/Game/Synty/PolygonApocalypse/Materials/Alt/MI_PolygonApocalypse_04_B.MI_PolygonApocalypse_04_B",
+   "name": "MI_PolygonApocalypse_04_B",
+   "pack": "PolygonApocalypse",
+   "icon": "materiali/mi_polygonapocalypse_04_b.png"
+  },
+  {
+   "id": "m_color",
+   "path": "/Game/Materials/Lobby/M_Color.M_Color",
+   "name": "M_Color",
+   "pack": "Materials",
+   "icon": "materiali/m_color.png"
+  },
+  {
+   "id": "mi_trimorange",
+   "path": "/Game/Materials/Lobby/MI_TrimOrange.MI_TrimOrange",
+   "name": "MI_TrimOrange",
+   "pack": "Materials",
+   "icon": "materiali/mi_trimorange.png"
+  },
+  {
+   "id": "mi_arenaline",
+   "path": "/Game/Materials/Lobby/MI_ArenaLine.MI_ArenaLine",
+   "name": "MI_ArenaLine",
+   "pack": "Materials",
+   "icon": "materiali/mi_arenaline.png"
+  },
+  {
+   "id": "mi_pumpkin",
+   "path": "/Game/Materials/Lobby/MI_Pumpkin.MI_Pumpkin",
+   "name": "MI_Pumpkin",
+   "pack": "Materials",
+   "icon": "materiali/mi_pumpkin.png"
+  },
+  {
+   "id": "mi_prizecounter",
+   "path": "/Game/Materials/Lobby/MI_PrizeCounter.MI_PrizeCounter",
+   "name": "MI_PrizeCounter",
+   "pack": "Materials",
+   "icon": "materiali/mi_prizecounter.png"
+  },
+  {
+   "id": "mi_hatpurple",
+   "path": "/Game/Materials/Lobby/MI_HatPurple.MI_HatPurple",
+   "name": "MI_HatPurple",
+   "pack": "Materials",
+   "icon": "materiali/mi_hatpurple.png"
+  },
+  {
+   "id": "mi_hatorange",
+   "path": "/Game/Materials/Lobby/MI_HatOrange.MI_HatOrange",
+   "name": "MI_HatOrange",
+   "pack": "Materials",
+   "icon": "materiali/mi_hatorange.png"
+  },
+  {
+   "id": "mi_hatgreen",
+   "path": "/Game/Materials/Lobby/MI_HatGreen.MI_HatGreen",
+   "name": "MI_HatGreen",
+   "pack": "Materials",
+   "icon": "materiali/mi_hatgreen.png"
+  },
+  {
+   "id": "mi_gridblue",
+   "path": "/Game/Materials/Lobby/MI_GridBlue.MI_GridBlue",
+   "name": "MI_GridBlue",
+   "pack": "Materials",
+   "icon": "materiali/mi_gridblue.png"
+  },
+  {
+   "id": "mi_edgeblue",
+   "path": "/Game/Materials/Lobby/MI_EdgeBlue.MI_EdgeBlue",
+   "name": "MI_EdgeBlue",
+   "pack": "Materials",
+   "icon": "materiali/mi_edgeblue.png"
+  },
+  {
+   "id": "mi_avatar_sleep",
+   "path": "/Game/Materials/Avatars/MI_Avatar_sleep.MI_Avatar_sleep",
+   "name": "MI_Avatar_sleep",
+   "pack": "Materials",
+   "icon": "materiali/mi_avatar_sleep.png"
+  },
+  {
+   "id": "mi_avatar_idle",
+   "path": "/Game/Materials/Avatars/MI_Avatar_idle.MI_Avatar_idle",
+   "name": "MI_Avatar_idle",
+   "pack": "Materials",
+   "icon": "materiali/mi_avatar_idle.png"
+  },
+  {
+   "id": "m_bos_sgrada",
+   "path": "/Game/Materials/M_Bos_Sgrada.M_Bos_Sgrada",
+   "name": "M_Bos_Sgrada",
+   "pack": "Materials",
+   "icon": "materiali/m_bos_sgrada.png"
+  },
+  {
+   "id": "mi_curtaindark",
+   "path": "/Game/Materials/Lobby/MI_CurtainDark.MI_CurtainDark",
+   "name": "MI_CurtainDark",
+   "pack": "Materials",
+   "icon": "materiali/mi_curtaindark.png"
+  },
+  {
+   "id": "mi_stagewood",
+   "path": "/Game/Materials/Lobby/MI_StageWood.MI_StageWood",
+   "name": "MI_StageWood",
+   "pack": "Materials",
+   "icon": "materiali/mi_stagewood.png"
+  },
+  {
+   "id": "mi_avatar_cal",
+   "path": "/Game/Materials/Avatars/MI_Avatar_cal.MI_Avatar_cal",
+   "name": "MI_Avatar_cal",
+   "pack": "Materials",
+   "icon": "materiali/mi_avatar_cal.png"
+  },
+  {
+   "id": "mi_avatar_load",
+   "path": "/Game/Materials/Avatars/MI_Avatar_load.MI_Avatar_load",
+   "name": "MI_Avatar_load",
+   "pack": "Materials",
+   "icon": "materiali/mi_avatar_load.png"
+  },
+  {
+   "id": "mi_avatar_play",
+   "path": "/Game/Materials/Avatars/MI_Avatar_play.MI_Avatar_play",
+   "name": "MI_Avatar_play",
+   "pack": "Materials",
+   "icon": "materiali/mi_avatar_play.png"
+  },
+  {
+   "id": "mi_refv5_sgrada",
+   "path": "/Game/Maps/RefV5/MI_RefV5_Sgrada.MI_RefV5_Sgrada",
+   "name": "MI_RefV5_Sgrada",
+   "pack": "Maps",
+   "icon": "materiali/mi_refv5_sgrada.png"
+  },
+  {
+   "id": "mi_refv5_blue",
+   "path": "/Game/Maps/RefV5/MI_RefV5_Blue.MI_RefV5_Blue",
+   "name": "MI_RefV5_Blue",
+   "pack": "Maps",
+   "icon": "materiali/mi_refv5_blue.png"
+  },
+  {
+   "id": "mi_karti_zona_points",
+   "path": "/Game/Maps/RefV5/MI_Karti_Zona_points.MI_Karti_Zona_points",
+   "name": "MI_Karti_Zona_points",
+   "pack": "Maps",
+   "icon": "materiali/mi_karti_zona_points.png"
+  },
+  {
+   "id": "mi_karti_pod_liniya_byala",
+   "path": "/Game/Maps/RefV5/MI_Karti_Pod_liniya_byala.MI_Karti_Pod_liniya_byala",
+   "name": "MI_Karti_Pod_liniya_byala",
+   "pack": "Maps",
+   "icon": "materiali/mi_karti_pod_liniya_byala.png"
+  },
+  {
+   "id": "mi_refv5_build",
+   "path": "/Game/Maps/RefV5/MI_RefV5_Build.MI_RefV5_Build",
+   "name": "MI_RefV5_Build",
+   "pack": "Maps",
+   "icon": "materiali/mi_refv5_build.png"
+  },
+  {
+   "id": "mi_refv5_room",
+   "path": "/Game/Maps/RefV5/MI_RefV5_Room.MI_RefV5_Room",
+   "name": "MI_RefV5_Room",
+   "pack": "Maps",
+   "icon": "materiali/mi_refv5_room.png"
+  },
+  {
+   "id": "mi_refv5_red",
+   "path": "/Game/Maps/RefV5/MI_RefV5_Red.MI_RefV5_Red",
+   "name": "MI_RefV5_Red",
+   "pack": "Maps",
+   "icon": "materiali/mi_refv5_red.png"
+  },
+  {
+   "id": "mi_karti_pod_treva",
+   "path": "/Game/Maps/RefV5/MI_Karti_Pod_treva.MI_Karti_Pod_treva",
+   "name": "MI_Karti_Pod_treva",
+   "pack": "Maps",
+   "icon": "materiali/mi_karti_pod_treva.png"
+  },
+  {
+   "id": "mi_refv5_crate",
+   "path": "/Game/Maps/RefV5/MI_RefV5_Crate.MI_RefV5_Crate",
+   "name": "MI_RefV5_Crate",
+   "pack": "Maps",
+   "icon": "materiali/mi_refv5_crate.png"
+  },
+  {
+   "id": "mi_karti_pod_liniya_zhalta",
+   "path": "/Game/Maps/RefV5/MI_Karti_Pod_liniya_zhalta.MI_Karti_Pod_liniya_zhalta",
+   "name": "MI_Karti_Pod_liniya_zhalta",
+   "pack": "Maps",
+   "icon": "materiali/mi_karti_pod_liniya_zhalta.png"
+  },
+  {
+   "id": "mi_karti_pod_darvo",
+   "path": "/Game/Maps/RefV5/MI_Karti_Pod_darvo.MI_Karti_Pod_darvo",
+   "name": "MI_Karti_Pod_darvo",
+   "pack": "Maps",
+   "icon": "materiali/mi_karti_pod_darvo.png"
+  },
+  {
+   "id": "mi_karti_zona_flag",
+   "path": "/Game/Maps/RefV5/MI_Karti_Zona_flag.MI_Karti_Zona_flag",
+   "name": "MI_Karti_Zona_flag",
+   "pack": "Maps",
+   "icon": "materiali/mi_karti_zona_flag.png"
+  }
+ ]
+}

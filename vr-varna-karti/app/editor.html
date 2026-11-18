@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="bg"><head><meta charset="utf-8"><title>VR Varna Карти</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:#1c1f24;--panel:#262a31;--ink:#e8eaf0;--mut:#9aa3b2;--grid:#2c3038;--acc:#ff2e88}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:14px -apple-system,Segoe UI,sans-serif}
+#app{display:grid;grid-template-columns:230px 1fr 230px;height:100vh}
+aside{background:var(--panel);padding:12px;overflow:auto}
+h1{font-size:16px;margin:0 0 10px}h2{font-size:12px;text-transform:uppercase;color:var(--mut);margin:16px 0 6px;letter-spacing:.05em}
+button,select,input{font:inherit;color:var(--ink);background:#323743;border:1px solid #444b58;border-radius:7px;padding:6px 8px}
+button{cursor:pointer}button:hover{border-color:#6b7385}button.on{border-color:var(--acc);background:#3a2533}
+.pal{display:grid;grid-template-columns:1fr 1fr;gap:6px}.pal button{display:flex;align-items:center;gap:6px;font-size:13px}
+.sw{width:14px;height:14px;border-radius:3px;flex:none}
+.row{display:flex;gap:6px;align-items:center;margin:5px 0}.row label{width:70px;color:var(--mut);font-size:12px}.row input{width:100%}
+#wrap{position:relative;overflow:auto;display:flex;align-items:center;justify-content:center}
+canvas{background:#202329;box-shadow:0 0 0 1px #444}
+#stat{font-size:13px;line-height:1.5}.bad{color:#ff5a5a;font-weight:700}.ok{color:#4ade80;font-weight:700}
+.hint{font-size:12px;color:var(--mut);line-height:1.45}
+.kcat{width:100%;text-align:left;margin-top:4px;font-size:13px;background:#2c3139}
+.krow{display:flex;align-items:center;gap:6px;width:100%;text-align:left;padding:3px 5px;margin:2px 0;font-size:12px}
+.krow img,.kico{width:32px;height:32px;flex:none;border-radius:4px;background:#555;object-fit:contain;display:inline-block}
+.kname{overflow:hidden}.kname small{display:block;color:var(--mut);font-size:11px}.kmore{width:100%;font-size:12px;margin:2px 0 6px}
+.warn{color:#ffd166;font-weight:700}
+</style></head><body>
+<div id="app">
+<aside>
+  <h1>VR Varna Карти</h1>
+  <h2>Зала</h2>
+  <select id="hall" style="width:100%">
+    <option value="18.8x10.08">18,80 × 10,08 м (сегашната)</option>
+    <option value="20x20">20 × 20 м</option>
+    <option value="custom">Ръчно…</option>
+  </select>
+  <div class="row" id="customRow" style="display:none"><input id="hw" type="number" step="0.1" value="20"> × <input id="hh" type="number" step="0.1" value="20"></div>
+  <div class="pal" id="pal"></div>
+  <div id="syntyBox" style="display:none"><h2>Предмети от картата</h2><div class="pal" id="palSynty"></div></div>
+  <h2>Каталог</h2>
+  <input id="katQ" type="search" placeholder="Търси (име, вид)…" style="width:100%">
+  <label class="hint" style="display:flex;gap:6px;align-items:center;margin:6px 0"><input id="katGore" type="checkbox" style="width:auto"> Покажи и обекти с кръв</label>
+  <div id="kat"></div>
+  <div id="katInfo" class="hint"></div>
+  <div class="row" style="margin-top:10px"><button id="mirror" style="width:100%">⇋ Огледално: изкл.</button></div>
+  <h2>Действия</h2>
+  <div class="row"><button id="undo">↶ Отмени</button><button id="redo">↷ Повтори</button></div>
+  <div class="row"><button id="save">💾 Запиши</button><button id="load">📂 Отвори</button></div>
+  <div class="row"><button id="png" style="width:100%">🖼 Снимка отгоре (PNG)</button></div>
+  <div class="row"><button id="clear" style="width:100%">Изчисти всичко</button></div>
+  <div class="row" id="buildRow" style="display:none"><button id="build" style="width:100%;border-color:#4ade80">🏗 Построй в Unreal</button></div>
+  <div id="buildStatus" class="hint"></div>
+  <input type="file" id="file" accept=".json" hidden>
+  <p class="hint">Избери вид и щракни в картата, за да го сложиш. Влачи, за да местиш. Влачи долния десен ъгъл, за да разтягаш. R завърта, Delete трие, Cmd+D копира, Cmd+Z отменя. Стрелките местят с 0,1 м.</p>
+</aside>
+<div id="wrap"><canvas id="cv"></canvas></div>
+<aside>
+  <h2>Проверка</h2>
+  <div id="stat"></div>
+  <h2>Избрано</h2>
+  <div id="sel" class="hint">Нищо не е избрано.</div>
+</aside>
+</div>
+<script>
+const TYPES={
+ // Стени (базовите типове на Бос от karti.html — type остава както е, преводът е в Unreal скрипта)
+ wall:{n:'Стена',cat:'Стени',c:'#e0f4ef',w:3,d:0.2,h:2.4},
+ halfwall:{n:'Половин стена',cat:'Стени',c:'#c9dcd6',w:2,d:0.2,h:1.1},
+ column:{n:'Колона',cat:'Стени',c:'#b8c4cc',w:0.5,d:0.5,h:2.6},
+ fence:{n:'Ограда',cat:'Стени',c:'#a07a52',w:3,d:0.1,h:1.8},
+ netwall:{n:'Мрежа',cat:'Стени',c:'#8fa3a8',w:3,d:0.05,h:2.4},
+ railing:{n:'Парапет',cat:'Стени',c:'#9ab0b8',w:2,d:0.1,h:1.0},
+ // Сгради
+ room:{n:'Помещение (M)',cat:'Сгради',c:'#d9e2ec',w:4,d:3,h:2.4,room:1},
+ building:{n:'Сграда',cat:'Сгради',c:'#94a0b8',w:2,d:2.5,h:2.6},
+ shed:{n:'Барака',cat:'Сгради',c:'#8a7a66',w:3,d:2.5,h:2.4},
+ kiosk:{n:'Будка',cat:'Сгради',c:'#ffe680',w:1.2,d:1.2,h:1.1},
+ tower:{n:'Кула',cat:'Сгради',c:'#a97de6',w:1,d:1.7,h:2.8,vis:1},
+ // Прикрития
+ crate:{n:'Сандък',cat:'Прикрития',c:'#ffef9a',w:0.8,d:0.8,h:1.0},
+ container:{n:'Контейнер',cat:'Прикрития',c:'#eeaa50',w:2.4,d:1.4,h:1.8},
+ pallets:{n:'Палети',cat:'Прикрития',c:'#c49a5c',w:1.2,d:1.0,h:1.0},
+ sandbags:{n:'Торби с пясък',cat:'Прикрития',c:'#bfae84',w:1.6,d:0.6,h:0.9},
+ barrel:{n:'Бъчва',cat:'Прикрития',c:'#5a8f5a',w:0.6,d:0.6,h:0.9,disc:1},
+ tires:{n:'Гуми',cat:'Прикрития',c:'#3b3f45',w:0.8,d:0.8,h:0.6,disc:1},
+ barrier:{n:'Бетонна бариера',cat:'Прикрития',c:'#a9abad',w:2,d:0.6,h:0.9},
+ spool:{n:'Кабелна макара',cat:'Прикрития',c:'#9c7148',w:1.2,d:1.2,h:1.0,disc:1},
+ // Превозни средства
+ car:{n:'Кола',cat:'Превозни средства',c:'#c0504d',w:4.4,d:1.9,h:1.5},
+ van:{n:'Бус',cat:'Превозни средства',c:'#d9b44a',w:5,d:2,h:2.2},
+ truck:{n:'Камион',cat:'Превозни средства',c:'#6d8fb3',w:7,d:2.5,h:3,vis:1},
+ // Декор
+ lamppost:{n:'Улична лампа',cat:'Декор',c:'#e8e3a0',w:0.3,d:0.3,h:3,disc:1},
+ sign:{n:'Знак',cat:'Декор',c:'#e06666',w:1,d:0.1,h:2},
+ tree:{n:'Дърво',cat:'Декор',c:'#3f8f4f',w:1.5,d:1.5,h:4,disc:1},
+ bench:{n:'Пейка',cat:'Декор',c:'#8c6a4a',w:1.6,d:0.5,h:0.45},
+ table:{n:'Маса',cat:'Декор',c:'#9c7f60',w:1.2,d:0.8,h:0.75},
+ trash:{n:'Кофа за боклук',cat:'Декор',c:'#4f6f5f',w:0.5,d:0.5,h:1.0,disc:1},
+ pipe:{n:'Тръба',cat:'Декор',c:'#7f8c95',w:3,d:0.4,h:0.4},
+ // Подове (само визуални, плоски)
+ floor_concrete:{n:'Под: бетон',cat:'Подове',c:'#8e9296',w:4,d:4,h:0,flat:1},
+ floor_asphalt:{n:'Под: асфалт',cat:'Подове',c:'#3e4249',w:4,d:4,h:0,flat:1},
+ floor_grass:{n:'Под: трева',cat:'Подове',c:'#4f8a3c',w:4,d:4,h:0,flat:1},
+ floor_wood:{n:'Под: дърво',cat:'Подове',c:'#9b7048',w:4,d:4,h:0,flat:1},
+ floor_metal:{n:'Под: метал',cat:'Подове',c:'#9aa5ae',w:4,d:4,h:0,flat:1},
+ floor_sand:{n:'Под: пясък',cat:'Подове',c:'#d8c48f',w:4,d:4,h:0,flat:1},
+ marking:{n:'Линия на пода',cat:'Подове',c:'#f2f2f2',w:3,d:0.1,h:0,flat:1},
+ floor:{n:'Под с материал',cat:'Подове',c:'#8a8f96',w:2,d:2,h:0,flat:1,mat:'beton'},
+ // Светлини
+ light_white:{n:'Лампа бяла',cat:'Светлини',c:'#fff7d6',w:0.4,d:0.4,h:2.8,light:1},
+ light_red:{n:'Лампа червена',cat:'Светлини',c:'#ff5a5a',w:0.4,d:0.4,h:2.8,light:1},
+ light_blue:{n:'Лампа синя',cat:'Светлини',c:'#5a8cff',w:0.4,d:0.4,h:2.8,light:1},
+ light_neon:{n:'Неон',cat:'Светлини',c:'#ff4fd8',w:1.5,d:0.1,h:2.2,light:1},
+ spotlight:{n:'Прожектор',cat:'Светлини',c:'#fffbe0',w:0.5,d:0.5,h:3,light:1},
+ light:{n:'Светлина (цвят, сила)',cat:'Светлини',c:'#ffe680',w:0.4,d:0.4,h:0,flat:1,light:1},
+ // Игра
+ shield_r:{n:'Щит червен',cat:'Игра',c:'#e2302a',w:0.3,d:2,h:1.2},
+ shield_b:{n:'Щит син',cat:'Игра',c:'#2a64e2',w:0.3,d:2,h:1.2},
+ circle_r:{n:'Кръг червен',cat:'Игра',c:'#e2302a',w:2,d:2,h:0,round:1},
+ circle_b:{n:'Кръг син',cat:'Игра',c:'#2a64e2',w:2,d:2,h:0,round:1},
+ zone:{n:'Зона за точки',cat:'Игра',c:'#f5c542',w:3,d:3,h:0,flat:1,zone:1},
+ flag:{n:'Знаме',cat:'Игра',c:'#ffffff',w:0.6,d:0.6,h:2,round:1},
+ synty:{n:'Предмет',c:'#6f9a9e',w:1,d:1,h:1,hidden:1},
+};
+let syntyT=[]; // шаблони „Предмети от картата“ (уникални mesh)
+const MIN_GAP=1.2, SNAP=0.1;
+let map={version:1,hall:{w:18.8,h:10.08},items:[]};
+let tool='building', sel=null, mirror=false, hist=[], fut=[];
+const cv=document.getElementById('cv'), cx=cv.getContext('2d');
+let S=40, OX=30, OY=30; // px per meter, offsets
+const r2=v=>Math.round(v*100)/100, r1=v=>r2(Math.round(v/SNAP)*SNAP), fx=v=>(+v).toFixed(2).replace(/\.?0+$/,'');
+const fx2=v=>(+v).toFixed(2).replace('.',',').replace(/,?0+$/,'').replace(/,$/,'');
+const uid=()=>Math.random().toString(36).slice(2,9);
+function push(){hist.push(JSON.stringify(map)); if(hist.length>200)hist.shift(); fut=[];}
+function mirType(t){return t.endsWith('_r')?t.slice(0,-2)+'_b':t.endsWith('_b')?t.slice(0,-2)+'_r':t;}
+// копие като НОВ предмет: synty пази mesh/label/ue.rot/ue.scale, без ue.loc/cx/cy
+function fresh(it){const c=JSON.parse(JSON.stringify(it));delete c.pair;
+  if(c.type==='synty'){const u=c.ue||{};c.ue={};if(u.rot)c.ue.rot=u.rot;if(u.scale)c.ue.scale=u.scale;}return c;}
+function mirrorOf(it){const m=fresh(it);Object.assign(m,{id:uid(),type:mirType(it.type),x:r1(map.hall.w-it.x-it.w),pair:it.id});
+  m.rot=(360-(it.rot||0))%360;if(it.type==='synty')m.mirrorX=!it.mirrorX;
+  if(it.type==='room'||it.type==='wall'){if(it.doors)m.doors=mirOpenings(it,it.doors);if(it.windows)m.windows=mirOpenings(it,it.windows);}return m;}
+function syncPair(it){ if(!it.pair)return; const p=map.items.find(o=>o.id===it.pair); if(!p)return;
+  Object.assign(p,{w:it.w,d:it.d,h:it.h,y:it.y,x:r1(map.hall.w-it.x-it.w)});
+  if(it.rot!=null||p.rot!=null)p.rot=(360-(it.rot||0))%360;
+  for(const k of ['mat','kind','color','intensity','z','climb','label'])if(k in it&&it.type===p.type)p[k]=it[k];
+  if(it.type==='room')Object.assign(p,{wall:it.wall,roof:it.roof,label:it.label,doors:mirOpenings(it,it.doors),windows:mirOpenings(it,it.windows)});
+  else if(it.type==='wall'&&p.type==='wall'&&(it.doors||it.windows||p.doors||p.windows))Object.assign(p,{doors:mirOpenings(it,it.doors||[]),windows:mirOpenings(it,it.windows||[])}); }
+// ── помещения (от karti.html на Бос): стени на парчета около вратите ──
+// координатите на roomSegs/openingRect са в НЕЗАВЪРТЯНАТАТА рамка на стаята (както x,y,w,d); rot се прилага отгоре
+const SIDES=['n','e','s','w'];
+function sideLen(it,sd){return (sd==='n'||sd==='s')?it.w:it.d;}
+// отделна стена (type wall): една „страна“ по дългата ос — 'n' ако w ≥ d (pos от левия край), иначе 'w' (pos от горния край)
+const wallSide=it=>it.w>=it.d?'n':'w';
+const opSide=(it,o)=>it.type==='room'?o.side:wallSide(it);
+const hasOps=it=>it.type==='room'||(it.type==='wall'&&((it.doors||[]).length||(it.windows||[]).length));
+function thickOf(it,sd){return it.type==='room'?(it.wall||0.2):(sd==='n'||sd==='s'?it.d:it.w);}
+function roomSegs(it,withWindows){const out=[];
+  for(const sd of (it.type==='room'?SIDES:[wallSide(it)])){const L=sideLen(it,sd),t=thickOf(it,sd);
+    const cuts=(it.doors||[]).filter(o=>opSide(it,o)===sd).concat(withWindows?(it.windows||[]).filter(o=>opSide(it,o)===sd):[])
+      .map(o=>[Math.max(0,o.pos),Math.min(L,o.pos+o.width)]).sort((a,b)=>a[0]-b[0]);
+    let a=0;const parts=[];for(const [c0,c1] of cuts){if(c0>a)parts.push([a,c0]);a=Math.max(a,c1);}if(a<L)parts.push([a,L]);
+    for(const [p0,p1] of parts){if(p1-p0<0.01)continue;
+      if(sd==='n')out.push({x0:it.x+p0,x1:it.x+p1,y0:it.y,y1:it.y+t});
+      if(sd==='s')out.push({x0:it.x+p0,x1:it.x+p1,y0:it.y+it.d-t,y1:it.y+it.d});
+      if(sd==='w')out.push({x0:it.x,x1:it.x+t,y0:it.y+p0,y1:it.y+p1});
+      if(sd==='e')out.push({x0:it.x+it.w-t,x1:it.x+it.w,y0:it.y+p0,y1:it.y+p1});}}
+  return out;}
+function openingRect(it,o){const sd=opSide(it,o),t=thickOf(it,sd);o={...o,side:sd};
+  if(o.side==='n')return {x0:it.x+o.pos,x1:it.x+o.pos+o.width,y0:it.y,y1:it.y+t};
+  if(o.side==='s')return {x0:it.x+o.pos,x1:it.x+o.pos+o.width,y0:it.y+it.d-t,y1:it.y+it.d};
+  if(o.side==='w')return {x0:it.x,x1:it.x+t,y0:it.y+o.pos,y1:it.y+o.pos+o.width};
+  return {x0:it.x+it.w-t,x1:it.x+it.w,y0:it.y+o.pos,y1:it.y+o.pos+o.width};}
+const MIRSIDE={n:'n',s:'s',e:'w',w:'e'};
+function mirOpenings(it,list){return (list||[]).map(o=>{const s0=opSide(it,o),c={...o};if(it.type==='room')c.side=MIRSIDE[s0];
+  if(s0==='n'||s0==='s')c.pos=r2(sideLen(it,s0)-o.pos-o.width);return c;});}
+// парче в незавъртяната рамка → „псевдо-предмет“ със същия rot (центърът му завъртян около центъра на стаята)
+function partToItem(it,g){const w=g.x1-g.x0,d=g.y1-g.y0,c=toWorld(it,(g.x0+g.x1)/2-it.x-it.w/2,(g.y0+g.y1)/2-it.y-it.d/2);
+  return {type:'wall',x:c.x-w/2,y:c.y-d/2,w,d,rot:it.rot||0,_of:it.id};}
+// вратите/прозорците остават в стените след мащаб/дебелина
+function fixOps(it){if(it.type!=='room'&&it.type!=='wall')return;const t=it.type==='room'?(it.wall||0.2):0;
+  for(const k of ['doors','windows'])for(const o of (it[k]||[])){if(it.type==='room'&&!/^[nsew]$/.test(o.side))o.side='s';const L=sideLen(it,opSide(it,o)),mx=Math.max(0.1,L-2*t);
+    o.width=r2(Math.max(0.1,Math.min(+o.width||(k==='doors'?1.2:1),mx)));o.pos=r2(Math.max(t,Math.min(L-t-o.width,+o.pos||0)));}}
+function newRoom(x,y,w,d){return {id:uid(),type:'room',x,y,w,d,h:2.4,rot:0,wall:0.2,roof:false,label:'стая',doors:[{side:'s',pos:r1(Math.max(0.2,(w-1.2)/2)),width:1.2}],windows:[]};}
+// клик върху стена на стая → {it, side, s (м по стената)}
+function wallAt(p,only){const tol=Math.max(0.2,6/S);
+  for(let i=map.items.length-1;i>=0;i--){const it=only||map.items[i];
+    if(it.type==='room'){const l=toLocal(it,p),t=it.wall||0.2,lx=l.x+it.w/2,ly=l.y+it.d/2;
+      const C=[['n',lx,ly],['s',lx,it.d-ly],['w',ly,lx],['e',ly,it.w-lx]];
+      for(const [sd,s,u] of C){if(u>=-tol&&u<=t+tol&&s>=-tol&&s<=sideLen(it,sd)+tol)return {it,side:sd,s:Math.max(0,Math.min(sideLen(it,sd),s))};}}
+    else if(it.type==='wall'){const l=toLocal(it,p),sd=wallSide(it),lx=l.x+it.w/2,ly=l.y+it.d/2,s=sd==='n'?lx:ly,u=sd==='n'?ly:lx,t=thickOf(it,sd);
+      if(u>=-tol&&u<=t+tol&&s>=-tol&&s<=sideLen(it,sd)+tol)return {it,side:sd,s:Math.max(0,Math.min(sideLen(it,sd),s))};}
+    if(only)break;}
+  return null;}
+function opAt(it,p){if(!it||!(it.type==='room'||it.type==='wall'))return null;const w=wallAt(p,it);if(!w)return null;const tol=Math.max(0.12,6/S);
+  for(const k of ['doors','windows']){const L=it[k]||[];for(let i=0;i<L.length;i++){const o=L[i];if(opSide(it,o)!==w.side)continue;
+    if(Math.abs(w.s-o.pos)<=tol)return {k,i,part:'a',side:w.side,s:w.s};if(Math.abs(w.s-o.pos-o.width)<=tol)return {k,i,part:'b',side:w.side,s:w.s};
+    if(w.s>o.pos&&w.s<o.pos+o.width)return {k,i,part:'m',side:w.side,s:w.s};}}
+  return null;}
+function addOpening(kind,p){const w=wallAt(p);if(!w)return false;push();const it=w.it,k=kind==='door'?'doors':'windows',width=kind==='door'?1.2:1.0;
+  it[k]=it[k]||[];const o={pos:r1(w.s-width/2),width};if(it.type==='room')o.side=w.side;if(kind==='window'){o.z0=1.0;o.z1=1.8;}it[k].push(o);fixOps(it);syncPair(it);setSel([it.id]);draw();return true;}
+// ── layout ──
+let lastHall='';
+function resyncAll(){const hk=map.hall.w+'x'+map.hall.h;const changed=lastHall&&lastHall!==hk;lastHall=hk;
+  if(changed)for(const it of map.items){if(/^(circle|shield)_/.test(it.type))it.y=r1(map.hall.h/2-it.d/2);}
+  for(const it of map.items){if(it.pair&&it.x+it.w/2<map.hall.w/2)syncPair(it);if(it.type!=='synty')clamp(it);}}
+function fit(){resyncAll();const wr=document.getElementById('wrap').getBoundingClientRect();
+  S=Math.max(10,Math.min((wr.width-60)/map.hall.w,(wr.height-60)/map.hall.h))*(typeof zoom==='number'?zoom:1);
+  cv.width=Math.round(map.hall.w*S+60); cv.height=Math.round(map.hall.h*S+60); OX=OY=30; draw();}
+// ── gaps (narrow passages between boxes and to walls) ──
+// ── завъртане: rot° по часовника отгоре, около центъра (x+w/2, y+d/2); x,y,w,d — незавъртян правоъгълник ──
+const rad=it=>TYPES[it.type].round?0:(it.rot||0)*Math.PI/180;
+const ctr=it=>({x:it.x+it.w/2,y:it.y+it.d/2});
+function toLocal(it,p){const a=rad(it),c=Math.cos(a),s=Math.sin(a),o=ctr(it),dx=p.x-o.x,dy=p.y-o.y;return {x:c*dx+s*dy,y:-s*dx+c*dy};}
+function toWorld(it,lx,ly){const a=rad(it),c=Math.cos(a),s=Math.sin(a),o=ctr(it);return {x:o.x+lx*c-ly*s,y:o.y+lx*s+ly*c};}
+function half(it){const a=rad(it),c=Math.abs(Math.cos(a)),s=Math.abs(Math.sin(a));return {hw:(it.w*c+it.d*s)/2,hd:(it.w*s+it.d*c)/2};}
+function normRot(v){return ((Math.round(v)%360)+360)%360;}
+function setRot(it,v){it.rot=normRot(v);syncPair(it);draw();}
+function rotHandle(it){return toWorld(it,0,-it.d/2-0.6);}
+// ── мащаб: 8 хващача в локалните оси ──
+const HS=[[-1,-1],[0,-1],[1,-1],[1,0],[1,1],[0,1],[-1,1],[-1,0]];
+const baseDims=new Map(); // id -> {w,d,h} при зареждане/създаване (за „% мащаб“)
+function baseOf(it){const u=it.ue||{};if(u.w0>0&&u.d0>0)return {w:+u.w0,d:+u.d0,h:+(u.h0||it.h||1)};
+  if(!baseDims.has(it.id))baseDims.set(it.id,{w:it.w,d:it.d,h:it.h});return baseDims.get(it.id);}
+function setSize(it,w,d,h){const o=ctr(it);it.w=r2(Math.max(0.1,w));it.d=r2(Math.max(0.1,d));if(h!=null)it.h=r2(Math.max(0,h));
+  if(TYPES[it.type].round)it.d=it.w;it.x=r2(o.x-it.w/2);it.y=r2(o.y-it.d/2);fixOps(it);syncPair(it);}
+function handleAt(it,p){if(!it)return null;const tol=Math.max(0.15,8/S);
+  for(const [sx,sy] of HS){if(TYPES[it.type].round&&(sx===0||sy===0))continue;const q=toWorld(it,sx*it.w/2,sy*it.d/2);if(Math.hypot(p.x-q.x,p.y-q.y)<=tol)return {sx,sy};}return null;}
+function handleCursor(it,h){let a=Math.atan2(h.sy,h.sx)*180/Math.PI+(it.rot||0);a=((a%180)+180)%180;
+  return a<22.5||a>=157.5?'ew-resize':a<67.5?'nwse-resize':a<112.5?'ns-resize':'nesw-resize';}
+function doResize(e,p){const st=drag.st,h=drag.hs,l=toLocal(st,p),round=TYPES[st.type].round;
+  let w=st.w,d=st.d;const sym=e.altKey;
+  if(h.sx)w=sym?2*h.sx*l.x:h.sx*l.x+st.w/2;
+  if(h.sy)d=sym?2*h.sy*l.y:h.sy*l.y+st.d/2;
+  w=Math.max(0.2,w);d=Math.max(0.2,d);
+  if(e.shiftKey||round){let k=h.sx&&h.sy?Math.max(w/st.w,d/st.d):h.sx?w/st.w:d/st.d;w=st.w*k;d=st.d*k;}
+  w=Math.max(0.2,r1(w));d=Math.max(0.2,r1(d));if(round)d=w;
+  // противоположната страна стои (без Alt); при Shift от страничен хващач другата ос расте симетрично
+  const ox=sym||!h.sx?0:h.sx*(w-st.w)/2, oy=sym||!h.sy?0:h.sy*(d-st.d)/2;
+  const c=toWorld(st,ox,oy),it=drag.it;it.w=w;it.d=d;it.x=r2(c.x-w/2);it.y=r2(c.y-d/2);fixOps(it);syncPair(it);}
+// AABB на завъртения предмет (за проверката на тесни места)
+function rect(it){const o=ctr(it),h=half(it),R=v=>Math.round(v*1000)/1000;return {x0:R(o.x-h.hw),y0:R(o.y-h.hd),x1:R(o.x+h.hw),y1:R(o.y+h.hd)};}
+function solid(it){const T=TYPES[it.type]||{};return !T.round&&!T.flat&&!T.light;} // floor/light/zone — без теснотия
+function gaps(){const out=[];const B=[], W=map.hall.w,H=map.hall.h;
+  for(const it of map.items){if(!solid(it))continue;if(hasOps(it)){B.push(...roomSegs(it,false).map(g=>({...rect(partToItem(it,g)),room:it.id})));if(it.type!=='room')continue;
+    const t=it.wall||0.2,iw=it.w-2*t,id=it.d-2*t,c=ctr(it);if(Math.min(iw,id)>0.05&&Math.min(iw,id)<MIN_GAP-0.005)out.push({x0:c.x-0.3,x1:c.x+0.3,y0:c.y-0.3,y1:c.y+0.3,g:Math.min(iw,id)});}
+    else B.push(rect(it));}
+  for(let i=0;i<B.length;i++){const a=B[i];
+    // walls
+    [[a.x0,'x',0,a.x0],[W-a.x1,'x',a.x1,W],[a.y0,'y',0,a.y0],[H-a.y1,'y',a.y1,H]].forEach(([g,ax,s,e])=>{
+      if(g>0.05&&g<MIN_GAP-0.005) out.push(ax==='x'?{x0:s,x1:e,y0:a.y0,y1:a.y1,g}:{x0:a.x0,x1:a.x1,y0:s,y1:e,g});});
+    for(let j=i+1;j<B.length;j++){const b=B[j];if(a.room&&a.room===b.room)continue; // парчетата на една стая — без AABB (вратите се проверяват отделно)
+
+      const ox=Math.min(a.x1,b.x1)-Math.max(a.x0,b.x0), oy=Math.min(a.y1,b.y1)-Math.max(a.y0,b.y0);
+      if(oy>0){const g=Math.max(b.x0-a.x1,a.x0-b.x1); if(g>0.05&&g<MIN_GAP-0.005) out.push({x0:Math.min(a.x1,b.x1),x1:Math.max(a.x0,b.x0),y0:Math.max(a.y0,b.y0),y1:Math.min(a.y1,b.y1),g});}
+      else if(ox>0){const g=Math.max(b.y0-a.y1,a.y0-b.y1); if(g>0.05&&g<MIN_GAP-0.005) out.push({y0:Math.min(a.y1,b.y1),y1:Math.max(a.y0,b.y0),x0:Math.max(a.x0,b.x0),x1:Math.min(a.x1,b.x1),g});}
+      else{const dx=Math.max(b.x0-a.x1,a.x0-b.x1),dy=Math.max(b.y0-a.y1,a.y0-b.y1),g=Math.hypot(dx,dy);
+        if(g>0.05&&g<MIN_GAP-0.005) out.push({x0:Math.min(a.x1,b.x1),x1:Math.max(a.x0,b.x0),y0:Math.min(a.y1,b.y1),y1:Math.max(a.y0,b.y0),g});}
+    }}
+  return out;}
+// ── draw ──
+// ── автозапис: localStorage + Swift (_avtozapis.json), debounce 1 s ──
+const AUTO_KEY='vrvarna_karti_avtozapis';let autoT=null,autoLast='';
+function autosave(){clearTimeout(autoT);autoT=setTimeout(()=>{const t=JSON.stringify(map);if(t===autoLast)return;autoLast=t;
+  try{localStorage.setItem(AUTO_KEY,t);}catch(_){}
+  try{const A=window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.app;if(A)A.postMessage({cmd:'autosave',json:JSON.parse(t)});}catch(_){}},1000);}
+function draw(forPng){const W=map.hall.w,H=map.hall.h;
+  cx.fillStyle='#1c1f24';cx.fillRect(0,0,cv.width,cv.height);
+  cx.fillStyle='#22262d';cx.fillRect(OX,OY,W*S,H*S);
+  cx.strokeStyle='#30353e';cx.lineWidth=1;
+  for(let x=0;x<=W;x++){cx.beginPath();cx.moveTo(OX+x*S,OY);cx.lineTo(OX+x*S,OY+H*S);cx.stroke();}
+  for(let y=0;y<=H;y++){cx.beginPath();cx.moveTo(OX,OY+y*S);cx.lineTo(OX+W*S,OY+y*S);cx.stroke();}
+  cx.strokeStyle='#cfd3da';cx.lineWidth=3;cx.strokeRect(OX,OY,W*S,H*S);
+  cx.fillStyle='#9aa3b2';cx.font='12px -apple-system,sans-serif';
+  cx.fillText(`${fx(W)} × ${fx(H)} м · 1 кв. = 1 м`,OX,OY-10);
+  for(const it of drawOrder()){const T=TYPES[it.type],w=it.w*S,d=it.d*S,x=-w/2,y=-d/2;
+    cx.save();cx.translate(OX+(it.x+it.w/2)*S,OY+(it.y+it.d/2)*S);cx.rotate(rad(it));
+    if(T.round){cx.strokeStyle=T.c;cx.lineWidth=3;cx.beginPath();cx.ellipse(x+w/2,y+d/2,w/2,d/2,0,0,7);cx.stroke();if(it.type==='flag'){cx.fillStyle=T.c;cx.font='bold 11px sans-serif';cx.fillText('⚑',x+w/2-4,y+d/2+4);}}
+    else if(it.type==='floor'){const m=MATS[it.mat]||MATS.beton;cx.globalAlpha=/^liniya/.test(it.mat)?0.95:0.55;cx.fillStyle=m[1];cx.fillRect(x,y,w,d);cx.globalAlpha=1;
+      if(!forPng&&w>50&&d>16&&!/^liniya/.test(it.mat)){cx.fillStyle='rgba(255,255,255,.75)';cx.font='11px -apple-system,sans-serif';cx.fillText(m[0],x+4,y+13);}}
+    else if(it.type==='zone'){const c=it.kind==='flag'?'#ffd166':T.c;cx.save();cx.beginPath();cx.rect(x,y,w,d);cx.clip();cx.fillStyle=c+'22';cx.fillRect(x,y,w,d);
+      cx.strokeStyle=c+'88';cx.lineWidth=1;cx.beginPath();for(let k=-d;k<w;k+=10){cx.moveTo(x+k,y+d);cx.lineTo(x+k+d,y);}cx.stroke();cx.restore();
+      cx.strokeStyle=c;cx.lineWidth=2;cx.strokeRect(x,y,w,d);cx.fillStyle=c;cx.font='bold 11px -apple-system,sans-serif';if(w>40)cx.fillText(it.kind==='flag'?'Флаг':'Точки',x+4,y+13);}
+    else if(it.type==='light'){const r=Math.max(5,Math.min(w,d)/2),c=it.color||'#ffffff';cx.fillStyle=c+'55';cx.beginPath();cx.arc(0,0,r,0,7);cx.fill();cx.strokeStyle=c;cx.lineWidth=2;cx.stroke();
+      cx.beginPath();for(let k=0;k<8;k++){const a=k*Math.PI/4,q=k%2?r*0.5:r*1.35;cx.moveTo(0,0);cx.lineTo(Math.cos(a)*q,Math.sin(a)*q);}cx.lineWidth=1.5;cx.stroke();
+      if(it.kind==='spot'){cx.beginPath();cx.moveTo(0,0);cx.lineTo(r*1.8,-r*0.9);cx.moveTo(0,0);cx.lineTo(r*1.8,r*0.9);cx.stroke();}
+      if(it.kind==='neon'){cx.lineWidth=3;cx.beginPath();cx.moveTo(-r*1.4,r*1.3);cx.lineTo(r*1.4,r*1.3);cx.stroke();}}
+    else if(T.flat&&!T.light){cx.globalAlpha=0.55;cx.fillStyle=T.c;cx.fillRect(x,y,w,d);cx.globalAlpha=1;
+      if(!forPng&&w>40&&d>14){cx.fillStyle='#e8eaf0';cx.font='11px -apple-system,sans-serif';cx.fillText(T.n.replace('Под: ',''),x+4,y+12);}}
+    else if(T.light){const R_=Math.max(w,d)*2.5,g=cx.createRadialGradient(0,0,1,0,0,R_);g.addColorStop(0,T.c);g.addColorStop(1,'rgba(0,0,0,0)');
+      cx.fillStyle=g;cx.beginPath();cx.arc(0,0,R_,0,7);cx.fill();cx.fillStyle=T.c;cx.fillRect(x,y,w,d);}
+    else if(T.disc){cx.fillStyle=T.c;cx.beginPath();cx.ellipse(0,0,w/2,d/2,0,0,7);cx.fill();
+      if(it.h&&w>26){cx.fillStyle='#14161a';cx.font='bold 11px -apple-system,sans-serif';cx.fillText(fx(it.h)+'м'+(T.vis?' ⚠':''),-10,4);}}
+    else if(T.room||hasOps(it)){const L={...it,x:0,y:0},X=v=>x+v*S,Y=v=>y+v*S;
+      if(T.room){cx.fillStyle=it.roof?'rgba(217,226,236,.22)':'rgba(217,226,236,.07)';cx.fillRect(x,y,w,d);}
+      if(it.roof){cx.save();cx.beginPath();cx.rect(x,y,w,d);cx.clip();cx.strokeStyle='rgba(217,226,236,.18)';cx.lineWidth=1;cx.beginPath();for(let k=-d;k<w;k+=0.4*S){cx.moveTo(x+k,y+d);cx.lineTo(x+k+d,y);}cx.stroke();cx.restore();}
+      cx.fillStyle=T.c;for(const g of roomSegs(L,false))cx.fillRect(X(g.x0),Y(g.y0),(g.x1-g.x0)*S,(g.y1-g.y0)*S);
+      for(const o0 of it.windows||[]){const o={...o0,side:opSide(it,o0)},r=openingRect(L,o0);cx.strokeStyle='#5ab0ff';cx.lineWidth=1.5;cx.beginPath();
+        if(o.side==='n'||o.side==='s'){for(const f of [0.3,0.7]){const yy=Y(r.y0+(r.y1-r.y0)*f);cx.moveTo(X(r.x0),yy);cx.lineTo(X(r.x1),yy);}}
+        else{for(const f of [0.3,0.7]){const xx=X(r.x0+(r.x1-r.x0)*f);cx.moveTo(xx,Y(r.y0));cx.lineTo(xx,Y(r.y1));}}cx.stroke();}
+      for(const o0 of it.doors||[]){const o={...o0,side:opSide(it,o0)},r=openingRect(L,o0),bad=o.width<1.195;cx.strokeStyle=bad?'#ff4d4d':'#ffd166';cx.lineWidth=1.5;cx.beginPath();
+        if(o.side==='n'||o.side==='s'){const yy=Y(o.side==='n'?r.y1:r.y0);cx.arc(X(r.x0),yy,o.width*S,o.side==='n'?0:-Math.PI/2,o.side==='n'?Math.PI/2:0);}
+        else{const xx=X(o.side==='w'?r.x1:r.x0);cx.arc(xx,Y(r.y0),o.width*S,o.side==='w'?0:Math.PI/2,o.side==='w'?Math.PI/2:Math.PI);}cx.stroke();
+        if(bad&&!forPng){cx.fillStyle='rgba(255,40,40,.5)';cx.fillRect(X(r.x0),Y(r.y0),(r.x1-r.x0)*S,(r.y1-r.y0)*S);}
+        if(!forPng&&sel===it.id){cx.fillStyle='#fff';for(const e of [0,1]){const ex=(o.side==='n'||o.side==='s')?X(e?r.x1:r.x0):X((r.x0+r.x1)/2),ey=(o.side==='n'||o.side==='s')?Y((r.y0+r.y1)/2):Y(e?r.y1:r.y0);cx.beginPath();cx.arc(ex,ey,4,0,7);cx.fill();}}}
+      if(T.room&&!(it.doors||[]).length){cx.strokeStyle='#ff4d4d';cx.lineWidth=2;cx.strokeRect(x,y,w,d);}
+      if(T.room&&w>60&&d>30){cx.fillStyle='#e8eaf0';cx.font='bold 12px -apple-system,sans-serif';cx.fillText(`${it.label||'Стая'} ${fx(it.h)}м${it.roof?' · покрив':''}`,x+(it.wall||0.2)*S+4,y+(it.wall||0.2)*S+14);}}
+    else{cx.fillStyle=T.c;cx.fillRect(x,y,w,d);
+      if(it.type==='synty'&&it.icon&&!forPng){const im=getImg(it.icon);if(im){cx.drawImage(im,x,y,w,d);}}
+      if(it.type==='synty'&&it.climb&&it.h>1.2&&!forPng){cx.fillStyle='#ffd166';cx.font='bold 13px -apple-system,sans-serif';cx.fillText('⚠',x+w-15,y+14);}
+      if(it.type==='synty'){cx.save();cx.beginPath();cx.rect(x,y,w,d);cx.clip();cx.fillStyle='#0e1215';cx.font='bold 11px -apple-system,sans-serif';
+        if(d>13)cx.fillText(it.label||'предмет',x+3,y+12);if(it.h&&d>27)cx.fillText(fx(it.h)+'м',x+3,y+25);cx.restore();}
+      else if(it.h&&w>26&&d>16){cx.fillStyle='#14161a';cx.font='bold 12px -apple-system,sans-serif';cx.fillText(fx(it.h)+'м'+(T.vis?' ⚠':''),x+4,y+14);}}
+    if(!forPng&&sel===it.id){cx.strokeStyle='#ff2e88';cx.lineWidth=2;cx.setLineDash([5,3]);cx.strokeRect(x-2,y-2,w+4,d+4);cx.setLineDash([]);
+      for(const [sx,sy] of HS){if(T.round&&(sx===0||sy===0))continue;cx.fillStyle='#fff';cx.strokeStyle='#ff2e88';cx.lineWidth=1.5;cx.fillRect(sx*w/2-5,sy*d/2-5,10,10);cx.strokeRect(sx*w/2-5,sy*d/2-5,10,10);}
+      if(!T.round){const hy=y-0.6*S;cx.strokeStyle='#ff2e88';cx.lineWidth=1.5;cx.beginPath();cx.moveTo(0,y);cx.lineTo(0,hy);cx.stroke();
+        cx.beginPath();cx.arc(0,hy,7,0,7);cx.fillStyle='#fff';cx.fill();cx.strokeStyle='#ff2e88';cx.lineWidth=2;cx.stroke();}}
+    if(!forPng&&sel!==it.id&&selIds.has(it.id)){cx.strokeStyle='#ff2e88';cx.lineWidth=2;cx.setLineDash([5,3]);cx.strokeRect(x-2,y-2,w+4,d+4);cx.setLineDash([]);}
+    cx.restore();}
+  if(!forPng&&drag&&drag.box&&drag.p1){const a=drag.p0,b=drag.p1;cx.fillStyle='rgba(255,46,136,.10)';cx.strokeStyle='#ff2e88';cx.lineWidth=1;cx.setLineDash([4,3]);
+    cx.fillRect(OX+Math.min(a.x,b.x)*S,OY+Math.min(a.y,b.y)*S,Math.abs(b.x-a.x)*S,Math.abs(b.y-a.y)*S);cx.strokeRect(OX+Math.min(a.x,b.x)*S,OY+Math.min(a.y,b.y)*S,Math.abs(b.x-a.x)*S,Math.abs(b.y-a.y)*S);cx.setLineDash([]);}
+  if(!forPng&&drag&&drag.mk&&drag.p1){const a=drag.p0,b=drag.p1;cx.strokeStyle='#d9e2ec';cx.lineWidth=2;cx.setLineDash([6,4]);cx.strokeRect(OX+Math.min(a.x,b.x)*S,OY+Math.min(a.y,b.y)*S,Math.abs(b.x-a.x)*S,Math.abs(b.y-a.y)*S);cx.setLineDash([]);}
+  if(!forPng&&drag&&drag.hs&&drag.mp){const t=`${fx2(drag.it.w)} × ${fx2(drag.it.d)} м`;cx.font='bold 12px -apple-system,sans-serif';const tw=cx.measureText(t).width+10;
+    cx.fillStyle='rgba(20,22,26,.9)';cx.fillRect(drag.mp.x+14,drag.mp.y+10,tw,20);cx.fillStyle='#fff';cx.fillText(t,drag.mp.x+19,drag.mp.y+24);}
+  const G=gaps();
+  if(!forPng){cx.fillStyle='rgba(255,40,40,.55)';for(const g of G){cx.fillRect(OX+g.x0*S,OY+g.y0*S,Math.max(4,(g.x1-g.x0)*S),Math.max(4,(g.y1-g.y0)*S));}}
+  const st=document.getElementById('stat');
+  const n=map.items.length;
+  st.innerHTML=`Обекти: <b>${n}</b><br>`+(G.length?`<span class="bad">Тесни места под 1,2 м: ${G.length}</span><br>`+G.slice(0,8).map(g=>`· ${fx(g.g)} м`).join('<br>'):`<span class="ok">Тесни места под 1,2 м: 0</span>`)+
+    (()=>{const noDoor=map.items.filter(o=>o.type==='room'&&!(o.doors||[]).length).length,thin=map.items.filter(o=>o.type==='room'||o.type==='wall').reduce((a,o)=>a+(o.doors||[]).filter(dd=>dd.width<1.195).length,0);
+      return (noDoor?`<br><span class="bad">Затворено помещение без вход: ${noDoor}</span>`:'')+(thin?`<br><span class="bad">Врата под 1,2 м: ${thin}</span>`:'');})();
+  {const ng=map.items.filter(o=>o.gore||(o.type==='synty'&&o.kat!=null&&(KAT['k_'+o.kat]||{}).gore)).length;if(ng)st.innerHTML+=`<br><span class="bad">${ng} обекта с кръв (не за деца)</span>`;}
+  {const nv=map.items.filter(o=>(o.type==='synty'&&o.climb&&o.h>1.2)||(TYPES[o.type]||{}).vis).length;if(nv)st.innerHTML+=`<br><span class="warn">⚠ ${nv} обекта само визуално (не за качване)</span>`;}
+  renderSel();if(!forPng)autosave();}
+// ── selection panel ──
+function renderSel(){const box=document.getElementById('sel');const it=map.items.find(o=>o.id===sel);
+  if(!it&&selIds.size>1){const L=selItems(),a=L.find(o=>!TYPES[o.type].round),same=L.every(o=>TYPES[o.type].round||(o.rot||0)===((a&&a.rot)||0));
+    box.innerHTML=`<b>Избрани: ${L.length}</b><div class="row"><label>Ъгъл°</label><input data-k="grot" type="number" step="1" value="${same&&a?(a.rot||0):''}" placeholder="различни"></div>`+
+     `<div class="row"><button id="rl15">↺15°</button><button id="rr15">↻15°</button><button id="rot">↻90°</button></div><div class="row"><button id="dup">Копирай</button><button id="del">Изтрий</button></div>`;
+    const q=id=>box.querySelector(id);q('input').onchange=e=>{if(e.target.value!=='')setGroupRot(+e.target.value||0);};
+    q('#rot').onclick=()=>rotGroup(90);q('#rl15').onclick=()=>rotGroup(-15);q('#rr15').onclick=()=>rotGroup(15);q('#dup').onclick=dupGroup;q('#del').onclick=delGroup;return;}
+  if(!it){box.innerHTML='Нищо не е избрано.';return;}
+  const f=(k,l)=>`<div class="row"><label>${l}</label><input data-k="${k}" type="number" step="0.1" value="${fx(it[k])}"></div>`;
+  box.innerHTML=`<b>${it.type==='synty'?(it.label||'Предмет'):TYPES[it.type].n}</b>${it.type==='synty'?`<div class="hint" style="word-break:break-all">${(it.mesh||'').split('/').pop()}${it.ue&&it.ue.loc?' · от картата':' · нов'} · ue.rot ${(it.ue&&it.ue.rot||[]).join(', ')}</div>`:''}${it.pair?' <span class="hint">(огледална двойка)</span>':''}`+f('x','X, м')+f('y','Y, м')+f('w','Ширина')+f('d','Дълбочина')+(TYPES[it.type].round?'':f('h','Височина')+`<div class="row"><label>% мащаб</label><input data-k="pct" type="number" step="5" value="${Math.round(it.w/baseOf(it).w*100)}"></div>`+`<div class="row"><label>Ъгъл°</label><input data-k="rot" type="number" step="1" value="${it.rot||0}"></div>`+
+   `<div class="row"><button id="rl15">↺15°</button><button id="rr15">↻15°</button><button id="rot">↻90°</button></div>`)+
+   (it.type==='room'?roomPanel(it):'')+(it.type==='wall'?wallPanel(it):'')+extraPanel(it)+
+   `<div class="row"><button id="dup">Копирай</button><button id="del">Изтрий</button></div>`;
+  box.querySelectorAll('input[data-k]').forEach(inp=>inp.onchange=()=>{push();if(inp.dataset.k==='rot'){setRot(it,+inp.value||0);return;}
+    const k=inp.dataset.k,v=+inp.value;if(!isFinite(v)){draw();return;}
+    if(k==='pct'){const b=baseOf(it),q=Math.max(1,v)/100;setSize(it,b.w*q,b.d*q,b.h*q);draw();return;}
+    if(k==='w'||k==='d'||k==='h'){setSize(it,k==='w'?r1(v):it.w,k==='d'?r1(v):it.d,k==='h'?r1(v):it.h);if(it.type==='room'){it.h=Math.max(1,Math.min(3,it.h));syncPair(it);}draw();return;}it[inp.dataset.k]=Math.max(inp.dataset.k==='h'?0:0.1,r1(+inp.value));syncPair(it);draw();});
+  const q=id=>box.querySelector(id);if(q('#rot')){q('#rot').onclick=()=>rot(it,90);q('#rl15').onclick=()=>rot(it,-15);q('#rr15').onclick=()=>rot(it,15);} box.querySelector('#dup').onclick=()=>dup(it); box.querySelector('#del').onclick=()=>del(it);
+  if(it.type==='room'||it.type==='wall')bindRoom(box,it);bindExtra(box,it);}
+function wallPanel(it){const row=(o,kind,i)=>`<div class="row"><label${kind==='doors'&&o.width<1.195?' class="bad"':''}>${kind==='doors'?'Врата':'Прозорец'}</label><input data-o="${kind}" data-i="${i}" data-f="pos" type="number" step="0.1" value="${fx(o.pos)}" title="от ${wallSide(it)==='n'?'левия':'горния'} край, м"><input data-o="${kind}" data-i="${i}" data-f="width" type="number" step="0.1" value="${fx(o.width)}" title="ширина, м"><button data-del="${kind}" data-i="${i}">✕</button></div>`;
+  return `<div class="hint">Отвори по дългата ос (от ${wallSide(it)==='n'?'левия':'горния'} край / ширина). O/P — клик върху стената.</div>
+   ${(it.doors||[]).map((o,i)=>row(o,'doors',i)).join('')}${(it.windows||[]).map((o,i)=>row(o,'windows',i)).join('')}
+   <div class="row"><button data-add="doors">+ Врата</button><button data-add="windows">+ Прозорец</button></div>`;}
+function roomPanel(it){const SN={n:'горе',s:'долу',w:'ляво',e:'дясно'};
+  const row=(o,kind,i)=>`<div class="row"><label${kind==='doors'&&o.width<1.195?' class="bad"':''}>${kind==='doors'?'Врата':'Прозорец'} ${SN[o.side]}</label><input data-o="${kind}" data-i="${i}" data-f="pos" type="number" step="0.1" value="${fx(o.pos)}" title="от ъгъла, м"><input data-o="${kind}" data-i="${i}" data-f="width" type="number" step="0.1" value="${fx(o.width)}" title="ширина, м"><button data-del="${kind}" data-i="${i}">✕</button></div>`;
+  return `<div class="row"><label>Име</label><input data-room="label" type="text" value="${String(it.label||'').replace(/[<>&"]/g,'')}"></div>
+   <div class="row"><label>Стени, м</label><input data-room="wall" type="number" step="0.05" min="0.1" max="0.5" value="${fx(it.wall||0.2)}"></div>
+   <div class="row"><label>Покрив</label><input data-room="roof" type="checkbox" ${it.roof?'checked':''} style="width:auto"></div>
+   <div class="hint">Врати (ширина ≥ 1,2 м). Полетата: от ъгъла / ширина. Инструмент „Врата“ (O): клик върху стената; влачи вратата по стената, краищата ѝ — за ширина.</div>
+   ${(it.doors||[]).map((o,i)=>row(o,'doors',i)).join('')}
+   <div class="row">${['n','s','w','e'].map(s=>`<button data-add="doors" data-side="${s}">+${SN[s]}</button>`).join('')}</div>
+   <div class="hint">Прозорци (отвор 1,0–1,8 м височина). Инструмент „Прозорец“ (P).</div>
+   ${(it.windows||[]).map((o,i)=>row(o,'windows',i)).join('')}
+   <div class="row">${['n','s','w','e'].map(s=>`<button data-add="windows" data-side="${s}">+${SN[s]}</button>`).join('')}</div>`;}
+function bindRoom(box,it){
+  if(it.type==='room'){box.querySelector('[data-room="label"]').onchange=e=>{push();it.label=e.target.value;syncPair(it);draw();};
+  box.querySelector('[data-room="wall"]').onchange=e=>{push();it.wall=Math.max(0.1,Math.min(0.5,r2(+e.target.value||0.2)));fixOps(it);syncPair(it);draw();};
+  box.querySelector('[data-room="roof"]').onchange=e=>{push();it.roof=e.target.checked;syncPair(it);draw();};}
+  box.querySelectorAll('[data-o]').forEach(inp=>inp.onchange=()=>{push();const o=it[inp.dataset.o][+inp.dataset.i];
+    let v=Math.max(0,r1(+inp.value));if(inp.dataset.f==='width'&&inp.dataset.o==='doors')v=Math.max(1.2,v);o[inp.dataset.f]=v;
+    fixOps(it);syncPair(it);draw();});
+  box.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{push();it[b.dataset.del].splice(+b.dataset.i,1);syncPair(it);draw();});
+  box.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{push();const sd=b.dataset.side||wallSide(it),L=sideLen(it,sd),wd=b.dataset.add==='doors'?1.2:1.0;
+    it[b.dataset.add]=it[b.dataset.add]||[];const o={pos:r1(Math.max(0,(L-wd)/2)),width:Math.min(wd,L)};if(it.type==='room')o.side=sd;if(b.dataset.add==='windows'){o.z0=1.0;o.z1=1.8;}
+    it[b.dataset.add].push(o);fixOps(it);syncPair(it);draw();});}
+function rot(it,deg=90){if(TYPES[it.type].round)return;push();setRot(it,(it.rot||0)+deg);}
+function del(it){push();map.items=map.items.filter(o=>o.id!==it.id&&o.id!==it.pair&&o.pair!==it.id);setSel([]);draw();}
+function dup(it){push();const c=Object.assign(fresh(it),{id:uid(),x:r1(it.x+0.5),y:r1(it.y+0.5)});if(it.type==='synty')c.mirrorX=!!it.mirrorX;map.items.push(c);
+  if(mirror&&Math.abs(c.x+c.w/2-map.hall.w/2)>0.3){const m=mirrorOf(c);c.pair=m.id;map.items.push(m);}setSel([c.id]);draw();}
+// ── избор (един или група) ──
+let selIds=new Set();
+function setSel(ids){selIds=new Set(ids.filter(Boolean));sel=selIds.size===1?[...selIds][0]:null;}
+const selItems=()=>map.items.filter(o=>selIds.has(o.id));
+// без двойниците на вече включени (огледалото ги движи само)
+function primary(list){const ids=new Set(list.map(o=>o.id)),out=[],skip=new Set();for(const o of list){if(skip.has(o.id))continue;out.push(o);if(o.pair&&ids.has(o.pair))skip.add(o.pair);}return out;}
+function groupCenter(list){let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const o of list){const r=rect(o);x0=Math.min(x0,r.x0);y0=Math.min(y0,r.y0);x1=Math.max(x1,r.x1);y1=Math.max(y1,r.y1);}return {x:(x0+x1)/2,y:(y0+y1)/2};}
+function rotGroup(deg){const L=selItems();if(!L.length)return;if(L.length===1){rot(L[0],deg);return;}push();
+  const P=primary(L).filter(o=>!TYPES[o.type].round),g=groupCenter(L),a=deg*Math.PI/180,c=Math.cos(a),s=Math.sin(a);
+  for(const o of P){const q=ctr(o),dx=q.x-g.x,dy=q.y-g.y,nx=g.x+dx*c-dy*s,ny=g.y+dx*s+dy*c;o.x=r2(nx-o.w/2);o.y=r2(ny-o.d/2);o.rot=normRot((o.rot||0)+deg);syncPair(o);}draw();}
+function setGroupRot(v){push();for(const o of primary(selItems()))if(!TYPES[o.type].round){o.rot=normRot(v);syncPair(o);}draw();}
+function delGroup(){const L=selItems();if(!L.length)return;push();const ids=new Set();for(const o of L){ids.add(o.id);if(o.pair)ids.add(o.pair);}
+  map.items=map.items.filter(o=>!ids.has(o.id)&&!(o.pair&&ids.has(o.pair)));setSel([]);draw();}
+function nudgeGroup(dx,dy){const P=primary(selItems());if(!P.length)return;push();for(const o of P){o.x=r1(o.x+dx);o.y=r1(o.y+dy);if(o.type!=='synty')clamp(o);syncPair(o);}draw();}
+// ── буфер (оцелява при mapLoad) ──
+let clipBuf=[],lastP=null;
+function clipOf(list){const ids=new Set(list.map(o=>o.id));return list.map(o=>{const c=JSON.parse(JSON.stringify(o));const paired=!!(o.pair&&ids.has(o.pair));delete c.id;delete c.pair;if(paired)c._paired=true;return c;});}
+function copySel(){const L=selItems();if(!L.length)return false;clipBuf=clipOf(L);const text=JSON.stringify({vrvarnaItems:clipBuf});
+  if(APP)APP.postMessage({cmd:'clipboard',text});else try{navigator.clipboard&&navigator.clipboard.writeText(text).catch(()=>{});}catch(_){}
+  return true;}
+function pasteItems(list,offsetOnly){if(!list||!list.length)return;push();const src=JSON.parse(JSON.stringify(list));
+  const g=groupCenter(src.map(o=>({...o,type:TYPES[o.type]?o.type:'building'})));let dx=0.5,dy=0.5;
+  if(!offsetOnly&&lastP&&lastP.x>=0&&lastP.y>=0&&lastP.x<=map.hall.w&&lastP.y<=map.hall.h){dx=lastP.x-g.x;dy=lastP.y-g.y;}
+  const out=[];
+  for(const c of src){if(!TYPES[c.type])continue;const paired=c._paired;delete c._paired;delete c.pair;c.id=uid();c.x=r1(c.x+dx);c.y=r1(c.y+dy);
+    if(c.type!=='synty')clamp(c);map.items.push(c);out.push(c.id);
+    if(mirror&&!paired&&Math.abs(c.x+c.w/2-map.hall.w/2)>0.3){const m=mirrorOf(c);c.pair=m.id;map.items.push(m);}}
+  setSel(out);draw();}
+function parseClip(text){try{const o=JSON.parse(text);if(o&&Array.isArray(o.vrvarnaItems))return o.vrvarnaItems;}catch(_){}return null;}
+function dupGroup(){const L=selItems();if(!L.length)return;pasteItems(clipOf(L),true);}
+// ── команди от менюто „Редакция“ на Swift ──
+window.editorCmd=(name,arg)=>{const ae=document.activeElement;
+  if(ae&&/^(INPUT|TEXTAREA)$/.test(ae.tagName)){
+    if(name==='paste'&&typeof arg==='string'){if(!document.execCommand('insertText',false,arg))ae.value+=arg;}
+    else if(['copy','cut','paste','selectAll','undo','redo'].includes(name))document.execCommand(name);
+    return;}
+  switch(name){
+    case 'undo':undo();break;case 'redo':redo();break;
+    case 'copy':copySel();break;
+    case 'cut':if(copySel())delGroup();break;
+    case 'paste':{const L=typeof arg==='string'?parseClip(arg):null;pasteItems(L&&L.length?L:clipBuf);break;}
+    case 'selectAll':setSel(map.items.map(o=>o.id));draw();break;
+    case 'duplicate':dupGroup();break;
+    case 'deselect':setSel([]);draw();break;}};
+// ── mouse ──
+const m2w=e=>{const r=cv.getBoundingClientRect();return {x:(e.clientX-r.left-OX)/S,y:(e.clientY-r.top-OY)/S};};
+const isArea=it=>!!(TYPES[it.type]||{}).flat&&it.type!=='light'; // под/зона — най-отдолу при рисуване и избор
+function drawOrder(){return map.items.filter(isArea).concat(map.items.filter(o=>!isArea(o)));}
+function hit(p){const L=drawOrder();for(let i=L.length-1;i>=0;i--){const it=L[i],l=toLocal(it,p);if(Math.abs(l.x)<=it.w/2&&Math.abs(l.y)<=it.d/2){
+    if(it.type==='room'){const t=(it.wall||0.2)+Math.max(0.1,4/S);if(Math.abs(l.x)<it.w/2-t&&Math.abs(l.y)<it.d/2-t)continue;}return it;}}return null;}
+let drag=null;
+cv.onmousedown=e=>{const p=m2w(e);const cur=map.items.find(o=>o.id===sel);
+  if((tool==='door'||tool==='window')&&!e.shiftKey&&addOpening(tool,p))return;
+  if(cur&&!e.shiftKey){
+    const oh=opAt(cur,p);if(oh&&oh.part!=='m'){push();const o=cur[oh.k][oh.i];drag={op:oh,it:cur,o0:{pos:o.pos,width:o.width}};return;}
+    if(!TYPES[cur.type].round){const h=rotHandle(cur);if(Math.hypot(p.x-h.x,p.y-h.y)<=Math.max(0.2,10/S)){push();drag={it:cur,rot:1};return;}}
+    const hh=handleAt(cur,p);if(hh){push();drag={it:cur,hs:hh,st:JSON.parse(JSON.stringify(cur))};return;}
+    if(oh){push();const o=cur[oh.k][oh.i];drag={op:oh,it:cur,o0:{pos:o.pos,width:o.width}};return;}}
+  const it=hit(p);
+  if(it){
+    if(e.shiftKey){const s=new Set(selIds);s.has(it.id)?s.delete(it.id):s.add(it.id);setSel([...s]);draw();return;}
+    if(!selIds.has(it.id))setSel([it.id]);push();
+    const P=primary(selItems());drag={move:1,p0:p,items:P.map(o=>({o,x:o.x,y:o.y}))};draw();return;}
+  // празно място: влачене = правоъгълник за избор; клик = слагане
+  drag={pend:1,p0:p,shift:e.shiftKey,base:e.shiftKey?[...selIds]:[]};};
+function placeAt(p){if(p.x<0||p.y<0||p.x>map.hall.w||p.y>map.hall.h||!(TYPES[tool]||tool.startsWith('synty:')||(tool.startsWith('kat:')&&KAT[tool.slice(4)]))){setSel([]);draw();return;}
+  push();let n;if(tool.startsWith('synty:')){const t=syntyT[+tool.slice(6)];if(!t)return;n=Object.assign(fresh(t),{id:uid(),x:r1(p.x-t.w/2),y:r1(p.y-t.d/2)});delete n.mirrorX;}
+  else if(tool==='room'){const T=TYPES.room;n=newRoom(r1(p.x-T.w/2),r1(p.y-T.d/2),T.w,T.d);}
+  else if(tool.startsWith('kat:'))n=itemFromEntry(KAT[tool.slice(4)],p.x,p.y);
+  else{const T=TYPES[tool];n={id:uid(),type:tool,x:r1(p.x-T.w/2),y:r1(p.y-T.d/2),w:T.w,d:T.d,h:T.h};}
+  clamp(n);map.items.push(n);if(mirror&&Math.abs(n.x+n.w/2-map.hall.w/2)>0.3){const m=mirrorOf(n);n.pair=m.id;map.items.push(m);}setSel([n.id]);draw();}
+function clamp(it){const h=half(it),o=ctr(it);const nx=Math.max(h.hw,Math.min(map.hall.w-h.hw,o.x)),ny=Math.max(h.hd,Math.min(map.hall.h-h.hd,o.y));
+  if(Math.abs(nx-o.x)>1e-9)it.x=r2(nx-it.w/2);if(Math.abs(ny-o.y)>1e-9)it.y=r2(ny-it.d/2);}
+cv.addEventListener('mouseleave',()=>{if(!drag)lastP=null;});
+window.onmousemove=e=>{const p=m2w(e);if(e.target===cv)lastP=p;
+  if(!drag){if(e.target===cv){const cur=map.items.find(o=>o.id===sel),hh=handleAt(cur,p),rh=cur&&!TYPES[cur.type].round?rotHandle(cur):null;
+    cv.style.cursor=hh?handleCursor(cur,hh):(rh&&Math.hypot(p.x-rh.x,p.y-rh.y)<=Math.max(0.2,10/S))?'grab':hit(p)?'move':'default';}return;}
+  if(drag.pend&&(tool==='room'||rectTool())&&!drag.shift&&Math.hypot(p.x-drag.p0.x,p.y-drag.p0.y)*S>=5){drag.pend=0;drag.mk=1;}
+  if(drag.mk){drag.p1=p;draw();return;}
+  if(drag.op){const it=drag.it,w=wallAt(p,it),o=it[drag.op.k][drag.op.i];if(!o)return;
+    let s=drag.op.s;if(w&&w.side===drag.op.side)s=w.s;else{const l=toLocal(it,p),lx=l.x+it.w/2,ly=l.y+it.d/2;s=(drag.op.side==='n'||drag.op.side==='s')?lx:ly;}
+    const mn=drag.op.k==='doors'?1.2:0.3,o0=drag.o0;
+    if(drag.op.part==='m')o.pos=r1(o0.pos+s-drag.op.s);
+    else if(drag.op.part==='a'){const end=o0.pos+o0.width;o.pos=r1(Math.min(s,end-mn));o.width=r2(end-o.pos);}
+    else o.width=r2(Math.max(mn,r1(s)-o0.pos));
+    fixOps(it);syncPair(it);draw();return;}
+  if(drag.pend||drag.box){if(drag.pend&&Math.hypot(p.x-drag.p0.x,p.y-drag.p0.y)*S<5)return;drag.pend=0;drag.box=1;drag.p1=p;
+    const x0=Math.min(drag.p0.x,p.x),x1=Math.max(drag.p0.x,p.x),y0=Math.min(drag.p0.y,p.y),y1=Math.max(drag.p0.y,p.y);
+    const inside=map.items.filter(o=>{const r=rect(o);return r.x0>=x0&&r.x1<=x1&&r.y0>=y0&&r.y1<=y1;}).map(o=>o.id);
+    setSel([...new Set([...drag.base,...inside])]);draw();return;}
+  if(drag.move){const dx=p.x-drag.p0.x,dy=p.y-drag.p0.y;for(const m of drag.items){m.o.x=r1(m.x+dx);m.o.y=r1(m.y+dy);clamp(m.o);syncPair(m.o);}draw();return;}
+  const it=drag.it;
+  if(drag.hs){const r=cv.getBoundingClientRect();drag.mp={x:e.clientX-r.left,y:e.clientY-r.top};doResize(e,p);draw();return;}
+  if(drag.rot){const o=ctr(it);let a=Math.atan2(p.x-o.x,-(p.y-o.y))*180/Math.PI;if(e.shiftKey)a=Math.round(a/15)*15;setRot(it,a);return;}};
+window.onmouseup=e=>{const d=drag;drag=null;if(!d)return;
+  if(d.mk&&d.p1){const x0=r1(Math.min(d.p0.x,d.p1.x)),y0=r1(Math.min(d.p0.y,d.p1.y)),mn=tool==='room'?1:0.1,w=Math.max(mn,r1(Math.abs(d.p1.x-d.p0.x))),dd=Math.max(mn,r1(Math.abs(d.p1.y-d.p0.y)));
+    push();const n=tool==='room'?newRoom(x0,y0,w,dd):itemFromEntry(KAT[tool.slice(4)],x0+w/2,y0+dd/2,w,dd);fixOps(n);clamp(n);map.items.push(n);if(mirror&&Math.abs(n.x+n.w/2-map.hall.w/2)>0.3){const m=mirrorOf(n);n.pair=m.id;map.items.push(m);}setSel([n.id]);draw();return;}
+  if(d.pend){if(d.shift)return;placeAt(d.p0);return;}
+  draw();};
+// колелце: с избран предмет — мащаб ±5% (w,d,h около центъра); Cmd/Ctrl+колелце — зуум на картата
+let zoom=1,lastWheel=0;
+cv.addEventListener('wheel',e=>{const it=map.items.find(o=>o.id===sel);
+  if(e.metaKey||e.ctrlKey){e.preventDefault();zoom=Math.max(0.5,Math.min(6,zoom*(e.deltaY<0?1.1:1/1.1)));fit();return;}
+  if(!it)return;e.preventDefault();const now=Date.now();if(now-lastWheel>500)push();lastWheel=now;
+  const k=e.deltaY<0?1.05:1/1.05;setSize(it,it.w*k,it.d*k,it.h*k);draw();},{passive:false});
+window.onkeydown=e=>{if(/^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName))return;const k=e.key,lk=k.toLowerCase();
+  if(e.metaKey||e.ctrlKey){const C={z:e.shiftKey?'redo':'undo',y:'redo',c:'copy',x:'cut',v:'paste',a:'selectAll',d:'duplicate'}[lk];
+    if(C){e.preventDefault();window.editorCmd(C);}return;}
+  if(k==='Escape'){setSel([]);draw();return;}
+  if(lk==='m'||lk==='o'||lk==='p'){const t={m:'room',o:'door',p:'window'}[lk],b=document.querySelector(`[data-tool="${t}"]`);selectTool(t,b);return;}
+  if(!selIds.size)return;
+  if(k==='Delete'||k==='Backspace'){e.preventDefault();delGroup();}
+  else if(lk==='r'){rotGroup(90);}
+  else if(lk==='q'){rotGroup(-15);}
+  else if(lk==='e'){rotGroup(15);}
+  else if(k.startsWith('Arrow')){e.preventDefault();const s=e.shiftKey?1:0.1;
+    nudgeGroup(k==='ArrowLeft'?-s:k==='ArrowRight'?s:0,k==='ArrowUp'?-s:k==='ArrowDown'?s:0);}};
+function undo(){if(!hist.length)return;fut.push(JSON.stringify(map));map=JSON.parse(hist.pop());setSel([]);syncHall();fit();}
+function redo(){if(!fut.length)return;hist.push(JSON.stringify(map));map=JSON.parse(fut.pop());setSel([]);syncHall();fit();}
+// ── UI ──
+
+// ── формат на скрипта за Unreal (Джак): (0,0) е центърът, +x изток, +y север ──
+const KIND={synty:'high',building:'high',container:'mid',kiosk:'low',crate:'low',wall:'wall',shield_r:'red',shield_b:'blue',tower:'tower'};
+function toUE(){const W=map.hall.w,H=map.hall.h,R=v=>Math.round(v*100)/100;const boxes=[],circles=[];let n=0;
+  const rooms=[];
+  const walls=[];
+  for(const it of map.items){if(it.type==='wall'&&hasOps(it)){walls.push(JSON.parse(JSON.stringify(it)));let k=0;
+      for(const g0 of roomSegs(it,true)){const g=rect(partToItem(it,g0));boxes.push([`wallop_${it.id}_${++k}`,R(g.x0-W/2),R(g.x1-W/2),R(H/2-g.y1),R(H/2-g.y0),'wall',R(it.h)]);}
+      for(const o of it.windows||[]){const g=rect(partToItem(it,openingRect(it,o)));boxes.push([`wallop_${it.id}_${++k}`,R(g.x0-W/2),R(g.x1-W/2),R(H/2-g.y1),R(H/2-g.y0),'wall',1.0]);}continue;}
+    if(it.type!=='room')continue;rooms.push(JSON.parse(JSON.stringify({id:it.id,x:it.x,y:it.y,w:it.w,d:it.d,h:it.h,rot:it.rot||0,wall:it.wall||0.2,roof:!!it.roof,label:it.label||'',doors:it.doors||[],windows:it.windows||[]})));
+    let k=0;for(const g0 of roomSegs(it,true)){const g=rect(partToItem(it,g0));boxes.push([`room_${it.id}_${++k}`,R(g.x0-W/2),R(g.x1-W/2),R(H/2-g.y1),R(H/2-g.y0),'wall',R(it.h)]);}
+    for(const o of it.windows||[]){const g=rect(partToItem(it,openingRect(it,o)));boxes.push([`room_${it.id}_${++k}`,R(g.x0-W/2),R(g.x1-W/2),R(H/2-g.y1),R(H/2-g.y0),'wall',1.0]);}}
+  const extras=[];
+  for(const it of map.items){if(TYPES[it.type].flat||TYPES[it.type].light){extras.push(JSON.parse(JSON.stringify(it)));continue;}if(it.type==='room'||(it.type==='wall'&&hasOps(it)))continue;const x0=R(it.x-W/2),x1=R(it.x+it.w-W/2),y0=R(H/2-(it.y+it.d)),y1=R(H/2-it.y);
+    if(TYPES[it.type].round){circles.push({team:it.type==='circle_r'?1:2,x:R((x0+x1)/2),y:R((y0+y1)/2),r:R(it.w/2)});}
+    else boxes.push([`${it.type}_${++n}`,x0,x1,y0,y1,KIND[it.type],R(it.h)]);}
+  return {version:1,name:map.name||'Moya_karta',hall:{w:W,d:H},boxes,circles,rooms,walls,extras};}
+function fromUE(o){const W=+o.hall.w,H=+(o.hall.d??o.hall.h);const items=[];
+  const back={high:'building',mid:'container',wall:'wall',red:'shield_r',blue:'shield_b',tower:'tower'};
+  for(const e of o.extras||[])if(TYPES[e.type])items.push({...JSON.parse(JSON.stringify(e)),id:uid()});
+  for(const w of o.walls||[])items.push({...JSON.parse(JSON.stringify(w)),id:uid(),type:'wall'});
+  for(const r of o.rooms||[])items.push({...JSON.parse(JSON.stringify(r)),id:uid(),type:'room',rot:r.rot||0,wall:r.wall||0.2,roof:!!r.roof,doors:r.doors||[],windows:r.windows||[]});
+  for(const b of o.boxes||[]){const [nm,x0,x1,y0,y1,kind,h]=b;if(o.rooms&&String(nm).startsWith('room_'))continue;if(o.walls&&String(nm).startsWith('wallop_'))continue;let t=back[kind]||'building';if(kind==='low')t=h>1.05?'kiosk':'crate';
+    items.push({id:uid(),type:t,x:r2(x0+W/2),y:r2(H/2-y1),w:r2(x1-x0),d:r2(y1-y0),h:+h});}
+  for(const c of o.circles||[]){items.push({id:uid(),type:c.team===1?'circle_r':'circle_b',x:r2(c.x-c.r+W/2),y:r2(H/2-c.y-c.r),w:r2(2*c.r),d:r2(2*c.r),h:0});}
+  // огледални двойки наново
+  for(const a of items){if(a.pair)continue;const mx=r1(W-a.x-a.w);const m=items.find(b=>b!==a&&!b.pair&&b.type===mirType(a.type)&&Math.abs(b.x-mx)<0.15&&Math.abs(b.y-a.y)<0.15&&Math.abs(b.w-a.w)<0.15);
+    if(m&&Math.abs(a.x+a.w/2-W/2)>0.3){a.pair=m.id;m.pair=a.id;}}
+  return {version:1,name:o.name,hall:{w:W,h:H},items};}
+const APP=window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.app;
+window.mapLoad=(obj,fileName)=>{try{if(typeof obj==='string')obj=JSON.parse(obj);if(!obj||!obj.hall||!(Array.isArray(obj.items)||Array.isArray(obj.boxes)))throw 0;
+  push();map=obj.boxes?fromUE(obj):obj;map.version=1;if(map.hall.h==null)map.hall.h=+map.hall.d;
+  map.items=map.items.filter(o=>o&&TYPES[o.type]);baseDims.clear();map.items.forEach(o=>{if(!o.id)o.id=uid();if(o.rot90!=null){o.rot=normRot((+o.rot||0)+90*(+o.rot90||0));delete o.rot90;}else if(o.rot!=null)o.rot=normRot(+o.rot||0);baseDims.set(o.id,{w:o.w,d:o.d,h:o.h});});
+  if(!map.name&&fileName)map.name=fileName.replace(/\.json$/,'');buildSyntyPal();setSel([]);syncHall();fit();}catch(e){alert('Файлът не е карта.');}};
+window.mapGet=()=>{const o=JSON.parse(JSON.stringify(map));o.version=1;o.name=o.name||'Moya_karta';return o;};
+function buildSyntyPal(){const seen=new Map();for(const it of map.items)if(it.type==='synty'&&it.mesh&&!seen.has(it.mesh))seen.set(it.mesh,it);
+  syntyT=[...seen.values()].map(fresh);const box=document.getElementById('palSynty');box.innerHTML='';
+  document.getElementById('syntyBox').style.display=syntyT.length?'':'none';if(tool.startsWith('synty:'))tool='building';
+  syntyT.forEach((t,i)=>{const b=document.createElement('button');b.title=t.mesh+` · ${fx(t.w)}×${fx(t.d)} м, h ${fx(t.h)}`;
+    b.innerHTML=`<span class="sw" style="background:${TYPES.synty.c}"></span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(t.label||t.mesh.split('/').pop()).replace(/[<>&]/g,'')}</span>`;
+    b.onclick=()=>selectTool('synty:'+i,b);box.appendChild(b);});}
+function selectTool(k,b){tool=k;document.querySelectorAll('.pal button,.krow').forEach(x=>x.classList.remove('on'));if(b)b.classList.add('on');}
+window.buildStatus=t=>{document.getElementById('buildStatus').textContent=t;};
+if(APP)document.getElementById('buildRow').style.display='';
+const pal=document.getElementById('pal');
+// старата палитра „Слагане“ е слята с „Каталог“ (категориите на Бос)
+document.getElementById('mirror').onclick=e=>{mirror=!mirror;e.target.textContent='⇋ Огледално: '+(mirror?'вкл.':'изкл.');e.target.classList.toggle('on',mirror);};
+document.getElementById('undo').onclick=undo;document.getElementById('redo').onclick=redo;
+const hallSel=document.getElementById('hall');
+function syncHall(){const v=`${map.hall.w}x${map.hall.h}`;const o=[...hallSel.options].find(o=>o.value===v);
+  hallSel.value=o?v:'custom';document.getElementById('customRow').style.display=o?'none':'flex';
+  document.getElementById('hw').value=map.hall.w;document.getElementById('hh').value=map.hall.h;}
+hallSel.onchange=()=>{if(hallSel.value==='custom'){document.getElementById('customRow').style.display='flex';return;}
+  document.getElementById('customRow').style.display='none';push();const [w,h]=hallSel.value.split('x').map(Number);map.hall={w,h};fit();};
+['hw','hh'].forEach(id=>document.getElementById(id).onchange=()=>{push();map.hall={w:+document.getElementById('hw').value||10,h:+document.getElementById('hh').value||10};fit();});
+document.getElementById('clear').onclick=()=>{if(confirm('Да изчистя ли цялата карта?')){push();map.items=[];setSel([]);draw();}};
+document.getElementById('save').onclick=()=>{const name=prompt('Име на картата:',map.name||'Moya_karta');if(!name)return;map.name=name;
+  const obj=window.mapGet();if(APP){APP.postMessage({cmd:'save',json:obj,suggested:name+'.json'});return;}const out=JSON.stringify(obj,null,1);
+  const blob=new Blob([out],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name+'.json';a.click();};
+document.getElementById('load').onclick=()=>{if(APP){APP.postMessage({cmd:'open'});return;}document.getElementById('file').click();};
+document.getElementById('file').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const m=JSON.parse(t);if(!m.hall||!(Array.isArray(m.items)||Array.isArray(m.boxes)))throw 0;
+  window.mapLoad(m,f.name);}catch(_){alert('Файлът не е карта от тази програма.');}});e.target.value='';};
+document.getElementById('png').onclick=()=>{const s=sel,ss=selIds;sel=null;selIds=new Set();draw(true);const url=cv.toDataURL('image/png');sel=s;selIds=ss;draw();
+  if(APP){APP.postMessage({cmd:'exportPng',dataUrl:url,suggested:(map.name||'karta')+'_otgore.png'});return;}
+  const a=document.createElement('a');a.href=url;a.download=(map.name||'karta')+'_otgore.png';a.click();};
+document.getElementById('build').onclick=()=>{const g=gaps();if(g.length&&!confirm(`Има ${g.length} тесни места под 1,2 м. Да строя ли все пак?`))return;
+  const name=prompt('Име на НОВАТА карта в Unreal (без интервали):','Arena_'+(map.name||'Nova').replace(/\W+/g,'_'));if(!name)return;
+  if(!/^[A-Za-z0-9_]+$/.test(name)){alert('Само латиница, цифри и _.');return;}
+  APP.postMessage({cmd:'build',json:window.mapGet(),mapName:name});window.buildStatus('Изпратено за строене…');};
+window.onresize=fit;
+// стартова карта: празна зала с двете бази
+(function(){const W=map.hall.w,H=map.hall.h,cy=H/2;
+  map.items.push({id:'cr',type:'circle_r',x:0.3,y:r1(cy-1),w:2,d:2,h:0},{id:'sr',type:'shield_r',x:2.6,y:r1(cy-1),w:0.3,d:2,h:1.2});
+  map.items.push({id:'cb',type:'circle_b',x:r1(W-2.3),y:r1(cy-1),w:2,d:2,h:0,pair:'cr'},{id:'sb',type:'shield_b',x:r1(W-2.9),y:r1(cy-1),w:0.3,d:2,h:1.2,pair:'sr'});
+  map.items[0].pair='cb';map.items[1].pair='sb';})();
+// ── КАТАЛОГ: вградени шаблони + katalog_obekti.json (Тони) ──
+// CATS на Бос + „Врати и прозорци“; каталогът на Тони (cat ключове) влиза в същите категории
+const KAT_CATS=[['steni','Стени'],['vrati_prozorci','Врати и прозорци'],['sgradi','Сгради'],['prikritia','Прикрития'],['prevozni','Превозни средства'],['dekor','Декор'],['podove','Подове'],['svetlini','Светлини'],['igra','Игра']];
+const CAT_BY_NAME=Object.fromEntries(KAT_CATS.map(([k,n])=>[n,k]));
+const MATS={beton:['Бетон','#8a8f96'],asfalt:['Асфалт','#3b3f45'],treva:['Трева','#4f8a3c'],darvo:['Дърво','#8b5a2b'],metal:['Метал','#9aa6b2'],pyasak:['Пясък','#d8c28a'],liniya_byala:['Линия бяла','#f2f2f2'],liniya_zhalta:['Линия жълта','#f2c94c']};
+const LIGHT_KINDS={point:'Точкова',spot:'Прожектор',neon:'Неон'}, ZONE_KINDS={points:'Точки',flag:'Флаг'};
+let KAT={},katalog=null,katBase='',katOpen={},katShow={},katQ='',katGore=false; // gore:true — скрити по подразбиране
+const escH=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function builtins(){const B={};const add=(cat,key,name,tpl,extra)=>{B['b_'+key]=Object.assign({key:'b_'+key,cat,name_bg:name,tpl,w:tpl&&tpl.w,d:tpl&&tpl.d,h:tpl&&tpl.h},extra||{});};
+  // всички базови типове с категория (от karti.html на Бос)
+  for(const [k,T] of Object.entries(TYPES)){if(T.hidden||!T.cat)continue;const tpl={type:k,w:T.w,d:T.d,h:T.h};
+    if(k==='floor')tpl.mat='beton';if(k==='light')Object.assign(tpl,{kind:'point',color:'#ffffff',intensity:1.0,z:2.6});if(k==='zone')tpl.kind='points';
+    add(CAT_BY_NAME[T.cat]||'dekor',k,T.n,tpl,{climb:!!T.vis});}
+  // само мои шаблони, каквито при Бос няма
+  const W=(w,d,h,x)=>Object.assign({type:'wall',w,d,h},x||{});
+  const wDoor=W(3,0.2,2.4,{doors:[{pos:0.9,width:1.2}],windows:[]}),wWin=W(3,0.2,2.4,{doors:[],windows:[{pos:1,width:1,z0:1.0,z1:1.8}]});
+  add('steni','walldoor','Стена с врата',wDoor);add('steni','wallwin','Стена с прозорец',wWin);
+  add('vrati_prozorci','walldoor2','Стена с врата',wDoor);add('vrati_prozorci','wallwin2','Стена с прозорец',wWin);
+  add('vrati_prozorci','loophole','Бойница',W(3,0.2,2.4,{doors:[],windows:[{pos:1.2,width:0.6,z0:1.1,z1:1.4}]}));
+  add('vrati_prozorci','door','Врата (O, клик върху стена)',null,{tool:'door'});add('vrati_prozorci','window','Прозорец (P, клик върху стена)',null,{tool:'window'});
+  add('igra','z_flag','Зона за знаме',{type:'zone',w:2,d:2,h:0,kind:'flag'});
+  return B;}
+KAT=builtins();
+function rectTool(){const e=tool.startsWith('kat:')&&KAT[tool.slice(4)];return !!(e&&e.tpl&&isArea(e.tpl));} // подове/линии/зони — с влачене
+// нов предмет от каталога/шаблон с център (cx,cy)
+function itemFromEntry(e,cx,cy,w,d){w=w||e.w||1;d=d||e.d||1;const x=r1(cx-w/2),y=r1(cy-d/2);
+  if(e.mesh){const n={id:uid(),type:'synty',x,y,w,d,h:+e.h||1,mesh:e.mesh,label:e.name_bg||e.name||'',climb:!!e.climb,kat:e.id,...(e.gore?{gore:true}:{}),
+      ue:{rot:[0,0,0],scale:[1,1,1],w0:+e.w||w,d0:+e.d||d,h0:+e.h||1}};if(e.icon)n.icon=katBase+e.icon;return n;}
+  if(e.tpl.type==='room')return newRoom(x,y,w,d);
+  const n=Object.assign(JSON.parse(JSON.stringify(e.tpl)),{id:uid(),x,y,w,d});if(n.type==='wall')fixOps(n);return n;}
+function swatchOf(e){const t=e.tpl||{};if(t.type==='floor')return (MATS[t.mat]||MATS.beton)[1];if(t.type==='light')return '#ffe680';if(t.type==='zone')return t.kind==='flag'?'#ffd166':'#4ade80';
+  if(e.tool==='door')return '#ffd166';if(e.tool==='window')return '#5ab0ff';return (TYPES[t.type]||TYPES.synty).c;}
+function katRow(e){const b=document.createElement('button');b.className='krow'+(tool==='kat:'+e.key?' on':'');b.dataset.tool=e.tool||('kat:'+e.key);
+  const ico=e.icon?`<img src="${escH(katBase+e.icon)}" loading="lazy" width="32" height="32" alt="" onerror="this.outerHTML='<span class=&quot;kico&quot;></span>'">`:`<span class="kico" style="background:${swatchOf(e)}"></span>`;
+  b.innerHTML=ico+`<span class="kname">${escH(e.name_bg||e.name||e.key)}${e.climb?' <span class="warn" title="само визуално / не за качване">⚠</span>':''}${e.gore?' <span class="bad" title="кръв по текстурата — не за деца">🩸</span>':''}<small>${e.w!=null?`${fx2(e.w)}×${fx2(e.d)}×${fx2(e.h)} м`:'клик върху стена'}</small></span>`;
+  b.title=[e.name,e.sub,e.note].filter(Boolean).join(' · ')+(e.climb?' — само визуално / не за качване':'');
+  b.onclick=()=>selectTool(e.tool||('kat:'+e.key),b);return b;}
+function renderKat(){const box=document.getElementById('kat');if(!box)return;box.innerHTML='';const q=katQ.trim().toLowerCase(),all=Object.values(KAT);
+  for(const [c,cn] of KAT_CATS){const L=all.filter(e=>e.cat===c&&(katGore||!e.gore)&&(!q||`${e.name_bg||''} ${e.name||''} ${e.sub||''}`.toLowerCase().includes(q)));if(q&&!L.length)continue;
+    const open=q?true:!!katOpen[c],h=document.createElement('button');h.className='kcat';h.textContent=`${open?'▾':'▸'} ${cn} (${L.length})`;
+    h.onclick=()=>{katOpen[c]=!katOpen[c];renderKat();};box.appendChild(h);if(!open)continue;
+    const lim=katShow[c]||60;for(const e of L.slice(0,lim))box.appendChild(katRow(e));
+    if(L.length>lim){const m=document.createElement('button');m.className='kmore';m.textContent=`още… (${L.length-lim})`;m.onclick=()=>{katShow[c]=lim+60;renderKat();};box.appendChild(m);}}
+  const inf=document.getElementById('katInfo');if(inf)inf.textContent=katalog?`Каталог: ${katalog.items.length} обекта`:'Каталогът (katalog_obekti.json) не е зареден — само вградените.';}
+// Swift: window.katalogLoad(obj[, base]) — base е префикс за icon (напр. 'file:///…/team/maps/')
+window.katalogLoad=(obj,base)=>{try{if(typeof obj==='string')obj=JSON.parse(obj);if(!obj||!Array.isArray(obj.items))throw 0;katalog=obj;if(base!=null)katBase=base;
+  for(const k of Object.keys(KAT))if(k.startsWith('k_'))delete KAT[k];
+  for(const o of obj.items){if(!o||!o.mesh)continue;const key='k_'+(o.id!=null?o.id:uid());
+    KAT[key]=Object.assign({},o,{key,cat:KAT_CATS.some(c=>c[0]===o.cat)?o.cat:'dekor',w:+o.w||1,d:+o.d||1,h:+o.h||1});}
+  renderKat();return true;}catch(_){return false;}};
+const IMG={};function getImg(src){if(typeof Image==='undefined')return null;let im=IMG[src];
+  if(!im){im=IMG[src]=new Image();im.onload=()=>draw();im.onerror=()=>{im.bad=1;};im.src=src;}return im.complete&&!im.bad&&im.naturalWidth?im:null;}
+function extraPanel(it){const sel_=(k,O)=>`<select data-x="${k}" style="width:100%">${Object.entries(O).map(([v,n])=>`<option value="${v}"${it[k]===v?' selected':''}>${Array.isArray(n)?n[0]:n}</option>`).join('')}</select>`;
+  if(it.type==='floor')return `<div class="row"><label>Материал</label>${sel_('mat',MATS)}</div>`;
+  if(it.type==='zone')return `<div class="row"><label>Вид</label>${sel_('kind',ZONE_KINDS)}</div>`;
+  if(it.type==='light')return `<div class="row"><label>Вид</label>${sel_('kind',LIGHT_KINDS)}</div><div class="row"><label>Цвят</label><input data-x="color" type="color" value="${escH(it.color||'#ffffff')}"></div>
+    <div class="row"><label>Сила</label><input data-x="intensity" type="number" step="0.1" min="0" value="${it.intensity??1}"></div><div class="row"><label>Височина z</label><input data-x="z" type="number" step="0.1" min="0" value="${it.z??2.6}"></div>`;
+  if(it.type==='synty'&&it.climb)return `<div class="hint warn">⚠ само визуално / не за качване</div>`;
+  return '';}
+function bindExtra(box,it){box.querySelectorAll('[data-x]').forEach(el=>el.onchange=()=>{push();const k=el.dataset.x;let v=el.value;if(k==='intensity'||k==='z')v=Math.max(0,r2(+v||0));it[k]=v;syncPair(it);draw();});}
+{const g=document.getElementById('katGore');if(g)g.onchange=()=>{katGore=!!g.checked;katShow={};renderKat();};}
+{const q=document.getElementById('katQ');let t=null;if(q)q.oninput=()=>{clearTimeout(t);t=setTimeout(()=>{katQ=q.value||'';katShow={};renderKat();},150);};}
+renderKat();
+(async()=>{if(typeof fetch!=='function')return;for(const [u,b] of [['katalog_obekti.json',''],['../../team/maps/katalog_obekti.json','../../team/maps/']]){
+  try{const r=await fetch(u);if(!r.ok)continue;const o=await r.json();if(!katalog&&window.katalogLoad(o,b))return;}catch(_){}}})();
+// без мост: възстанови автозаписа (с мост Swift сам вика mapLoad)
+if(!APP){try{const t=localStorage.getItem(AUTO_KEY);const m=t&&JSON.parse(t);
+  if(m&&m.hall&&Array.isArray(m.items)&&m.items.length){window.mapLoad(m,null);hist=[];fut=[];autoLast=t;}}catch(_){}}
+syncHall();fit();
+</script></body></html>

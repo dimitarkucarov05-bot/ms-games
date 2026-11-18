@@ -1,0 +1,14 @@
+{"version":1,"name":"Проба нови типове","hall":{"w":18.8,"h":10.08},"items":[
+{"id":"w1","type":"wall","x":5.0,"y":2.0,"w":6.0,"d":0.3,"h":2.4,"doors":[{"pos":1.0,"width":1.2}],"windows":[{"pos":3.5,"width":1.0,"z0":1.0,"z1":1.8}]},
+{"id":"w2","type":"wall","x":12.0,"y":3.0,"w":0.3,"d":4.0,"h":2.4,"doors":[{"pos":1.4,"width":1.2}]},
+{"id":"f1","type":"floor","x":5.0,"y":3.0,"w":6.0,"d":3.0,"mat":"darvo"},
+{"id":"f2","type":"floor","x":1.0,"y":0.5,"w":3.0,"d":2.0,"mat":"treva"},
+{"id":"f3","type":"floor","x":9.2,"y":0.0,"w":0.2,"d":10.08,"mat":"liniya_zhalta"},
+{"id":"z1","type":"zone","x":8.4,"y":7.0,"w":2.0,"d":2.0,"kind":"points"},
+{"id":"l1","type":"light","x":7.8,"y":4.3,"w":0.4,"d":0.4,"kind":"point","color":"#ff3020","intensity":1.5,"z":2.2},
+{"id":"l2","type":"light","x":13.5,"y":5.0,"w":0.4,"d":0.4,"kind":"neon","color":"#20a0ff","intensity":2.0,"z":1.5},
+{"id":"s1","type":"synty","mesh":"/Game/Synty/PolygonApocalypse/Meshes/Props/SM_Prop_Crate_04.SM_Prop_Crate_04","label":"сандък","x":3.0,"y":6.0,"w":1.0,"d":1.0,"h":1.0,"ue":{"rot":[0,0,0],"scale":[1,1,1],"w0":1.0,"d0":1.0,"h0":1.0}},
+{"id":"s2","type":"synty","mesh":"/Game/Synty/PolygonApocalypse/Meshes/Props/SM_Prop_Barrel_02.SM_Prop_Barrel_02","label":"бъчва","x":14.5,"y":7.5,"w":0.7,"d":0.7,"h":1.0,"ue":{"rot":[0,0,0],"scale":[1,1,1],"w0":0.7,"d0":0.7,"h0":1.0}},
+{"id":"s3","type":"synty","mesh":"/Game/Synty/PolygonApocalypse/Meshes/Props/SM_Prop_Sandbag_Wall_02.SM_Prop_Sandbag_Wall_02","label":"чували","x":6.0,"y":7.5,"w":2.0,"d":0.8,"h":1.0,"ue":{"rot":[0,0,0],"scale":[1,1,1],"w0":2.0,"d0":0.8,"h0":1.0}},
+{"id":"cr","type":"circle_r","x":0.8,"y":6.28,"w":3,"d":3,"h":0},
+{"id":"cb","type":"circle_b","x":15.0,"y":0.8,"w":3,"d":3,"h":0}]}

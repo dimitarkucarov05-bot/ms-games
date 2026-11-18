@@ -1,0 +1,83 @@
+{
+ "version": 1,
+ "name": "proba_staya",
+ "hall": {
+  "w": 18.8,
+  "h": 10.08
+ },
+ "items": [
+  {
+   "id": "st1",
+   "type": "room",
+   "x": 6.0,
+   "y": 1.5,
+   "w": 5.0,
+   "d": 4.0,
+   "h": 2.4,
+   "rot": 0,
+   "wall": 0.2,
+   "roof": false,
+   "label": "стая 5×4",
+   "doors": [
+    {
+     "side": "s",
+     "pos": 1.9,
+     "width": 1.2
+    },
+    {
+     "side": "e",
+     "pos": 1.4,
+     "width": 1.2
+    }
+   ],
+   "windows": [
+    {
+     "side": "n",
+     "pos": 2.0,
+     "width": 1.0,
+     "z0": 1.0,
+     "z1": 1.8
+    }
+   ]
+  },
+  {
+   "id": "st2",
+   "type": "room",
+   "x": 13.0,
+   "y": 3.54,
+   "w": 3.0,
+   "d": 3.0,
+   "h": 2.4,
+   "rot": 30,
+   "wall": 0.2,
+   "roof": true,
+   "label": "стая 3×3",
+   "doors": [
+    {
+     "side": "w",
+     "pos": 0.9,
+     "width": 1.2
+    }
+   ],
+   "windows": []
+  },
+  {
+   "id": "cr",
+   "type": "circle_r",
+   "x": 0.8,
+   "y": 6.28,
+   "w": 3.0,
+   "d": 3.0,
+   "h": 0
+  },
+  {
+   "id": "cb",
+   "type": "circle_b",
+   "x": 15.0,
+   "y": 0.8,
+   "w": 3.0,
+   "d": 3.0,
+   "h": 0
+  }
+ ]
+}
