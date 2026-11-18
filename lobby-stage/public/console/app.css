@@ -920,3 +920,12 @@ a.nav { text-decoration: none; }
 .sb-fix:hover { background: oklch(0.82 0.15 58); }
 .sb-fix:disabled { opacity: 0.6; cursor: progress; }
 @media (max-width: 1100px) { #sbFixText { max-width: 13ch; overflow: hidden; text-overflow: ellipsis; } }
+
+/* five zones (Setup, Calibration tools) */
+.zslots { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; margin: 8px 0 18px; }
+.zslot { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border: 1px solid rgba(180, 85, 242, .28); border-radius: 12px; background: rgba(255, 255, 255, .03); }
+.zslot.on { border-color: #b455f2; box-shadow: 0 0 0 1px #b455f2 inset; }
+.zslot b { font-size: 15px; }
+.zslot small { opacity: .7; }
+.zslot .btn-row { flex-wrap: wrap; margin-top: 4px; }
+.set-note { margin: -6px 0 10px; padding-left: 2px; font-size: 13px; opacity: .7; }

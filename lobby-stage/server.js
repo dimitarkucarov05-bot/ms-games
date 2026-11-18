@@ -827,6 +827,7 @@ function snapshot() {
     mapVote: mapVoteView(),   // гласуването за карта (arena13) — виж PROTOCOL.md
     serverAddresses: lanAddresses(),
     keeper: keeper ? keeper.status() : null,
+    zoneSlots: zoneSlotsView(), activeZoneSlot: arena.activeZoneSlot || null, lbeMapInfo: arena.lbeMap || null,
     picoKeeper: picoKeeper ? picoKeeper.status() : null,      // Pico на кабела: тунел и страница (pico-keeper.js)      // какво прави пазачът с всяка каска, до която стига през adb
     play: { https: !!secureServer, port: TLS_PORT, path: '/play/' },
     zone: zoneView(),
@@ -2876,6 +2877,91 @@ const api = {
     return { ok: true };
   },
 
+  // ---- 5 зони ----
+  'POST /api/zones/save': ({ slot, name }) => {
+    const n = slotNo(slot);
+    if (!arena.zone) throw new Error('There is no zone to save yet: generate or draw one first');
+    arena.zoneSlots ||= Array(ZONE_SLOTS).fill(null);
+    const old = arena.zoneSlots[n - 1];
+    arena.zoneSlots[n - 1] = {
+      name: String(name || old?.name || `Zone ${n}`).trim().slice(0, 30), at: new Date().toISOString(),
+      zone: clone(arena.zone), calibrations: clone(arena.calibrations), lbeFrame: clone(arena.lbeFrame), sharedCalibration: clone(arena.sharedCalibration),
+      lbeFlip: !!arena.lbeFlip, mapFile: arena.lbeMap?.file || old?.mapFile || null,
+    };
+    arena.activeZoneSlot = n;
+    writeJson(ARENA_FILE, arena);
+    toast(`Zone ${n} saved: ${arena.zoneSlots[n - 1].name}`, 'ok'); pushState();
+    return { ok: true, slot: n };
+  },
+  'POST /api/zones/use': ({ slot }) => {
+    const n = slotNo(slot), z = arena.zoneSlots?.[n - 1];
+    if (!z) throw new Error(`Zone ${n} is empty`);
+    if (session || engine.active()) throw new Error('A game is running: stop it first, then switch the zone');
+    archiveCalibration('zoneSlot');
+    const v = Math.max(0, ...Object.values(arena.calibrations || {}).map(c => c.version || 0), ...Object.values(z.calibrations || {}).map(c => c.version || 0), z.lbeFrame?.version || 0) + 1;
+    arena.zone = clone(z.zone);
+    arena.calibrations = Object.fromEntries(Object.entries(clone(z.calibrations) || {}).map(([id, c]) => [id, { ...c, version: v }]));
+    arena.sharedCalibration = z.sharedCalibration ? { ...clone(z.sharedCalibration), version: v } : null;
+    arena.lbeFrame = z.lbeFrame ? { ...clone(z.lbeFrame), version: v, zoneAt: arena.zone?.at || null } : null;
+    arena.lbeFlip = !!z.lbeFlip;
+    if (z.mapFile) arena.lbeMap = { ...(arena.lbeMap || {}), file: z.mapFile };
+    for (const [hid, h] of headsets) if (h.lbe && !arena.calibrations[hid] && arena.lbeFrame) arena.calibrations[hid] = { ...arena.lbeFrame };      // новите Pico взимат общата нула
+    arena.activeZoneSlot = n;
+    writeJson(ARENA_FILE, arena);
+    broadcastZone();
+    let sent = 0;
+    for (const id of sockets.keys()) if (arena.calibrations[id] && applyCalibrationTo(id, true)) sent++;
+    toast(`Zone ${n} on: ${z.name} (${sent} headsets)${z.mapFile ? '. Its LBE map: use “Give the map to the headsets” if they have another one' : ''}`, 'ok');
+    pushState();
+    return { ok: true, slot: n, sent, mapFile: z.mapFile || null };
+  },
+  'POST /api/zones/name': ({ slot, name }) => {
+    const n = slotNo(slot), z = arena.zoneSlots?.[n - 1];
+    if (!z) throw new Error(`Zone ${n} is empty`);
+    z.name = String(name || '').trim().slice(0, 30) || z.name; writeJson(ARENA_FILE, arena); pushState();
+    return { ok: true };
+  },
+  'POST /api/zones/delete': ({ slot }) => {
+    const n = slotNo(slot);
+    if (arena.zoneSlots?.[n - 1]) { arena.zoneSlots[n - 1] = null; if (arena.activeZoneSlot === n) arena.activeZoneSlot = null; writeJson(ARENA_FILE, arena); pushState(); }
+    return { ok: true };
+  },
+
+  // ---- LBE картата, експортната от каската (adb): вземи я от една каска, дай я на всички ----
+  'POST /api/lbe/take': async ({ serial }) => {
+    const s = String(serial || picoSerials()[0] || '');
+    if (!s) throw new Error('No Pico on the cable. Plug the headset with the exported map in with a USB cable');
+    const ls = await adbRun(['-s', s, 'shell', 'ls -t /sdcard/maps/export/*.zip 2>/dev/null | head -1'], 15000);
+    const remote = ls.out.split('\n')[0].trim();
+    if (!ls.ok || !remote.endsWith('.zip')) throw new Error('No exported map on the headset (/sdcard/maps/export). Export the map in LSpace first');
+    fs.mkdirSync(LBE_MAPS, { recursive: true });
+    const file = `${new Date().toISOString().replace(/[:.]/g, '-')}_${s}.zip`;
+    const pull = await adbRun(['-s', s, 'pull', remote, path.join(LBE_MAPS, file)], 180000);
+    if (!pull.ok || !fs.existsSync(path.join(LBE_MAPS, file))) throw new Error(`The map could not be copied: ${pull.err || pull.out}`.slice(0, 160));
+    const bytes = fs.statSync(path.join(LBE_MAPS, file)).size;
+    arena.lbeMap = { file, from: s, remote: path.basename(remote), bytes, at: new Date().toISOString() };
+    writeJson(ARENA_FILE, arena);
+    toast(`The LBE map is copied from the headset (${(bytes / 1048576).toFixed(1)} MB). Next: give it to the headsets`, 'ok'); pushState();
+    return { ok: true, file, bytes };
+  },
+  'POST /api/lbe/give': async ({ file, serials, open = true }) => {
+    const f = lbeMapPath(file || arena.lbeMap?.file);
+    if (!f) throw new Error('There is no LBE map yet: take it from the headset first');
+    const targets = (Array.isArray(serials) && serials.length ? serials.map(String) : picoSerials());
+    if (!targets.length) throw new Error('No Pico on the cable');
+    const results = [];
+    for (const s of targets) {
+      const push = await adbRun(['-s', s, 'push', f, '/sdcard/maps/import_map.zip'], 240000);
+      let opened = false;
+      const busy = (session || engine.active()) && headsets.get(s)?.inVR;
+      if (push.ok && open && !busy) opened = (await adbRun(['-s', s, 'shell', 'am start -n com.picoxr.blspace/com.picoxr.blspacelib.main.MainActivity'], 12000)).ok;
+      results.push({ serial: s, ok: push.ok, opened, error: push.ok ? null : (push.err || push.out).slice(0, 120) });
+    }
+    const okN = results.filter(r => r.ok).length;
+    toast(`The LBE map is on ${okN} of ${results.length} headsets. In each: LSpace → Import Map${open ? ' (LSpace is open)' : ''}`, okN ? 'ok' : 'error');
+    return { ok: okN > 0, results };
+  },
+
   // Pico на кабела: отвори играта в каската пак, веднага
   'POST /api/pico/open': ({ serial }) => {
     if (!picoKeeper) throw new Error('Pico keeper is off');
@@ -2934,6 +3020,10 @@ const api = {
     if (!turned.size) throw new Error('No calibration to rotate');
     arena.lbeFlip = !arena.lbeFlip;   // и следващите LBE калибровки излизат завъртени
     if (arena.sharedCalibration && turned.has(arena.sharedCalibration)) arena.sharedCalibration = turned.get(arena.sharedCalibration);
+    if (arena.lbeFrame) {      // общата нула на Pico (LBE) се върти заедно: новите Pico взимат завъртяното
+      const y = arena.lbeFrame.yawDeg + 180 > 180 ? arena.lbeFrame.yawDeg - 180 : arena.lbeFrame.yawDeg + 180;
+      arena.lbeFrame = { ...arena.lbeFrame, yawDeg: Math.round(y * 10) / 10, version: (arena.lbeFrame.version || 0) + 1 };
+    }
     writeJson(ARENA_FILE, arena);
     for (const c of turned.values()) logCalib('rotate', c.sourceHeadset, c, { prevFile });
     archiveCalibration('после:rotate');
@@ -3737,6 +3827,28 @@ if (process.env.NO_KEEPER !== '1' && process.env.ARENA_DEV !== '1' && fs.existsS
     pc: () => lanAddresses().find(a => a.startsWith('192.168.')) || lanAddresses()[0] || '',
   });
 }
+
+// ---------- 5 зони: запомнени места, сменят се с един клик ----------
+// Всяка зона пази начертаното (или взетото от LBE границата) място с подравняванията, общата нула на Pico и файла на LBE картата.
+// Така заради различно LBE (6 × 6, 15 × 15, 20 × 20…) не се чертае наново: избираш номера и всичко се нагласява по него.
+const ZONE_SLOTS = 5;
+const clone = v => (v == null ? v : JSON.parse(JSON.stringify(v)));
+const slotNo = v => { const n = Math.round(Number(v)); if (!(n >= 1 && n <= ZONE_SLOTS)) throw new Error(`The zone number is 1 to ${ZONE_SLOTS}`); return n; };
+function zoneSlotsView() {
+  return Array.from({ length: ZONE_SLOTS }, (_, i) => {
+    const z = arena.zoneSlots?.[i];
+    return z ? { slot: i + 1, name: z.name, at: z.at, hall: z.zone?.hall || null, rooms: z.zone?.rooms?.length || 0, mapFile: z.mapFile || null, lbe: !!z.lbeFrame } : { slot: i + 1, empty: true };
+  });
+}
+function picoSerials() {
+  const fromKeeper = (picoKeeper?.status() || []).map(d => d.serial);
+  return fromKeeper;
+}
+const lbeMapPath = name => {      // само име на файл от папката с картите, без пътища
+  const base = path.basename(String(name || ''));
+  const f = path.join(LBE_MAPS, base);
+  return base.endsWith('.zip') && fs.existsSync(f) ? f : null;
+};
 
 // Пазачът на Pico каските (pico-keeper.js): Pico на кабела получава тунел към сървъра и играта се отваря в браузъра му — без Wi-Fi.
 // Върви в програмата за Mac (MSGAMES_LAUNCHER), с PICO_KEEPER=1 и на обикновен сървър; пробните сървъри (ARENA_DEV, NO_KEEPER без програмата) не го пускат.

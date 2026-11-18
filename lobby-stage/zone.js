@@ -151,7 +151,7 @@ export function regularize(points, opts = {}) {
 export function solveZone({ points = [], obstacles = [] } = {}, opts = {}) {
   // Начертаната зона е мястото, до което стигат краката. Ръцете стигат и извън нея, затова стаята за игра
   // излиза с grow извън ръба (margin < 0). Положителен margin, както преди, я свива навътре.
-  const margin = opts.margin ?? -0.1, min = opts.min ?? 1.6, max = opts.max ?? 10, cell = opts.cell ?? 0.1;
+  const margin = opts.margin ?? -0.1, min = opts.min ?? 1.6, max = opts.max ?? 40, cell = opts.cell ?? 0.1;
   const grow = Math.max(0, -margin), edge = Math.max(0, margin), obsMargin = opts.obstacleMargin ?? 0.05;
   const cellFree = (zone, x, z) => {
     const d = distToEdges(zone.poly, x, z);

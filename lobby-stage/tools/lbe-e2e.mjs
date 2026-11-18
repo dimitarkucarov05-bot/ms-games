@@ -79,6 +79,42 @@ B.send({ type: 'lbeBounds', reason: 'changed', ok: true, corners: tri, obstacles
 await sleep(500);
 ok(!A.cal() && !B.cal(), "a 'changed' report from another Pico does not replace the zone");
 
+// 6) five zones: save two different places, switch with one click, the headsets follow; rotate 180 turns the shared Pico frame too
+{
+  const sq = n => [{ x: 0, z: 0 }, { x: n, z: 0 }, { x: n, z: n }, { x: 0, z: n }];
+  A.send({ type: 'zoneDone', points: tri, obstacles: [], marks: [], floorY: 0 });
+  await sleep(700);
+  ok((await api('/api/zones/save', { slot: 1, name: 'Triangle' })).ok, 'zone 1 saved (triangle)');
+  A.send({ type: 'zoneDone', points: sq(20), obstacles: [], marks: [], floorY: 0 });
+  await sleep(700);
+  ok((await api('/api/zones/save', { slot: 2, name: 'Big 20' })).ok, 'zone 2 saved (20 x 20)');
+  let st = await api('/api/state');
+  ok(st.zoneSlots?.[0]?.name === 'Triangle' && st.zoneSlots?.[1]?.hall?.w >= 20 && st.zoneSlots?.[2]?.empty, 'the state lists the slots with their sizes (20 m is not cut to 10)');
+  A.clear(); B.clear();
+  ok((await api('/api/zones/use', { slot: 1 })).ok, 'zone 1 is switched on');
+  await sleep(500);
+  st = await api('/api/state');
+  ok(st.zone?.poly?.length === 3 && st.activeZoneSlot === 1, 'the triangle is the zone again');
+  ok(!!A.cal() && !!B.cal() && A.cal().source === 'lbe', 'both Picos got the zone calibration (shared LBE origin)');
+  const before = B.cal().yawDeg;
+  A.clear(); B.clear();
+  ok((await api('/api/zones/use', { slot: 2 })).ok, 'zone 2 is switched on with one click');
+  await sleep(500);
+  st = await api('/api/state');
+  ok(st.zone?.hall?.w >= 20 && !!A.cal() && !!B.cal(), 'the 20 x 20 zone is on and the headsets follow');
+  const y0 = B.cal().yawDeg;
+  await api('/api/calibrate/rotate', {});
+  await sleep(500);
+  const y1 = B.cal().yawDeg;
+  ok(Math.abs(Math.abs(y1 - y0) - 180) < 0.5, 'rotate 180 turns the Picos');
+  const D = await headset('PICO-D', { lbe: true });
+  ok(D.cal() && Math.abs(Math.abs(D.cal().yawDeg - y0) - 180) < 0.5, 'a Pico connecting after the rotation gets the turned frame');
+  D.ws.close();
+  ok(!(await api('/api/zones/use', { slot: 5 })).ok, 'an empty zone cannot be switched on');
+  await api('/api/zones/delete', { slot: 1 });
+  ok((await api('/api/state')).zoneSlots?.[0]?.empty === true, 'a zone can be deleted');
+}
+
 for (const h of [A, B, Q, C, fresh]) h.ws.close();
 console.log(fails ? `${fails} FAILED` : 'ALL PASSED');
 process.exit(fails ? 1 : 0);

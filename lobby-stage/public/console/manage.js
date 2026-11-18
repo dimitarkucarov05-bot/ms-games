@@ -318,26 +318,43 @@ App.toolsPane = function (pane) {
     <div class="prow-list" data-f="rows"></div>
     <div class="side-head"><span class="label">The whole arena</span></div>
     <div class="sets">
+      ${setRow('Generate the LBE zone', 'Every headset reads its LBE boundary; the zone and the calibration are built from it, any size and shape. Pico headsets share one origin.', '<button type="button" class="btn btn-lg btn-primary" data-tool="lbeAll">Generate LBE zone</button>')}
+      ${setRow('LBE map from the headset', 'Take the map you exported in LSpace from a headset on the USB cable, then give it to all the headsets on the cable (it lands in /sdcard/maps/import_map.zip and LSpace opens; tap Import Map).', '<span class="btn-row"><button type="button" class="btn btn-lg" data-tool="mapTake">Take the map</button><button type="button" class="btn btn-lg" data-tool="mapGive">Give it to the headsets</button></span>')}
+      <div class="set-note" data-f="mapInfo"></div>
       ${setRow('Older calibration', 'Brings back the one before the current one. The current one stays in the history.', '<button type="button" class="btn btn-lg" data-tool="previous">Restore previous</button>')}
       ${setRow('Turned the wrong way', 'Turns the arena 180° around its centre. No new calibration needed.', '<button type="button" class="btn btn-lg" data-tool="rotate">Turn 180°</button>')}
       ${setRow('Start again', 'Deletes every headset calibration. Each headset then needs the two points again.', '<button type="button" class="btn btn-lg btn-danger" data-tool="clear" data-confirm="Press again to delete">Delete calibrations</button>')}
     </div>
+    <div class="side-head"><span class="label">Five zones: one click to switch</span></div>
+    <p class="pane-sub">Save the current zone into a number, switch between places with one click. Each zone remembers its shape, its calibration and its LBE map.</p>
+    <div class="zslots" data-f="zslots"></div>
     <div class="notice notice-plain" data-f="prev" hidden><span data-f="prevText"></span><span class="btn-row"><button type="button" class="btn btn-primary" data-tool="prevApply">Restore it</button><button type="button" class="btn" data-tool="prevCancel">Cancel</button></span></div>`;
   pane._p = null;
 };
 App.toolsFill = function (pane) {
   const p = parts(pane), hs = [...(state.headsets || [])].sort(byNumber), busy = runLive(state.run);
   syncList(p.rows, hs, h => h.id, () => make(`<div class="prow-pts tool-row"><span class="hsq" data-f="sq"></span><span class="prow-main"><span class="prow-name" data-f="name"></span><span class="pts-check" data-f="sub"></span></span>
-    <span class="btn-row"><button type="button" class="btn" data-zone="draw">Draw boundary</button><button type="button" class="btn" data-zone="obstacles">Obstacles</button><button type="button" class="btn" data-zone="floor">Floor height</button><button type="button" class="btn btn-quiet" data-space data-confirm="Again: clear the space">Clear the space</button></span></div>`), (el, h) => {
+    <span class="btn-row"><button type="button" class="btn btn-primary" data-lbe="gen" title="The headset reads the boundary it has from LBE; the console builds the zone and fits the world to it">Generate LBE zone</button><button type="button" class="btn" data-lbe="corners" title="Manual calibration: touch the four corners of the hall with the controller">4 corners</button><button type="button" class="btn" data-zone="draw">Draw boundary</button><button type="button" class="btn" data-zone="obstacles">Obstacles</button><button type="button" class="btn" data-zone="floor">Floor height</button><button type="button" class="btn btn-quiet" data-space data-confirm="Again: clear the space">Clear the space</button></span></div>`), (el, h) => {
     const f = parts(el), can = h.online && !h.desk && !busy;
     paintSq(f.sq, h);
     text(f.name, h.name);
     text(f.sub, !h.online ? 'offline' : h.desk ? 'desk test' : hsAligned(h) ? 'aligned' : 'not calibrated');
     for (const b of el.querySelectorAll('[data-zone]')) b.disabled = !can || (b.dataset.zone === 'obstacles' && !state.zone);
+    for (const b of el.querySelectorAll('[data-lbe]')) b.disabled = !can;
     el.querySelector('[data-space]').disabled = !h.online || busy;
     attr(el.querySelector('[data-space]'), 'title', 'Only when something is broken: clears the headset\'s own space memory (over USB) and with it the anchors. Afterwards it needs the two points again.');
   });
   for (const b of pane.querySelectorAll('[data-tool="rotate"], [data-tool="clear"], [data-tool="previous"]')) b.disabled = busy;
+  // the exported LBE map and the five zones
+  const mi = state.lbeMapInfo;
+  text(p.mapInfo, mi && mi.file ? `Current map: ${mi.file}${mi.bytes ? ` (${(mi.bytes / 1048576).toFixed(1)} MB)` : ''}${mi.from ? `, taken from ${mi.from}` : ''}.` : 'No map taken yet.');
+  const slots = state.zoneSlots || [], sig = JSON.stringify([slots, state.activeZoneSlot, !!state.zone, busy]);
+  if (p.zslots._sig !== sig) {
+    p.zslots._sig = sig;
+    p.zslots.innerHTML = slots.map(z => z.empty
+      ? `<div class="zslot" data-slot="${z.slot}"><b>${z.slot}. Empty</b><small>Nothing saved here yet</small><span class="btn-row"><button type="button" class="btn" data-zs="save" ${state.zone ? '' : 'disabled'}>Save the current zone here</button></span></div>`
+      : `<div class="zslot${state.activeZoneSlot === z.slot ? ' on' : ''}" data-slot="${z.slot}"><b>${z.slot}. ${esc(z.name)}</b><small>${z.hall ? `${String(z.hall.w).replace('.', ',')} × ${String(z.hall.d).replace('.', ',')} m` : 'no size'}${z.rooms > 1 ? `, ${z.rooms} rooms` : ''}${z.mapFile ? ', with an LBE map' : ''}</small><span class="btn-row"><button type="button" class="btn btn-primary" data-zs="use" ${busy ? 'disabled' : ''}>${state.activeZoneSlot === z.slot ? 'Apply again' : 'Use'}</button><button type="button" class="btn" data-zs="save" ${state.zone ? '' : 'disabled'} title="Replace this zone with the current one">Save here</button><button type="button" class="btn btn-quiet" data-zs="name">Rename</button></span></div>`).join('');
+  }
 };
 let prevOffer = null;
 document.addEventListener('click', async e => {
@@ -346,9 +363,34 @@ document.addEventListener('click', async e => {
   if (z) { const id = z.closest('[data-key]').dataset.key; const r = await api(`/api/zone/${z.dataset.zone}`, { headsetId: id }); if (r.ok) toast(z.dataset.zone === 'floor' ? 'Touch the floor with the controller in the headset' : 'Draw with the laser in the headset'); return; }
   const sp = e.target.closest('[data-space]');
   if (sp) return twoStep(sp, () => api('/api/headset/clear-space', { headsetId: sp.closest('[data-key]').dataset.key }));
+  const lb = e.target.closest('[data-lbe]');
+  if (lb) {
+    const id = lb.closest('[data-key]').dataset.key;
+    if (lb.dataset.lbe === 'gen') { const r = await api('/api/calibrate/lbe', { headsetId: id }); if (r.ok) toast('Reading the LBE boundary in the headset… the zone appears in a moment'); }
+    else { const r = await api('/api/calibrate', { headsetId: id }); if (r.ok) toast('Touch the four corners in the headset, the same order for every headset'); }
+    return;
+  }
+  const zs = e.target.closest('[data-zs]');
+  if (zs) {
+    const slot = Number(zs.closest('[data-slot]').dataset.slot);
+    if (zs.dataset.zs === 'use') { const r = await api('/api/zones/use', { slot }); if (r.ok) toast(`Zone ${slot} is on`, 'ok'); }
+    else if (zs.dataset.zs === 'save') {
+      const cur = (state.zoneSlots || [])[slot - 1];
+      if (cur && !cur.empty) return twoStep(zs, () => api('/api/zones/save', { slot }).then(r => r.ok && toast(`Zone ${slot} saved`, 'ok')));
+      const name = window.prompt('A name for this zone', `Zone ${slot}`);
+      if (name !== null) { const r = await api('/api/zones/save', { slot, name }); if (r.ok) toast(`Zone ${slot} saved`, 'ok'); }
+    } else if (zs.dataset.zs === 'name') {
+      const name = window.prompt('A new name', ((state.zoneSlots || [])[slot - 1] || {}).name || `Zone ${slot}`);
+      if (name) await api('/api/zones/name', { slot, name });
+    }
+    return;
+  }
   const t = e.target.closest('[data-tool]');
   if (!t) return;
   const pane = $('wizPane'), p = parts(pane);
+  if (t.dataset.tool === 'lbeAll') { const r = await api('/api/calibrate/lbe', {}); if (r.ok) toast(`Asked ${r.data && r.data.sent ? r.data.sent : 'the'} headset(s) for their LBE boundary`); }
+  if (t.dataset.tool === 'mapTake') { t.disabled = true; try { await api('/api/lbe/take', {}); } finally { t.disabled = false; } }
+  if (t.dataset.tool === 'mapGive') { t.disabled = true; try { await api('/api/lbe/give', {}); } finally { t.disabled = false; } }
   if (t.dataset.tool === 'rotate') { const r = await api('/api/calibrate/rotate', {}); if (r.ok) toast('Arena turned 180°'); }
   if (t.dataset.tool === 'clear') twoStep(t, () => api('/api/calibrate/clear', {}).then(r => r.ok && toast('Calibrations deleted')));
   if (t.dataset.tool === 'previous') {
