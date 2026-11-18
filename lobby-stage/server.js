@@ -2483,6 +2483,7 @@ const api = {
     }
     return r;
   },
+  'POST /api/labcoin/check': async () => labcoin.check(),      // is the key, the address and the switch right? (one scan of a code that cannot exist)
   'POST /api/labcoin/release': ({ headsetId } = {}) => ({ ok: labRelease(String(headsetId || '')) }),
   'POST /api/labcoin/release-all': () => { const ids = [...labBound.keys()]; for (const id of ids) labRelease(id); return { ok: true, released: ids.length }; },
   'GET /api/labcoin/status': () => ({

@@ -240,3 +240,52 @@ test('HEX by hand, live: needs a PIN in the config; a network error is retried w
   t += 6000; assert.equal((await lc.grant({ playerId: 'u-1', hex: 80, pin: '1234' })).error, 'player_banned');
   assert.equal(lc.status().pending, 0, 'refusals are not retried');
 });
+
+test('the real LabCoin: "disabled" is told as it is (scan, check), the result waits for the switch, a refused result is dropped at once', async () => {
+  const dir = live(tmp()), calls = [];
+  let t = 9_000_000;
+  const answers = [
+    jsonRes(503, { error: 'disabled' }),                      // scan while the switch is off
+    jsonRes(503, { error: 'disabled' }),                      // check
+    jsonRes(404, { error: 'code_unknown' }),                  // check with the switch on
+    jsonRes(401, {}),                                         // check, wrong key
+    jsonRes(503, { error: 'disabled' }),                      // the result while the switch is off: it stays
+    jsonRes(200, { ok: true, hex: 100, capped: false, total: 5 }),   // ...and is paid when the switch is on
+    jsonRes(403, { error: 'player_banned' }),                 // a banned player: final, whatever the status
+    jsonRes(200, { ok: false, error: 'player_not_scanned' }),
+  ];
+  const lc = createLabcoin({ dir, env: {}, now: () => t, fetchImpl: async (url, opt) => { calls.push(opt?.body ? JSON.parse(opt.body) : null); return answers.shift(); } });
+  const sc = await lc.scan('AB12CD');
+  assert.equal(sc.error, 'disabled');
+  assert.match(sc.text, /Нови функции/);
+  assert.deepEqual([(await lc.check()).state, (await lc.check()).state], ['disabled', 'live']);
+  assert.equal((await lc.check()).state, 'key_rejected');
+  lc.enqueue({ ref: 'p1', playerId: 'u-1' }, { username: 'Nick' });
+  await new Promise(r => setImmediate(r));
+  await lc.pump();
+  assert.equal(lc.status().pending, 1, 'while the switch is off the result stays in the outbox');
+  assert.equal(lc.status().failed, 0);
+  t += 10_000; await lc.pump();
+  assert.equal(lc.status().pending, 0);
+  assert.equal(lc.status().recent[0].hex, 100);
+  lc.enqueue({ ref: 'p2', playerId: 'u-2' }); await new Promise(r => setImmediate(r)); await lc.pump();
+  lc.enqueue({ ref: 'p3', playerId: 'u-3' }); await new Promise(r => setImmediate(r)); await lc.pump();
+  assert.deepEqual([lc.status().pending, lc.status().failed], [0, 2], 'player_banned (even as 403) and player_not_scanned are final');
+});
+
+test('the real LabCoin, grant: every refusal is told in words and nothing refused is queued', async () => {
+  const dir = live(tmp());
+  fs.writeFileSync(path.join(dir, 'labcoin.json'), JSON.stringify({ baseUrl: 'https://lab.example', key: 'K3Y', venue: 'vr-test', mode: 'live', grantPin: '1234' }));
+  const refusals = [['disabled', 503], ['limit_player_day', 200], ['limit_venue_day', 409], ['hex_range', 422], ['player_not_scanned', 404], ['player_banned', 403], ['player_unknown', 404], ['bad_request', 422]];
+  const answers = refusals.map(([error, status]) => jsonRes(status, status === 200 ? { ok: false, error } : { error }));
+  let t = 20_000_000;
+  const lc = createLabcoin({ dir, env: {}, now: () => t, fetchImpl: async () => answers.shift() });
+  for (const [error] of refusals) {
+    t += 6000;
+    const r = await lc.grant({ playerId: 'u-1', hex: 100 + t % 7, pin: '1234' });
+    assert.equal(r.error, error, `${error} is told as ${error}`);
+    assert.ok(r.text && !/\(\w+\)$/.test(r.text) || error === 'bad_request', `${error} has words`);
+  }
+  assert.equal(lc.status().pending, 0, 'a refused grant is never queued to be paid later by surprise');
+  assert.match((await (async () => { answers.push(jsonRes(200, { ok: false, error: 'limit_player_day' })); t += 6000; return lc.grant({ playerId: 'u-1', hex: 150, pin: '1234' }); })()).text, /2000/);
+});

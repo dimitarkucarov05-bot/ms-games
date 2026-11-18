@@ -23,7 +23,7 @@ async function api(path, body) {
   return j;
 }
 
-const stars = n => `${n} ${n === 1 ? 'звезда' : 'звезди'}`;
+const stars = n => (n > 0 ? `${n} ${n === 1 ? 'звезда' : 'звезди'}` : '');      // LabCoin дава 0 на всички герои за сега: тогава нищо не се казва
 const dmy = iso => { const [y, m, d] = String(iso).split('-'); return d && m && y ? `${d}.${m}.${y}` : iso; };
 const perkText = p => (p.type === 'hex_multiplier' ? `HEX ×${p.value}` : String(p.type).replace(/_/g, ' '));
 const once = (key, sig, draw) => { if (sigs[key] === sig) return; sigs[key] = sig; draw(); };
@@ -62,7 +62,7 @@ function renderBound() {
   once('bound', JSON.stringify(heads.map(h => [h.id, h.player.username, h.player.skin?.name])), () => {
     $('bound').replaceChildren(...heads.map(h => el('li', {},
       el('span', { class: 'num', text: String(h.number) }),
-      el('div', {}, el('div', { class: 'nm', text: h.player.username }), el('div', { class: 'sub', text: h.player.skin ? `${h.player.skin.name}, ${stars(h.player.skin.stars)}` : 'без скин' })),
+      el('div', {}, el('div', { class: 'nm', text: h.player.username }), el('div', { class: 'sub', text: h.player.skin ? [h.player.skin.name, stars(h.player.skin.stars)].filter(Boolean).join(', ') : 'без скин' })),
       releaseButton('Освободи', async () => { await api('/api/labcoin/release', { headsetId: h.id }); await refresh(); }))));
     $('boundEmpty').hidden = heads.length > 0;
     $('releaseAll').hidden = heads.length === 0;
@@ -109,7 +109,7 @@ function showOk(r) {
   const p = r.player, s = p.skin;
   const facts = [
     el('li', {}, 'Каска ', el('b', { text: `№ ${r.headset.number}` }), r.headset.online ? '' : ' (още не е свързана, ще вземе профила щом се включи)'),
-    s ? el('li', {}, 'Скин: ', el('b', { text: s.name }), `, ${stars(s.stars)}`) : el('li', { text: 'Скин: няма' }),
+    s ? el('li', {}, 'Скин: ', el('b', { text: s.name }), stars(s.stars) ? `, ${stars(s.stars)}` : '') : el('li', { text: 'Скин: няма' }),
     p.hex != null ? el('li', {}, el('b', { text: `${fmt.format(p.hex)} HEX` })) : null,
     el('li', { text: p.labpass?.active ? `LabPass до ${p.labpass.until ? dmy(p.labpass.until) : 'неизвестно'}` : 'Без LabPass' }),
     ...(p.perks || []).map(k => el('li', {}, 'Предимство: ', el('b', { text: perkText(k) }))),

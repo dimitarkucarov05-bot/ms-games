@@ -38,8 +38,18 @@ const TEXT = {
   duplicate: 'Току-що е пратено същото. Изчакай малко',
   not_supported: 'LabCoin още няма тази функция (HEX на ръка)',
   no_player: 'На тази каска няма вързан играч',
-  hex_range: 'Грешно количество HEX',
+  hex_range: 'LabCoin не прие това количество HEX (от 1 до 1000)',
+  disabled: 'Функцията още не е включена в LabCoin (LCAdmin → Правила → Нови функции → Връзка с VR залата)',
+  player_unknown: 'LabCoin не познава този играч',
+  player_banned: 'Този играч е блокиран в LabCoin',
+  player_not_scanned: 'Играчът не е сканиран скоро. Сканирай кода му отново',
+  limit_player_day: 'Дневният таван на играча е пълен (2000 HEX)',
+  limit_venue_day: 'Дневният таван на залата е пълен (20000 HEX)',
+  bad_request: 'LabCoin не прие заявката (грешни данни)',
 };
+// answers of LabCoin that no retry can change: the result or grant is dropped (or refused at once), not queued
+const FINAL = new Set(['player_unknown', 'player_banned', 'player_not_scanned', 'bad_request', 'hex_range', 'limit_player_day', 'limit_venue_day']);
+const errOf = j => (typeof j?.error === 'string' ? j.error.replace(/[^\w-]/g, '').slice(0, 40) : '');
 export const errorText = code => TEXT[code] || `Грешка от LabCoin (${String(code).slice(0, 40)})`;
 const fail = (error, detail) => ({ ok: false, error, text: errorText(error), ...(detail ? { detail: String(detail).slice(0, 200) } : {}) });
 
@@ -173,6 +183,7 @@ export function createLabcoin({ dir, env = process.env, fetchImpl = (...a) => fe
     if (!code) return fail('code_bad');
     const r = await call(c, 'scan', { code, venue: c.venue, headsetNumber });
     if (r.status === 0) { lastError = r.error; return fail('offline', r.error); }
+    if (errOf(r.json) === 'disabled') return fail('disabled');
     if (r.status === 401 || r.status === 403) return fail('key_rejected');
     if (r.status === 429) return fail('rate_limited');
     if (r.status >= 500) return fail('offline', `HTTP ${r.status}`);
@@ -215,7 +226,8 @@ export function createLabcoin({ dir, env = process.env, fetchImpl = (...a) => fe
           try { onResult(it, answer); } catch (e) { log(`onResult: ${e.message}`); }
           continue;
         }
-        const permanent = (r.status === 200 && r.json && r.json.ok === false) || [400, 404, 409, 410, 422].includes(r.status);
+        const code = errOf(r.json);
+        const permanent = code !== 'disabled' && ((r.status === 200 && r.json && r.json.ok === false) || [400, 404, 409, 410, 422].includes(r.status) || FINAL.has(code));
         const why = r.error || (r.json?.error ? String(r.json.error).slice(0, 80) : `HTTP ${r.status}`);
         it.lastError = why; lastError = why;
         if (permanent || now() - it.createdAt > GIVE_UP_MS) {
@@ -265,6 +277,9 @@ export function createLabcoin({ dir, env = process.env, fetchImpl = (...a) => fe
       audit({ ...base, status: 'paid', ...answer });
       return { ok: true, ...answer };
     }
+    const code = errOf(r.json);
+    if (code === 'disabled') { audit({ ...base, status: 'switch off in LabCoin' }); return fail('disabled'); }
+    if (FINAL.has(code)) { audit({ ...base, status: 'refused', why: code }); return fail(code); }
     if (r.status === 401 || r.status === 403) { audit({ ...base, status: 'key rejected' }); return fail('key_rejected'); }
     if (r.status === 404 || r.status === 405) { audit({ ...base, status: 'not supported by LabCoin' }); return fail('not_supported'); }
     if (r.status === 0 || r.status === 408 || r.status === 429 || r.status >= 500) {      // not paid, not refused: it goes on the retry list
@@ -303,10 +318,25 @@ export function createLabcoin({ dir, env = process.env, fetchImpl = (...a) => fe
     } catch (e) { log(`skin ${id}: ${e.message}`); return null; }
   }
 
+  /** Is the link right? One scan of a code that cannot exist: the key, the address and the switch show in the answer. */
+  async function check() {
+    const c = cfg();
+    if (c.mode === 'off') return { ok: false, state: 'off', text: errorText('off') };
+    if (c.mode === 'mock') return { ok: true, state: 'mock', text: 'Демо режим: няма истинска връзка с LabCoin' };
+    const r = await call(c, 'scan', { code: 'ZZZZZZ', venue: c.venue, headsetNumber: null });
+    const code = errOf(r.json);
+    if (r.status === 0) return { ok: false, state: 'offline', text: `${errorText('offline')} (${r.error || 'no answer'})` };
+    if (code === 'disabled') return { ok: true, state: 'disabled', text: 'Връзката и ключът работят, но функцията още е изключена в LabCoin (LCAdmin → Правила → Нови функции → Връзка с VR залата).' };
+    if (r.status === 401 || r.status === 403) return { ok: false, state: 'key_rejected', text: errorText('key_rejected') };
+    if (r.status === 429) return { ok: false, state: 'rate_limited', text: errorText('rate_limited') };
+    if (['code_unknown', 'code_expired', 'code_used', 'code_bad'].includes(code)) return { ok: true, state: 'live', text: 'Връзката, ключът и функцията работят.' };
+    return { ok: false, state: 'unexpected', text: `Неочакван отговор от LabCoin (HTTP ${r.status}${code ? `, ${code}` : ''})` };
+  }
+
   function status() {
     const c = cfg();
     return { mode: c.mode, venue: c.venue, ttlHours: c.ttlHours, grant: { pin: !!c.grantPin, max: c.maxGrantHex, enabled: c.mode === 'mock' || (c.mode === 'live' && !!c.grantPin) }, pending: box.items.length, failed: box.failed.length, lastError, recent: recent.slice(0, 8) };
   }
 
-  return { cfg, scan, enqueue, grant, pump, start, skinImage, status, _box: () => box };
+  return { cfg, scan, enqueue, grant, check, pump, start, skinImage, status, _box: () => box };
 }
