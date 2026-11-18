@@ -1,5 +1,5 @@
-# One installer, always current: every push to main builds MS-Games-Setup.exe on a Windows runner and republishes it as the
-# single "latest" release. Download: https://github.com/martiness14/ms-games/releases/latest/download/MS-Games-Setup.exe
+# One installer per system, always current: every push to main builds MS-Games-Setup.exe on a Windows runner and republishes it as the
+# single "latest" release; then MS-Games-Mac.dmg (the MacBook program, Apple silicon) is built on a macOS runner and added to the same release. Download: https://github.com/martiness14/ms-games/releases/latest/download/MS-Games-Setup.exe
 # (the repo is public since 18.11.2026 by Martin's decision: no sign-in needed).
 # NOTE: the Synty models in it are licensed to the LabCoin team only; that decision and its risk are the owner's.
 name: Windows installer
@@ -72,3 +72,28 @@ jobs:
           gh release delete latest --yes --cleanup-tag || true
           gh release create latest MS-Games-Setup.exe MS-Games-Setup.exe.sha256 --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest \
             --title "MS Games installer (always the latest)" --notes "$NOTES"
+
+  mac:
+    needs: installer
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Packages
+        run: cd lobby && npm ci --no-audit --no-fund
+
+      - name: Build the MacBook program (menu-bar app with its own Node)
+        run: node lobby-stage/tools/pack-mac.mjs --out dist-mac --dmg --version 2.0.0
+
+      - name: Add it to the single latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd dist-mac
+          shasum -a 256 MS-Games-Mac.dmg | awk '{print $1"  MS-Games-Mac.dmg"}' > MS-Games-Mac.dmg.sha256
+          gh release upload latest MS-Games-Mac.dmg MS-Games-Mac.dmg.sha256 --clobber --repo "$GITHUB_REPOSITORY"
