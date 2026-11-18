@@ -1029,7 +1029,7 @@ async function endGame() {
 
 // ---------- зона: чертане от каската ----------
 
-const BUILD = 48;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
+const BUILD = 49;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
 // what this page understands of MS Games 2 (the server may fall back to older flows for pages without a cap)
 const CAPS = ['lobby', 'vote', 'countdown', 'pause', 'settings', 'results', 'endMessage', 'message', 'swapHands', 'calibrateHeight', 'setupPoints', 'identity', 'restartGame', 'recalibrate', 'bench', 'ping', 'lbeBounds'];
 let zoneMod = null, zoneEditor = null, zoneViewObj = null, zoneData = null;
@@ -1108,6 +1108,9 @@ function autoZone(delay = 2500) {
     if (!renderer.xr.isPresenting || desk.on || watch) return;
     if (game || calibRun || zoneEditor?.active || pendingZone) return;
     if (!connected || !zoneKnown) return autoZone(1500);      // още не знаем дали има зона
+    // Pico / LBE: границата идва от системата (като в стария арена-пакет), не се чертае на ръка — пултът прави зоната от нея сам.
+    // Ако браузърът не дава граница, или зоната не дойде за няколко опита, чертането започва както преди.
+    if (!zoneData && isPicoBrowser && lbeWaits < 5 && lbeCorners()) { lbeWaits++; sendLbeBounds('changed'); return autoZone(3000); }
     if (!zoneData) return zoneStart('draw');
     if (!calib || needAlign) return zoneStart('align');
     if (wantObstacles) { wantObstacles = false; return zoneStart('obstacles'); }
@@ -1536,7 +1539,7 @@ let spaceType = 'local-floor';
 // многоъгълник в същите координати като главата и ръцете (проследяването на каската). На PICO 4 Ultra с обикновена граница е празен.
 // (lbeBounds). Границата е каквато я е начертал операторът (всякаква форма и размер), затова няма ограничение за размер:
 // сама се праща само от Pico браузър и само за преглед; зона от нея става по искане на оператора (calibrateFromLbe).
-let boundsSpace = null, lbeSig = '';
+let boundsSpace = null, lbeSig = '', lbeWaits = 0;
 const isPicoBrowser = /pico/i.test(navigator.userAgent);
 
 function lbeCorners() {
@@ -1574,7 +1577,7 @@ async function enterXR() {
   const session = await xr.requestSession(ar ? 'immersive-ar' : 'immersive-vr', { requiredFeatures: ['local-floor'], optionalFeatures: ['bounded-floor', 'anchors'] });
   // bounded-floor е вързано към границата на стаята и не се мести между сесиите: калибровката остава вярна
   spaceType = 'local-floor';
-  boundsSpace = null; lbeSig = '';
+  boundsSpace = null; lbeSig = ''; lbeWaits = 0;
   try { boundsSpace = await session.requestReferenceSpace('bounded-floor'); spaceType = 'bounded-floor'; } catch { /* няма граница за стая */ }
   const saved = JSON.parse(store('arena.calib') || 'null');
   if (saved && saved.space && saved.space !== spaceType && !savedAnchorIds()) applyCalibration(null);   // друго начало и няма котви: старите числа не важат
