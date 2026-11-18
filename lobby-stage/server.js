@@ -1392,7 +1392,14 @@ function onHeadsetMessage(ws, msg, ip) {
     case 'lbeBounds':
       writeJson(path.join(DATA, `lbe_bounds_${id}.json`), { at: new Date().toISOString(), ...msg });   // за проверка на границата
       // страница в браузъра (WebXR): границата е каквато я е начертал операторът — без правоъгълник и без размер; зона става само по искане, и само на Pico
-      if (msg.web) { if (msg.reason === 'request' && h.lbe) zoneFromBoundary(id, h, msg); break; }
+      // Автоматично — когато няма зона, или зоната е направена от границата на САМАТА тази каска и границата се е сменила (нова LBE граница); чужда или начертана на ръка зона не се пипа.
+      if (msg.web) {
+        if (h.lbe) {
+          const pts = boundaryPoints(msg), sig = boundarySig(pts), own = arena.zone?.by === id && arena.zone?.boundsSig;
+          if (msg.reason === 'request' || (pts.length >= 3 && (!arena.zone || (own && arena.zone.boundsSig !== sig)))) zoneFromBoundary(id, h, msg);
+        }
+        break;
+      }
       // отговор на тихото питане при свързване — като сама промяна, не като бутона
       if (autoBounds.delete(id) && msg.reason === 'request') msg = { ...msg, reason: 'connect' };
       calibrateFromBounds(id, msg);
@@ -1550,11 +1557,17 @@ function shareLbeFrame(id) {
 }
 
 /** Границата на Pico (ако браузърът я дава) като зона — само по искане на оператора, всякаква форма и размер. */
-function zoneFromBoundary(id, h, msg) {
+const boundaryPoints = msg => (msg.ok && Array.isArray(msg.corners) ? msg.corners : []).map(p => ({ x: Number(p?.x), z: Number(p?.z) })).filter(p => Number.isFinite(p.x) && Number.isFinite(p.z));
+const boundarySig = pts => pts.map(p => `${p.x.toFixed(1)},${p.z.toFixed(1)}`).join(';');
+async function zoneFromBoundary(id, h, msg) {
   const name = headsetView(h).name;
-  const pts = (msg.ok && Array.isArray(msg.corners) ? msg.corners : []).map(p => ({ x: Number(p?.x), z: Number(p?.z) })).filter(p => Number.isFinite(p.x) && Number.isFinite(p.z));
+  const pts = boundaryPoints(msg);
   if (pts.length < 3) return toast(`${name}: the browser gives no boundary — draw the zone in the headset`, 'warn');
-  return onZoneDone(id, h, { points: pts, obstacles: [], marks: [], floorY: arena.floors?.[id] });
+  if (arena.zone) {      // the zone it replaces is kept
+    try { fs.mkdirSync(path.join(DATA, 'zone_backups'), { recursive: true }); writeJson(path.join(DATA, 'zone_backups', `${new Date().toISOString().replace(/:/g, '-')}.json`), arena.zone); } catch { /* no backup folder */ }
+  }
+  await onZoneDone(id, h, { points: pts, obstacles: [], marks: [], floorY: arena.floors?.[id] });
+  if (arena.zone?.by === id) { arena.zone.boundsSig = boundarySig(pts); writeJson(ARENA_FILE, arena); }
 }
 
 async function onZoneDone(id, h, msg) {

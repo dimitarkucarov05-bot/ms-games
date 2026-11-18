@@ -25,6 +25,24 @@ const B = await headset('PICO-B', { lbe: true });
 const Q = await headset('QUEST-Q', { lbe: false });
 A.clear(); B.clear(); Q.clear();
 
+// 0) no zone yet: the first boundary a Pico reports becomes the zone by itself; a new boundary from the same Pico replaces it; the old zone is kept in zone_backups
+const fresh = await headset('PICO-N', { lbe: true });
+fresh.clear();
+const big = [{ x: 0.7, z: -5.7 }, { x: 12, z: -5.7 }, { x: 24.5, z: 4 }, { x: 24.5, z: 17.4 }, { x: 8, z: 17.4 }, { x: 0.7, z: 9 }];
+fresh.send({ type: 'lbeBounds', reason: 'changed', ok: true, corners: big, obstacles: [], web: true, pico: true });
+await sleep(900);
+const zN = (await api('/api/state')).zone;
+console.log('     zone:', JSON.stringify({ poly: zN?.poly?.length, hall: zN?.hall && { w: +zN.hall.w.toFixed(1), d: +zN.hall.d.toFixed(1) } }));
+ok(!!fresh.cal() && zN?.poly?.length >= 3, 'the first boundary of a Pico becomes the zone by itself, any shape and size');
+fresh.clear();
+const big2 = big.map(p => ({ x: p.x + 1, z: p.z }));
+fresh.send({ type: 'lbeBounds', reason: 'changed', ok: true, corners: big2, obstacles: [], web: true, pico: true });
+await sleep(900);
+ok(!!fresh.cal(), 'a new boundary from the same Pico updates its own zone');
+
+
+A.clear(); B.clear(); Q.clear();
+
 // 1) a triangle drawn on Pico A (not a rectangle, not 3 x 3)
 const tri = [{ x: 0, z: 0 }, { x: 7.5, z: 0 }, { x: 3.7, z: 6.5 }];
 A.send({ type: 'zoneDone', points: tri, obstacles: [], marks: [], floorY: 0 });
@@ -55,12 +73,12 @@ ok(!!A.cal() && !!B.cal(), 'a rhombus boundary sent by a Pico on request becomes
 A.send({ type: 'lbeBounds', reason: 'request', ok: true, corners: [], obstacles: [], web: true, pico: true });
 await sleep(300);
 
-// 4) 'changed' reports are only stored, they never change the zone
-A.clear();
-A.send({ type: 'lbeBounds', reason: 'changed', ok: true, corners: tri, obstacles: [], web: true, pico: true });
-await sleep(400);
-ok(!A.cal(), "an automatic 'changed' report does not touch the zone");
+// 4) 'changed' reports: a zone drawn by hand or by another headset is never replaced
+A.clear(); B.clear();
+B.send({ type: 'lbeBounds', reason: 'changed', ok: true, corners: tri, obstacles: [], web: true, pico: true });
+await sleep(500);
+ok(!A.cal() && !B.cal(), "a 'changed' report from another Pico does not replace the zone");
 
-for (const h of [A, B, Q, C]) h.ws.close();
+for (const h of [A, B, Q, C, fresh]) h.ws.close();
 console.log(fails ? `${fails} FAILED` : 'ALL PASSED');
 process.exit(fails ? 1 : 0);
