@@ -47,7 +47,7 @@ fs.mkdirSync(path.join(APP, 'Contents', 'MacOS'), { recursive: true });
 
 // ---------- the server ----------
 fs.mkdirSync(APPDIR, { recursive: true });
-for (const f of ['server.js', 'zone.js', 'keeper.js', 'package.json']) fs.copyFileSync(path.join(STAGE, f), path.join(APPDIR, f));
+for (const f of ['server.js', 'zone.js', 'keeper.js', 'pico-keeper.js', 'package.json']) fs.copyFileSync(path.join(STAGE, f), path.join(APPDIR, f));
 cp(path.join(STAGE, 'lib'), path.join(APPDIR, 'lib'), rel => !/\.test\.js$/.test(rel));
 fs.mkdirSync(path.join(APPDIR, 'game'), { recursive: true });
 for (const f of fs.readdirSync(path.join(STAGE, 'game'))) if (/^(motel|neon)/.test(f) && !/\.test\.js$/.test(f)) fs.copyFileSync(path.join(STAGE, 'game', f), path.join(APPDIR, 'game', f));
@@ -97,8 +97,28 @@ for (const must of ['sfx/motel/map.json', 'sfx/neon/map.json', 'synty/_gang/char
 // ---------- version, credit-only sounds out, a syntax check with the bundled Node ----------
 fs.copyFileSync(NODE, path.join(RES, 'runtime', 'node')); fs.chmodSync(path.join(RES, 'runtime', 'node'), 0o755);
 const bundled = path.join(RES, 'runtime', 'node');
+
+// adb: Pico (and Quest) headsets on a USB cable are opened from the program (pico-keeper.js). Taken from ADB_SRC, from the Android SDK on this Mac,
+// or downloaded from Google (platform-tools); without it the program still runs, only the cable part is off.
+{
+  const candidates = [process.env.ADB_SRC, path.join(os.homedir(), 'Library/Android/sdk/platform-tools/adb'), '/opt/homebrew/bin/adb', '/usr/local/bin/adb'].filter(Boolean);
+  let adbSrc = candidates.find(f => fs.existsSync(f));
+  if (!adbSrc) {
+    try {
+      const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pt-'));
+      execFileSync('curl', ['-fsSL', '-o', path.join(tmp, 'pt.zip'), 'https://dl.google.com/android/repository/platform-tools-latest-darwin.zip'], { stdio: 'inherit' });
+      execFileSync('unzip', ['-q', '-o', path.join(tmp, 'pt.zip'), 'platform-tools/adb', '-d', tmp], { stdio: 'inherit' });
+      adbSrc = path.join(tmp, 'platform-tools', 'adb');
+    } catch (e) { console.warn('adb could not be downloaded:', e.message); }
+  }
+  if (adbSrc && fs.existsSync(adbSrc)) {
+    fs.mkdirSync(path.join(RES, 'platform-tools'), { recursive: true });
+    fs.copyFileSync(adbSrc, path.join(RES, 'platform-tools', 'adb')); fs.chmodSync(path.join(RES, 'platform-tools', 'adb'), 0o755);
+    console.log('adb bundled from', adbSrc);
+  } else console.warn('no adb in the program: headsets on a cable will not be opened by it');
+}
 execFileSync(bundled, [path.join(LOBBY, 'launcher', 'v2-prune.mjs'), APPDIR, VERSION], { stdio: 'inherit' });
-for (const f of ['server.js', 'zone.js', 'keeper.js', 'game/motel.js', 'game/neon.js']) execFileSync(bundled, ['--check', path.join(APPDIR, f)]);
+for (const f of ['server.js', 'zone.js', 'keeper.js', 'pico-keeper.js', 'game/motel.js', 'game/neon.js']) execFileSync(bundled, ['--check', path.join(APPDIR, f)]);
 const left = [];
 const walkLeft = d => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const f = path.join(d, e.name); if (e.isDirectory()) walkLeft(f); else if (/-preview\.html$|^assets-test\.html$|\.test\.js$|ccby|\.prev\d?$/.test(e.name)) left.push(f); } };
 walkLeft(APPDIR);

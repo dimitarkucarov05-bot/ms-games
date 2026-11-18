@@ -18,6 +18,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { pipeline } from 'node:stream/promises';
 import { WebSocketServer } from 'ws';
 import { startKeeper, installHeadset as keeperInstall } from './keeper.js';
+import { startPicoKeeper } from './pico-keeper.js';
 // MS Games 2 (S2): the session engine and its stores live in lib/ (see research/ms-games-2-design.md sections 4, 6, 8, 9)
 import { createEngine } from './lib/session.js';
 import { createSettings, seasonFor } from './lib/settings.js';
@@ -324,6 +325,7 @@ function pageBuild() {
 }
 
 const headsets = new Map();     // id → данни за каската
+let picoKeeper = null;         // пазачът на Pico каските (pico-keeper.js)
 let keeper = null;              // пазачът на каските (keeper.js): тръгва в края на файла, когато всичко друго е готово
 const sockets = new Map();      // id → връзка
 let pendingCalibration = null;  // калибровка, чакаща „Потвърди" от оператора
@@ -824,7 +826,8 @@ function snapshot() {
     matchRunning: matchRunning(),
     mapVote: mapVoteView(),   // гласуването за карта (arena13) — виж PROTOCOL.md
     serverAddresses: lanAddresses(),
-    keeper: keeper ? keeper.status() : null,      // какво прави пазачът с всяка каска, до която стига през adb
+    keeper: keeper ? keeper.status() : null,
+    picoKeeper: picoKeeper ? picoKeeper.status() : null,      // Pico на кабела: тунел и страница (pico-keeper.js)      // какво прави пазачът с всяка каска, до която стига през adb
     play: { https: !!secureServer, port: TLS_PORT, path: '/play/' },
     zone: zoneView(),
     autoStart: arena.autoStart || null,      // сам пуска игра на всяка каска, която дойде          // начертаната зона: { poly, obstacles, hall, markers } в координатите на залата
@@ -1663,7 +1666,7 @@ async function onZoneAligned(id, h, msg) {
 // което е в Настройки → Физическо пространство → „Изчисти историята": трие данните на Guardian.
 // След него каската иска нова граница, а подравняването с нашата зона трябва да се повтори (две точки).
 
-const ADB = process.env.ADB || ['C:/Android/sdk/platform-tools/adb.exe'].find(p => fs.existsSync(p)) || 'adb';
+const ADB = process.env.ADB || ['C:/Android/sdk/platform-tools/adb.exe', path.join(os.homedir(), 'Library/Android/sdk/platform-tools/adb'), '/opt/homebrew/bin/adb', '/usr/local/bin/adb'].find(p => fs.existsSync(p)) || 'adb';
 function adbRun(args, timeout = 15000) {
   return new Promise(resolve => execFile(ADB, args, { timeout }, (err, out, errOut) => resolve({ ok: !err, out: String(out || '').trim(), err: String(errOut || err?.message || '').trim() })));
 }
@@ -2327,11 +2330,26 @@ async function onSetupPoints(id, h, points, floorY) {
 let usbList = [];
 const usbJobs = new Map();       // serial → { state, text, error }
 let usbAt = 0;
+function picoUsbRow(p) {
+  switch (p.state) {
+    case 'lobby': return { state: 'done', text: 'In the lobby. Nothing to install on a Pico.' };
+    case 'opened': return { state: 'done', text: 'The game is open in the headset. Put it on and press Enter.' };
+    case 'allow': return { state: 'allow', text: 'Put the headset on and allow USB debugging' };
+    case 'busy': return { state: 'plug', text: 'The headset is busy (boundary or LBE screen). Opening the game again in a moment.' };
+    default: return { state: 'plug', text: p.state === 'error' && p.detail ? p.detail : 'Looking at the headset' };
+  }
+}
 async function refreshUsb() {
   if (!fs.existsSync(ADB) && ADB !== 'adb') { usbList = []; return usbList; }
   const r = await adbRun(['devices', '-l'], 8000);
   const devs = r.ok ? parseAdbDevices(r.out) : [];
-  usbList = devs.map(d => { const j = usbJobs.get(d.serial); return { serial: d.serial, model: d.model, product: d.product, ...usbState(d, j), step: j?.step || null, pct: j?.pct ?? null }; });
+  // Pico на кабела не иска приложение: играта се отваря в браузъра му (pico-keeper.js) — на екрана „Headsets“ се вижда докъде е
+  const picos = new Map((picoKeeper?.status() || []).map(p => [p.serial, p]));
+  usbList = devs.map(d => {
+    const p = picos.get(d.serial);
+    if (p) return { serial: d.serial, model: p.model ? `PICO (${p.model})` : 'PICO', product: d.product, ...picoUsbRow(p), step: null, pct: null, pico: true };
+    const j = usbJobs.get(d.serial); return { serial: d.serial, model: d.model, product: d.product, ...usbState(d, j), step: j?.step || null, pct: j?.pct ?? null };
+  });
   for (const [serial, job] of usbJobs) if (!devs.some(d => d.serial === serial) && job.state !== 'installing') usbJobs.delete(serial);
   usbAt = Date.now();
   return usbList;
@@ -2855,6 +2873,13 @@ const api = {
     session = null;
     setServerMap(LOBBY_MAP);   // общата игра се връща в лобито
     pushState();
+    return { ok: true };
+  },
+
+  // Pico на кабела: отвори играта в каската пак, веднага
+  'POST /api/pico/open': ({ serial }) => {
+    if (!picoKeeper) throw new Error('Pico keeper is off');
+    for (const d of picoKeeper.status()) if (!serial || d.serial === serial) picoKeeper.reopen(d.serial);
     return { ok: true };
   },
 
@@ -3710,6 +3735,17 @@ if (process.env.NO_KEEPER !== '1' && process.env.ARENA_DEV !== '1' && fs.existsS
     align: id => api['POST /api/zone/align']({ headsetId: id }),
     say: (text, level) => { console.log('[keeper]', text); toast(text, level === 'warn' ? 'warn' : 'ok'); },
     pc: () => lanAddresses().find(a => a.startsWith('192.168.')) || lanAddresses()[0] || '',
+  });
+}
+
+// Пазачът на Pico каските (pico-keeper.js): Pico на кабела получава тунел към сървъра и играта се отваря в браузъра му — без Wi-Fi.
+// Върви в програмата за Mac (MSGAMES_LAUNCHER), с PICO_KEEPER=1 и на обикновен сървър; пробните сървъри (ARENA_DEV, NO_KEEPER без програмата) не го пускат.
+if (process.env.NO_PICO_KEEPER !== '1' && process.env.ARENA_DEV !== '1' && (process.env.NO_KEEPER !== '1' || process.env.MSGAMES_LAUNCHER === '1' || process.env.PICO_KEEPER === '1')) {
+  picoKeeper = startPicoKeeper({
+    adb: ADB, port: PORT, tlsPort: secureServer ? TLS_PORT : 0,
+    isOnline: serial => !!headsets.get(serial)?.online,
+    nameFor: serial => arena.names[serial] || `Pico ${headsetNumber(serial)}`,
+    say: (text, level) => { console.log('[pico]', text); toast(text, level === 'warn' ? 'warn' : 'ok'); },
   });
 }
 

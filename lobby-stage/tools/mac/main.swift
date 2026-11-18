@@ -103,6 +103,8 @@ final class Controller: NSObject, NSApplicationDelegate, NSMenuDelegate, WKNavig
         p.executableURL = nodeURL; p.arguments = ["server.js"]; p.currentDirectoryURL = appDir
         var e = env
         e["ARENA_DATA"] = dataDir.path; e["PORT"] = "\(httpPort)"; e["TLS_PORT"] = "\(tlsPort)"; e["NO_KEEPER"] = "1"; e["MSGAMES_LAUNCHER"] = "1"
+        let bundledAdb = resources.appendingPathComponent("platform-tools/adb")
+        if fm.isExecutableFile(atPath: bundledAdb.path) { e["ADB"] = bundledAdb.path }
         p.environment = e
         if let h = try? FileHandle(forWritingTo: logURL) { h.seekToEndOfFile(); h.write(Data("\n--- \(Date()) start ---\n".utf8)); p.standardOutput = h; p.standardError = h }
         p.terminationHandler = { [weak self] pr in DispatchQueue.main.async { self?.serverExited(pr) } }
