@@ -3,3 +3,6 @@ node_modules
 Thumbs.db
 data-dev*/
 *.log
+lobby/launcher/dist2/
+lobby/launcher/dist/
+lobby/launcher/tls-default/

@@ -204,6 +204,12 @@ App.views.headsets = function () {
         <div><dt>Version</dt><dd data-f="ver"></dd></div>
         <div><dt>Volume</dt><dd><span class="stepper"><button type="button" data-hc-vol="-10" aria-label="Quieter">−</button><span data-f="vol"></span><button type="button" data-hc-vol="10" aria-label="Louder">+</button></span></dd></div>
       </dl>
+      <div class="hc-lab" data-f="lab" hidden>
+        <div class="hc-lab-who"><b data-f="labname"></b><span data-f="labskin"></span></div>
+        <div class="hc-lab-send"><input type="number" inputmode="numeric" min="1" step="1" placeholder="HEX to send" aria-label="HEX to send" data-hex-in><button type="button" class="btn" data-hex-send>Send HEX</button>
+          <input type="password" inputmode="numeric" placeholder="Operator PIN" aria-label="Operator PIN" autocomplete="off" data-hex-pin hidden></div>
+        <div class="hc-lab-amts"><button type="button" class="btn btn-quiet" data-hex="50">50</button><button type="button" class="btn btn-quiet" data-hex="100">100</button><button type="button" class="btn btn-quiet" data-hex="200">200</button><button type="button" class="btn btn-quiet" data-hex="500">500</button></div>
+      </div>
       <footer class="hc-acts"><button type="button" class="btn" data-hc="identify">Identify</button><button type="button" class="btn" data-hc="recalibrate">Recalibrate</button><button type="button" class="btn" data-hc="bench"></button></footer>
     </article>`), (el, h) => {
     const p = parts(el), w = hsWord(h);
@@ -223,6 +229,8 @@ App.views.headsets = function () {
     attr(p.cal, 'data-tone', !h.desk && !hsAligned(h) ? 'warn' : null);
     text(p.ver, [h.model, h.appVersion || h.app ? `app ${h.appVersion || h.app}` : '', h.build ? `page ${h.build}` : ''].filter(Boolean).join(' · '));
     text(p.vol, h.volume ?? '');
+    show(p.lab, !!h.lab);      // LabCoin: the player tied to this headset, and HEX to send
+    if (h.lab) { text(p.labname, h.lab.username); text(p.labskin, h.lab.skin ? `Skin: ${h.lab.skin}` : ''); }
     for (const b of el.querySelectorAll('[data-hc], [data-hc-vol]')) b.disabled = !h.online && b.dataset.hc !== 'bench';
     text(el.querySelector('[data-hc="bench"]'), h.benched ? 'Back to games' : 'Bench');
   });
@@ -235,11 +243,36 @@ function hcMeter(p, k, v, charging) {
   attr(p[`m${k}`], 'data-low', has && v < 20 && !charging);
   attr(p[`m${k}`], 'data-charging', has && !!charging);
 }
+/** HEX by hand to the player tied to this headset: amount, a second press, the operator PIN (asked only when the server wants one). */
+function sendHex(btn, card, id, h) {
+  const inp = card.querySelector('[data-hex-in]'), pinIn = card.querySelector('[data-hex-pin]'), hex = Math.round(Number(inp.value));
+  if (!(hex >= 1)) { toast('Type how many HEX to send', 'warn'); inp.focus(); return; }
+  btn.dataset.confirm = `Press again: send ${hex} HEX`;
+  return twoStep(btn, async () => {
+    btn.disabled = true;
+    const pin = pinIn.value || sessionStorage.getItem('arena.hexPin') || '';
+    const r = await api('/api/labcoin/grant', { headsetId: id, hex, pin }, { quiet: true });
+    btn.disabled = false;
+    const d = r.data || {};
+    if (d.ok) {
+      if (pin) sessionStorage.setItem('arena.hexPin', pin);
+      inp.value = '';
+      toast(d.queued ? `${hex} HEX wait for LabCoin and are sent when it answers` : `Sent ${d.hex} HEX to ${h.lab?.username || 'the player'}${d.total != null ? `, now ${d.total}` : ''}`, d.queued ? 'warn' : 'ok');
+      return;
+    }
+    if (d.error === 'pin_required' || d.error === 'pin_wrong') { sessionStorage.removeItem('arena.hexPin'); show(pinIn, true); pinIn.value = ''; pinIn.focus(); }
+    toast(d.text || d.error || `Failed (${r.status})`, 'error');
+  });
+}
 $('hsGrid').addEventListener('click', async e => {
   const card = e.target.closest('[data-key]');
   if (!card) return;
   const id = card.dataset.key, h = (state.headsets || []).find(x => x.id === id);
   if (!h) return;
+  const hexPick = e.target.closest('[data-hex]');
+  if (hexPick) { card.querySelector('[data-hex-in]').value = hexPick.dataset.hex; return; }
+  const hexSend = e.target.closest('[data-hex-send]');
+  if (hexSend) return sendHex(hexSend, card, id, h);
   const nm = e.target.closest('[data-hc-rename]');
   if (nm) return editInPlace(nm, h.name, { label: 'Headset name', save: v => call('/api/headset/rename', { headsetId: id, name: v }).catch(() => {}) });
   const more = e.target.closest('[data-hc-more]');

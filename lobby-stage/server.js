@@ -2471,6 +2471,18 @@ const api = {
     labBind(target, r.player);
     return { ok: true, headset: labRow(target), player: labPublic(r.player), replaced: before && before.id !== r.player.id ? before.username : null };
   },
+  // HEX by hand from the console: the player must be tied to the headset; LabCoin decides the cap and journals it
+  'POST /api/labcoin/grant': async ({ headsetId, hex, pin, reason } = {}) => {
+    const hid = String(headsetId || ''), b = labBound.get(hid);
+    if (!b) return { ok: false, error: 'no_player', text: labErrorText('no_player') };
+    const r = await labcoin.grant({ playerId: b.player.id, username: b.player.username, hex, pin, reason, headsetId: hid });
+    if (r.ok && !r.queued) {
+      if (r.total != null) { b.player.hex = r.total; labSave(); }
+      toast(`+${r.hex} HEX for ${b.player.username}`, 'ok');
+      sendTo(hid, { type: 'message', text: `+${r.hex} HEX`, seconds: 8 });
+    }
+    return r;
+  },
   'POST /api/labcoin/release': ({ headsetId } = {}) => ({ ok: labRelease(String(headsetId || '')) }),
   'POST /api/labcoin/release-all': () => { const ids = [...labBound.keys()]; for (const id of ids) labRelease(id); return { ok: true, released: ids.length }; },
   'GET /api/labcoin/status': () => ({

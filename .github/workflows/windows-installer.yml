@@ -1,7 +1,7 @@
 # One installer, always current: every push to main builds MS-Games-Setup.exe on a Windows runner and republishes it as the
 # single "latest" release. Download: https://github.com/martiness14/ms-games/releases/latest/download/MS-Games-Setup.exe
-# (the repo is private: sign in to GitHub first, or use  gh release download latest -R martiness14/ms-games).
-# The Synty licence covers the LabCoin team only: keep the repo and its releases private.
+# (the repo is public since 18.11.2026 by Martin's decision: no sign-in needed).
+# NOTE: the Synty models in it are licensed to the LabCoin team only; that decision and its risk are the owner's.
 name: Windows installer
 
 on:
@@ -68,7 +68,7 @@ jobs:
           sha256sum MS-Games-Setup.exe | awk '{print $1"  MS-Games-Setup.exe"}' > MS-Games-Setup.exe.sha256
           NOTES="Built from commit ${GITHUB_SHA::7} on $(date -u '+%Y-%m-%d %H:%M UTC'). $(cat 'MS Games/app/BUILD.txt' 2>/dev/null)
           SHA-256: $(cut -d' ' -f1 MS-Games-Setup.exe.sha256)
-          Private: the installer contains Synty models licensed to the LabCoin team only."
+          Note: the installer contains Synty models licensed to the LabCoin team only (public repo by the owner's decision)."
           gh release delete latest --yes --cleanup-tag || true
           gh release create latest MS-Games-Setup.exe MS-Games-Setup.exe.sha256 --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest \
             --title "MS Games installer (always the latest)" --notes "$NOTES"

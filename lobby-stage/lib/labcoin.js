@@ -9,13 +9,15 @@
 //   POST /api/partner/arena/scan    { code, venue, headsetNumber }  -> { ok, player } | { ok: false, error }
 //   POST /api/partner/arena/result  { ref, venue, gameId, sessionId, playerId, points, kills, deaths, placement, teamWon, durationSec }
 //                                   -> { ok, hex, capped, total }   (idempotent by ref)
+//   POST /api/partner/arena/grant   { ref, venue, playerId, hex, reason, source: 'operator' }   HEX sent by hand from the console
+//                                   -> { ok, hex, total }           (idempotent by ref; LabCoin caps and journals it)
 
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { createMock, mockSkinSvg } from './labcoin-mock.js';
 
-export const ENDPOINTS = { scan: '/api/partner/arena/scan', result: '/api/partner/arena/result' };
+export const ENDPOINTS = { scan: '/api/partner/arena/scan', result: '/api/partner/arena/result', grant: '/api/partner/arena/grant' };
 
 const TEXT = {
   off: 'Връзката с LabCoin не е включена на този компютър',
@@ -30,6 +32,13 @@ const TEXT = {
   bad_answer: 'LabCoin върна нещо неразбираемо',
   no_headset: 'Няма каска, към която да се върже играчът',
   too_many: 'Твърде много проби за минута',
+  pin_required: 'Въведи PIN-а на оператора',
+  pin_wrong: 'Грешен PIN',
+  grant_off: 'Пращането на HEX не е включено: сложи "grantPin" в data/labcoin.json',
+  duplicate: 'Току-що е пратено същото. Изчакай малко',
+  not_supported: 'LabCoin още няма тази функция (HEX на ръка)',
+  no_player: 'На тази каска няма вързан играч',
+  hex_range: 'Грешно количество HEX',
 };
 export const errorText = code => TEXT[code] || `Грешка от LabCoin (${String(code).slice(0, 40)})`;
 const fail = (error, detail) => ({ ok: false, error, text: errorText(error), ...(detail ? { detail: String(detail).slice(0, 200) } : {}) });
@@ -45,7 +54,9 @@ export function loadConfig(dir, env = process.env) {
   if (!['live', 'mock', 'off'].includes(mode)) mode = key && baseUrl ? 'live' : (env.ARENA_DEV === '1' ? 'mock' : 'off');
   if (mode === 'live' && !(key && baseUrl)) mode = 'off';
   const ttlHours = Math.max(0.5, Math.min(48, Number(f.ttlHours) || 6));
-  return { mode, baseUrl, key, venue, ttlHours };
+  const maxGrantHex = Math.max(1, Math.min(10000, Math.round(Number(f.maxGrantHex) || 1000)));      // most HEX one hand-sent grant may carry
+  const grantPin = String(env.LABCOIN_GRANT_PIN || f.grantPin || '');      // the operator PIN for hand-sent HEX; live mode sends nothing without one
+  return { mode, baseUrl, key, venue, ttlHours, maxGrantHex, grantPin };
 }
 
 /** What a person types or what a QR holds -> the 6-character code, or null. */
@@ -143,7 +154,7 @@ export function createLabcoin({ dir, env = process.env, fetchImpl = (...a) => fe
   }
 
   async function call(c, kind, body) {
-    if (c.mode === 'mock') return { status: 200, json: kind === 'scan' ? mock.scan(body.code) : mock.result(body) };
+    if (c.mode === 'mock') return { status: 200, json: kind === 'scan' ? mock.scan(body.code) : kind === 'grant' ? mock.grant(body) : mock.result(body) };
     try {
       const res = await fetchImpl(c.baseUrl + ENDPOINTS[kind], {
         method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json', 'x-arena-key': c.key },
@@ -172,10 +183,11 @@ export function createLabcoin({ dir, env = process.env, fetchImpl = (...a) => fe
     return fail(typeof r.json?.error === 'string' && r.json.error ? r.json.error.replace(/[^\w-]/g, '').slice(0, 40) : 'bad_answer');
   }
 
-  function enqueue(payload, meta = {}) {
+  function enqueue(payload, meta = {}, kind = 'result', delayMs = 0) {
     if (!payload?.ref || done.has(payload.ref) || box.items.some(i => i.payload.ref === payload.ref)) return false;
-    box.items.push({ payload, meta, createdAt: now(), tries: 0, nextAt: 0, lastError: null });
+    box.items.push({ kind, payload, meta, createdAt: now(), tries: 0, nextAt: delayMs ? now() + delayMs : 0, lastError: null });
     save();
+    if (delayMs) return true;      // a queued grant was just tried: the next try is on the timer
     if (cfg().mode === 'mock') setImmediate(() => pump());
     else pump();
     return true;
@@ -189,13 +201,14 @@ export function createLabcoin({ dir, env = process.env, fetchImpl = (...a) => fe
     try {
       for (const it of [...box.items]) {
         if (it.nextAt > now()) continue;
-        const r = await call(c, 'result', it.payload);
+        const r = await call(c, it.kind || 'result', it.payload);
         it.tries++;
         if (r.status === 200 && r.json?.ok === true) {
           box.items = box.items.filter(x => x !== it);
           done.add(it.payload.ref);
           const answer = { hex: Number(r.json.hex) || 0, capped: !!r.json.capped, total: r.json.total ?? null };
-          recent.unshift({ at: now(), ref: it.payload.ref, playerId: it.payload.playerId, username: it.meta?.username || null, ...answer });
+          recent.unshift({ at: now(), kind: it.kind || 'result', ref: it.payload.ref, playerId: it.payload.playerId, username: it.meta?.username || null, ...answer });
+          if (it.kind === 'grant') audit({ ref: it.payload.ref, playerId: it.payload.playerId, username: it.meta?.username, hex: answer.hex, status: 'paid after retry' });
           recent.length = Math.min(recent.length, 20);
           lastError = null;
           save();
@@ -217,6 +230,50 @@ export function createLabcoin({ dir, env = process.env, fetchImpl = (...a) => fe
         save();
       }
     } finally { pumping = false; }
+  }
+
+  // ---------- HEX sent by hand from the console ----------
+  const grantsFile = path.join(dir, 'labcoin-grants.jsonl');
+  const lastGrant = new Map();     // `${playerId}:${hex}` -> time: the same grant twice within 5 s is a double click
+  function audit(entry) {
+    try { fs.mkdirSync(dir, { recursive: true }); fs.appendFileSync(grantsFile, JSON.stringify({ at: new Date(now()).toISOString(), ...entry }) + '\n'); }
+    catch (e) { log(`grant journal: ${e.message}`); }
+  }
+  const same = (a, b) => crypto.timingSafeEqual(crypto.createHash('sha256').update(String(a)).digest(), crypto.createHash('sha256').update(String(b)).digest());
+
+  /** The operator sends HEX to the player on a headset. Idempotent by ref, journaled here, capped and journaled again by LabCoin. */
+  async function grant({ playerId, username = null, hex, reason = '', pin = '', headsetId = null }) {
+    const c = cfg();
+    if (c.mode === 'off') return fail('off');
+    if (c.mode === 'live' && !c.grantPin) return fail('grant_off');
+    if (c.grantPin) {
+      if (!pin) return fail('pin_required');
+      if (!same(pin, c.grantPin)) { audit({ playerId, username, hex, status: 'wrong pin' }); return fail('pin_wrong'); }
+    }
+    const n = Math.round(Number(hex));
+    if (!(n >= 1 && n <= c.maxGrantHex)) return { ...fail('hex_range'), text: `От 1 до ${c.maxGrantHex} HEX наведнъж` };
+    const t = now(), dup = `${playerId}:${n}`;
+    if (t - (lastGrant.get(dup) || 0) < 5000) return fail('duplicate');
+    lastGrant.set(dup, t);
+    const payload = { ref: `${c.venue}:grant:${t}:${crypto.randomBytes(3).toString('hex')}:${playerId}`, venue: c.venue, playerId, hex: n, reason: str(String(reason || ''), 80), source: 'operator' };
+    const r = await call(c, 'grant', payload);
+    const base = { ref: payload.ref, playerId, username, hex: n, reason: payload.reason, headsetId };
+    if (r.status === 200 && r.json?.ok === true) {
+      const answer = { hex: Number(r.json.hex) || n, total: r.json.total ?? null, capped: !!r.json.capped };
+      done.add(payload.ref);
+      recent.unshift({ at: t, kind: 'grant', ref: payload.ref, playerId, username, ...answer }); recent.length = Math.min(recent.length, 20);
+      audit({ ...base, status: 'paid', ...answer });
+      return { ok: true, ...answer };
+    }
+    if (r.status === 401 || r.status === 403) { audit({ ...base, status: 'key rejected' }); return fail('key_rejected'); }
+    if (r.status === 404 || r.status === 405) { audit({ ...base, status: 'not supported by LabCoin' }); return fail('not_supported'); }
+    if (r.status === 0 || r.status === 408 || r.status === 429 || r.status >= 500) {      // not paid, not refused: it goes on the retry list
+      enqueue(payload, { headsetId, username }, 'grant', 5000);
+      audit({ ...base, status: 'queued', why: r.error || `HTTP ${r.status}` });
+      return { ok: true, queued: true, hex: n };
+    }
+    audit({ ...base, status: 'refused', why: r.json?.error || `HTTP ${r.status}` });
+    return fail(typeof r.json?.error === 'string' && r.json.error ? r.json.error.replace(/[^\w-]/g, '').slice(0, 40) : 'bad_answer');
   }
 
   function start() { if (!timer) { timer = setInterval(() => pump().catch(e => log(`pump: ${e.message}`)), 5000); timer.unref?.(); } }
@@ -248,8 +305,8 @@ export function createLabcoin({ dir, env = process.env, fetchImpl = (...a) => fe
 
   function status() {
     const c = cfg();
-    return { mode: c.mode, venue: c.venue, ttlHours: c.ttlHours, pending: box.items.length, failed: box.failed.length, lastError, recent: recent.slice(0, 8) };
+    return { mode: c.mode, venue: c.venue, ttlHours: c.ttlHours, grant: { pin: !!c.grantPin, max: c.maxGrantHex, enabled: c.mode === 'mock' || (c.mode === 'live' && !!c.grantPin) }, pending: box.items.length, failed: box.failed.length, lastError, recent: recent.slice(0, 8) };
   }
 
-  return { cfg, scan, enqueue, pump, start, skinImage, status, _box: () => box };
+  return { cfg, scan, enqueue, grant, pump, start, skinImage, status, _box: () => box };
 }

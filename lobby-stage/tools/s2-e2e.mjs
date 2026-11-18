@@ -307,6 +307,15 @@ async function labcoinPart() {
   const s2 = await state();
   check(['HotDogKing', 'LittleDino'].every(n => s2.headsets.some(h => h.name === n)) && s2.headsets.find(h => h.id === ids[0]).name === 'Marinka_77', 'final: Marinka_77, HotDogKing, LittleDino');
 
+  // HEX by hand from the console
+  const g1 = await post('/api/labcoin/grant', { headsetId: ids[1], hex: 120, reason: 'e2e' });
+  check(g1.ok && g1.hex === 120 && typeof g1.total === 'number', `hand-sent HEX paid (+${g1.hex}, balance ${g1.total})`);
+  check((await post('/api/labcoin/grant', { headsetId: ids[1], hex: 120 })).error === 'duplicate', 'the same grant at once is refused as a double click');
+  check((await post('/api/labcoin/grant', { headsetId: ids[1], hex: 0 })).error === 'hex_range', 'zero HEX is refused');
+  check((await post('/api/labcoin/grant', { headsetId: 'NOBODY', hex: 10 })).error === 'no_player', 'a headset without a player gets nothing');
+  check(sims[1].seen('message').some(m => m.text === '+120 HEX'), 'the headset was told: +120 HEX');
+  check((await get('/api/labcoin/status')).recent[0].kind === 'grant', 'the grant is in the recent list');
+
   await post('/api/flow/open', { kind: 'quick' });
   await wait(800);
   await post('/api/session/start', { gameId: 'motel', difficulty: 'normal', minutes: 10, headsetIds: ids, team: 'LabCoin Link', fast: true });

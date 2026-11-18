@@ -818,6 +818,18 @@ a.nav { text-decoration: none; }
 .hc-facts dt { color: var(--text-3); padding-right: 14px; }
 .hc-facts dd { text-align: right; overflow-wrap: anywhere; }
 .hc-facts dd[data-tone="warn"] { color: var(--warn); font-weight: 650; }
+/* LabCoin: the player tied to the headset, and HEX to send by hand */
+.hc-lab { display: grid; gap: 10px; padding: 12px; border: 1px solid var(--line-2); border-radius: 10px; background: var(--surface-2); }
+.hc-lab[hidden], .hc-lab input[hidden] { display: none; }
+.hc-lab-who { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.hc-lab-who b { font: 800 20px/1.1 var(--font-num); letter-spacing: 0.01em; }
+.hc-lab-who span { color: var(--text-3); font-size: 14px; }
+.hc-lab-send { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.hc-lab input { min-width: 0; height: 44px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--bg); color: var(--text); font: 700 18px var(--font-num); }
+.hc-lab input[data-hex-pin] { grid-column: 1 / -1; }
+.hc-lab-send .btn { height: 44px; }
+.hc-lab-amts { display: flex; gap: 8px; }
+.hc-lab-amts .btn { flex: 1; height: 38px; }
 .hc-acts { display: flex; flex-wrap: wrap; gap: 8px; }
 .hc-acts .btn { height: 44px; flex: 1; }
 .stepper { display: inline-flex; align-items: center; border: 1px solid var(--line-2); border-radius: var(--r-2); overflow: hidden; }

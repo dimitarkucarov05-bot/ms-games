@@ -192,3 +192,51 @@ test('live skin picture: fetched once, then served from the disk; only images up
   assert.equal(await lc.skinImage('8', 'https://cdn.example/8.png'), null);
   assert.equal(await lc.skinImage('7', 'http://other.example/7.png'), null, 'plain http from another host is refused');
 });
+
+test('HEX by hand: PIN, range, double click, a paid grant is journaled (and the PIN never is)', async () => {
+  const dir = tmp();
+  fs.writeFileSync(path.join(dir, 'labcoin.json'), JSON.stringify({ mode: 'mock', grantPin: '4242', maxGrantHex: 500 }));
+  let t = 1_000_000;
+  const lc = createLabcoin({ dir, env: {}, now: () => t });
+  const base = { playerId: 'mock-0001', username: 'HotDogKing', headsetId: 'SIM000' };
+  assert.equal((await lc.grant({ ...base, hex: 100 })).error, 'pin_required');
+  assert.equal((await lc.grant({ ...base, hex: 100, pin: 'nope9' })).error, 'pin_wrong');
+  assert.equal((await lc.grant({ ...base, hex: 0, pin: '4242' })).error, 'hex_range');
+  assert.match((await lc.grant({ ...base, hex: 501, pin: '4242' })).text, /500/);
+  const ok = await lc.grant({ ...base, hex: 200, pin: '4242', reason: 'prize' });
+  assert.deepEqual([ok.ok, ok.hex, ok.total], [true, 200, 18650]);
+  assert.equal((await lc.grant({ ...base, hex: 200, pin: '4242' })).error, 'duplicate', 'the same grant twice within 5 s is a double click');
+  t += 6000;
+  assert.equal((await lc.grant({ ...base, hex: 200, pin: '4242' })).total, 18850);
+  assert.equal(lc.status().recent[0].kind, 'grant');
+  const lines = fs.readFileSync(path.join(dir, 'labcoin-grants.jsonl'), 'utf8').trim().split('\n').map(l => JSON.parse(l));
+  assert.deepEqual(lines.map(l => l.status), ['wrong pin', 'paid', 'paid']);
+  assert.ok(lines.every(l => !('pin' in l) && !Object.values(l).some(v => v === '4242' || v === 'nope9')), 'no PIN in the journal');
+});
+
+test('HEX by hand, live: needs a PIN in the config; a network error is retried with the same ref and paid once; 404 and 401 are said plainly', async () => {
+  const dir = live(tmp());
+  const lc0 = createLabcoin({ dir, env: {}, fetchImpl: async () => jsonRes(200, {}) });
+  assert.equal((await lc0.grant({ playerId: 'u', hex: 10 })).error, 'grant_off', 'live without grantPin sends nothing');
+  fs.writeFileSync(path.join(dir, 'labcoin.json'), JSON.stringify({ baseUrl: 'https://lab.example', key: 'K3Y', venue: 'vr-test', mode: 'live', grantPin: '1234' }));
+  const calls = [], answers = [jsonRes(503, null), jsonRes(200, { ok: true, hex: 50, total: 99 }), jsonRes(404, {}), jsonRes(401, {}), jsonRes(200, { ok: false, error: 'player_banned' })];
+  let t = 5_000_000;
+  const lc = createLabcoin({ dir, env: {}, now: () => t, fetchImpl: async (url, opt) => { calls.push({ url, key: opt.headers['x-arena-key'], body: JSON.parse(opt.body) }); return answers.shift(); } });
+  const q = await lc.grant({ playerId: 'u-1', username: 'Nick', hex: 50, pin: '1234' });
+  assert.deepEqual([q.ok, q.queued], [true, true]);
+  assert.equal(calls[0].url, 'https://lab.example/api/partner/arena/grant');
+  assert.equal(calls[0].key, 'K3Y');
+  assert.deepEqual([calls[0].body.hex, calls[0].body.source, calls[0].body.playerId, calls[0].body.venue], [50, 'operator', 'u-1', 'vr-test']);
+  assert.ok(!('pin' in calls[0].body), 'the PIN never leaves the arena PC');
+  assert.equal(lc.status().pending, 1);
+  await lc.pump();
+  assert.equal(calls.length, 1, 'the retry waits for its timer');
+  t += 6000;
+  await lc.pump();
+  assert.equal(lc.status().pending, 0);
+  assert.equal(calls[1].body.ref, calls[0].body.ref, 'the retry carries the same ref: LabCoin pays once');
+  t += 6000; assert.equal((await lc.grant({ playerId: 'u-1', hex: 60, pin: '1234' })).error, 'not_supported');
+  t += 6000; assert.equal((await lc.grant({ playerId: 'u-1', hex: 70, pin: '1234' })).error, 'key_rejected');
+  t += 6000; assert.equal((await lc.grant({ playerId: 'u-1', hex: 80, pin: '1234' })).error, 'player_banned');
+  assert.equal(lc.status().pending, 0, 'refusals are not retried');
+});

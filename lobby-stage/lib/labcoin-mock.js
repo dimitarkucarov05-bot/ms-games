@@ -51,7 +51,19 @@ export function createMock({ now = Date.now } = {}) {
     return answer;
   }
 
-  return { scan, result };
+  /** HEX sent by hand: no daily game cap here (LabCoin decides that), idempotent by ref. */
+  function grant(body) {
+    if (!body || !body.ref || !body.playerId || !(Number(body.hex) >= 1)) return { ok: false, error: 'bad_request' };
+    if (grants.has(body.ref)) return grants.get(body.ref);
+    const base = Object.values(PLAYERS).find(p => p.id === body.playerId)?.hex ?? 0;
+    const total = (totals.get(body.playerId) ?? base) + Math.round(Number(body.hex));
+    totals.set(body.playerId, total);
+    const answer = { ok: true, hex: Math.round(Number(body.hex)), total };
+    grants.set(body.ref, answer);
+    return answer;
+  }
+
+  return { scan, result, grant };
 }
 
 /** A small flat picture for a mock skin: nothing is fetched, nothing is copied from anywhere. */
