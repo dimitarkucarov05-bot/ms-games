@@ -869,7 +869,7 @@ async function buildIntro(gameId) {
     try {
       ctx.assets ||= (await import('./lib/assets.js')).createAssets();
       const m = await import(path);
-      const made = await m.createMiniLobby({ THREE, root: introRoot, assets: ctx.assets, hall, rooms: zoneData?.rooms || null, scene, lights: { hemi, sun }, refreshShadows, startLook: false });
+      const made = await m.createMiniLobby({ THREE, root: introRoot, assets: ctx.assets, hall, rooms: hubRooms(), scene, lights: { hemi, sun }, refreshShadows, startLook: false });
       intro?.dispose(); intro = made; introFor = gameId;
       return made;
     } catch (e) { console.warn('[intro]', e); return null; } finally { introBuilding = null; }
@@ -1029,7 +1029,7 @@ async function endGame() {
 
 // ---------- зона: чертане от каската ----------
 
-const BUILD = 49;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
+const BUILD = 50;      // расте при промяна на кода в каската: пултът вижда дали страницата е презаредена
 // what this page understands of MS Games 2 (the server may fall back to older flows for pages without a cap)
 const CAPS = ['lobby', 'vote', 'countdown', 'pause', 'settings', 'results', 'endMessage', 'message', 'swapHands', 'calibrateHeight', 'setupPoints', 'identity', 'restartGame', 'recalibrate', 'bench', 'ping', 'lbeBounds'];
 let zoneMod = null, zoneEditor = null, zoneViewObj = null, zoneData = null;
@@ -1160,12 +1160,25 @@ function updateGuard(now, cam) {
 // ---------- стая за оглед в лобито ----------
 
 let showroom = null, showSig = '', showGen = 0;
+/** The rooms the lobby is built around, plus the box of the whole drawn zone: a big LBE area (thin or diagonal, 6 x 6 up to 25 x 25 m)
+ *  is covered by the station, so the player never walks out of it into the sky. */
+function hubRooms() {
+  const rooms = Array.isArray(zoneData?.rooms) && zoneData.rooms.length ? zoneData.rooms : null;
+  const poly = zoneData?.poly;
+  if (!Array.isArray(poly) || poly.length < 3) return rooms;
+  const xs = [], zs = [];
+  for (const p of poly) { const x = Array.isArray(p) ? +p[0] : +p?.x, z = Array.isArray(p) ? +p[1] : +p?.z; if (Number.isFinite(x) && Number.isFinite(z)) { xs.push(x); zs.push(z); } }
+  if (xs.length < 3) return rooms;
+  const x0 = Math.min(...xs), x1 = Math.max(...xs), z0 = Math.min(...zs), z1 = Math.max(...zs);
+  return [...(rooms || []), { x: (x0 + x1) / 2, z: (z0 + z1) / 2, w: x1 - x0, d: z1 - z0 }];
+}
 async function initShowroom() {
   // The waiting room is the MS Games hub (lobby/hub.js, a Sci-Fi Space station hall). ?lobby=camp shows The Motel's intro
   // camp (minilobby.js) as the waiting room instead, ?show=1 the old kitchen showroom, ?lobby=0 only the zone.
   const kitchen = qs.get('show') === '1', campOnly = qs.get('lobby') === 'camp';
   if (!kitchen && qs.get('lobby') === '0') return;
-  const sig = `${hall.w}x${hall.d}|${(zoneData?.rooms || []).map(r => [r.x, r.z, r.w, r.d].join(',')).join(';')}`;
+  const hubR = hubRooms();
+  const sig = `${hall.w}x${hall.d}|${(hubR || []).map(r => [r.x, r.z, r.w, r.d].map(v => Number(v).toFixed(2)).join(',')).join(';')}`;
   if (sig === showSig) return;
   showSig = sig;
   const gen = ++showGen;      // зоната идва, докато първото лоби още се строи: без този брояч оставаха две едно върху друго
@@ -1173,7 +1186,7 @@ async function initShowroom() {
     ctx.assets ||= (await import('./lib/assets.js')).createAssets();
     const mod = await import(kitchen ? './showroom.js' : campOnly ? './minilobby.js' : './lobby/hub.js');
     const make = kitchen ? mod.createShowroom : campOnly ? mod.createMiniLobby : mod.createHub;
-    const made = await make({ THREE, root: showRoot, assets: ctx.assets, hall, rooms: zoneData?.rooms || null, scene, lights: { hemi, sun }, refreshShadows, games: lobbyInfo?.games || [] });
+    const made = await make({ THREE, root: showRoot, assets: ctx.assets, hall, rooms: hubR, scene, lights: { hemi, sun }, refreshShadows, games: lobbyInfo?.games || [] });
     if (gen !== showGen) { try { made?.dispose?.(); } catch { /* вече го няма */ } return; }      // междувременно е тръгнало по-ново
     showroom?.dispose();
     showroom = made;
